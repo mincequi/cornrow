@@ -1,0 +1,6 @@
+LIBMDNS {
+        global:
+                mdns_*;
+        local:
+                *;
+};
