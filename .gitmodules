@@ -1,0 +1,3 @@
+[submodule "thirdparty/libmicrodns"]
+	path = thirdparty/libmicrodns
+	url = https://github.com/mincequi/libmicrodns.git
