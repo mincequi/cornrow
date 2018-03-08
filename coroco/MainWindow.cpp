@@ -17,6 +17,7 @@ void MainWindow::on_addButton_clicked()
 {
     ui->filterComboBox->addItem(QString::number(ui->filterComboBox->count()+1));
     enableFilterWidgets(true);
+    ui->addButton->setEnabled(ui->filterComboBox->count() < 12);
 
     ui->filterComboBox->setCurrentIndex(ui->filterComboBox->count()-1);
 }
@@ -25,10 +26,12 @@ void MainWindow::on_deleteButton_clicked()
 {
     ui->filterComboBox->removeItem(ui->filterComboBox->count()-1);
     enableFilterWidgets(ui->filterComboBox->count() != 0);
+    ui->addButton->setEnabled(true);
 }
 
 void MainWindow::enableFilterWidgets(bool enable)
 {
+    ui->deleteButton->setEnabled(enable);
     ui->filterComboBox->setEnabled(enable);
     ui->typeComboBox->setEnabled(enable);
     ui->freqSpinBox->setEnabled(enable);
