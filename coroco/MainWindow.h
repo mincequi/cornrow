@@ -15,7 +15,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+private slots:
+    void on_addButton_clicked();
+    void on_deleteButton_clicked();
+
 private:
+    void enableFilterWidgets(bool enable);
+
     Ui::MainWindow *ui;
 };
 

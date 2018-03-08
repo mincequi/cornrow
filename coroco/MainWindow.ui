@@ -15,7 +15,7 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
@@ -23,43 +23,10 @@
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,1,1,1">
-      <item row="1" column="2">
-       <widget class="QDoubleSpinBox" name="freqSpinBox">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>20.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>20000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>100.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_2">
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Type</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Gain</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Q</string>
+         <string>Frequency</string>
         </property>
        </widget>
       </item>
@@ -82,55 +49,11 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Frequency</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Filter</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <property name="topMargin">
          <number>0</number>
         </property>
-        <item>
-         <widget class="QToolButton" name="addButton">
-          <property name="text">
-           <string>+</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="deleteButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>-</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
        </layout>
       </item>
       <item row="1" column="1">
@@ -144,6 +67,46 @@
        <widget class="QComboBox" name="filterComboBox">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QDoubleSpinBox" name="freqSpinBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>20.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>20000.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>100.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Gain</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Type</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Q</string>
         </property>
        </widget>
       </item>
@@ -165,6 +128,47 @@
          <double>0.100000000000000</double>
         </property>
        </widget>
+      </item>
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Filter</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QToolButton" name="addButton">
+          <property name="text">
+           <string>+</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="deleteButton">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>-</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
