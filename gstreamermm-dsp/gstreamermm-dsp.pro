@@ -22,3 +22,9 @@ HEADERS += \
 
 CONFIG += link_pkgconfig
 PKGCONFIG += gstreamermm-1.0
+
+# common
+LIBS += -L$$OUT_PWD/../common/ -lcommon
+INCLUDEPATH += $$PWD/../common
+DEPENDPATH += $$PWD/../common
+PRE_TARGETDEPS += $$OUT_PWD/../common/libcommon.a
