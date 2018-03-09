@@ -70,25 +70,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QDoubleSpinBox" name="freqSpinBox">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>20.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>20000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>100.000000000000000</double>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="3">
        <widget class="QLabel" name="label_4">
         <property name="text">
@@ -107,25 +88,6 @@
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>Q</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QDoubleSpinBox" name="qSpinBox">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>50.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
         </property>
        </widget>
       </item>
@@ -170,6 +132,29 @@
         </item>
        </layout>
       </item>
+      <item row="1" column="2">
+       <widget class="QSpinBox" name="freqSpinBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="maximum">
+         <number>120</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QSpinBox" name="qSpinBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="maximum">
+         <number>50</number>
+        </property>
+        <property name="value">
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -180,7 +165,7 @@
      <x>0</x>
      <y>0</y>
      <width>664</width>
-     <height>22</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>

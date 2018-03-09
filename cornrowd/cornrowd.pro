@@ -8,12 +8,12 @@ SOURCES += main.cpp
 
 HEADERS +=
 
+#
+LIBS += -pthread
+
 # glibmm
 CONFIG += link_pkgconfig
 PKGCONFIG += glibmm-2.4
-
-#
-LIBS += -pthread
 
 # rpclib
 INCLUDEPATH += $$top_srcdir/thirdparty/rpclib/include/
