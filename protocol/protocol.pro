@@ -4,7 +4,7 @@ CONFIG += staticlib c++11 create_prl
 
 include(../cornrow.pri)
 
-#RPCLIB
+# rpclib
 INCLUDEPATH += $$top_srcdir/thirdparty/rpclib/include/
 LIBS    += -L$$top_srcdir/thirdparty/rpclib/build/ -lrpc
 

@@ -8,6 +8,7 @@
 
 #include "gstreamermm-dsp/GstDspWrapper.h"
 #include "protocol/ProtocolAdaptersV1.h"
+#include "zeroconf/ZeroconfWrapper.h"
 
 using namespace std;
 
@@ -24,6 +25,7 @@ int main()
     server.async_run();
 
 
+    ZeroconfWrapper zeroconf(port);
 
     mainloop->run();
 
