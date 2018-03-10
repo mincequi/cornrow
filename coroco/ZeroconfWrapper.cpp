@@ -54,6 +54,7 @@ void ZeroconfWrapper::callback(void *p_cookie, int status, const struct rr_entry
     if (status < 0) return;
 
     uint32_t address = 0;
+    const char* addressString = 0;
     uint16_t port = 0;
     char*    hostname = nullptr;
     auto entry = entries;
@@ -62,6 +63,7 @@ void ZeroconfWrapper::callback(void *p_cookie, int status, const struct rr_entry
         case RR_A:
             hostname = entry->name;
             address = entry->data.A.addr.s_addr;
+            addressString = entry->data.A.addr_str;
             break;
         case RR_SRV:
             port = entry->data.SRV.port;
@@ -75,8 +77,8 @@ void ZeroconfWrapper::callback(void *p_cookie, int status, const struct rr_entry
         entry = entry->next;
     }
 
-    if (address && port && hostname) {
+    if (addressString && address && port && hostname) {
         auto instance = static_cast<ZeroconfWrapper*>(p_cookie);
-        instance->m_callback(hostname, address, port);
+        instance->m_callback(hostname, addressString, port);
     }
 }

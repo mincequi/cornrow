@@ -24,11 +24,11 @@ private slots:
     void on_addButton_clicked();
     void on_deleteButton_clicked();
     void on_filterComboBox_currentIndexChanged(int i);
-    void on_freqSpinBox_valueChanged(int f);
+    void on_freqSpinBox_valueChanged(double f);
     void on_gainSpinBox_valueChanged(double g);
-    void on_qSpinBox_valueChanged(int q);
+    void on_qSpinBox_valueChanged(double q);
 
-    void onServiceDiscovered(QString hostname, quint32 address, quint16 port);
+    void onServiceDiscovered(QString hostname, QString address, quint16 port);
 
 private:
     void enableFilterWidgets(bool enable);

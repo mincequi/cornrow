@@ -10,7 +10,7 @@ class ZeroconfWrapper
 public:
     // Discover mode
     ZeroconfWrapper();
-    using DiscoverCallback = std::function<void(std::string hostname, uint32_t address, uint16_t port)>;
+    using DiscoverCallback = std::function<void(std::string hostname, std::string address, uint16_t port)>;
     explicit ZeroconfWrapper(DiscoverCallback callback);
     ~ZeroconfWrapper();
 

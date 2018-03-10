@@ -18,10 +18,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->freqSpinBox->setTable(twelfthOctaveBandsTable, 68);
     ui->qSpinBox->setTable(qTable, 17);
 
-    m_zeroconf.listen([this](std::string hostname, uint32_t address, uint16_t port) {
+    m_zeroconf.listen([this](std::string hostname, std::string address, uint16_t port) {
         QMetaObject::invokeMethod(this, "onServiceDiscovered", Qt::QueuedConnection,
                                   Q_ARG(QString, QString::fromStdString(hostname)),
-                                  Q_ARG(quint32, address),
+                                  Q_ARG(QString, QString::fromStdString(address)),
                                   Q_ARG(quint16, port));
     });
 }
@@ -43,6 +43,7 @@ void MainWindow::on_addButton_clicked()
     ui->filterComboBox->setCurrentIndex(ui->filterComboBox->count()-1);
 
     resizeFilters(ui->filterComboBox->count());
+    m_protocolAdapter->setFilterCount(ui->filterComboBox->count());
 }
 
 void MainWindow::on_deleteButton_clicked()
@@ -59,7 +60,7 @@ void MainWindow::on_filterComboBox_currentIndexChanged(int i)
 
 }
 
-void MainWindow::on_freqSpinBox_valueChanged(int d)
+void MainWindow::on_freqSpinBox_valueChanged(double d)
 {
     if (!m_protocolAdapter) return;
 
@@ -73,18 +74,18 @@ void MainWindow::on_gainSpinBox_valueChanged(double g)
     m_protocolAdapter->setFilterGain(ui->filterComboBox->currentIndex(), g);
 }
 
-void MainWindow::on_qSpinBox_valueChanged(int q)
+void MainWindow::on_qSpinBox_valueChanged(double q)
 {
     if (!m_protocolAdapter) return;
 
     m_protocolAdapter->setFilterQ(ui->filterComboBox->currentIndex(), q);
 }
 
-void MainWindow::onServiceDiscovered(QString hostname, quint32 address, quint16 port)
+void MainWindow::onServiceDiscovered(QString hostname, QString address, quint16 port)
 {
-    std::cerr << "QT thread: " << thread()->currentThreadId() << ", hostname: " << hostname.toStdString() << ", address: " << address << ", port: " << port << std::endl;
+    std::cerr << "QT thread: " << thread()->currentThreadId() << ", hostname: " << hostname.toStdString() << ", address: " << address.toStdString() << ", port: " << port << std::endl;
 
-    m_rpcClient = new rpc::client("192.168.26.139", port);
+    m_rpcClient = new rpc::client(address.toStdString(), port);
     m_rpcClient->set_timeout(500);
     m_protocolAdapter = new v1::ClientProtocolAdapter(*m_rpcClient);
 }
@@ -105,5 +106,3 @@ void MainWindow::resizeFilters(int count)
     m_gains.resize(count);
     m_qs.resize(count);
 }
-
-
