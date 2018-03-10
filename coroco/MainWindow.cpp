@@ -5,6 +5,8 @@
 
 #include <QThread>
 
+#include "common/Types.h"
+
 using namespace std::placeholders;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -12,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    ui->freqSpinBox->setTable(twelfthOctaveBandsTable, 68);
+    ui->qSpinBox->setTable(qTable, 17);
 
     m_zeroconf.listen([this](std::string hostname, uint32_t address, uint16_t port) {
         QMetaObject::invokeMethod(this, "onServiceDiscovered", Qt::QueuedConnection,
@@ -37,7 +42,7 @@ void MainWindow::on_addButton_clicked()
 
     ui->filterComboBox->setCurrentIndex(ui->filterComboBox->count()-1);
 
-    std::cerr << "thread: " << thread()->currentThreadId() << std::endl;
+    resizeFilters(ui->filterComboBox->count());
 }
 
 void MainWindow::on_deleteButton_clicked()
@@ -45,6 +50,13 @@ void MainWindow::on_deleteButton_clicked()
     ui->filterComboBox->removeItem(ui->filterComboBox->count()-1);
     enableFilterWidgets(ui->filterComboBox->count() != 0);
     ui->addButton->setEnabled(true);
+
+    resizeFilters(ui->filterComboBox->count());
+}
+
+void MainWindow::on_filterComboBox_currentIndexChanged(int i)
+{
+
 }
 
 void MainWindow::on_freqSpinBox_valueChanged(int d)
@@ -68,6 +80,15 @@ void MainWindow::on_qSpinBox_valueChanged(int q)
     m_protocolAdapter->setFilterQ(ui->filterComboBox->currentIndex(), q);
 }
 
+void MainWindow::onServiceDiscovered(QString hostname, quint32 address, quint16 port)
+{
+    std::cerr << "QT thread: " << thread()->currentThreadId() << ", hostname: " << hostname.toStdString() << ", address: " << address << ", port: " << port << std::endl;
+
+    m_rpcClient = new rpc::client("192.168.26.139", port);
+    m_rpcClient->set_timeout(500);
+    m_protocolAdapter = new v1::ClientProtocolAdapter(*m_rpcClient);
+}
+
 void MainWindow::enableFilterWidgets(bool enable)
 {
     ui->deleteButton->setEnabled(enable);
@@ -78,10 +99,11 @@ void MainWindow::enableFilterWidgets(bool enable)
     ui->qSpinBox->setEnabled(enable);
 }
 
-void MainWindow::onServiceDiscovered(QString hostname, quint32 address, quint16 port)
+void MainWindow::resizeFilters(int count)
 {
-    std::cerr << "QT thread: " << thread()->currentThreadId() << ", hostname: " << hostname.toStdString() << ", address: " << address << ", port: " << port << std::endl;
-
-    m_rpcClient = new rpc::client("192.168.26.139", port);
-    m_protocolAdapter = new v1::ClientProtocolAdapter(*m_rpcClient);
+    m_freqs.resize(count);
+    m_gains.resize(count);
+    m_qs.resize(count);
 }
+
+

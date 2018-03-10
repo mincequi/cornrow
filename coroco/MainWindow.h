@@ -23,19 +23,25 @@ public:
 private slots:
     void on_addButton_clicked();
     void on_deleteButton_clicked();
-    void on_freqSpinBox_valueChanged(int d);
-    void on_gainSpinBox_valueChanged(double d);
-    void on_qSpinBox_valueChanged(int d);
+    void on_filterComboBox_currentIndexChanged(int i);
+    void on_freqSpinBox_valueChanged(int f);
+    void on_gainSpinBox_valueChanged(double g);
+    void on_qSpinBox_valueChanged(int q);
 
     void onServiceDiscovered(QString hostname, quint32 address, quint16 port);
 
 private:
     void enableFilterWidgets(bool enable);
+    void resizeFilters(int);
 
     Ui::MainWindow *ui;
     ZeroconfWrapper m_zeroconf;
-    rpc::client*    m_rpcClient;
-    v1::ClientProtocolAdapter* m_protocolAdapter;
+    rpc::client*    m_rpcClient = nullptr;
+    v1::ClientProtocolAdapter* m_protocolAdapter = nullptr;
+
+    std::vector<int>    m_freqs;
+    std::vector<double> m_gains;
+    std::vector<int>    m_qs;
 };
 
 #endif // MAINWINDOW_H
