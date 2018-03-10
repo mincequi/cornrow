@@ -19,18 +19,23 @@ GstDspWrapper::GstDspWrapper()
 
     m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
     auto source = Gst::AudioTestSrc::create();
+    source->property_wave().set_value(Gst::AUDIO_TEST_SRC_WAVE_PINK_NOISE);
+    //auto source = Gst::ElementFactory::create_element("alsasrc");
     m_peq = Glib::RefPtr<GstDspPeq>::cast_dynamic(Gst::ElementFactory::create_element("peq", "peq0"));
     //auto biquad = Gst::ElementFactory::create_element("biquad", "biquad1");
     //auto crossover = Gst::ElementFactory::create_element("crossover");
     auto sink   = Gst::ElementFactory::create_element("autoaudiosink");
 
-    if (!m_pipeline || !source || !sink) {
+    if (!m_pipeline || !source || !sink || !m_peq) {
         std::cerr << "unable to create element" << std::endl;
     }
-    source->property_wave().set_value(Gst::AUDIO_TEST_SRC_WAVE_PINK_NOISE);
+
     m_pipeline->add(source)->add(sink)->add(m_peq); //->add(loudness)->add(crossover);
     source->link(m_peq)->link(sink);
+    //source->link(sink);
     m_pipeline->set_state(Gst::STATE_PLAYING);
+
+    std::cerr << "GstDspWrapper constructed" << std::endl;
 }
 
 GstDspWrapper::~GstDspWrapper()

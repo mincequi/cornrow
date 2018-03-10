@@ -2,6 +2,8 @@ TEMPLATE = lib
 CONFIG -= qt
 CONFIG += staticlib c++11 create_prl
 
+DEFINES += ASIO_STANDALONE
+
 SOURCES += \
     ZeroconfWrapper.cpp
 

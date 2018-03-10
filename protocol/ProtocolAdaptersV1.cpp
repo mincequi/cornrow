@@ -1,5 +1,6 @@
 #include "ProtocolAdaptersV1.h"
 
+#include <cmath>
 #include <iostream>
 
 #include <rpc/client.h>

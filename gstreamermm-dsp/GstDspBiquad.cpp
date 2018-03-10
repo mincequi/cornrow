@@ -1,6 +1,7 @@
 #include "GstDspBiquad.h"
 
 #include <assert.h>
+#include <cmath>
 #include <iostream>
 
 GstDspBiquad::GstDspBiquad(GstElement *obj)
