@@ -20,10 +20,12 @@ include(../cornrow.pri)
 
 SOURCES += main.cpp\
         MainWindow.cpp \
-    ZeroconfWrapper.cpp
+    ZeroconfWrapper.cpp \
+    TableSpinBox.cpp
 
 HEADERS += MainWindow.h \
-    ZeroconfWrapper.h
+    ZeroconfWrapper.h \
+    TableSpinBox.h
 
 FORMS   += MainWindow.ui
 

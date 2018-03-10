@@ -56,6 +56,8 @@ void ClientProtocolAdapter::setFilterCount(uint8_t i)
         using err_t = std::tuple<int, std::string>;
         auto err = e.get_error().as<err_t>();
         std::cout << "[error " << std::get<0>(err) << "]: " << std::get<1>(err) << std::endl;
+    }  catch (rpc::timeout &e) {
+        std::cout << e.what() << std::endl;
     }
 }
 
@@ -68,6 +70,8 @@ void ClientProtocolAdapter::setFilterType(uint8_t i, Type t)
         using err_t = std::tuple<int, std::string>;
         auto err = e.get_error().as<err_t>();
         std::cout << "[error " << std::get<0>(err) << "]: " << std::get<1>(err) << std::endl;
+    }  catch (rpc::timeout &e) {
+        std::cout << e.what() << std::endl;
     }
 }
 
@@ -80,6 +84,8 @@ void ClientProtocolAdapter::setFilterFreq(uint8_t i, uint8_t f)
         using err_t = std::tuple<int, std::string>;
         auto err = e.get_error().as<err_t>();
         std::cout << "[error " << std::get<0>(err) << "]: " << std::get<1>(err) << std::endl;
+    } catch (rpc::timeout &e) {
+        std::cout << e.what() << std::endl;
     }
 }
 
@@ -92,6 +98,8 @@ void ClientProtocolAdapter::setFilterGain(uint8_t i, float g)
         using err_t = std::tuple<int, std::string>;
         auto err = e.get_error().as<err_t>();
         std::cout << "[error " << std::get<0>(err) << "]: " << std::get<1>(err) << std::endl;
+    } catch (rpc::timeout &e) {
+        std::cout << e.what() << std::endl;
     }
 }
 
@@ -104,6 +112,8 @@ void ClientProtocolAdapter::setFilterQ(uint8_t i, uint8_t q)
         using err_t = std::tuple<int, std::string>;
         auto err = e.get_error().as<err_t>();
         std::cout << "[error " << std::get<0>(err) << "]: " << std::get<1>(err) << std::endl;
+    } catch (rpc::timeout &e) {
+        std::cout << e.what() << std::endl;
     }
 }
 
