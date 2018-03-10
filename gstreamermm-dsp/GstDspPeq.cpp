@@ -29,7 +29,7 @@ void GstDspPeq::class_init(Gst::ElementClass<GstDspPeq> *klass)
                 "audio/x-raw, "
                 "format=(string)%1, "
                 "rate=(int){44100,48000}, "
-                "channels=(int)[1,2], "
+                "channels=(int)2, "
                 "layout=(string)interleaved", GST_AUDIO_NE(F32));
     auto caps = Gst::Caps::create_from_string(capsString);
 

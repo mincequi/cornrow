@@ -18,21 +18,29 @@ GstDspWrapper::GstDspWrapper()
     }
 
     m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
-    auto source = Gst::AudioTestSrc::create();
-    source->property_wave().set_value(Gst::AUDIO_TEST_SRC_WAVE_PINK_NOISE);
-    //auto source = Gst::ElementFactory::create_element("alsasrc");
+    auto source = Gst::AlsaSrc::create();
+    auto sink = Gst::AlsaSink::create();
     m_peq = Glib::RefPtr<GstDspPeq>::cast_dynamic(Gst::ElementFactory::create_element("peq", "peq0"));
-    //auto biquad = Gst::ElementFactory::create_element("biquad", "biquad1");
     //auto crossover = Gst::ElementFactory::create_element("crossover");
-    auto sink   = Gst::ElementFactory::create_element("autoaudiosink");
+
+    auto convert1 = Gst::AudioConvert::create();
+    auto convert2 = Gst::AudioConvert::create();
 
     if (!m_pipeline || !source || !sink || !m_peq) {
         std::cerr << "unable to create element" << std::endl;
     }
 
-    m_pipeline->add(source)->add(sink)->add(m_peq); //->add(loudness)->add(crossover);
-    source->link(m_peq)->link(sink);
-    //source->link(sink);
+    m_pipeline->add(source)->add(sink)->add(m_peq)->add(convert1)->add(convert2); //->add(loudness)->add(crossover);
+
+    Glib::ustring capsString = Glib::ustring::compose(
+                "audio/x-raw, "
+                "format=(string)%1, "
+                "rate=(int){44100,48000}, "
+                "channels=(int)2, "
+                "layout=(string)interleaved", GST_AUDIO_NE(S16));
+    auto caps = Gst::Caps::create_from_string(capsString);
+
+    source->link(convert1)->link(m_peq)->link(convert2)->link(sink, caps);
     m_pipeline->set_state(Gst::STATE_PLAYING);
 
     std::cerr << "GstDspWrapper constructed" << std::endl;
