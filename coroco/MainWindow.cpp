@@ -34,57 +34,76 @@ MainWindow::~MainWindow()
     if (m_rpcClient) delete m_rpcClient;
 }
 
+void MainWindow::on_portBox_valueChanged(int i)
+{
+    onServiceDiscovered("Bla", "127.0.0.1", i);
+}
+
 void MainWindow::on_addButton_clicked()
 {
+    m_filters.push_back({});
+
     ui->filterComboBox->addItem(QString::number(ui->filterComboBox->count()+1));
     enableFilterWidgets(true);
     ui->addButton->setEnabled(ui->filterComboBox->count() < 12);
 
     ui->filterComboBox->setCurrentIndex(ui->filterComboBox->count()-1);
 
-    resizeFilters(ui->filterComboBox->count());
+    if (!m_protocolAdapter) return;
     m_protocolAdapter->setFilterCount(ui->filterComboBox->count());
 }
 
 void MainWindow::on_deleteButton_clicked()
 {
+    m_filters.pop_back();
+
     ui->filterComboBox->removeItem(ui->filterComboBox->count()-1);
     enableFilterWidgets(ui->filterComboBox->count() != 0);
     ui->addButton->setEnabled(true);
 
-    resizeFilters(ui->filterComboBox->count());
+    if (!m_protocolAdapter) return;
+    m_protocolAdapter->setFilterCount(ui->filterComboBox->count());
 }
 
 void MainWindow::on_filterComboBox_currentIndexChanged(int i)
 {
+    if (i >= m_filters.size()) return;
 
+    ui->freqSpinBox->setIndex(m_filters.at(i).f);
+    ui->gainSpinBox->setValue(m_filters.at(i).g);
+    ui->qSpinBox->setIndex(m_filters.at(i).q);
 }
 
-void MainWindow::on_freqSpinBox_valueChanged(double d)
+void MainWindow::on_freqSpinBox_valueChanged(double)
 {
-    if (!m_protocolAdapter) return;
+    m_filters.at(ui->filterComboBox->currentIndex()).f = ui->freqSpinBox->index();
 
-    m_protocolAdapter->setFilterFreq(ui->filterComboBox->currentIndex(), d);
+    if (!m_protocolAdapter) return;
+    m_protocolAdapter->setFilterFreq(ui->filterComboBox->currentIndex(), ui->freqSpinBox->index());
 }
 
 void MainWindow::on_gainSpinBox_valueChanged(double g)
 {
-    if (!m_protocolAdapter) return;
+    m_filters.at(ui->filterComboBox->currentIndex()).g = g;
 
+    if (!m_protocolAdapter) return;
     m_protocolAdapter->setFilterGain(ui->filterComboBox->currentIndex(), g);
 }
 
-void MainWindow::on_qSpinBox_valueChanged(double q)
+void MainWindow::on_qSpinBox_valueChanged(double)
 {
-    if (!m_protocolAdapter) return;
+    m_filters.at(ui->filterComboBox->currentIndex()).q = ui->qSpinBox->index();
 
-    m_protocolAdapter->setFilterQ(ui->filterComboBox->currentIndex(), q);
+    if (!m_protocolAdapter) return;
+    m_protocolAdapter->setFilterQ(ui->filterComboBox->currentIndex(), ui->qSpinBox->index());
 }
 
 void MainWindow::onServiceDiscovered(QString hostname, QString address, quint16 port)
 {
     std::cerr << "QT thread: " << thread()->currentThreadId() << ", hostname: " << hostname.toStdString() << ", address: " << address.toStdString() << ", port: " << port << std::endl;
 
+    if (m_protocolAdapter) delete m_protocolAdapter;
+    if (m_rpcClient) delete m_rpcClient;
     m_rpcClient = new rpc::client(address.toStdString(), port);
     m_rpcClient->set_timeout(500);
     m_protocolAdapter = new v1::ClientProtocolAdapter(*m_rpcClient);
@@ -98,11 +117,4 @@ void MainWindow::enableFilterWidgets(bool enable)
     ui->freqSpinBox->setEnabled(enable);
     ui->gainSpinBox->setEnabled(enable);
     ui->qSpinBox->setEnabled(enable);
-}
-
-void MainWindow::resizeFilters(int count)
-{
-    m_freqs.resize(count);
-    m_gains.resize(count);
-    m_qs.resize(count);
 }

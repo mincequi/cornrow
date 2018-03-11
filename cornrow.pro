@@ -17,4 +17,4 @@ protocol.subdir         = protocol
 zeroconf.subdir         = zeroconf
 
 cornrowd.depends        = common gstreamermm-dsp protocol zeroconf
-coroco.depends          = protocol zeroconf
+coroco.depends          = protocol

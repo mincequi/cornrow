@@ -7,6 +7,8 @@
 #include "GstDspPeq.h"
 #include "GstDspPlugin.h"
 
+using namespace std;
+
 GstDspWrapper::GstDspWrapper()
 {
     Gst::init();
@@ -14,12 +16,19 @@ GstDspWrapper::GstDspWrapper()
                                       "dsp", "Plugin offering DSP functionalities",
                                       sigc::ptr_fun(&GstDspPlugin::registerPlugin),
                                       "0.1.0", "Proprietary", "", "", "")) {
-        std::cerr << "Error registering plugin" << std::endl;
+        cerr << "Error registering plugin" << std::endl;
     }
 
     m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
+
+#ifdef __linux__
     auto source = Gst::AlsaSrc::create();
     auto sink = Gst::AlsaSink::create();
+#else
+    auto source = Gst::ElementFactory::create_element("autoaudiosrc");
+    auto sink = Gst::ElementFactory::create_element("autoaudiosink");
+#endif
+
     m_peq = Glib::RefPtr<GstDspPeq>::cast_dynamic(Gst::ElementFactory::create_element("peq", "peq0"));
     //auto crossover = Gst::ElementFactory::create_element("crossover");
 
@@ -42,8 +51,6 @@ GstDspWrapper::GstDspWrapper()
 
     source->link(convert1)->link(m_peq)->link(convert2)->link(sink, caps);
     m_pipeline->set_state(Gst::STATE_PLAYING);
-
-    std::cerr << "GstDspWrapper constructed" << std::endl;
 }
 
 GstDspWrapper::~GstDspWrapper()
@@ -52,6 +59,7 @@ GstDspWrapper::~GstDspWrapper()
 
 void GstDspWrapper::setPassthrough(bool passthrough)
 {
+    cout << "passthrough: " << passthrough << endl;
     m_peq->set_passthrough(passthrough);
 }
 
@@ -62,24 +70,28 @@ void GstDspWrapper::setFilterCount(uint8_t i)
 
 void GstDspWrapper::setFilterType(uint8_t i, Type type)
 {
+    cout << "setFilterType[" << static_cast<uint32_t>(i) << "]: " << static_cast<uint32_t>(type) << endl;
     increaseFilterCount(i+1);
     m_peq->biquads()[i]->type().set_value(type);
 }
 
 void GstDspWrapper::setFilterFreq(uint8_t i, float f)
 {
+    cout << "setFilterFreq[" << static_cast<uint32_t>(i) << "]: " << f << endl;
     increaseFilterCount(i+1);
     m_peq->biquads()[i]->freq().set_value(f);
 }
 
 void GstDspWrapper::setFilterGain(uint8_t i, float g)
 {
+    cout << "setFilterGain[" << static_cast<uint32_t>(i) << "]: " << g << endl;
     increaseFilterCount(i+1);
     m_peq->biquads()[i]->gain().set_value(g);
 }
 
 void GstDspWrapper::setFilterQ(uint8_t i, float q)
 {
+    cout << "setFilterQ[" << static_cast<uint32_t>(i) << "]: " << q << endl;
     increaseFilterCount(i+1);
     m_peq->biquads()[i]->q().set_value(q);
 }

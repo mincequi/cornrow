@@ -24,7 +24,7 @@ public:
 
 private:
     virtual bool setup_vfunc(const Gst::AudioInfo& info) override;
-    virtual Gst::FlowReturn transform_vfunc(const Glib::RefPtr<Gst::Buffer>& inbuf, const Glib::RefPtr<Gst::Buffer>& outbuf);
+    virtual Gst::FlowReturn transform_vfunc(const Glib::RefPtr<Gst::Buffer>& inbuf, const Glib::RefPtr<Gst::Buffer>& outbuf) override;
     virtual Gst::FlowReturn transform_ip_vfunc(const Glib::RefPtr<Gst::Buffer>& buf) override;
 
     void onFilterCountChanged();

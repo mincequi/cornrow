@@ -11,7 +11,9 @@ public:
 
     virtual void stepBy(int steps) override;
 
-    void setTable(const std::vector<float>& table, int index);
+    void setTable(const std::vector<float>& table, int i);
+    int index() const;
+    void setIndex(int i);
 
 private:
     std::vector<float>  m_table;

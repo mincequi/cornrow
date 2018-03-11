@@ -26,7 +26,7 @@ ZeroconfWrapper::ZeroconfWrapper(DiscoverCallback callback)
 ZeroconfWrapper::~ZeroconfWrapper()
 {
     doStop = true;
-    m_thread.join();
+    if (m_thread.joinable()) m_thread.join();
 
     if (m_mdns_ctx) {
         mdns_destroy(m_mdns_ctx);

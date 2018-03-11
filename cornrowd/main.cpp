@@ -24,11 +24,11 @@ int main()
     v1::ServerProtocolAdapter h(server, gst);
     server.async_run();
 
-
     ZeroconfWrapper zeroconf(port);
+
+    cout << "port: " << port << endl;
 
     mainloop->run();
 
-    cout << "Hello World!" << endl;
     return 0;
 }
