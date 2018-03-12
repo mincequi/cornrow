@@ -7,8 +7,9 @@ GstDspPeq::GstDspPeq(GstAudioFilter *obj)
       Gst::AudioFilter(obj),
       m_filterCount(*this, "filter-count", 1)
 {
-    set_in_place(false);
-    set_passthrough(false);
+    set_in_place(true);
+    GST_BASE_TRANSFORM_GET_CLASS(Gst::BaseTransform::gobj())->transform_ip = &transform_ip;
+
     filterCount().signal_changed().connect(sigc::mem_fun(*this, &GstDspPeq::onFilterCountChanged));
     onFilterCountChanged();
 }
@@ -65,40 +66,35 @@ bool GstDspPeq::setup_vfunc(const Gst::AudioInfo& info)
     return true;
 }
 
-Gst::FlowReturn GstDspPeq::transform_vfunc(const Glib::RefPtr<Gst::Buffer>& inbuf, const Glib::RefPtr<Gst::Buffer>& outbuf)
+GstFlowReturn GstDspPeq::transform_ip(GstBaseTransform* self, GstBuffer* buf)
 {
-    Gst::MapInfo inMap;
-    Gst::MapInfo outMap;
-
-    inbuf->map(inMap, Gst::MAP_READ);
-    outbuf->map(outMap, Gst::MAP_WRITE);
-
-    float* inData = (float*)(inMap.get_data());
-    float* outData = (float*)(outMap.get_data());
-    uint   sampleCount = inMap.get_size()/sizeof(float);
-
-    for (uint i = 0; i < sampleCount; ++i) {
-        outData[i] = inData[i];
+    Glib::ObjectBase *const obj_base = static_cast<Glib::ObjectBase*>(Glib::ObjectBase::_get_current_wrapper((GObject*)self));
+    GstDspPeq *const obj = dynamic_cast<GstDspPeq* const>(obj_base);
+    if (obj) // This can be NULL during destruction.
+    {
+        // Call the virtual member method, which derived classes might override.
+        obj->process(buf);
     }
+
+    return GST_FLOW_OK;
+}
+
+void GstDspPeq::process(GstBuffer* buf)
+{
+    GstMapInfo map;
+    gst_buffer_map(buf, &map, GST_MAP_READWRITE);
+
+    float* data = (float*)(map.data);
+    uint   sampleCount = map.size/sizeof(float);
 
     m_mutex.lock();
     for (auto& biquad : m_biquads) {
         biquad->update();
-        biquad->process(outData, sampleCount);
+        biquad->process(data, sampleCount);
     }
     m_mutex.unlock();
 
-    inbuf->unmap(inMap);
-    outbuf->unmap(outMap);
-
-    return Gst::FlowReturn::FLOW_OK;
-}
-
-Gst::FlowReturn GstDspPeq::transform_ip_vfunc(const Glib::RefPtr<Gst::Buffer>& /*buf*/)
-{
-    std::cerr << "transform_ip" << std::endl;
-
-    return Gst::FlowReturn::FLOW_OK;
+    gst_buffer_unmap(buf, &map);
 }
 
 void GstDspPeq::onFilterCountChanged()

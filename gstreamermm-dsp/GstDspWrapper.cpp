@@ -30,16 +30,16 @@ GstDspWrapper::GstDspWrapper()
 #endif
 
     m_peq = Glib::RefPtr<GstDspPeq>::cast_dynamic(Gst::ElementFactory::create_element("peq", "peq0"));
-    //auto crossover = Gst::ElementFactory::create_element("crossover");
+    auto crossover = Gst::ElementFactory::create_element("crossover");
 
     auto convert1 = Gst::AudioConvert::create();
     auto convert2 = Gst::AudioConvert::create();
 
-    if (!m_pipeline || !source || !sink || !m_peq) {
+    if (!m_pipeline || !source || !sink) {
         std::cerr << "unable to create element" << std::endl;
     }
 
-    m_pipeline->add(source)->add(sink)->add(m_peq)->add(convert1)->add(convert2); //->add(loudness)->add(crossover);
+    m_pipeline->add(source)->add(sink)->add(m_peq)->add(crossover)->add(convert1)->add(convert2); //->add(loudness);
 
     Glib::ustring capsString = Glib::ustring::compose(
                 "audio/x-raw, "
@@ -49,7 +49,7 @@ GstDspWrapper::GstDspWrapper()
                 "layout=(string)interleaved", GST_AUDIO_NE(S16));
     auto caps = Gst::Caps::create_from_string(capsString);
 
-    source->link(convert1)->link(m_peq)->link(convert2)->link(sink, caps);
+    source->link(convert1)->link(m_peq)/*->link(crossover)*/->link(convert2)->link(sink, caps);
     m_pipeline->set_state(Gst::STATE_PLAYING);
 }
 
