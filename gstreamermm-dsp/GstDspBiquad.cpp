@@ -46,11 +46,11 @@ void GstDspBiquad::update()
         double alpha2 = alpha/A;
         double a0     = 1.0 + alpha2;
 
-        m_b0 = ( 1.0 + alpha1 ) / a0;
-        m_b1 = (-2.0 * cos(w0)) / a0;
-        m_b2 = ( 1.0 - alpha1 ) / a0;
-        m_a1 = m_b1;
-        m_a2 = ( 1.0 - alpha2 ) / a0;
+        m_biquad.b0 = ( 1.0 + alpha1 ) / a0;
+        m_biquad.b1 = (-2.0 * cos(w0)) / a0;
+        m_biquad.b2 = ( 1.0 - alpha1 ) / a0;
+        m_biquad.a1 = m_biquad.b1;
+        m_biquad.a2 = ( 1.0 - alpha2 ) / a0;
 
         break;
     }
@@ -74,7 +74,7 @@ void GstDspBiquad::process(float* in, uint sampleCount)
     for (uint i = 0; i < frameCount; ++i) {
         for (auto& c : m_channelHistory) {
             float out;
-            out = m_b0**in + m_b1*c.x1 + m_b2*c.x2 - m_a1*c.y1 - m_a2*c.y2;
+            out = m_biquad.b0**in + m_biquad.b1*c.x1 + m_biquad.b2*c.x2 - m_biquad.a1*c.y1 - m_biquad.a2*c.y2;
             c.y2 = c.y1;
             c.y1 = out;
             c.x2 = c.x1;

@@ -1,6 +1,5 @@
 #include "Types.h"
 
-Types::Types()
+Filter::~Filter()
 {
-
 }

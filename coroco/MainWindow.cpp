@@ -3,9 +3,14 @@
 
 #include <iostream>
 
+#include <QGraphicsItemGroup>
 #include <QThread>
 
+#include <KPlotWidget>
+#include <KPlotAxis>
+
 #include "common/Types.h"
+#include "common/Util.h"
 
 using namespace std::placeholders;
 
@@ -17,6 +22,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->freqSpinBox->setTable(twelfthOctaveBandsTable, 68);
     ui->qSpinBox->setTable(qTable, 17);
+
+    ui->plotWidget->axis(KPlotWidget::TopAxis)->setVisible(false);
+    ui->plotWidget->setLimits(0.0, 120.0, -27.0, 9.0);
+    ui->plotWidget->axis(KPlotWidget::LeftAxis)->setMajorTickMarks( {-24.0, -18.0, -12.0, -6.0, 0.0, 6.0} );
+    ui->plotWidget->axis(KPlotWidget::LeftAxis)->setMinorTickMarks( {-21.0, -15.0, -9.0, -3.0, 3.0} );
+    ui->plotWidget->axis(KPlotWidget::RightAxis)->setMajorTickMarks( {-24.0, -18.0, -12.0, -6.0, 0.0, 6.0} );
+    ui->plotWidget->axis(KPlotWidget::RightAxis)->setMinorTickMarks( {-21.0, -15.0, -9.0, -3.0, 3.0} );
+    ui->plotWidget->axis(KPlotWidget::RightAxis)->setTickLabelsShown(true);
+    ui->plotWidget->axis(KPlotWidget::BottomAxis)->setMajorTickMarks( {12.0, 36.0, 60.0, 84.0, 108.0} );
+    ui->plotWidget->axis(KPlotWidget::BottomAxis)->setMinorTickMarks({});
+    ui->plotWidget->setBackgroundColor(palette().color(backgroundRole()));
+    ui->plotWidget->setForegroundColor(palette().color(foregroundRole()));
+    ui->plotWidget->setAxesFontSize(font().pointSize());
 
     m_zeroconf.listen([this](std::string hostname, std::string address, uint16_t port) {
         QMetaObject::invokeMethod(this, "onServiceDiscovered", Qt::QueuedConnection,
@@ -77,6 +95,7 @@ void MainWindow::on_filterComboBox_currentIndexChanged(int i)
 void MainWindow::on_freqSpinBox_valueChanged(double)
 {
     m_filters.at(ui->filterComboBox->currentIndex()).f = ui->freqSpinBox->index();
+    updateCurrentFilter();
 
     if (!m_protocolAdapter) return;
     m_protocolAdapter->setFilterFreq(ui->filterComboBox->currentIndex(), ui->freqSpinBox->index());
@@ -85,6 +104,7 @@ void MainWindow::on_freqSpinBox_valueChanged(double)
 void MainWindow::on_gainSpinBox_valueChanged(double g)
 {
     m_filters.at(ui->filterComboBox->currentIndex()).g = g;
+    updateCurrentFilter();
 
     if (!m_protocolAdapter) return;
     m_protocolAdapter->setFilterGain(ui->filterComboBox->currentIndex(), g);
@@ -93,6 +113,7 @@ void MainWindow::on_gainSpinBox_valueChanged(double g)
 void MainWindow::on_qSpinBox_valueChanged(double)
 {
     m_filters.at(ui->filterComboBox->currentIndex()).q = ui->qSpinBox->index();
+    updateCurrentFilter();
 
     if (!m_protocolAdapter) return;
     m_protocolAdapter->setFilterQ(ui->filterComboBox->currentIndex(), ui->qSpinBox->index());
@@ -117,4 +138,11 @@ void MainWindow::enableFilterWidgets(bool enable)
     ui->freqSpinBox->setEnabled(enable);
     ui->gainSpinBox->setEnabled(enable);
     ui->qSpinBox->setEnabled(enable);
+}
+
+void MainWindow::updateCurrentFilter()
+{
+    Filter& f = m_filters.at(ui->filterComboBox->currentIndex());
+
+    computeResponse(f.t, twelfthOctaveBandsTable.at(f.f), f.g, qTable.at(f.q), twelfthOctaveBandsTable, &(f.mags), &(f.phases));
 }

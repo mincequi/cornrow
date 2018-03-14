@@ -5,6 +5,7 @@
 
 #include <rpc/client.h>
 
+#include "Types.h"
 #include "ZeroconfWrapper.h"
 #include "protocol/ProtocolAdaptersV1.h"
 
@@ -34,17 +35,14 @@ private slots:
 
 private:
     void enableFilterWidgets(bool enable);
+    void updateCurrentFilter();
 
     Ui::MainWindow *ui;
+
     ZeroconfWrapper m_zeroconf;
     rpc::client*    m_rpcClient = nullptr;
     v1::ClientProtocolAdapter* m_protocolAdapter = nullptr;
 
-    struct Filter {
-        int     f = 68;
-        float   g = 0.0;
-        int     q = 17;
-    };
     std::vector<Filter> m_filters;
 };
 

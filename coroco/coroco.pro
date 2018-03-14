@@ -1,6 +1,6 @@
-QT       += core gui widgets
+QT  += core gui widgets
 
-TARGET = coroco
+TARGET  = coroco
 TEMPLATE = app
 
 CONFIG += c++11 link_prl
@@ -19,19 +19,26 @@ DEFINES += QT_DEPRECATED_WARNINGS
 include(../cornrow.pri)
 
 SOURCES += main.cpp\
-        MainWindow.cpp \
+    MainWindow.cpp \
     ZeroconfWrapper.cpp \
-    TableSpinBox.cpp
+    TableSpinBox.cpp \
+    Types.cpp
 
 HEADERS += MainWindow.h \
     ZeroconfWrapper.h \
-    TableSpinBox.h
+    TableSpinBox.h \
+    Types.h
 
 FORMS   += MainWindow.ui
 
 # microdns
 INCLUDEPATH += $$top_srcdir/thirdparty/libmicrodns/src
 LIBS += -L$$top_srcdir/thirdparty/libmicrodns/build/.libs/ -lmicrodns
+
+# kplotting
+INCLUDEPATH += $$top_srcdir/thirdparty/kplotting/src
+INCLUDEPATH += $$top_srcdir/thirdparty/kplotting/build/src/
+LIBS += -L$$top_srcdir/thirdparty/kplotting/build/bin/ -lKF5Plotting
 
 # rpclib
 INCLUDEPATH += $$top_srcdir/thirdparty/rpclib/include/

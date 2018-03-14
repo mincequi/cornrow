@@ -43,8 +43,7 @@ private:
     Glib::Property<double> m_gain;
     Glib::Property<double> m_q;
 
-    double m_b0 = 0.0, m_b1 = 0.0, m_b2 = 0.0;
-    double m_a1 = 0.0, m_a2 = 0.0;
+    BiQuad m_biquad;
 
     std::vector<ChannelHistory> m_channelHistory;
     int m_rate = 44100;
