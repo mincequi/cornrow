@@ -4,8 +4,10 @@
 #include "common/Types.h"
 
 class QGraphicsItemGroup;
+class KPlotObject;
 
 struct Filter {
+    Filter();
     ~Filter();
 
     Type    t = Type::Peak;
@@ -14,6 +16,8 @@ struct Filter {
     int     q = 17;
     std::vector<float> mags;
     std::vector<float> phases;
+
+    KPlotObject* plot;
 };
 
 #endif // COROCO_TYPES_H

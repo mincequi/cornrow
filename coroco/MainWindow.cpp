@@ -6,8 +6,9 @@
 #include <QGraphicsItemGroup>
 #include <QThread>
 
-#include <KPlotWidget>
 #include <KPlotAxis>
+#include <KPlotObject>
+#include <KPlotWidget>
 
 #include "common/Types.h"
 #include "common/Util.h"
@@ -30,11 +31,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->plotWidget->axis(KPlotWidget::RightAxis)->setMajorTickMarks( {-24.0, -18.0, -12.0, -6.0, 0.0, 6.0} );
     ui->plotWidget->axis(KPlotWidget::RightAxis)->setMinorTickMarks( {-21.0, -15.0, -9.0, -3.0, 3.0} );
     ui->plotWidget->axis(KPlotWidget::RightAxis)->setTickLabelsShown(true);
-    ui->plotWidget->axis(KPlotWidget::BottomAxis)->setMajorTickMarks( {12.0, 36.0, 60.0, 84.0, 108.0} );
+    ui->plotWidget->axis(KPlotWidget::BottomAxis)->setMajorTickMarks( {12.0, 28.0, 44.0, 60.0, 76.0, 92.0, 108.0} );
     ui->plotWidget->axis(KPlotWidget::BottomAxis)->setMinorTickMarks({});
     ui->plotWidget->setBackgroundColor(palette().color(backgroundRole()));
     ui->plotWidget->setForegroundColor(palette().color(foregroundRole()));
     ui->plotWidget->setAxesFontSize(font().pointSize());
+    ui->plotWidget->setAntialiasing(true);
 
     m_zeroconf.listen([this](std::string hostname, std::string address, uint16_t port) {
         QMetaObject::invokeMethod(this, "onServiceDiscovered", Qt::QueuedConnection,
@@ -60,6 +62,7 @@ void MainWindow::on_portBox_valueChanged(int i)
 void MainWindow::on_addButton_clicked()
 {
     m_filters.push_back({});
+    ui->plotWidget->addPlotObject(m_filters.back().plot);
 
     ui->filterComboBox->addItem(QString::number(ui->filterComboBox->count()+1));
     enableFilterWidgets(true);
@@ -67,12 +70,15 @@ void MainWindow::on_addButton_clicked()
 
     ui->filterComboBox->setCurrentIndex(ui->filterComboBox->count()-1);
 
+    updateCurrentFilter();
+
     if (!m_protocolAdapter) return;
     m_protocolAdapter->setFilterCount(ui->filterComboBox->count());
 }
 
 void MainWindow::on_deleteButton_clicked()
 {
+    ui->plotWidget->removePlotObject(m_filters.back().plot);
     m_filters.pop_back();
 
     ui->filterComboBox->removeItem(ui->filterComboBox->count()-1);
@@ -145,4 +151,9 @@ void MainWindow::updateCurrentFilter()
     Filter& f = m_filters.at(ui->filterComboBox->currentIndex());
 
     computeResponse(f.t, twelfthOctaveBandsTable.at(f.f), f.g, qTable.at(f.q), twelfthOctaveBandsTable, &(f.mags), &(f.phases));
+    f.plot->clearPoints();
+    for (size_t i = 0; i < f.mags.size(); ++i) {
+        f.plot->addPoint(i, f.mags.at(i));
+    }
+    ui->plotWidget->update();
 }
