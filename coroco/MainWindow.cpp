@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include <QGraphicsItemGroup>
+#include <QPen>
 #include <QThread>
 
 #include <KPlotAxis>
@@ -15,9 +15,33 @@
 
 using namespace std::placeholders;
 
+class MainWindow::Private
+{
+public:
+    Private(MainWindow* q_)
+        : q(q_)
+    {
+        sumPlot = new KPlotObject(Qt::darkGreen, KPlotObject::Lines);
+        sumPlot->setLinePen(QPen(Qt::darkGreen, 1.5));
+    }
+
+    ~Private()
+    {
+    }
+
+    MainWindow* q;
+
+    const std::vector<float>  freqTable = twelfthOctaveBandsTable;
+    QList<Filter>   filters;
+    Filter*         curFilter = nullptr;
+    int             curIndex = -1;
+    KPlotObject*    sumPlot;
+};
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    d(new Private(this))
 {
     ui->setupUi(this);
 
@@ -33,10 +57,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->plotWidget->axis(KPlotWidget::RightAxis)->setTickLabelsShown(true);
     ui->plotWidget->axis(KPlotWidget::BottomAxis)->setMajorTickMarks( {12.0, 28.0, 44.0, 60.0, 76.0, 92.0, 108.0} );
     ui->plotWidget->axis(KPlotWidget::BottomAxis)->setMinorTickMarks({});
+    ui->plotWidget->axis(KPlotWidget::BottomAxis)->setCustomTickLabels( { {12.0, QString::number(d->freqTable.at(12.0))},
+                                                                          {28.0, QString::number(d->freqTable.at(28.0))},
+                                                                          {44.0, QString::number(d->freqTable.at(44.0))},
+                                                                          {60.0, QString::number(d->freqTable.at(60.0))},
+                                                                          {76.0, QString::number(d->freqTable.at(76.0))},
+                                                                          {92.0, QString::number(d->freqTable.at(92.0))},
+                                                                          {108.0, QString::number(d->freqTable.at(108.0))},
+                                                                        });
     ui->plotWidget->setBackgroundColor(palette().color(backgroundRole()));
     ui->plotWidget->setForegroundColor(palette().color(foregroundRole()));
     ui->plotWidget->setAxesFontSize(font().pointSize());
     ui->plotWidget->setAntialiasing(true);
+    ui->plotWidget->addPlotObject(d->sumPlot);
 
     m_zeroconf.listen([this](std::string hostname, std::string address, uint16_t port) {
         QMetaObject::invokeMethod(this, "onServiceDiscovered", Qt::QueuedConnection,
@@ -61,47 +94,82 @@ void MainWindow::on_portBox_valueChanged(int i)
 
 void MainWindow::on_addButton_clicked()
 {
-    m_filters.push_back({});
-    ui->plotWidget->addPlotObject(m_filters.back().plot);
+    // Update model (pimpl)
+    d->filters.push_back({});
+    d->curFilter = &(d->filters.back());
+    d->curIndex = d->filters.size()-1;
 
-    ui->filterComboBox->addItem(QString::number(ui->filterComboBox->count()+1));
-    enableFilterWidgets(true);
-    ui->addButton->setEnabled(ui->filterComboBox->count() < 12);
+    // Setup ui/plot
+    ui->filterComboBox->addItem(QString::number(d->filters.size()));
+    ui->filterComboBox->setCurrentIndex(d->filters.size()-1);
+    ui->plotWidget->addPlotObject(d->curFilter->plot);
 
-    ui->filterComboBox->setCurrentIndex(ui->filterComboBox->count()-1);
+    // Update ui/plot
+    updateUi();
+    updateFilter();
 
-    updateCurrentFilter();
-
+    // Send
     if (!m_protocolAdapter) return;
-    m_protocolAdapter->setFilterCount(ui->filterComboBox->count());
+    m_protocolAdapter->setFilterCount(d->filters.size());
 }
 
 void MainWindow::on_deleteButton_clicked()
 {
-    ui->plotWidget->removePlotObject(m_filters.back().plot);
-    m_filters.pop_back();
+    // Save old values
+    auto oldPlot = d->curFilter->plot;
 
-    ui->filterComboBox->removeItem(ui->filterComboBox->count()-1);
-    enableFilterWidgets(ui->filterComboBox->count() != 0);
-    ui->addButton->setEnabled(true);
+    // Update model (pimpl)
+    d->filters.removeAt(d->curIndex);
+    if (d->filters.empty()) {
+        d->curFilter = nullptr;
+        d->curIndex = -1;
+    } else {
+        if (d->curIndex >= d->filters.size()) {
+            d->curIndex = d->filters.size()-1;
+        }
+        d->curFilter = &(d->filters[d->curIndex]);
+    }
 
+    // Setup ui/plot
+    ui->filterComboBox->removeItem(ui->filterComboBox->currentIndex());
+    for (int i = 0; i < d->filters.size(); ++i) {
+        ui->filterComboBox->setItemText(i, QString::number(i+1));
+    }
+    ui->plotWidget->removePlotObject(oldPlot);
+
+    // Update ui/plot
+    updateUi();
+    updateFilter();
+
+    // Send
     if (!m_protocolAdapter) return;
     m_protocolAdapter->setFilterCount(ui->filterComboBox->count());
 }
 
 void MainWindow::on_filterComboBox_currentIndexChanged(int i)
 {
-    if (i >= m_filters.size()) return;
+    // Update model (pimpl)
+    if (d->filters.empty()) {
+        d->curFilter = nullptr;
+        d->curIndex = -1;
+    } else {
+        d->curIndex = i;
+        d->curFilter = &(d->filters[i]);
+    }
 
-    ui->freqSpinBox->setIndex(m_filters.at(i).f);
-    ui->gainSpinBox->setValue(m_filters.at(i).g);
-    ui->qSpinBox->setIndex(m_filters.at(i).q);
+    if (d->curFilter) {
+        ui->freqSpinBox->setIndex(d->curFilter->f);
+        ui->gainSpinBox->setValue(d->curFilter->g);
+        ui->qSpinBox->setIndex(d->curFilter->q);
+    }
+
+    updateFilter();
 }
 
 void MainWindow::on_freqSpinBox_valueChanged(double)
 {
-    m_filters.at(ui->filterComboBox->currentIndex()).f = ui->freqSpinBox->index();
-    updateCurrentFilter();
+    d->curFilter->f = ui->freqSpinBox->index();
+    updateFilter();
 
     if (!m_protocolAdapter) return;
     m_protocolAdapter->setFilterFreq(ui->filterComboBox->currentIndex(), ui->freqSpinBox->index());
@@ -109,8 +177,8 @@ void MainWindow::on_freqSpinBox_valueChanged(double)
 
 void MainWindow::on_gainSpinBox_valueChanged(double g)
 {
-    m_filters.at(ui->filterComboBox->currentIndex()).g = g;
-    updateCurrentFilter();
+    d->curFilter->g = g;
+    updateFilter();
 
     if (!m_protocolAdapter) return;
     m_protocolAdapter->setFilterGain(ui->filterComboBox->currentIndex(), g);
@@ -118,8 +186,8 @@ void MainWindow::on_gainSpinBox_valueChanged(double g)
 
 void MainWindow::on_qSpinBox_valueChanged(double)
 {
-    m_filters.at(ui->filterComboBox->currentIndex()).q = ui->qSpinBox->index();
-    updateCurrentFilter();
+    d->curFilter->q = ui->qSpinBox->index();
+    updateFilter();
 
     if (!m_protocolAdapter) return;
     m_protocolAdapter->setFilterQ(ui->filterComboBox->currentIndex(), ui->qSpinBox->index());
@@ -136,24 +204,56 @@ void MainWindow::onServiceDiscovered(QString hostname, QString address, quint16 
     m_protocolAdapter = new v1::ClientProtocolAdapter(*m_rpcClient);
 }
 
-void MainWindow::enableFilterWidgets(bool enable)
+void MainWindow::updateUi()
 {
-    ui->deleteButton->setEnabled(enable);
-    ui->filterComboBox->setEnabled(enable);
-    ui->typeComboBox->setEnabled(enable);
-    ui->freqSpinBox->setEnabled(enable);
-    ui->gainSpinBox->setEnabled(enable);
-    ui->qSpinBox->setEnabled(enable);
+    ui->deleteButton->setEnabled(!d->filters.empty());
+    ui->filterComboBox->setEnabled(!d->filters.empty());
+    ui->typeComboBox->setEnabled(!d->filters.empty());
+    ui->freqSpinBox->setEnabled(!d->filters.empty());
+    ui->gainSpinBox->setEnabled(!d->filters.empty());
+    ui->qSpinBox->setEnabled(!d->filters.empty());
+
+    ui->addButton->setEnabled(d->filters.size() < 12);
 }
 
-void MainWindow::updateCurrentFilter()
+void MainWindow::updateFilter()
 {
-    Filter& f = m_filters.at(ui->filterComboBox->currentIndex());
-
-    computeResponse(f.t, twelfthOctaveBandsTable.at(f.f), f.g, qTable.at(f.q), twelfthOctaveBandsTable, &(f.mags), &(f.phases));
-    f.plot->clearPoints();
-    for (size_t i = 0; i < f.mags.size(); ++i) {
-        f.plot->addPoint(i, f.mags.at(i));
+    if (!d->curFilter) {
+        d->sumPlot->setShowLines(false);
+        ui->plotWidget->update();
+        return;
+    } else {
+        d->sumPlot->setShowLines(true);
     }
+
+    // Change plot colors
+    for (const auto& f : d->filters) {
+        //f.plot->setLinePen(QPen(palette().color(QPalette::Light), 1.5));
+        f.plot->setLinePen(QPen(Qt::darkGray, 1.5));
+    }
+
+    // Compute filter response
+    {
+        Filter& f = *(d->curFilter);
+        computeResponse(f.t, d->freqTable.at(f.f), f.g, qTable.at(f.q), d->freqTable, &(f.mags), &(f.phases));
+        f.plot->clearPoints();
+        for (size_t i = 0; i < f.mags.size(); ++i) {
+            f.plot->addPoint(i, f.mags.at(i));
+            f.plot->setLinePen(QPen(Qt::blue, 1.5));
+        }
+    }
+
+    // Update sum plot
+    std::vector<float> sums(d->freqTable.size());
+    for (const auto& f1 : d->filters) {
+        for (size_t i = 0; i < f1.mags.size(); ++i) {
+            sums[i] += f1.mags[i];
+        }
+    }
+    d->sumPlot->clearPoints();
+    for (size_t i = 0; i < sums.size(); ++i) {
+        d->sumPlot->addPoint(i, sums.at(i));
+    }
+
     ui->plotWidget->update();
 }

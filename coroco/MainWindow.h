@@ -34,8 +34,8 @@ private slots:
     void onServiceDiscovered(QString hostname, QString address, quint16 port);
 
 private:
-    void enableFilterWidgets(bool enable);
-    void updateCurrentFilter();
+    void updateUi();
+    void updateFilter();
 
     Ui::MainWindow *ui;
 
@@ -43,7 +43,8 @@ private:
     rpc::client*    m_rpcClient = nullptr;
     v1::ClientProtocolAdapter* m_protocolAdapter = nullptr;
 
-    std::vector<Filter> m_filters;
+    class Private;
+    Private *const d;
 };
 
 #endif // MAINWINDOW_H
