@@ -5,6 +5,7 @@
 
 #include <QGraphicsItemGroup>
 #include <QThread>
+#include <QTimer>
 
 #include <KPlotAxis>
 #include <KPlotObject>
@@ -17,15 +18,17 @@ using namespace std::placeholders;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_freqTable(twelfthOctaveBandsTable),
+    m_zeroconfBonjour("_cornrow._tcp")
 {
     ui->setupUi(this);
 
-    ui->freqSpinBox->setTable(twelfthOctaveBandsTable, 68);
+    ui->freqSpinBox->setTable(m_freqTable, 68);
     ui->qSpinBox->setTable(qTable, 17);
 
     ui->plotWidget->axis(KPlotWidget::TopAxis)->setVisible(false);
-    ui->plotWidget->setLimits(0.0, 120.0, -27.0, 9.0);
+    ui->plotWidget->setLimits(0.0, m_freqTable.size()-1, -27.0, 9.0);
     ui->plotWidget->axis(KPlotWidget::LeftAxis)->setMajorTickMarks( {-24.0, -18.0, -12.0, -6.0, 0.0, 6.0} );
     ui->plotWidget->axis(KPlotWidget::LeftAxis)->setMinorTickMarks( {-21.0, -15.0, -9.0, -3.0, 3.0} );
     ui->plotWidget->axis(KPlotWidget::RightAxis)->setMajorTickMarks( {-24.0, -18.0, -12.0, -6.0, 0.0, 6.0} );
@@ -44,6 +47,11 @@ MainWindow::MainWindow(QWidget *parent) :
                                   Q_ARG(QString, QString::fromStdString(address)),
                                   Q_ARG(quint16, port));
     });
+
+    m_zeroconfBonjour.browse();
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, [this]() { m_zeroconfBonjour.browse(); });
+    timer->start(5000);
 }
 
 MainWindow::~MainWindow()
@@ -150,7 +158,7 @@ void MainWindow::updateCurrentFilter()
 {
     Filter& f = m_filters.at(ui->filterComboBox->currentIndex());
 
-    computeResponse(f.t, twelfthOctaveBandsTable.at(f.f), f.g, qTable.at(f.q), twelfthOctaveBandsTable, &(f.mags), &(f.phases));
+    computeResponse(f.t, m_freqTable.at(f.f), f.g, qTable.at(f.q), m_freqTable, &(f.mags), &(f.phases));
     f.plot->clearPoints();
     for (size_t i = 0; i < f.mags.size(); ++i) {
         f.plot->addPoint(i, f.mags.at(i));

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>755</width>
-    <height>633</height>
+    <width>621</width>
+    <height>426</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -58,7 +58,14 @@
      </widget>
     </item>
     <item>
-     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0" columnstretch="1,1,1,1,1">
+     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0" columnstretch="1,0,0,0,0">
+      <item row="1" column="0">
+       <widget class="QComboBox" name="filterComboBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="2">
        <widget class="TableSpinBox" name="freqSpinBox">
         <property name="enabled">
@@ -94,13 +101,6 @@
         </property>
         <property name="singleStep">
          <double>0.500000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QComboBox" name="filterComboBox">
-        <property name="enabled">
-         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -145,10 +145,31 @@
         </item>
        </layout>
       </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="typeComboBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Type</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="2">
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>Frequency</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Q</string>
         </property>
        </widget>
       </item>
@@ -168,31 +189,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Type</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Q</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="3">
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>Gain</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="typeComboBox">
-        <property name="enabled">
-         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -205,7 +205,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>755</width>
+     <width>621</width>
      <height>22</height>
     </rect>
    </property>

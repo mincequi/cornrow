@@ -6,6 +6,7 @@
 #include <rpc/client.h>
 
 #include "Types.h"
+#include "ZeroconfBonjour.h"
 #include "ZeroconfWrapper.h"
 #include "protocol/ProtocolAdaptersV1.h"
 
@@ -39,6 +40,9 @@ private:
 
     Ui::MainWindow *ui;
 
+    const std::vector<float> m_freqTable;
+
+    ZeroconfBonjour m_zeroconfBonjour;
     ZeroconfWrapper m_zeroconf;
     rpc::client*    m_rpcClient = nullptr;
     v1::ClientProtocolAdapter* m_protocolAdapter = nullptr;
