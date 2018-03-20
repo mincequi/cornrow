@@ -60,6 +60,7 @@ private:
     std::string     m_serviceName;
     std::string     m_lastError;
     std::map<std::string, Service> m_services;
+    // When we resolve, we have to keep the appropriate service
     Service*        m_currentService = nullptr;
 };
 
