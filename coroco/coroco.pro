@@ -21,22 +21,16 @@ include(../cornrow.pri)
 
 SOURCES += main.cpp\
     MainWindow.cpp \
-    ZeroconfWrapper.cpp \
     TableSpinBox.cpp \
     Types.cpp \
     ZeroconfBonjour.cpp
 
 HEADERS += MainWindow.h \
-    ZeroconfWrapper.h \
     TableSpinBox.h \
     Types.h \
     ZeroconfBonjour.h
 
 FORMS   += MainWindow.ui
-
-# microdns
-INCLUDEPATH += $$top_srcdir/thirdparty/libmicrodns/src
-LIBS += -L$$top_srcdir/thirdparty/libmicrodns/build/.libs/ -lmicrodns
 
 # kplotting
 INCLUDEPATH += $$top_srcdir/thirdparty/kplotting/src

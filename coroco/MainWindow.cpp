@@ -23,7 +23,7 @@ public:
         : q(q_)
     {
         sumPlot = new KPlotObject(Qt::darkGreen, KPlotObject::Lines);
-        sumPlot->setLinePen(QPen(Qt::darkGreen, 1.5));
+        sumPlot->setLinePen(QPen(Qt::darkGreen, 2.5));
     }
 
     ~Private()
@@ -266,7 +266,7 @@ void MainWindow::updateFilter()
         f.plot->clearPoints();
         for (size_t i = 0; i < f.mags.size(); ++i) {
             f.plot->addPoint(i, f.mags.at(i));
-            f.plot->setLinePen(QPen(Qt::blue, 1.5));
+            f.plot->setLinePen(QPen(Qt::blue, 2.0));
         }
     }
 
