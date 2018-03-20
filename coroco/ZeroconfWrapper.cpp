@@ -20,7 +20,7 @@ ZeroconfWrapper::ZeroconfWrapper()
 ZeroconfWrapper::ZeroconfWrapper(DiscoverCallback callback)
     : m_callback(callback)
 {
-    listen(m_callback);
+    discover(m_callback);
 }
 
 ZeroconfWrapper::~ZeroconfWrapper()
@@ -34,7 +34,7 @@ ZeroconfWrapper::~ZeroconfWrapper()
     }
 }
 
-void ZeroconfWrapper::listen(DiscoverCallback callback)
+void ZeroconfWrapper::discover(DiscoverCallback callback)
 {
     m_callback = callback;
 

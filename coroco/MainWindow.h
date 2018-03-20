@@ -23,8 +23,6 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_portBox_valueChanged(int i);
-
     void on_addButton_clicked();
     void on_deleteButton_clicked();
     void on_filterComboBox_currentIndexChanged(int i);
@@ -33,8 +31,11 @@ private slots:
     void on_qSpinBox_valueChanged(double);
 
     void onServiceDiscovered(QString hostname, QString address, quint16 port);
+    void onProtocolTimeout();
 
 private:
+    void discover();
+
     void updateUi();
     void updateFilter();
 

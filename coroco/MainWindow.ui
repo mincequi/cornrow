@@ -29,17 +29,7 @@
    <property name="enabled">
     <bool>true</bool>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
-    <item>
-     <widget class="QSpinBox" name="portBox">
-      <property name="minimum">
-       <number>30000</number>
-      </property>
-      <property name="maximum">
-       <number>55000</number>
-      </property>
-     </widget>
-    </item>
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
     <item>
      <widget class="KPlotWidget" name="plotWidget">
       <property name="backgroundColor" stdset="0">

@@ -8,39 +8,46 @@
 
 #define self static_cast<ZeroconfBonjour*>(context)
 
-ZeroconfBonjour::ZeroconfBonjour(const std::string& serviceName)
-    : m_serviceName(serviceName)
+static std::atomic_bool doRun(true);
+
+ZeroconfBonjour::ZeroconfBonjour()
 {
-    startBrowsing();
 }
 
 ZeroconfBonjour::~ZeroconfBonjour()
 {
+    stop();
 }
 
-bool ZeroconfBonjour::startBrowsing()
+bool ZeroconfBonjour::discover(const std::string& serviceName, ZeroconfBonjour::DiscoverCallback callback)
 {
     if (m_sdRef) {
         m_lastError = "already discovering";
         return false;
     }
 
-    if (DNSServiceBrowse(&m_sdRef, 0, 0, m_serviceName.c_str(), 0, (DNSServiceBrowseReply)ZeroconfBonjour::onBrowseReply, this) != kDNSServiceErr_NoError) {
+    if (DNSServiceBrowse(&m_sdRef, 0, 0, serviceName.c_str(), 0, (DNSServiceBrowseReply)ZeroconfBonjour::onBrowseReply, this) != kDNSServiceErr_NoError) {
         m_lastError = "browse error";
         return false;
     }
 
+    m_callback = callback;
+
+    m_thread = std::thread([this]() {
+        while (doRun && process(m_sdRef)) {
+            ;
+        }
+    });
+
     return true;
 }
 
-void ZeroconfBonjour::stopBrowsing()
+void ZeroconfBonjour::stop()
 {
-    clear();
-}
+    doRun = false;
+    if (m_thread.joinable()) m_thread.join();
 
-bool ZeroconfBonjour::browse()
-{
-    return process(m_sdRef);
+    clear();
 }
 
 void ZeroconfBonjour::onBrowseReply(DNSServiceRef,
@@ -123,7 +130,7 @@ void ZeroconfBonjour::onGetAddrInfoReply(DNSServiceRef,
                                          uint32_t ttl,
                                          void *context)
 {
-    if (error != kDNSServiceErr_NoError || !self->m_currentService) {
+    if (error != kDNSServiceErr_NoError) {
         self->m_lastError = "get address reply error";
         return;
     }
@@ -133,6 +140,8 @@ void ZeroconfBonjour::onGetAddrInfoReply(DNSServiceRef,
             if (kv.second.hostname == hostname) {
                 if (address->sa_family == AF_INET) {
                     kv.second.address = clmdep_asio::ip::address_v4(ntohl(((sockaddr_in*)address)->sin_addr.s_addr)).to_string();
+                    self->m_callback(kv.second);
+                    doRun = false;
                 }
             }
         }
@@ -157,11 +166,13 @@ bool ZeroconfBonjour::process(DNSServiceRef sdRef)
 
         struct timeval tv;
         tv.tv_sec = 0;
-        tv.tv_usec = 500 * 1000; // 500 ms
+        tv.tv_usec = 100 * 1000; // 100 ms
 
         const int result = select(nfds, &fdSet, 0, 0, &tv);
-        if (result <= 0) {
+        if (result < 0) {
             return false;
+        } else if (result == 0) {
+            return true;
         }
 
         if (FD_ISSET(fd, &fdSet))
@@ -179,8 +190,10 @@ void ZeroconfBonjour::clear()
         DNSServiceRefDeallocate(m_sdRef);
         m_sdRef = nullptr;
     }
-    m_serviceName.clear();
     m_lastError.clear();
     m_services.clear();
     m_currentService = nullptr;
+    m_callback = nullptr;
+    m_thread = std::thread();
+    doRun = true;
 }

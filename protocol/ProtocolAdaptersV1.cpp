@@ -43,8 +43,9 @@ float ServerProtocolAdapter::qFromProto(uint8_t i)
     return qTable[i];
 }
 
-ClientProtocolAdapter::ClientProtocolAdapter(rpc::client& client)
-    : m_client(client)
+ClientProtocolAdapter::ClientProtocolAdapter(rpc::client& client, ErrorCallback callback)
+    : m_client(client),
+      m_errorCallback(callback)
 {
 }
 
@@ -58,7 +59,7 @@ void ClientProtocolAdapter::setFilterCount(uint8_t i)
         auto err = e.get_error().as<err_t>();
         std::cout << "[error " << std::get<0>(err) << "]: " << std::get<1>(err) << std::endl;
     }  catch (rpc::timeout &e) {
-        std::cout << e.what() << std::endl;
+        if (m_errorCallback) m_errorCallback( Error::Timeout, e.what() );
     }
 }
 
@@ -72,7 +73,7 @@ void ClientProtocolAdapter::setFilterType(uint8_t i, Type t)
         auto err = e.get_error().as<err_t>();
         std::cout << "[error " << std::get<0>(err) << "]: " << std::get<1>(err) << std::endl;
     }  catch (rpc::timeout &e) {
-        std::cout << e.what() << std::endl;
+        if (m_errorCallback) m_errorCallback( Error::Timeout, e.what() );
     }
 }
 
@@ -86,7 +87,7 @@ void ClientProtocolAdapter::setFilterFreq(uint8_t i, uint8_t f)
         auto err = e.get_error().as<err_t>();
         std::cout << "[error " << std::get<0>(err) << "]: " << std::get<1>(err) << std::endl;
     } catch (rpc::timeout &e) {
-        std::cout << e.what() << std::endl;
+        if (m_errorCallback) m_errorCallback( Error::Timeout, e.what() );
     }
 }
 
@@ -100,7 +101,7 @@ void ClientProtocolAdapter::setFilterGain(uint8_t i, float g)
         auto err = e.get_error().as<err_t>();
         std::cout << "[error " << std::get<0>(err) << "]: " << std::get<1>(err) << std::endl;
     } catch (rpc::timeout &e) {
-        std::cout << e.what() << std::endl;
+        if (m_errorCallback) m_errorCallback( Error::Timeout, e.what() );
     }
 }
 
@@ -114,7 +115,7 @@ void ClientProtocolAdapter::setFilterQ(uint8_t i, uint8_t q)
         auto err = e.get_error().as<err_t>();
         std::cout << "[error " << std::get<0>(err) << "]: " << std::get<1>(err) << std::endl;
     } catch (rpc::timeout &e) {
-        std::cout << e.what() << std::endl;
+        if (m_errorCallback) m_errorCallback( Error::Timeout, e.what() );
     }
 }
 

@@ -43,8 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     d(new Private(this)),
-    m_freqTable(twelfthOctaveBandsTable),
-    m_zeroconfBonjour("_cornrow._tcp")
+    m_freqTable(twelfthOctaveBandsTable)
 {
     ui->setupUi(this);
 
@@ -74,17 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->plotWidget->setAntialiasing(true);
     ui->plotWidget->addPlotObject(d->sumPlot);
 
-    m_zeroconf.listen([this](std::string hostname, std::string address, uint16_t port) {
-        QMetaObject::invokeMethod(this, "onServiceDiscovered", Qt::QueuedConnection,
-                                  Q_ARG(QString, QString::fromStdString(hostname)),
-                                  Q_ARG(QString, QString::fromStdString(address)),
-                                  Q_ARG(quint16, port));
-    });
-
-    m_zeroconfBonjour.browse();
-    QTimer* timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, [this]() { m_zeroconfBonjour.browse(); });
-    timer->start(5000);
+    discover();
 }
 
 MainWindow::~MainWindow()
@@ -93,11 +82,6 @@ MainWindow::~MainWindow()
 
     if (m_protocolAdapter) delete m_protocolAdapter;
     if (m_rpcClient) delete m_rpcClient;
-}
-
-void MainWindow::on_portBox_valueChanged(int i)
-{
-    onServiceDiscovered("Bla", "127.0.0.1", i);
 }
 
 void MainWindow::on_addButton_clicked()
@@ -205,11 +189,46 @@ void MainWindow::onServiceDiscovered(QString hostname, QString address, quint16 
 {
     std::cerr << "QT thread: " << thread()->currentThreadId() << ", hostname: " << hostname.toStdString() << ", address: " << address.toStdString() << ", port: " << port << std::endl;
 
+    QString status("Discovered cornrow: ");
+    status += address + ":" + QString::number(port);
+    ui->statusBar->showMessage(status, 5000);
+
     if (m_protocolAdapter) delete m_protocolAdapter;
     if (m_rpcClient) delete m_rpcClient;
     m_rpcClient = new rpc::client(address.toStdString(), port);
     m_rpcClient->set_timeout(500);
-    m_protocolAdapter = new v1::ClientProtocolAdapter(*m_rpcClient);
+    m_protocolAdapter = new v1::ClientProtocolAdapter(*m_rpcClient, [this](Error error, std::string errorString) {
+                        if (error == Error::Timeout) {
+                            QMetaObject::invokeMethod(this, "onProtocolTimeout", Qt::QueuedConnection);
+                        }});
+}
+
+void MainWindow::onProtocolTimeout()
+{
+    if (m_protocolAdapter) {
+        delete m_protocolAdapter;
+        m_protocolAdapter = nullptr;
+    }
+    if (m_rpcClient) {
+        delete m_rpcClient;
+        m_rpcClient = nullptr;
+    }
+
+    m_zeroconfBonjour.stop();
+    discover();
+}
+
+void MainWindow::discover()
+{
+    ui->statusBar->showMessage("Discovering");
+    if (!m_zeroconfBonjour.discover("_cornrow._tcp", [this](ZeroconfBonjour::Service service) {
+        QMetaObject::invokeMethod(this, "onServiceDiscovered", Qt::QueuedConnection,
+                                  Q_ARG(QString, QString::fromStdString(service.hostname)),
+                                  Q_ARG(QString, QString::fromStdString(service.address)),
+                                  Q_ARG(quint16, service.port));
+    })) {
+        ui->statusBar->showMessage("Discovery error");
+    }
 }
 
 void MainWindow::updateUi()

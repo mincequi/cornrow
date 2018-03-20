@@ -2,6 +2,7 @@
 #define SERVERPROTOCOLADAPTER_H
 
 #include <cstdint>
+#include <functional>
 
 #include "common/Types.h"
 
@@ -10,6 +11,13 @@ namespace rpc {
 class client;
 class server;
 }
+
+enum class Error {
+    None = 0,
+    Timeout = 1
+};
+
+using ErrorCallback = std::function<void(Error error, std::string errorString)>;
 
 namespace v1 {
 
@@ -27,7 +35,7 @@ private:
 class ClientProtocolAdapter
 {
 public:
-    ClientProtocolAdapter(rpc::client& client);
+    ClientProtocolAdapter(rpc::client& client, ErrorCallback callback = nullptr);
 
     void setFilterCount(uint8_t i);
     void setFilterType(uint8_t i, Type    t);
@@ -39,6 +47,7 @@ private:
     static int8_t gainToProto(float g);
 
     rpc::client& m_client;
+    ErrorCallback m_errorCallback = nullptr;
 };
 
 } // namespace v1

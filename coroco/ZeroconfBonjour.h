@@ -5,11 +5,12 @@
 
 #include <map>
 #include <string>
+#include <thread>
 
 class ZeroconfBonjour
 {
 public:
-    ZeroconfBonjour(const std::string& serviceName);
+    ZeroconfBonjour();
     ~ZeroconfBonjour();
 
     struct Service {
@@ -19,9 +20,9 @@ public:
         std::string txtRecord;
     };
 
-    bool startBrowsing();
-    void stopBrowsing();
-    bool browse();
+    using DiscoverCallback = std::function<void(Service service)>;
+    bool discover(const std::string& serviceName, DiscoverCallback callback);
+    void stop();
 
 private:
     static DNSSD_API void onBrowseReply(DNSServiceRef sdRef,
@@ -60,8 +61,11 @@ private:
     std::string     m_serviceName;
     std::string     m_lastError;
     std::map<std::string, Service> m_services;
-    // When we resolve, we have to keep the appropriate service
+    // When we resolve, we have to track the current service
     Service*        m_currentService = nullptr;
+
+    DiscoverCallback m_callback = nullptr;
+    std::thread      m_thread;
 };
 
 #endif // ZEROCONFBONJOUR_H
