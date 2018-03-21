@@ -7,7 +7,6 @@
 
 #include "Types.h"
 #include "ZeroconfBonjour.h"
-#include "ZeroconfWrapper.h"
 #include "protocol/ProtocolAdaptersV1.h"
 
 namespace Ui {
@@ -44,7 +43,6 @@ private:
     const std::vector<float> m_freqTable;
 
     ZeroconfBonjour m_zeroconfBonjour;
-    ZeroconfWrapper m_zeroconf;
     rpc::client*    m_rpcClient = nullptr;
     v1::ClientProtocolAdapter* m_protocolAdapter = nullptr;
 

@@ -1,5 +1,6 @@
 #include "ZeroconfBonjour.h"
 
+#include <atomic>
 #include <dns_sd.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -111,23 +112,25 @@ void ZeroconfBonjour::onResolveReply(DNSServiceRef,
     self->m_currentService->txtRecord = std::string((const char*)txtRecord, txtLen);
     self->m_currentService = nullptr;
 
+#ifndef __linux__
+    // Avahi's Bonjour compatibility layer does not support DNSServiceGetAddrInfo
     DNSServiceRef sdRef;
     if (DNSServiceGetAddrInfo(&sdRef, kDNSServiceFlagsForceMulticast, interfaceIndex, 0, hostname, ZeroconfBonjour::onGetAddrInfoReply, self) != kDNSServiceErr_NoError) {
         self->m_lastError = "get address error";
         return;
     }
-
     process(sdRef);
     DNSServiceRefDeallocate(sdRef);
+#endif
 }
 
 void ZeroconfBonjour::onGetAddrInfoReply(DNSServiceRef,
                                          DNSServiceFlags flags,
-                                         uint32_t interfaceIndex,
+                                         uint32_t /*interfaceIndex*/,
                                          DNSServiceErrorType error,
                                          const char *hostname,
                                          const struct sockaddr *address,
-                                         uint32_t ttl,
+                                         uint32_t /*ttl*/,
                                          void *context)
 {
     if (error != kDNSServiceErr_NoError) {

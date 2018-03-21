@@ -7,9 +7,9 @@
 #include <QThread>
 #include <QTimer>
 
-#include <KPlotAxis>
-#include <KPlotObject>
-#include <KPlotWidget>
+#include <kplotaxis.h>
+#include <kplotobject.h>
+#include <kplotwidget.h>
 
 #include "common/Types.h"
 #include "common/Util.h"
@@ -42,8 +42,8 @@ public:
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    d(new Private(this)),
-    m_freqTable(twelfthOctaveBandsTable)
+    m_freqTable(twelfthOctaveBandsTable),
+    d(new Private(this))
 {
     ui->setupUi(this);
 
@@ -187,8 +187,6 @@ void MainWindow::on_qSpinBox_valueChanged(double)
 
 void MainWindow::onServiceDiscovered(QString hostname, QString address, quint16 port)
 {
-    std::cerr << "QT thread: " << thread()->currentThreadId() << ", hostname: " << hostname.toStdString() << ", address: " << address.toStdString() << ", port: " << port << std::endl;
-
     QString status("Discovered cornrow: ");
     status += address + ":" + QString::number(port);
     ui->statusBar->showMessage(status, 5000);

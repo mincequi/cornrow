@@ -2,7 +2,7 @@
 
 #include <QPen>
 
-#include <KPlotObject>
+#include <kplotobject.h>
 
 Filter::Filter()
 {

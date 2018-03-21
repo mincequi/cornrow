@@ -25,7 +25,7 @@ public:
     void stop();
 
 private:
-    static DNSSD_API void onBrowseReply(DNSServiceRef sdRef,
+    static void onBrowseReply(DNSServiceRef sdRef,
                                         DNSServiceFlags flags,
                                         uint32_t interfaceIndex,
                                         DNSServiceErrorType errorCode,
@@ -34,7 +34,7 @@ private:
                                         const char *replyDomain,
                                         void       *context);
 
-    static DNSSD_API void onResolveReply(DNSServiceRef sdRef,
+    static void onResolveReply(DNSServiceRef sdRef,
                                          DNSServiceFlags flags,
                                          uint32_t interfaceIndex,
                                          DNSServiceErrorType errorCode,
@@ -45,7 +45,7 @@ private:
                                          const unsigned char *txtRecord,
                                          void                *context);
 
-    static DNSSD_API void onGetAddrInfoReply(DNSServiceRef sdRef,
+    static void onGetAddrInfoReply(DNSServiceRef sdRef,
                                              DNSServiceFlags flags,
                                              uint32_t interfaceIndex,
                                              DNSServiceErrorType errorCode,
