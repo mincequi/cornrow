@@ -25,6 +25,7 @@ private slots:
     void on_addButton_clicked();
     void on_deleteButton_clicked();
     void on_filterComboBox_currentIndexChanged(int i);
+    void on_typeComboBox_currentIndexChanged(int i);
     void on_freqSpinBox_valueChanged(double);
     void on_gainSpinBox_valueChanged(double g);
     void on_qSpinBox_valueChanged(double);

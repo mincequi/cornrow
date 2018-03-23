@@ -158,6 +158,15 @@ void MainWindow::on_filterComboBox_currentIndexChanged(int i)
     updateFilter();
 }
 
+void MainWindow::on_typeComboBox_currentIndexChanged(int i)
+{
+    d->curFilter->t = static_cast<Type>(i+1);
+    updateFilter();
+
+    if (!m_protocolAdapter) return;
+    m_protocolAdapter->setFilterType(ui->filterComboBox->currentIndex(), d->curFilter->t);
+}
+
 void MainWindow::on_freqSpinBox_valueChanged(double)
 {
     d->curFilter->f = ui->freqSpinBox->index();

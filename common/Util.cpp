@@ -22,6 +22,30 @@ bool computeBiQuad(int r, Type t, float f, float g, float q, BiQuad* biquad)
         biquad->a2 = ( 1.0 - alpha2 ) / a0;
         break;
     }
+    case Type::LowPass: {
+        double w0 = 2*M_PI*f/r;
+        double alpha = sin(w0)*0.5/q;
+        double a0    = 1.0 + alpha;
+
+        biquad->b1 = ( 1.0 - cos(w0) ) / a0;
+        biquad->b0 = biquad->b1 * 0.5;
+        biquad->b2 = biquad->b0;
+        biquad->a1 = (-2.0 * cos(w0)) / a0;
+        biquad->a2 = ( 1.0 - alpha  ) / a0;
+        break;
+    }
+    case Type::HighPass: {
+        double w0 = 2*M_PI*f/r;
+        double alpha = sin(w0)*0.5/q;
+        double a0    = 1.0 + alpha;
+
+        biquad->b1 = -( 1.0 + cos(w0) ) / a0;
+        biquad->b0 = biquad->b1 * -0.5;
+        biquad->b2 = biquad->b0;
+        biquad->a1 = (-2.0 * cos(w0)) / a0;
+        biquad->a2 = ( 1.0 - alpha  ) / a0;
+        break;
+    }
     case Type::Invalid:
     case Type::Max:
         return false;

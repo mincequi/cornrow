@@ -8,36 +8,44 @@
 #include "common/Types.h"
 
 enum class Code : uint8_t {
-    // Generic
-    Invalid,            //
-    Login,              //
+    // General
+    Invalid         = 0,    // Not used
+    Login,
     GetVersion,
+    SetPassword,
 
-    SetPassthrough,
+    // General pipeline access
+    SetPassthrough  = 16,
 
-    // Versioned
-    GetPresets,         // Get all presets
-    GetPreset,          // Get preset by name (if empty, get current)
-    GetPresetNames,     // Get all preset names
-    GetCurrentPreset,   // Get current preset
-    LoadPreset,         // Load preset by name
-    SavePreset,         // Save preset based on current settings.
+    GetInputs,
+    GetInput,
+    SetInput,
+    SetInputFormat,         // Set format of input device
+
+    GetOutputs,
+    GetOutput,
+    SetOutput,
+    SetOutputFormat,        // Set format of output device
+
+    // Filter access (versioned).
+    GetPresets      = 64,   // Get all presets
+    GetPreset,              // Get preset by name (if empty, get current)
+    GetPresetNames,         // Get all preset names
+    SetPreset,              // Set/load/activate preset by name
+    SavePreset,             // Save preset (if empty, save current settings)
     RenamePreset,
     DeletePreset,
 
-    SetFilterCount,
+    SetFilterCount  = 80,
     SetFilterType,
     SetFilterFreq,
     SetFilterGain,
     SetFilterQ,
 
-    GetAudioOutputs,
-    GetAudioOutput,
-    SetAudioOutput,
+    // Reserved
+    User            = 96,
 
-    GetAudioInputs,
-    GetAudioInput,
-    SetAudioInput,
+    Max             = 127
 };
 
 MSGPACK_ADD_ENUM(Type)
