@@ -41,8 +41,6 @@ private:
 
     Ui::MainWindow *ui;
 
-    const std::vector<float> m_freqTable;
-
     ZeroconfBonjour m_zeroconfBonjour;
     rpc::client*    m_rpcClient = nullptr;
     v1::ClientAdapter* m_protocolAdapter = nullptr;

@@ -44,16 +44,15 @@ public:
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_freqTable(twelfthOctaveBandsTable),
     d(new Private(this))
 {
     ui->setupUi(this);
 
-    ui->freqSpinBox->setTable(m_freqTable, 68);
+    ui->freqSpinBox->setTable(d->freqTable, 68);
     ui->qSpinBox->setTable(qTable, 17);
 
     ui->plotWidget->axis(KPlotWidget::TopAxis)->setVisible(false);
-    ui->plotWidget->setLimits(0.0, m_freqTable.size()-1, -27.0, 9.0);
+    ui->plotWidget->setLimits(0.0, d->freqTable.size()-1, -27.0, 9.0);
     ui->plotWidget->axis(KPlotWidget::LeftAxis)->setMajorTickMarks( {-24.0, -18.0, -12.0, -6.0, 0.0, 6.0} );
     ui->plotWidget->axis(KPlotWidget::LeftAxis)->setMinorTickMarks( {-21.0, -15.0, -9.0, -3.0, 3.0} );
     ui->plotWidget->axis(KPlotWidget::RightAxis)->setMajorTickMarks( {-24.0, -18.0, -12.0, -6.0, 0.0, 6.0} );
