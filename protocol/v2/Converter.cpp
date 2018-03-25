@@ -1,5 +1,7 @@
 #include "Converter.h"
 
+#include <math.h>
+
 namespace v2
 {
 
