@@ -70,7 +70,11 @@ bool ZeroconfWrapper::announce(uint16_t port)
     freeifaddrs(ifa);
     */
 
-    struct mdns_service *service = mdnsd_register_svc(m_mdnsd, "Cornrow", "_cornrow._tcp.local", port, NULL, NULL); // TTL should be 75 minutes, i.e. 4500 seconds
+    const char *txt[] = {
+        "v=1",
+        NULL
+    };
+    struct mdns_service *service = mdnsd_register_svc(m_mdnsd, "Cornrow", "_cornrow._tcp.local", m_port, NULL, txt); // TTL should be 75 minutes, i.e. 4500 seconds
     mdns_service_destroy(service);
 
     return true;

@@ -11,6 +11,7 @@ Controller::Controller()
     : m_server(0),
       m_mainloop(Glib::MainLoop::create())
 {
+    m_server.override_functors(true);
     m_server.bind(FUNC(v1::Code::Login), [this](uint8_t version, std::string password) { return onLogin(static_cast<Version>(version), password); });
     m_server.async_run();
 
@@ -30,9 +31,6 @@ Controller::~Controller()
 bool Controller::onLogin(Version version, std::string /*password*/)
 {
     if (m_adapter) {
-        m_server = rpc::server(m_server.get_port());
-        m_server.bind(FUNC(v1::Code::Login), [this](uint8_t version, std::string password) { return onLogin(static_cast<Version>(version), password); });
-        m_server.async_run();
         delete m_adapter;
         m_adapter = nullptr;
     }
