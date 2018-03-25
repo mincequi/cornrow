@@ -3,10 +3,10 @@
 #include <cmath>
 #include <complex>
 
-bool computeBiQuad(int r, Type t, float f, float g, float q, BiQuad* biquad)
+bool computeBiQuad(int r, FilterType t, float f, float g, float q, BiQuad* biquad)
 {
     switch (t) {
-    case Type::Peak: {
+    case FilterType::Peak: {
         double A = pow(10, g/40.0);
         double w0 = 2*M_PI*f/r;
         double alpha = sin(w0)*0.5/q;
@@ -22,7 +22,7 @@ bool computeBiQuad(int r, Type t, float f, float g, float q, BiQuad* biquad)
         biquad->a2 = ( 1.0 - alpha2 ) / a0;
         break;
     }
-    case Type::LowPass: {
+    case FilterType::LowPass: {
         double w0 = 2*M_PI*f/r;
         double alpha = sin(w0)*0.5/q;
         double a0    = 1.0 + alpha;
@@ -34,7 +34,7 @@ bool computeBiQuad(int r, Type t, float f, float g, float q, BiQuad* biquad)
         biquad->a2 = ( 1.0 - alpha  ) / a0;
         break;
     }
-    case Type::HighPass: {
+    case FilterType::HighPass: {
         double w0 = 2*M_PI*f/r;
         double alpha = sin(w0)*0.5/q;
         double a0    = 1.0 + alpha;
@@ -46,15 +46,15 @@ bool computeBiQuad(int r, Type t, float f, float g, float q, BiQuad* biquad)
         biquad->a2 = ( 1.0 - alpha  ) / a0;
         break;
     }
-    case Type::Invalid:
-    case Type::Max:
+    case FilterType::Invalid:
+    case FilterType::Max:
         return false;
     }
 
     return true;
 }
 
-bool computeResponse(Type t, float f, float g, float q, const std::vector<float>& freqs, std::vector<float>* mags , std::vector<float>* phases)
+bool computeResponse(FilterType t, float f, float g, float q, const std::vector<float>& freqs, std::vector<float>* mags , std::vector<float>* phases)
 {
     BiQuad biquad;
     if (!computeBiQuad(48000, t, f, g, q, &biquad)) return false;

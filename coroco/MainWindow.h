@@ -7,7 +7,7 @@
 
 #include "Types.h"
 #include "ZeroconfBonjour.h"
-#include "protocol/ProtocolAdaptersV1.h"
+#include "protocol/v2/ClientAdapter.h"
 
 namespace Ui {
 class MainWindow;
@@ -45,7 +45,7 @@ private:
 
     ZeroconfBonjour m_zeroconfBonjour;
     rpc::client*    m_rpcClient = nullptr;
-    v1::ClientProtocolAdapter* m_protocolAdapter = nullptr;
+    v1::ClientAdapter* m_protocolAdapter = nullptr;
 
     class Private;
     Private *const d;

@@ -1,16 +1,26 @@
 TEMPLATE = lib
 CONFIG -= qt
-CONFIG += staticlib c++11 create_prl
+CONFIG += staticlib c++11 create_prl object_parallel_to_source
 
 include(../cornrow.pri)
 
 SOURCES += \
-    ProtocolAdaptersV1.cpp \
-    ProtocolTypesV1.cpp
+    v1/ServerAdapter.cpp \
+    v1/ClientAdapter.cpp \
+    v1/Converter.cpp \
+    v2/ClientAdapter.cpp \
+    v2/ServerAdapter.cpp \
+    v2/Converter.cpp
 
 HEADERS += \
-    ProtocolAdaptersV1.h \
-    ProtocolTypesV1.h
+    v1/ClientAdapter.h \
+    v1/ServerAdapter.h \
+    v1/Converter.h \
+    v1/Types.h \
+    v2/ClientAdapter.h \
+    v2/Types.h \
+    v2/ServerAdapter.h \
+    v2/Converter.h
 
 # common
 LIBS += -L$$OUT_PWD/../common/ -lcommon

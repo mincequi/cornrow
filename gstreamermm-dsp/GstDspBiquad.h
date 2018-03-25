@@ -18,7 +18,7 @@ public:
     void update();
     void process(float* in, uint sampleCount);
 
-    Glib::PropertyProxy<Type> type();
+    Glib::PropertyProxy<FilterType> type();
     Glib::PropertyProxy<double> freq();
     Glib::PropertyProxy<double> gain();
     Glib::PropertyProxy<double> q();
@@ -38,7 +38,7 @@ private:
     /// Variables
     bool m_dirty = true;
 
-    Glib::Property<Type>   m_type;
+    Glib::Property<FilterType>   m_type;
     Glib::Property<double> m_freq;
     Glib::Property<double> m_gain;
     Glib::Property<double> m_q;

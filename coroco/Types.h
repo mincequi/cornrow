@@ -6,11 +6,11 @@
 class QGraphicsItemGroup;
 class KPlotObject;
 
-struct Filter {
-    Filter();
-    ~Filter();
+struct FilterPlot {
+    FilterPlot();
+    ~FilterPlot();
 
-    Type    t = Type::Peak;
+    FilterType    t = FilterType::Peak;
     int     f = 68;
     float   g = 0.0;
     int     q = 17;

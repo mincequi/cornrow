@@ -16,6 +16,8 @@
 
 using namespace std::placeholders;
 
+#define FUNC(code) std::string(1, static_cast<uint8_t>(code))
+
 class MainWindow::Private
 {
 public:
@@ -33,8 +35,8 @@ public:
     MainWindow* q;
 
     const std::vector<float>  freqTable = twelfthOctaveBandsTable;
-    QList<Filter>   filters;
-    Filter*         curFilter = nullptr;
+    QList<FilterPlot>   filters;
+    FilterPlot*         curFilter = nullptr;
     int             curIndex = -1;
     KPlotObject*    sumPlot;
 };
@@ -160,7 +162,7 @@ void MainWindow::on_filterComboBox_currentIndexChanged(int i)
 
 void MainWindow::on_typeComboBox_currentIndexChanged(int i)
 {
-    d->curFilter->t = static_cast<Type>(i+1);
+    d->curFilter->t = static_cast<FilterType>(i+1);
     updateFilter();
 
     if (!m_protocolAdapter) return;
@@ -204,10 +206,14 @@ void MainWindow::onServiceDiscovered(QString hostname, QString address, quint16 
     if (m_rpcClient) delete m_rpcClient;
     m_rpcClient = new rpc::client(address.toStdString(), port);
     m_rpcClient->set_timeout(500);
-    m_protocolAdapter = new v1::ClientProtocolAdapter(*m_rpcClient, [this](Error error, std::string errorString) {
-                        if (error == Error::Timeout) {
-                            QMetaObject::invokeMethod(this, "onProtocolTimeout", Qt::QueuedConnection);
-                        }});
+    bool success = m_rpcClient->call(FUNC(v1::Code::Login), static_cast<uint8_t>(Version1), std::string()).as<bool>();
+
+    if (success) {
+        m_protocolAdapter = new v1::ClientAdapter(*m_rpcClient, [this](Error error, std::string errorString) {
+                            if (error == Error::Timeout) {
+                                QMetaObject::invokeMethod(this, "onProtocolTimeout", Qt::QueuedConnection);
+                            }});
+    }
 }
 
 void MainWindow::onProtocolTimeout()
@@ -236,6 +242,9 @@ void MainWindow::discover()
     })) {
         ui->statusBar->showMessage("Discovery error");
     }
+
+    //std::vector<v2::Preset> bla = m_protocolAdapter->getPresets();
+    //std::vector<v2::Preset> blu = m_protocolAdapter->getPresets();
 }
 
 void MainWindow::updateUi()
@@ -268,7 +277,7 @@ void MainWindow::updateFilter()
 
     // Compute filter response
     {
-        Filter& f = *(d->curFilter);
+        FilterPlot& f = *(d->curFilter);
         computeResponse(f.t, d->freqTable.at(f.f), f.g, qTable.at(f.q), d->freqTable, &(f.mags), &(f.phases));
         f.plot->clearPoints();
         for (size_t i = 0; i < f.mags.size(); ++i) {

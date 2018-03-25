@@ -4,9 +4,11 @@ CONFIG += console c++11 link_prl
 
 include(../cornrow.pri)
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    Controller.cpp
 
-HEADERS +=
+HEADERS += \
+    Controller.h
 
 #
 LIBS += -pthread

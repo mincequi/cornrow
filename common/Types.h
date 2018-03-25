@@ -2,9 +2,17 @@
 #define TYPES_H
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
-enum class Type : uint8_t {
+enum Version : uint8_t {
+    Invalid     = 0,
+
+    Version1    = 1,
+    Version2    = 2
+};
+
+enum class FilterType : uint8_t {
     Invalid     = 0,
 
     // Linear filters
@@ -31,6 +39,21 @@ enum class Type : uint8_t {
     User        = 96,
 
     Max         = 127
+};
+
+struct Filter
+{
+    FilterType  type;
+    float       f;
+    float       g;
+    float       q;
+};
+
+struct Preset
+{
+    std::string name;
+    std::string meta;
+    std::vector<Filter> filters;
 };
 
 struct BiQuad

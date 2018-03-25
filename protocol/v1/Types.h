@@ -7,11 +7,14 @@
 
 #include "common/Types.h"
 
+MSGPACK_ADD_ENUM(FilterType)
+
+namespace v1 {
+
 enum class Code : uint8_t {
     // General
     Invalid         = 0,    // Not used
     Login,
-    GetVersion,
     SetPassword,
 
     // General pipeline access
@@ -48,13 +51,9 @@ enum class Code : uint8_t {
     Max             = 127
 };
 
-MSGPACK_ADD_ENUM(Type)
-
 struct Filter
 {
-    MSGPACK_DEFINE(type, freq, gain, q)
-
-    Type    type; // max 127
+    FilterType    type; // max 127
     uint8_t freq; // max 121
     int8_t  gain; // -32 ... 127
     uint8_t q;    // max 55
@@ -62,10 +61,13 @@ struct Filter
 
 struct Preset
 {
-    MSGPACK_DEFINE(name, filters)
+    MSGPACK_DEFINE(name, sfilters)
 
-    std::string         name;         // max 31
-    std::vector<Filter> filters;      // max 15
+    std::string     name;         // max 31
+    std::vector<Filter>  filters;      // max 15
+    std::vector<uint32_t>& sfilters = reinterpret_cast<std::vector<uint32_t>&>(filters);
 };
+
+} // namespace v1
 
 #endif // PROTOCOLTYPES_H

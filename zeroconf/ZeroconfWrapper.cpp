@@ -11,11 +11,9 @@ extern "C" {
 #include "mdnsd.h"
 }
 
-ZeroconfWrapper::ZeroconfWrapper(uint16_t port)
-    : m_port(port),
-      m_mdnsd(mdnsd_start())
+ZeroconfWrapper::ZeroconfWrapper()
+    : m_mdnsd(mdnsd_start())
 {
-    registerService();
 }
 
 ZeroconfWrapper::~ZeroconfWrapper()
@@ -26,7 +24,7 @@ ZeroconfWrapper::~ZeroconfWrapper()
     }
 }
 
-bool ZeroconfWrapper::registerService()
+bool ZeroconfWrapper::announce(uint16_t port)
 {
     if (!m_mdnsd) {
         return false;
@@ -72,7 +70,7 @@ bool ZeroconfWrapper::registerService()
     freeifaddrs(ifa);
     */
 
-    struct mdns_service *service = mdnsd_register_svc(m_mdnsd, "Cornrow", "_cornrow._tcp.local", m_port, NULL, NULL); // TTL should be 75 minutes, i.e. 4500 seconds
+    struct mdns_service *service = mdnsd_register_svc(m_mdnsd, "Cornrow", "_cornrow._tcp.local", port, NULL, NULL); // TTL should be 75 minutes, i.e. 4500 seconds
     mdns_service_destroy(service);
 
     return true;
