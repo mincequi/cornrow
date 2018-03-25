@@ -14,7 +14,7 @@ public:
     explicit ZeroconfWrapper(DiscoverCallback callback);
     ~ZeroconfWrapper();
 
-    void listen(DiscoverCallback callback);
+    void discover(DiscoverCallback callback);
 
 private:
     static void callback(void *p_cookie, int status, const struct rr_entry *entries);

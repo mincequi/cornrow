@@ -7,17 +7,13 @@
 class ZeroconfWrapper
 {
 public:
-    // Announce mode
-    explicit ZeroconfWrapper(uint16_t port);
+    explicit ZeroconfWrapper();
     ~ZeroconfWrapper();
 
-private:
-    // Announce mode
-    bool registerService();
-    uint16_t m_port = 0;
-    struct mdnsd* m_mdnsd = nullptr;
+    bool announce(uint16_t port);
 
-    // Discover mode
+private:
+    struct mdnsd* m_mdnsd = nullptr;
 };
 
 #endif // TINYSVCMDNS_H

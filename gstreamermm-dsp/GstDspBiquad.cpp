@@ -7,7 +7,7 @@
 GstDspBiquad::GstDspBiquad(GstElement *obj)
     : Glib::ObjectBase(typeid(GstDspBiquad)),
       Gst::Element(obj),
-      m_type(*this, "type", Type::Peak),
+      m_type(*this, "type", FilterType::Peak),
       m_freq(*this, "freq", 1000.0),
       m_gain(*this, "gain", 0.0),
       m_q(*this, "q", 0.707)
@@ -37,7 +37,7 @@ void GstDspBiquad::update()
     m_mutex.unlock();
 
     switch (m_type) {
-    case Type::Peak: {
+    case FilterType::Peak: {
         double A = pow(10, m_gain/40.0);
         double w0 = 2*M_PI*m_freq/m_rate;
         double alpha = sin(w0)*0.5/m_q;
@@ -46,16 +46,16 @@ void GstDspBiquad::update()
         double alpha2 = alpha/A;
         double a0     = 1.0 + alpha2;
 
-        m_b0 = ( 1.0 + alpha1 ) / a0;
-        m_b1 = (-2.0 * cos(w0)) / a0;
-        m_b2 = ( 1.0 - alpha1 ) / a0;
-        m_a1 = m_b1;
-        m_a2 = ( 1.0 - alpha2 ) / a0;
+        m_biquad.b0 = ( 1.0 + alpha1 ) / a0;
+        m_biquad.b1 = (-2.0 * cos(w0)) / a0;
+        m_biquad.b2 = ( 1.0 - alpha1 ) / a0;
+        m_biquad.a1 = m_biquad.b1;
+        m_biquad.a2 = ( 1.0 - alpha2 ) / a0;
 
         break;
     }
-    case Type::Invalid:
-    case Type::Max:
+    case FilterType::Invalid:
+    case FilterType::Max:
         m_freq = 0.0;
         m_gain = 0.0;
         m_q = 0.0;
@@ -74,7 +74,7 @@ void GstDspBiquad::process(float* in, uint sampleCount)
     for (uint i = 0; i < frameCount; ++i) {
         for (auto& c : m_channelHistory) {
             float out;
-            out = m_b0**in + m_b1*c.x1 + m_b2*c.x2 - m_a1*c.y1 - m_a2*c.y2;
+            out = m_biquad.b0**in + m_biquad.b1*c.x1 + m_biquad.b2*c.x2 - m_biquad.a1*c.y1 - m_biquad.a2*c.y2;
             c.y2 = c.y1;
             c.y1 = out;
             c.x2 = c.x1;
@@ -87,7 +87,7 @@ void GstDspBiquad::process(float* in, uint sampleCount)
     }
 }
 
-Glib::PropertyProxy<Type> GstDspBiquad::type()
+Glib::PropertyProxy<FilterType> GstDspBiquad::type()
 {
     return m_type.get_proxy();
 }

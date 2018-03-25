@@ -11,11 +11,9 @@ extern "C" {
 #include "mdnsd.h"
 }
 
-ZeroconfWrapper::ZeroconfWrapper(uint16_t port)
-    : m_port(port),
-      m_mdnsd(mdnsd_start())
+ZeroconfWrapper::ZeroconfWrapper()
+    : m_mdnsd(mdnsd_start())
 {
-    registerService();
 }
 
 ZeroconfWrapper::~ZeroconfWrapper()
@@ -26,7 +24,7 @@ ZeroconfWrapper::~ZeroconfWrapper()
     }
 }
 
-bool ZeroconfWrapper::registerService()
+bool ZeroconfWrapper::announce(uint16_t port)
 {
     if (!m_mdnsd) {
         return false;

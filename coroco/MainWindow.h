@@ -5,8 +5,9 @@
 
 #include <rpc/client.h>
 
-#include "ZeroconfWrapper.h"
-#include "protocol/ProtocolAdaptersV1.h"
+#include "Types.h"
+#include "ZeroconfBonjour.h"
+#include "protocol/v2/ClientAdapter.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,31 +22,33 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_portBox_valueChanged(int i);
-
     void on_addButton_clicked();
     void on_deleteButton_clicked();
     void on_filterComboBox_currentIndexChanged(int i);
+    void on_typeComboBox_currentIndexChanged(int i);
     void on_freqSpinBox_valueChanged(double);
     void on_gainSpinBox_valueChanged(double g);
     void on_qSpinBox_valueChanged(double);
 
     void onServiceDiscovered(QString hostname, QString address, quint16 port);
+    void onProtocolTimeout();
 
 private:
-    void enableFilterWidgets(bool enable);
+    void discover();
+
+    void updateUi();
+    void updateFilter();
 
     Ui::MainWindow *ui;
-    ZeroconfWrapper m_zeroconf;
-    rpc::client*    m_rpcClient = nullptr;
-    v1::ClientProtocolAdapter* m_protocolAdapter = nullptr;
 
-    struct Filter {
-        int     f = 68;
-        float   g = 0.0;
-        int     q = 17;
-    };
-    std::vector<Filter> m_filters;
+    const std::vector<float> m_freqTable;
+
+    ZeroconfBonjour m_zeroconfBonjour;
+    rpc::client*    m_rpcClient = nullptr;
+    v1::ClientAdapter* m_protocolAdapter = nullptr;
+
+    class Private;
+    Private *const d;
 };
 
 #endif // MAINWINDOW_H

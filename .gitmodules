@@ -4,3 +4,6 @@
 [submodule "thirdparty/rpclib"]
 	path = thirdparty/rpclib
 	url = https://github.com/mincequi/rpclib.git
+[submodule "thirdparty/kplotting"]
+	path = thirdparty/kplotting
+	url = https://github.com/mincequi/kplotting.git

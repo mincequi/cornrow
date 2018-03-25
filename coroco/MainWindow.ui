@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>664</width>
-    <height>386</height>
+    <width>621</width>
+    <height>426</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>400</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1024</width>
+    <height>768</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -17,22 +29,33 @@
    <property name="enabled">
     <bool>true</bool>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
     <item>
-     <widget class="QSpinBox" name="portBox">
-      <property name="minimum">
-       <number>30000</number>
+     <widget class="KPlotWidget" name="plotWidget">
+      <property name="backgroundColor" stdset="0">
+       <color>
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
       </property>
-      <property name="maximum">
-       <number>55000</number>
+      <property name="grid" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="objectToolTip" stdset="0">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QGraphicsView" name="graphicsView"/>
-    </item>
-    <item>
-     <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,1,1,1">
+     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0" columnstretch="1,1,1,1,1">
+      <item row="1" column="0">
+       <widget class="QComboBox" name="filterComboBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="2">
        <widget class="TableSpinBox" name="freqSpinBox">
         <property name="enabled">
@@ -68,13 +91,6 @@
         </property>
         <property name="singleStep">
          <double>0.500000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QComboBox" name="filterComboBox">
-        <property name="enabled">
-         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -119,10 +135,46 @@
         </item>
        </layout>
       </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="typeComboBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>Peak</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Low Pass</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>High Pass</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Type</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="2">
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>Frequency</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Q</string>
         </property>
        </widget>
       </item>
@@ -142,31 +194,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Type</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Q</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="3">
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>Gain</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="typeComboBox">
-        <property name="enabled">
-         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -179,8 +210,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>664</width>
-     <height>22</height>
+     <width>621</width>
+     <height>19</height>
     </rect>
    </property>
   </widget>
@@ -196,6 +227,12 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
+  <customwidget>
+   <class>KPlotWidget</class>
+   <extends>QFrame</extends>
+   <header>kplotwidget.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>TableSpinBox</class>
    <extends>QDoubleSpinBox</extends>

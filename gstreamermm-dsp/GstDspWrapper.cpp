@@ -63,12 +63,40 @@ void GstDspWrapper::setPassthrough(bool passthrough)
     m_peq->set_passthrough(passthrough);
 }
 
+std::vector<::Preset> GstDspWrapper::getPresets()
+{
+}
+
+::Preset GstDspWrapper::getPreset(const std::string& name)
+{
+}
+
+std::vector<std::string> GstDspWrapper::getPresetNames()
+{
+}
+
+void GstDspWrapper::setPreset(const std::string& name)
+{
+}
+
+void GstDspWrapper::savePreset(const ::Preset& preset)
+{
+}
+
+void GstDspWrapper::renamePreset(const std::string& oldName, const std::string& newName)
+{
+}
+
+void GstDspWrapper::deletePreset(const std::string& name)
+{
+}
+
 void GstDspWrapper::setFilterCount(uint8_t i)
 {
     m_peq->filterCount().set_value(i);
 }
 
-void GstDspWrapper::setFilterType(uint8_t i, Type type)
+void GstDspWrapper::setFilterType(uint8_t i, FilterType type)
 {
     cout << "setFilterType[" << static_cast<uint32_t>(i) << "]: " << static_cast<uint32_t>(type) << endl;
     increaseFilterCount(i+1);
