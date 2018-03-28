@@ -23,12 +23,14 @@ SOURCES += main.cpp\
     MainWindow.cpp \
     TableSpinBox.cpp \
     Types.cpp \
-    ZeroconfBonjour.cpp
+    ZeroconfBonjour.cpp \
+    Model.cpp
 
 HEADERS += MainWindow.h \
     TableSpinBox.h \
     Types.h \
-    ZeroconfBonjour.h
+    ZeroconfBonjour.h \
+    Model.h
 
 FORMS   += MainWindow.ui
 
