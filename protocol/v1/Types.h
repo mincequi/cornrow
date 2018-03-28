@@ -40,6 +40,8 @@ enum class Code : uint8_t {
     DeletePreset,
 
     SetFilterCount  = 80,
+    AddFilter,
+    RemoveFilter,
     SetFilterType,
     SetFilterFreq,
     SetFilterGain,

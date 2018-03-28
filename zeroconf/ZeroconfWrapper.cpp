@@ -74,7 +74,7 @@ bool ZeroconfWrapper::announce(uint16_t port)
         "v=1",
         NULL
     };
-    struct mdns_service *service = mdnsd_register_svc(m_mdnsd, "Cornrow", "_cornrow._tcp.local", m_port, NULL, txt); // TTL should be 75 minutes, i.e. 4500 seconds
+    struct mdns_service *service = mdnsd_register_svc(m_mdnsd, "Cornrow", "_cornrow._tcp.local", port, NULL, txt); // TTL should be 75 minutes, i.e. 4500 seconds
     mdns_service_destroy(service);
 
     return true;

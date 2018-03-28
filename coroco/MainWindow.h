@@ -5,6 +5,7 @@
 
 #include <rpc/client.h>
 
+#include "Model.h"
 #include "Types.h"
 #include "ZeroconfBonjour.h"
 #include "protocol/v2/ClientAdapter.h"
@@ -47,6 +48,8 @@ private:
 
     class Private;
     Private *const d;
+
+    Model* m_model;
 };
 
 #endif // MAINWINDOW_H

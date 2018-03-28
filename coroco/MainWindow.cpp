@@ -44,7 +44,9 @@ public:
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    d(new Private(this))
+    m_freqTable(twelfthOctaveBandsTable),
+    d(new Private(this)),
+    m_model(new Model(twelfthOctaveBandsTable, this))
 {
     ui->setupUi(this);
 
