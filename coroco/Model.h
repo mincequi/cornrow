@@ -7,12 +7,12 @@
 
 class Model : public QObject
 {
+    friend class MainWindow;
+
     Q_OBJECT
 
-    //Q_ENUMS(FilterType)
-
     Q_PROPERTY(int filterCount READ filterCount NOTIFY filterCountChanged)
-    Q_PROPERTY(FilterType filterType READ filterType WRITE setFilterType NOTIFY filterTypeChanged)
+    Q_PROPERTY(FilterType type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(float freq READ freq NOTIFY freqChanged)
     Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(float q READ q NOTIFY qChanged)
@@ -20,33 +20,39 @@ class Model : public QObject
     Q_PROPERTY(float qSlider READ qSlider WRITE setQSlider NOTIFY qSliderChanged)
 
 public:
-    explicit Model(const std::vector<float>& freqTable, QObject *parent = nullptr);
+    explicit Model(const std::vector<float>& freqTable,
+                   const std::vector<float>& qTable,
+                   QObject *parent = nullptr);
 
     Q_INVOKABLE void addFilter();
     Q_INVOKABLE void deleteFilter();
     Q_INVOKABLE void setFilter(int i);
-    Q_INVOKABLE void stepFreq(int i);
-    Q_INVOKABLE void stepQ(int i);
 
     int         filterCount() const;
-    FilterType  filterType() const;
-    void        setFilterType(FilterType type);
+
+    FilterType  type() const;
+    void        setType(FilterType type);
+
     float       freq() const;
-    float       gain() const;
-    void        setGain(float g);
-    float       q() const;
+    Q_INVOKABLE void stepFreq(int i);
     float       freqSlider() const;
     void        setFreqSlider(float);
+
+    float       gain() const;
+    void        setGain(float g);
+
+    float       q() const;
+    Q_INVOKABLE void stepQ(int i);
     float       qSlider() const;
     void        setQSlider(float);
 
 signals:
     void filterCountChanged();
-    void filterTypeChanged();
+    void typeChanged();
     void freqChanged();
+    void freqSliderChanged();
     void gainChanged();
     void qChanged();
-    void freqSliderChanged();
     void qSliderChanged();
 
 private:
@@ -55,14 +61,17 @@ private:
         int     f = 68;
         float   g = 0.0;
         int     q = 17;
+
+        std::vector<float> mags;
+        std::vector<float> phases;
     };
 
     const std::vector<float> m_freqTable;
+    const std::vector<float> m_qTable;
     QList<Filter>   m_filters;
     Filter*         m_curFilter = nullptr;
     int             m_curIndex = -1;
+    float           m_freqSlider;
 };
-
-//Q_DECLARE_METATYPE(FilterType)
 
 #endif // MODEL_H
