@@ -11,27 +11,37 @@ Model::Model(const std::vector<float>& freqTable,
 {
 }
 
+Model::Model(QObject *parent) :
+    QObject(parent),
+    m_freqTable(twelfthOctaveBandsTable),
+    m_qTable(qTable)
+{
+}
+
 void Model::addFilter()
 {
     m_filters.append(Filter());
     emit filterCountChanged();
 
-    setFilter(m_filters.size()-1);
+    setCurrentFilter(m_filters.size()-1);
 }
 
 void Model::deleteFilter()
 {
     m_filters.removeAt(m_curIndex);
-    setFilter(m_curIndex);
+    setCurrentFilter(m_curIndex);
 
     emit filterCountChanged();
 }
 
-void Model::setFilter(int i)
+void Model::setCurrentFilter(int i)
 {
     if (m_filters.empty()) {
         m_curFilter = nullptr;
+        if (m_curIndex == -1) return;
         m_curIndex = -1;
+
+        emit currentFilterChanged();
     } else {
         if (i >= m_filters.size()) {
             m_curIndex = m_filters.size()-1;
@@ -40,6 +50,7 @@ void Model::setFilter(int i)
         }
         m_curFilter = &(m_filters[m_curIndex]);
 
+        emit currentFilterChanged();
         emit typeChanged();
         emit freqChanged();
         emit freqSliderChanged();
@@ -54,24 +65,35 @@ int Model::filterCount() const
     return m_filters.size();
 }
 
-FilterType Model::type() const
+int Model::currentFilter() const
 {
-    return m_curFilter->t;
+    return m_curIndex;
 }
 
-void Model::setType(FilterType type)
+int Model::type() const
 {
-    m_curFilter->t = type;
+    return static_cast<int>(m_curFilter->t);
 }
 
-float Model::freq() const
+void Model::setType(int type)
 {
-    return m_freqTable.at(m_curFilter->f);
+    FilterType t = static_cast<FilterType>(type);
+    if (m_curFilter->t == t) return;
+
+    m_curFilter->t = t;
+    emit typeChanged();
+}
+
+QString Model::freqReadout() const
+{
+    if (!m_curFilter) return QString();
+
+    return QString::number(m_freqTable.at(m_curFilter->f), 'f', 1);
 }
 
 void Model::stepFreq(int i)
 {
-    int idx = m_freqTable.size() + i;
+    int idx = m_curFilter->f + i;
     if (idx < 0) return;
     if (idx > m_freqTable.size()-1) return;
     if (m_curFilter->f == idx) return;
@@ -84,11 +106,14 @@ void Model::stepFreq(int i)
 
 float Model::freqSlider() const
 {
+    if (!m_curFilter) return (float)m_defaultFreq/(float)(m_freqTable.size()-1);
+
     return (float)m_curFilter->f/(float)(m_freqTable.size()-1);
 }
 
 void Model::setFreqSlider(float f)
 {
+    // @TODO(mawe): this can crash we removing last filter band
     int idx = qRound(f*(m_freqTable.size()-1));
     if (m_curFilter->f == idx) return;
 
@@ -98,25 +123,31 @@ void Model::setFreqSlider(float f)
 
 float Model::gain() const
 {
+    if (!m_curFilter) return 0.0f;
+
     return m_curFilter->g;
 }
 
 void Model::setGain(float g)
 {
     if (m_curFilter->g == g) return;
+    if (g > m_maxGain) return;
+    if (g < m_minGain) return;
 
     m_curFilter->g = g;
     emit gainChanged();
 }
 
-float Model::q() const
+QString Model::qReadout() const
 {
-    return m_qTable.at(m_curFilter->q);
+    if (!m_curFilter) return QString();
+
+    return QString::number(m_qTable.at(m_curFilter->q), 'f', 2);
 }
 
 void Model::stepQ(int i)
 {
-    int idx = m_qTable.size() + i;
+    int idx = m_curFilter->q + i;
     if (idx < 0) return;
     if (idx > m_qTable.size()-1) return;
     if (m_curFilter->q == idx) return;
@@ -129,6 +160,8 @@ void Model::stepQ(int i)
 
 float Model::qSlider() const
 {
+    if (!m_curFilter) return (float)m_defaultQ/(float)(m_qTable.size()-1);
+
     return (float)m_curFilter->q/(float)(m_qTable.size()-1);
 }
 

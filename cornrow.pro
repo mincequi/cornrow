@@ -6,12 +6,14 @@ SUBDIRS += \
     common \
     cornrowd \
     coroco \
+    corocomo \
     gstreamermm-dsp \
     protocol \
     zeroconf
 
 common.subdir           = common
 coroco.subdir           = coroco
+corocomo.subdir         = corocomo
 gstreamermm-dsp.subdir  = gstreamermm-dsp
 protocol.subdir         = protocol
 zeroconf.subdir         = zeroconf

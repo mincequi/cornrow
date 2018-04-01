@@ -73,8 +73,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->addButton, &QToolButton::clicked, m_model, &Model::addFilter);
     connect(ui->deleteButton, &QToolButton::clicked, m_model, &Model::deleteFilter);
-    connect(ui->filterComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), m_model, &Model::setFilter);
-    connect(ui->typeComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this](int i) { m_model->setType(static_cast<FilterType>(i+1)); });
+    connect(ui->filterComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), m_model, &Model::setCurrentFilter);
+    connect(ui->typeComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this](int i) { m_model->setType(i+1); });
     connect(ui->freqSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this]() { m_model->setFreqSlider((float)ui->freqSpinBox->index()/(float)(twelfthOctaveBandsTable.size()-1)); });
     connect(ui->gainSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), m_model, &Model::setGain);
     connect(ui->qSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this]() { m_model->setQSlider((float)ui->qSpinBox->index()/(float)(qTable.size()-1)); });
