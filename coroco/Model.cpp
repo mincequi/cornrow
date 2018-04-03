@@ -86,9 +86,11 @@ void Model::setType(int type)
 
 QString Model::freqReadout() const
 {
-    if (!m_curFilter) return QString();
+    float value = m_curFilter ? m_freqTable.at(m_curFilter->f) : 1000.0;
 
-    return QString::number(m_freqTable.at(m_curFilter->f), 'f', 1);
+    if (value < 1.0) return QString::number(value, 'f', 2);
+    else if (value < 100.0) return QString::number(value, 'f', 1);
+    else return QString::number(value, 'f', 0);
 }
 
 void Model::stepFreq(int i)
@@ -140,9 +142,11 @@ void Model::setGain(float g)
 
 QString Model::qReadout() const
 {
-    if (!m_curFilter) return QString();
+    float value = m_curFilter ? m_qTable.at(m_curFilter->q) : 0.70;
 
-    return QString::number(m_qTable.at(m_curFilter->q), 'f', 2);
+    if (value < 1.0) return QString::number(value, 'f', 2);
+    else if (value < 10.0) return QString::number(value, 'f', 1);
+    else return QString::number(value, 'f', 0);
 }
 
 void Model::stepQ(int i)

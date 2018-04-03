@@ -16,11 +16,13 @@ include(../cornrow.pri)
 
 SOURCES += main.cpp \
     ../common/Types.cpp \
-    ../coroco/Model.cpp
+    ../coroco/Model.cpp \
+    EqChart.cpp
 
 HEADERS += \
     ../common/Types.h \
-    ../coroco/Model.h
+    ../coroco/Model.h \
+    EqChart.h
 
 RESOURCES += qml.qrc
 
@@ -29,6 +31,10 @@ QML_IMPORT_PATH =
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
+
+# protocol
+LIBS += -L$$OUT_PWD/../protocol/ -lprotocol
+PRE_TARGETDEPS += $$OUT_PWD/../protocol/libprotocol.a
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

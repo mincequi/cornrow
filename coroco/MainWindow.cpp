@@ -237,7 +237,7 @@ void MainWindow::updateFilter()
     // Compute filter response
     {
         Model::Filter& f = *(m_model->m_curFilter);
-        computeResponse(f.t, m_model->m_freqTable.at(f.f), f.g, qTable.at(f.q), m_model->m_freqTable, &(f.mags), &(f.phases));
+        computeResponse({f.t, m_model->m_freqTable.at(f.f), f.g, qTable.at(f.q)}, m_model->m_freqTable, &(f.mags), &(f.phases));
         auto p = d->plots.at(m_model->m_curIndex);
         p->clearPoints();
         for (size_t i = 0; i < f.mags.size(); ++i) {
