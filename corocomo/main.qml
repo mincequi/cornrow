@@ -1,6 +1,8 @@
 import QtQuick 2.8
 import QtQuick.Controls 2.2
+import QtQuick.Controls.Material 2.1
 import QtQuick.Layouts 1.3
+import Cornrow.EqChart 1.0
 import Cornrow.Model 1.0
 
 ApplicationWindow {
@@ -42,18 +44,13 @@ ApplicationWindow {
         }
     }
 
-    Canvas {
-        id: canvas
+    CornrowEqChart {
+        id: eqChart
+        currentPlotColor: Material.accent
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: bandLabel.top
-
-        onPaint: {
-            var ctx = getContext("2d");
-            ctx.fillStyle = Qt.rgba(1, 0, 0, 1);
-            ctx.fillRect(0, 0, width, height);
-        }
     }
 
     Label {

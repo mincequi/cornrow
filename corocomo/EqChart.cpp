@@ -2,11 +2,15 @@
 
 #include <complex>
 
+#include <QPainter>
+
 #include "common/Util.h"
 
 EqChart::EqChart(QQuickItem *parent) :
     QQuickPaintedItem(parent)
 {
+    setFilterCount(1);
+    setFilter(0, {FilterType::Peak, 100.0, -27.0, 0.707});
 }
 
 void EqChart::setFilterCount(int i)
@@ -19,7 +23,7 @@ void EqChart::setFilterCount(int i)
         while (diff--) {
             QPolygonF poly(twelfthOctaveBandsTable.size());
             for (int i = 0; i < twelfthOctaveBandsTable.size(); ++i) {
-                poly[i].rx() = twelfthOctaveBandsTable.at(i);
+                poly[i].rx() = i;
             }
             m_plots.append(poly);
         }
@@ -76,6 +80,15 @@ void EqChart::setCurrentPlot(int i)
 
 void EqChart::paint(QPainter *painter)
 {
+    painter->setPen(QPen(m_currentPlotColor, 2.0));
+    QTransform trans;
+    trans.scale(width()/(twelfthOctaveBandsTable.size()-1.0), height()/-36.0);
+    trans.translate(0.0, -9.0);
+    painter->setRenderHints(QPainter::Antialiasing, true);
+
+    for (const auto& p : m_plots) {
+        painter->drawPolyline(trans.map(p));
+    }
 }
 
 void EqChart::computeResponse(const Filter& f, QPolygonF* mags)
@@ -84,7 +97,7 @@ void EqChart::computeResponse(const Filter& f, QPolygonF* mags)
     if (!computeBiQuad(48000, f, &biquad)) return;
 
     for (QPointF& m : *mags) {
-        double w = 2.0*M_PI*m.rx()/48000;
+        double w = 2.0*M_PI*twelfthOctaveBandsTable.at(m.rx())/48000;
         std::complex<double> z(cos(w), sin(w));
         std::complex<double> numerator = biquad.b0 + (biquad.b1 + biquad.b2*z)*z;
         std::complex<double> denominator = 1.0 + (biquad.a1 + biquad.a2*z)*z;

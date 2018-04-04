@@ -1,6 +1,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
+#include "EqChart.h"
+
 #include "../coroco/Model.h"
 
 int main(int argc, char *argv[])
@@ -8,6 +10,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
 
+    qmlRegisterType<EqChart>("Cornrow.EqChart", 1, 0, "CornrowEqChart");
     qmlRegisterType<Model>("Cornrow.Model", 1, 0, "CornrowModel");
 
     QQmlApplicationEngine engine;
