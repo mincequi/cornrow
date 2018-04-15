@@ -18,7 +18,8 @@ public:
     GstDspWrapper();
     ~GstDspWrapper();
 
-    bool constructPipeline(const Config& config);
+    bool createPipeline(const Config& config);
+    void destroyPipeline();
 
 private:
     virtual void setPassthrough(bool passthrough)       override;

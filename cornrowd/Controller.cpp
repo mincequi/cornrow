@@ -23,7 +23,7 @@ Controller::Controller(const Config& config)
     if (!config.watchFilename.empty()) {
         m_watcher.start();
     } else {
-        if (!m_gst.constructPipeline(config)) return;
+        if (!m_gst.createPipeline(config)) return;
     }
 
     m_mainloop->run();
@@ -65,5 +65,5 @@ bool Controller::onLogin(Version version, std::string /*password*/)
 void Controller::onRateChanged(int rate)
 {
     std::cout << "rate: " << rate << std::endl;
-    m_gst.constructPipeline({Source::Default, rate, SampleFormat::I16});
+    m_gst.createPipeline({Source::Default, rate, SampleFormat::I16});
 }

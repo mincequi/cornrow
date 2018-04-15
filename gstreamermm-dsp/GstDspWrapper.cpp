@@ -38,9 +38,11 @@ GstDspWrapper::~GstDspWrapper()
 {
 }
 
-bool GstDspWrapper::constructPipeline(const Config& config)
+bool GstDspWrapper::createPipeline(const Config& config)
 {
-    if (m_pipeline) m_pipeline->set_state(Gst::STATE_NULL);
+    destroyPipeline();
+
+    if (config.rate == 0) return false;
 
     m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
     m_pipeline->add(m_defaultSrc)->add(m_srcConvert)->add(m_peq)->add(m_sinkConvert)->add(m_defaultSink);
@@ -69,6 +71,13 @@ bool GstDspWrapper::constructPipeline(const Config& config)
     }
 
     return ret == Gst::STATE_CHANGE_SUCCESS;
+}
+
+void GstDspWrapper::destroyPipeline()
+{
+    if (!m_pipeline) return;
+    m_pipeline->remove(m_defaultSrc)->remove(m_srcConvert)->remove(m_peq)->remove(m_sinkConvert)->remove(m_defaultSink);
+    m_pipeline.reset();
 }
 
 void GstDspWrapper::setPassthrough(bool passthrough)

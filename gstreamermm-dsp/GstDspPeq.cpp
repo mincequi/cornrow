@@ -82,7 +82,7 @@ GstFlowReturn GstDspPeq::transform_ip(GstBaseTransform* self, GstBuffer* buf)
 void GstDspPeq::process(GstBuffer* buf)
 {
     GstMapInfo map;
-    gst_buffer_map(buf, &map, GST_MAP_READWRITE);
+    gst_buffer_map(buf, &map, (GstMapFlags)GST_MAP_READWRITE);
 
     float* data = (float*)(map.data);
     uint   sampleCount = map.size/sizeof(float);
