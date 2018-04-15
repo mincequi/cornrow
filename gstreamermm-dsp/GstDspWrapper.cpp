@@ -41,7 +41,6 @@ GstDspWrapper::~GstDspWrapper()
 bool GstDspWrapper::createPipeline(const Config& config)
 {
     destroyPipeline();
-
     if (config.rate == 0) return false;
 
     m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
@@ -57,7 +56,7 @@ bool GstDspWrapper::createPipeline(const Config& config)
     auto caps = Gst::Caps::create_from_string(capsString);
 
     try {
-        m_defaultSrc->link(m_srcConvert, caps)->link(m_peq)->link(m_sinkConvert)->link(m_defaultSink);
+        m_defaultSrc->link(m_srcConvert, caps)->link(m_peq)->link(m_sinkConvert)->link(m_defaultSink, caps);
     } catch (...) {
         std::cerr << __func__ << ": link error" << std::endl;
         return false;
@@ -76,6 +75,8 @@ bool GstDspWrapper::createPipeline(const Config& config)
 void GstDspWrapper::destroyPipeline()
 {
     if (!m_pipeline) return;
+
+    m_pipeline->set_state(Gst::STATE_NULL);
     m_pipeline->remove(m_defaultSrc)->remove(m_srcConvert)->remove(m_peq)->remove(m_sinkConvert)->remove(m_defaultSink);
     m_pipeline.reset();
 }
