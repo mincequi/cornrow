@@ -7,6 +7,8 @@
 
 class GstDspPeq;
 namespace Gst {
+class Caps;
+class Element;
 class Pipeline;
 }
 
@@ -15,6 +17,8 @@ class GstDspWrapper : public IControllable
 public:
     GstDspWrapper();
     ~GstDspWrapper();
+
+    bool constructPipeline(const Config& config);
 
 private:
     virtual void setPassthrough(bool passthrough)       override;
@@ -35,6 +39,14 @@ private:
 
     void increaseFilterCount(uint8_t i);
 
+    Glib::RefPtr<Gst::Element>  m_defaultSrc;
+    Glib::RefPtr<Gst::Element>  m_defaultSink;
+
+    Glib::RefPtr<Gst::Element>  m_srcConvert;
+    Glib::RefPtr<Gst::Element>  m_sinkConvert;
+
+    Glib::RefPtr<Gst::Caps>     m_caps;
+    Glib::RefPtr<Gst::Element>  m_src;
     Glib::RefPtr<Gst::Pipeline> m_pipeline;
     Glib::RefPtr<GstDspPeq>     m_peq;
 };

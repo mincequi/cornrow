@@ -2,10 +2,35 @@
 #define TYPES_H
 
 #include <cstdint>
+#include <set>
 #include <string>
 #include <vector>
 
-enum Version : uint8_t {
+extern const std::set<int> validSampleRates;
+
+enum class Source : uint8_t {
+    Invalid     = 0,
+
+    Default     = 0x01, // platform specific (alsa on linux)
+    Bluetooth   = 0x02
+};
+
+enum class SampleFormat : uint8_t {
+    Invalid     = 0,
+
+    I16         = 0x1
+};
+
+struct Config {
+    Config(Source source_, int rate_, SampleFormat format_, std::string watchFilename_ = std::string());
+
+    Source  source = Source::Invalid;
+    int     rate = 0;
+    SampleFormat format = SampleFormat::Invalid;
+    std::string watchFilename;
+};
+
+enum class Version : uint8_t {
     Invalid     = 0,
 
     Version1    = 1,

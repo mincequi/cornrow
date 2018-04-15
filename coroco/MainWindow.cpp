@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include <QDebug>
 #include <QPen>
 #include <QThread>
 #include <QTimer>
@@ -244,6 +245,15 @@ void MainWindow::updateFilter()
             p->addPoint(i, f.mags.at(i));
             p->setLinePen(QPen(Qt::blue, 2.0));
         }
+
+        BiQuad biquad;
+        computeBiQuad(48000, {f.t, m_model->m_freqTable.at(f.f), f.g, qTable.at(f.q)}, &biquad);
+        qDebug() << "b0: " << biquad.b0;
+        qDebug() << "b1: " << biquad.b1;
+        qDebug() << "b2: " << biquad.b2;
+        qDebug() << "a1: " << biquad.a1;
+        qDebug() << "a2: " << biquad.a2;
+
     }
 
     // Update sum plot

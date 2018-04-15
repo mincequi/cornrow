@@ -5,10 +5,14 @@ CONFIG += console c++11 link_prl
 include(../cornrow.pri)
 
 SOURCES += main.cpp \
-    Controller.cpp
+    Controller.cpp \
+    CornrowdOptionGroup.cpp \
+    input/hifiberrydigi/RateFileWatcher.cpp
 
 HEADERS += \
-    Controller.h
+    Controller.h \
+    CornrowdOptionGroup.h \
+    input/hifiberrydigi/RateFileWatcher.h
 
 #
 LIBS += -pthread

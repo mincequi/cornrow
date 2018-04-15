@@ -19,42 +19,56 @@ GstDspWrapper::GstDspWrapper()
         cerr << "Error registering plugin" << std::endl;
     }
 
-    m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
-
 #ifdef __linux__
-    auto source = Gst::AlsaSrc::create();
-    auto sink = Gst::AlsaSink::create();
+    m_defaultSrc = Gst::AlsaSrc::create();
+    m_defaultSink = Gst::AlsaSink::create();
 #else
-    auto source = Gst::ElementFactory::create_element("autoaudiosrc");
-    auto sink = Gst::ElementFactory::create_element("autoaudiosink");
+    m_defaultSrc = Gst::ElementFactory::create_element("autoaudiosrc");
+    m_defaultSink = Gst::ElementFactory::create_element("autoaudiosink");
 #endif
 
+    m_srcConvert = Gst::AudioConvert::create();
+    m_sinkConvert = Gst::AudioConvert::create();
+
     m_peq = Glib::RefPtr<GstDspPeq>::cast_dynamic(Gst::ElementFactory::create_element("peq", "peq0"));
-    auto crossover = Gst::ElementFactory::create_element("crossover");
-
-    auto convert1 = Gst::AudioConvert::create();
-    auto convert2 = Gst::AudioConvert::create();
-
-    if (!m_pipeline || !source || !sink) {
-        std::cerr << "unable to create element" << std::endl;
-    }
-
-    m_pipeline->add(source)->add(sink)->add(m_peq)->add(crossover)->add(convert1)->add(convert2); //->add(loudness);
-
-    Glib::ustring capsString = Glib::ustring::compose(
-                "audio/x-raw, "
-                "format=(string)%1, "
-                "rate=(int){44100,48000}, "
-                "channels=(int)2, "
-                "layout=(string)interleaved", GST_AUDIO_NE(S16));
-    auto caps = Gst::Caps::create_from_string(capsString);
-
-    source->link(convert1)->link(m_peq)/*->link(crossover)*/->link(convert2)->link(sink, caps);
-    m_pipeline->set_state(Gst::STATE_PLAYING);
+    //auto crossover = Gst::ElementFactory::create_element("crossover");
 }
 
 GstDspWrapper::~GstDspWrapper()
 {
+}
+
+bool GstDspWrapper::constructPipeline(const Config& config)
+{
+    if (m_pipeline) m_pipeline->set_state(Gst::STATE_NULL);
+
+    m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
+    m_pipeline->add(m_defaultSrc)->add(m_srcConvert)->add(m_peq)->add(m_sinkConvert)->add(m_defaultSink);
+    Glib::ustring capsString = Glib::ustring::compose(
+                                   "audio/x-raw, "
+                                   "format=(string)%1, "
+                                   "rate=(int)%2, "
+                                   "channels=(int)2, "
+                                   "layout=(string)interleaved",
+                                   GST_AUDIO_NE(S16),
+                                   config.rate);
+    auto caps = Gst::Caps::create_from_string(capsString);
+
+    try {
+        m_defaultSrc->link(m_srcConvert, caps)->link(m_peq)->link(m_sinkConvert)->link(m_defaultSink);
+    } catch (...) {
+        std::cerr << __func__ << ": link error" << std::endl;
+        return false;
+    }
+
+    m_pipeline->set_state(Gst::STATE_PLAYING);
+    Gst::State state, pending;
+    Gst::StateChangeReturn ret = m_pipeline->get_state(state, pending, Gst::CLOCK_TIME_NONE);
+    if (ret != Gst::STATE_CHANGE_SUCCESS) {
+        std::cerr << __func__ << ": start error" << std::endl;
+    }
+
+    return ret == Gst::STATE_CHANGE_SUCCESS;
 }
 
 void GstDspWrapper::setPassthrough(bool passthrough)

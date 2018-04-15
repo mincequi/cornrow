@@ -1,5 +1,18 @@
 #include "Types.h"
 
+const std::set<int> validSampleRates = {
+    44100,
+    48000
+};
+
+Config::Config(Source source_, int rate_, SampleFormat format_, std::string watchFilename_)
+    : source(source_),
+      rate(rate_),
+      format(format_),
+      watchFilename(watchFilename_)
+{
+}
+
 const std::vector<float> twelfthOctaveBandsTable = {
       20.0,     21.2,    22.4,    23.6,
       25.0,     26.5,    28.0,    30.0,
