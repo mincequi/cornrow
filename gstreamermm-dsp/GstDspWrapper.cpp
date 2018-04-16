@@ -19,14 +19,6 @@ GstDspWrapper::GstDspWrapper()
         cerr << "Error registering plugin" << std::endl;
     }
 
-#ifdef __linux__
-    m_defaultSrc = Gst::AlsaSrc::create();
-    m_defaultSink = Gst::AlsaSink::create();
-#else
-    m_defaultSrc = Gst::ElementFactory::create_element("autoaudiosrc");
-    m_defaultSink = Gst::ElementFactory::create_element("autoaudiosink");
-#endif
-
     m_srcConvert = Gst::AudioConvert::create();
     m_sinkConvert = Gst::AudioConvert::create();
 
@@ -45,6 +37,14 @@ bool GstDspWrapper::createPipeline(const Config& config)
         std::cout << __func__ << ": no signal, not creating pipeline" << std::endl;
         return false;
     }
+
+#ifdef __linux__
+    m_defaultSrc = Gst::AlsaSrc::create();
+    m_defaultSink = Gst::AlsaSink::create();
+#else
+    m_defaultSrc = Gst::ElementFactory::create_element("autoaudiosrc");
+    m_defaultSink = Gst::ElementFactory::create_element("autoaudiosink");
+#endif
 
     std::cout << __func__ << ": creating pipeline...";
     m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
@@ -84,6 +84,7 @@ bool GstDspWrapper::createPipeline(const Config& config)
 
 void GstDspWrapper::destroyPipeline()
 {
+    /*
     Gst::State state, pending;
     std::cout << __func__ << ": getting pipeline state..." << std::flush;
     Gst::StateChangeReturn ret = m_pipeline->get_state(state, pending, Gst::CLOCK_TIME_NONE);
@@ -93,6 +94,8 @@ void GstDspWrapper::destroyPipeline()
         m_pipeline->set_state(Gst::STATE_NULL);
         std::cout << "stopped" << std::endl;
     }
+    */
+
     m_pipeline->remove(m_defaultSrc)->remove(m_srcConvert)->remove(m_peq)->remove(m_sinkConvert)->remove(m_defaultSink);
     m_pipeline.reset();
 }
