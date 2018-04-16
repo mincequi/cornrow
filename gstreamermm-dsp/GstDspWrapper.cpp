@@ -18,12 +18,6 @@ GstDspWrapper::GstDspWrapper()
                                       "0.1.0", "Proprietary", "", "", "")) {
         cerr << "Error registering plugin" << std::endl;
     }
-
-    m_srcConvert = Gst::AudioConvert::create();
-    m_sinkConvert = Gst::AudioConvert::create();
-
-    m_peq = Glib::RefPtr<GstDspPeq>::cast_dynamic(Gst::ElementFactory::create_element("peq", "peq0"));
-    //auto crossover = Gst::ElementFactory::create_element("crossover");
 }
 
 GstDspWrapper::~GstDspWrapper()
@@ -45,6 +39,12 @@ bool GstDspWrapper::createPipeline(const Config& config)
     auto src = Gst::ElementFactory::create_element("autoaudiosrc");
     auto sink = Gst::ElementFactory::create_element("autoaudiosink");
 #endif
+
+    auto srcConvert = Gst::AudioConvert::create();
+    auto sinkConvert = Gst::AudioConvert::create();
+
+    m_peq = Glib::RefPtr<GstDspPeq>::cast_static(Gst::ElementFactory::create_element("peq", "peq0"));
+    //auto crossover = Gst::ElementFactory::create_element("crossover");
 
     std::cout << __func__ << ": creating pipeline...";
     m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
