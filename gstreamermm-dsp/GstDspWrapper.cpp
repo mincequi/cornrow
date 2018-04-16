@@ -40,11 +40,16 @@ GstDspWrapper::~GstDspWrapper()
 
 bool GstDspWrapper::createPipeline(const Config& config)
 {
-    destroyPipeline();
-    if (config.rate == 0) return false;
+    if (m_pipeline) destroyPipeline();
+    if (config.rate == 0) {
+        std::cout << __func__ << ": no signal, not creating pipeline" << std::endl;
+        return false;
+    }
 
+    std::cout << __func__ << ": creating pipeline...";
     m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
     m_pipeline->add(m_defaultSrc)->add(m_srcConvert)->add(m_peq)->add(m_sinkConvert)->add(m_defaultSink);
+    std::cout << "created" << std::endl;
     Glib::ustring capsString = Glib::ustring::compose(
                                    "audio/x-raw, "
                                    "format=(string)%1, "
@@ -56,27 +61,38 @@ bool GstDspWrapper::createPipeline(const Config& config)
     auto caps = Gst::Caps::create_from_string(capsString);
 
     try {
+        std::cout << __func__ << ": linking pipeline...";
         m_defaultSrc->link(m_srcConvert, caps)->link(m_peq)->link(m_sinkConvert)->link(m_defaultSink, caps);
+        std::cout << "linked" << std::endl;
     } catch (...) {
-        std::cerr << __func__ << ": link error" << std::endl;
+        std::cerr << std::endl << __func__ << ": link error" << std::endl;
         return false;
     }
 
+    std::cout << __func__ << ": starting pipeline...";
     m_pipeline->set_state(Gst::STATE_PLAYING);
     Gst::State state, pending;
     Gst::StateChangeReturn ret = m_pipeline->get_state(state, pending, Gst::CLOCK_TIME_NONE);
     if (ret != Gst::STATE_CHANGE_SUCCESS) {
-        std::cerr << __func__ << ": start error" << std::endl;
+        std::cerr << std::endl << __func__ << ": start error" << std::endl;
+        return false;
     }
 
-    return ret == Gst::STATE_CHANGE_SUCCESS;
+    std::cout << "started" << std::endl;
+    return true;
 }
 
 void GstDspWrapper::destroyPipeline()
 {
-    if (!m_pipeline) return;
-
-    m_pipeline->set_state(Gst::STATE_NULL);
+    Gst::State state, pending;
+    std::cout << __func__ << ": getting pipeline state..." << std::flush;
+    Gst::StateChangeReturn ret = m_pipeline->get_state(state, pending, Gst::CLOCK_TIME_NONE);
+    std::cout << state << std::endl;
+    if (state != Gst::STATE_NULL) {
+        std::cout << __func__ << ": stopping pipeline..." << std::flush;
+        m_pipeline->set_state(Gst::STATE_NULL);
+        std::cout << "stopped" << std::endl;
+    }
     m_pipeline->remove(m_defaultSrc)->remove(m_srcConvert)->remove(m_peq)->remove(m_sinkConvert)->remove(m_defaultSink);
     m_pipeline.reset();
 }
