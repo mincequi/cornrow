@@ -40,8 +40,8 @@ private:
 
     void increaseFilterCount(uint8_t i);
 
-    Glib::RefPtr<Gst::Element>  m_srcConvert;
-    Glib::RefPtr<Gst::Element>  m_sinkConvert;
+    //Glib::RefPtr<Gst::Element>  m_srcConvert;
+    //Glib::RefPtr<Gst::Element>  m_sinkConvert;
 
     Glib::RefPtr<Gst::Caps>     m_caps;
     Glib::RefPtr<Gst::Pipeline> m_pipeline;
