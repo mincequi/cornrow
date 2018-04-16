@@ -39,8 +39,8 @@ bool GstDspWrapper::createPipeline(const Config& config)
     }
 
 #ifdef __linux__
-    m_defaultSrc = Gst::AlsaSrc::create();
-    m_defaultSink = Gst::AlsaSink::create();
+    auto src = Gst::AlsaSrc::create();
+    auto sink = Gst::AlsaSink::create();
 #else
     auto src = Gst::ElementFactory::create_element("autoaudiosrc");
     auto sink = Gst::ElementFactory::create_element("autoaudiosink");
