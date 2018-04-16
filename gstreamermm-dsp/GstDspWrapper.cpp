@@ -18,6 +18,8 @@ GstDspWrapper::GstDspWrapper()
                                       "0.1.0", "Proprietary", "", "", "")) {
         cerr << "Error registering plugin" << std::endl;
     }
+
+    m_peq = Glib::RefPtr<GstDspPeq>::cast_static(Gst::ElementFactory::create_element("peq", "peq0"));
 }
 
 GstDspWrapper::~GstDspWrapper()
@@ -43,7 +45,6 @@ bool GstDspWrapper::createPipeline(const Config& config)
     auto srcConvert = Gst::AudioConvert::create();
     auto sinkConvert = Gst::AudioConvert::create();
 
-    m_peq = Glib::RefPtr<GstDspPeq>::cast_static(Gst::ElementFactory::create_element("peq", "peq0"));
     //auto crossover = Gst::ElementFactory::create_element("crossover");
 
     std::cout << __func__ << ": creating pipeline...";
@@ -96,9 +97,8 @@ void GstDspWrapper::destroyPipeline()
     }
     */
 
-    //m_pipeline->remove(m_srcConvert)->remove(m_peq)->remove(m_sinkConvert);
-
-    m_pipeline.reset();
+    m_pipeline->remove(m_peq);
+    delete(m_pipeline.release());
 }
 
 void GstDspWrapper::setPassthrough(bool passthrough)
