@@ -35,11 +35,11 @@ bool GstDspWrapper::createPipeline(const Config& config)
     }
 
 #ifdef __linux__
-    auto src = Gst::AlsaSrc::create();
-    auto sink = Gst::AlsaSink::create();
+    m_src = Gst::AlsaSrc::create();
+    m_sink = Gst::AlsaSink::create();
 #else
-    auto src = Gst::ElementFactory::create_element("autoaudiosrc");
-    auto sink = Gst::ElementFactory::create_element("autoaudiosink");
+    m_src = Gst::ElementFactory::create_element("autoaudiosrc");
+    m_sink = Gst::ElementFactory::create_element("autoaudiosink");
 #endif
 
     auto srcConvert = Gst::AudioConvert::create();
@@ -49,7 +49,7 @@ bool GstDspWrapper::createPipeline(const Config& config)
 
     std::cout << __func__ << ": creating pipeline...";
     m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
-    m_pipeline->add(src)->add(srcConvert)->add(m_peq)->add(sinkConvert)->add(sink);
+    m_pipeline->add(m_src)->add(srcConvert)->add(m_peq)->add(sinkConvert)->add(m_sink);
     std::cout << "created" << std::endl;
     Glib::ustring capsString = Glib::ustring::compose(
                                    "audio/x-raw, "
@@ -63,7 +63,7 @@ bool GstDspWrapper::createPipeline(const Config& config)
 
     try {
         std::cout << __func__ << ": linking pipeline...";
-        src->link(srcConvert, caps)->link(m_peq)->link(sinkConvert)->link(sink, caps);
+        m_src->link(srcConvert, caps)->link(m_peq)->link(sinkConvert)->link(m_sink, caps);
         std::cout << "linked" << std::endl;
     } catch (...) {
         std::cerr << std::endl << __func__ << ": link error" << std::endl;
@@ -96,6 +96,13 @@ void GstDspWrapper::destroyPipeline()
         std::cout << "stopped" << std::endl;
     }
     */
+
+    std::cout << __func__ << ": stopping input device..." << std::flush;
+    m_src->set_state(Gst::STATE_NULL);
+    std::cout << "stopped" << std::endl;
+    std::cout << __func__ << ": stopping output device..." << std::flush;
+    m_sink->set_state(Gst::STATE_NULL);
+    std::cout << "stopped" << std::endl;
 
     m_pipeline->remove(m_peq);
     delete(m_pipeline.release());
