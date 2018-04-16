@@ -40,8 +40,8 @@ private:
 
     void increaseFilterCount(uint8_t i);
 
-    Glib::RefPtr<Gst::Element>  m_defaultSrc;
-    Glib::RefPtr<Gst::Element>  m_defaultSink;
+    //Glib::RefPtr<Gst::Element>  m_defaultSrc;
+    //Glib::RefPtr<Gst::Element>  m_defaultSink;
 
     Glib::RefPtr<Gst::Element>  m_srcConvert;
     Glib::RefPtr<Gst::Element>  m_sinkConvert;

@@ -42,13 +42,13 @@ bool GstDspWrapper::createPipeline(const Config& config)
     m_defaultSrc = Gst::AlsaSrc::create();
     m_defaultSink = Gst::AlsaSink::create();
 #else
-    m_defaultSrc = Gst::ElementFactory::create_element("autoaudiosrc");
-    m_defaultSink = Gst::ElementFactory::create_element("autoaudiosink");
+    auto src = Gst::ElementFactory::create_element("autoaudiosrc");
+    auto sink = Gst::ElementFactory::create_element("autoaudiosink");
 #endif
 
     std::cout << __func__ << ": creating pipeline...";
     m_pipeline = Gst::Pipeline::create("cornrow-pipeline");
-    m_pipeline->add(m_defaultSrc)->add(m_srcConvert)->add(m_peq)->add(m_sinkConvert)->add(m_defaultSink);
+    m_pipeline->add(src)->add(m_srcConvert)->add(m_peq)->add(m_sinkConvert)->add(sink);
     std::cout << "created" << std::endl;
     Glib::ustring capsString = Glib::ustring::compose(
                                    "audio/x-raw, "
@@ -62,7 +62,7 @@ bool GstDspWrapper::createPipeline(const Config& config)
 
     try {
         std::cout << __func__ << ": linking pipeline...";
-        m_defaultSrc->link(m_srcConvert, caps)->link(m_peq)->link(m_sinkConvert)->link(m_defaultSink, caps);
+        src->link(m_srcConvert, caps)->link(m_peq)->link(m_sinkConvert)->link(sink, caps);
         std::cout << "linked" << std::endl;
     } catch (...) {
         std::cerr << std::endl << __func__ << ": link error" << std::endl;
@@ -96,7 +96,8 @@ void GstDspWrapper::destroyPipeline()
     }
     */
 
-    m_pipeline->remove(m_defaultSrc)->remove(m_srcConvert)->remove(m_peq)->remove(m_sinkConvert)->remove(m_defaultSink);
+    m_pipeline->remove(m_srcConvert)->remove(m_peq)->remove(m_sinkConvert);
+
     m_pipeline.reset();
 }
 
