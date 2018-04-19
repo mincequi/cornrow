@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <gstreamermm.h>
+#include <gst/audio/gstaudiosrc.h>
 
 #include "GstDspPeq.h"
 #include "GstDspPlugin.h"
@@ -18,16 +19,6 @@ GstDspWrapper::GstDspWrapper()
                                       "0.1.0", "Proprietary", "", "", "")) {
         cerr << "Error registering plugin" << std::endl;
     }
-
-    m_peq = Glib::RefPtr<GstDspPeq>::cast_static(Gst::ElementFactory::create_element("peq", "peq0"));
-
-#ifdef __linux__
-    m_src = Gst::AlsaSrc::create();
-    m_sink = Gst::AlsaSink::create();
-#else
-    m_src = Gst::ElementFactory::create_element("autoaudiosrc");
-    m_sink = Gst::ElementFactory::create_element("autoaudiosink");
-#endif
 }
 
 GstDspWrapper::~GstDspWrapper()
@@ -41,6 +32,16 @@ bool GstDspWrapper::createPipeline(const Config& config)
         std::cout << __func__ << ": no signal, not creating pipeline" << std::endl;
         return false;
     }
+
+    m_peq = Glib::RefPtr<GstDspPeq>::cast_static(Gst::ElementFactory::create_element("peq", "peq0"));
+
+#ifdef __linux__
+    m_src = Gst::AlsaSrc::create();
+    m_sink = Gst::AlsaSink::create();
+#else
+    m_src = Gst::ElementFactory::create_element("autoaudiosrc");
+    m_sink = Gst::ElementFactory::create_element("autoaudiosink");
+#endif
 
     auto srcConvert = Gst::AudioConvert::create();
     auto sinkConvert = Gst::AudioConvert::create();
@@ -83,6 +84,7 @@ bool GstDspWrapper::createPipeline(const Config& config)
     return true;
 }
 
+#if 0
 void GstDspWrapper::destroyPipeline()
 {
     /*
@@ -104,6 +106,8 @@ void GstDspWrapper::destroyPipeline()
 
     std::cout << __func__ << ": stopping output device..." << std::flush;
     m_sink->set_state(Gst::STATE_NULL);
+
+    GST_BASE_SINK_GET_CLASS(m_sink->gobj())->stop(GST_BASE_SINK(m_sink->gobj()));
     std::cout << "stopped" << std::endl;
     */
 
@@ -119,8 +123,6 @@ void GstDspWrapper::destroyPipeline()
     std::cout << "stopped" << std::endl;
     */
 
-    Gst::MessageEos::create(m_src);
-
     std::cout << __func__ << ": stopping pipeline..." << std::flush;
     m_pipeline->set_state(Gst::STATE_NULL);
     std::cout << "stopped" << std::endl;
@@ -130,6 +132,21 @@ void GstDspWrapper::destroyPipeline()
     std::cout << "stopped" << std::endl;
 
     m_pipeline->remove(m_peq)->remove(m_src)->remove(m_sink);
+
+    delete(m_pipeline.release());
+}
+#endif
+
+void GstDspWrapper::destroyPipeline()
+{
+    std::cout << __func__ << ": stopping input device..." << std::flush;
+    GST_AUDIO_SRC_GET_CLASS(m_src->gobj())->close(GST_AUDIO_SRC(m_src->gobj()));
+    std::cout << "stopped" << std::endl;
+
+    std::cout << __func__ << ": stopping output device..." << std::flush;
+    GST_AUDIO_SRC_GET_CLASS(m_sink->gobj())->close(GST_AUDIO_SRC(m_sink->gobj()));
+    std::cout << "stopped" << std::endl;
+
     delete(m_pipeline.release());
 }
 

@@ -169,7 +169,7 @@ void MainWindow::onServiceDiscovered(QString hostname, QString address, quint16 
     if (m_rpcClient) delete m_rpcClient;
     m_rpcClient = new rpc::client(address.toStdString(), port);
     m_rpcClient->set_timeout(500);
-    bool success = m_rpcClient->call(FUNC(v1::Code::Login), static_cast<uint8_t>(Version1), std::string()).as<bool>();
+    bool success = m_rpcClient->call(FUNC(v1::Code::Login), static_cast<uint8_t>(Version::Version1), std::string()).as<bool>();
 
     if (success) {
         m_protocolAdapter = new v1::ClientAdapter(*m_rpcClient, [this](Error error, std::string errorString) {

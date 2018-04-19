@@ -5,7 +5,7 @@ INCLUDEPATH += $$top_srcdir
 SUBDIRS += \
     common \
     cornrowd \
-    #coroco \
+    coroco \
     corocomo \
     gstreamermm-dsp \
     protocol \
