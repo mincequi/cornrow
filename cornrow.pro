@@ -7,7 +7,6 @@ SUBDIRS += \
     cornrowd \
     coroco \
     corocomo \
-    gstreamermm-dsp \
     protocol \
     zeroconf
 

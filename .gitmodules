@@ -7,3 +7,6 @@
 [submodule "thirdparty/kplotting"]
 	path = thirdparty/kplotting
 	url = https://github.com/mincequi/kplotting.git
+[submodule "thirdparty/gstreamermm-dsp"]
+	path = thirdparty/gstreamermm-dsp
+	url = https://github.com/mincequi/gstreamermm-dsp
