@@ -1,25 +1,48 @@
-#include <iostream>
-#include <glibmm/optioncontext.h>
+/*
+ * Copyright (C) 2018 Manuel Weichselbaumer <mincequi@web.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include "Controller.h"
-#include "CornrowdOptionGroup.h"
+#include <QCoreApplication>
+#include <QDebug>
+#include <QThread>
 
-using namespace std;
+#include "audio/Controller.h"
+#include "bluetooth/Controller.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-    Glib::OptionContext context;
-    CornrowdOptionGroup group;
-    context.set_main_group(group);
+    QCoreApplication a(argc, argv);
 
-    try {
-        context.parse(argc, argv);
-    } catch (const Glib::Error& ex) {
-        std::cerr << ex.what() << std::endl;
-        return -1;
-    }
+    qDebug() << "Waiting for bluetooth audio source to connect. Ctrl + C to cancel...";
 
-    Controller controller({Source::Default, group.m_rate, group.m_format, group.m_watchFilename});
+    // Create objects
+    auto bluetoothController = new bluetooth::Controller();
+    auto audioController = new audio::Controller();
 
-    return 0;
+    // The stream is transported through unix file descriptors, which cannot be read/write
+    // acquired from within same thread. So, AudioController gets another thread.
+    auto thread = new QThread();
+    audioController->moveToThread(thread);
+    thread->start();
+
+    // We inherently need a QueuedConnection here (apparently, an AutoConnection does not work).
+    QObject::connect(bluetoothController, &bluetooth::Controller::configurationSet,
+                     audioController, &audio::Controller::setTransport, Qt::QueuedConnection);
+    QObject::connect(bluetoothController, &bluetooth::Controller::configurationCleared,
+                     audioController, &audio::Controller::clearTransport, Qt::QueuedConnection);
+
+    return a.exec();
 }
