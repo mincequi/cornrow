@@ -52,7 +52,10 @@ public:
 
 signals:
     void filterCountChanged();
+    void filterAdded();
+    void filterRemoved(int i);
     void currentFilterChanged();
+    void filterChanged(int i, uchar t, float f, float g, float q);
     void typeChanged();
     void freqChanged();
     void freqSliderChanged();
@@ -61,6 +64,8 @@ signals:
     void qSliderChanged();
 
 private:
+    void onCurrentFilterParameterChanged();
+
     struct Filter {
         FilterType    t = FilterType::Peak;
         int     f = 68;

@@ -16,11 +16,16 @@ Model::Model(QObject *parent) :
     m_freqTable(twelfthOctaveBandsTable),
     m_qTable(qTable)
 {
+    connect(this, &Model::typeChanged, this, &Model::onCurrentFilterParameterChanged);
+    connect(this, &Model::freqChanged, this, &Model::onCurrentFilterParameterChanged);
+    connect(this, &Model::gainChanged, this, &Model::onCurrentFilterParameterChanged);
+    connect(this, &Model::qChanged, this, &Model::onCurrentFilterParameterChanged);
 }
 
 void Model::addFilter()
 {
     m_filters.append(Filter());
+    emit filterAdded();
     emit filterCountChanged();
 
     setCurrentFilter(m_filters.size()-1);
@@ -28,10 +33,13 @@ void Model::addFilter()
 
 void Model::deleteFilter()
 {
-    m_filters.removeAt(m_curIndex);
-    setCurrentFilter(m_curIndex);
+    if (m_curIndex < 0) return;
 
+    m_filters.removeAt(m_curIndex);
+    emit filterRemoved(m_curIndex);
     emit filterCountChanged();
+
+    setCurrentFilter(m_curIndex);
 }
 
 void Model::setCurrentFilter(int i)
@@ -176,4 +184,13 @@ void Model::setQSlider(float q)
 
     m_curFilter->q = idx;
     emit qChanged();
+}
+
+void Model::onCurrentFilterParameterChanged()
+{
+    if (m_curFilter) {
+        emit filterChanged(m_curIndex, static_cast<uchar>(m_curFilter->t), m_freqTable.at(m_curFilter->f), m_curFilter->g, m_qTable.at(m_curFilter->q));
+    } else {
+        emit filterChanged(m_curIndex, 0, 0.0f, 0.0f, 0.0f);
+    }
 }

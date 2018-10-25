@@ -3,6 +3,7 @@
 
 #include <dns_sd.h>
 
+#include <functional>
 #include <map>
 #include <string>
 #include <thread>

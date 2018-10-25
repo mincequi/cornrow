@@ -9,34 +9,30 @@
 EqChart::EqChart(QQuickItem *parent) :
     QQuickPaintedItem(parent)
 {
-    setFilterCount(1);
-    setFilter(0, {FilterType::Peak, 100.0, -27.0, 0.707});
 }
 
-void EqChart::setFilterCount(int i)
+void EqChart::addFilter()
 {
-    if (i == m_plots.size()) return;
-
-    int diff = i - m_plots.size();
-    if (diff > 0) {
-        m_plots.reserve(diff);
-        while (diff--) {
-            QPolygonF poly(twelfthOctaveBandsTable.size());
-            for (int i = 0; i < twelfthOctaveBandsTable.size(); ++i) {
-                poly[i].rx() = i;
-            }
-            m_plots.append(poly);
-        }
-    } else if (diff < 0) {
-        m_plots.erase(m_plots.end() + diff, m_plots.end());
+    QPolygonF poly(twelfthOctaveBandsTable.size());
+    for (int i = 0; i < twelfthOctaveBandsTable.size(); ++i) {
+        poly[i].rx() = i;
     }
+    m_plots.append(poly);
 }
 
-void EqChart::setFilter(int i, const Filter& filter)
+void EqChart::removeFilter(int i)
+{
+    if (i >= m_plots.size() || i < 0) return;
+
+    m_plots.removeAt(i);
+}
+
+void EqChart::setFilter(int i, uchar t, float f, float g, float q)
 {
     if (i >= m_plots.size()) return;
 
-    computeResponse(filter, &m_plots[i]);
+    computeResponse({static_cast<FilterType>(t), f, g, q}, &m_plots[i]);
+    update();
 }
 
 QColor EqChart::plotColor() const
@@ -69,6 +65,26 @@ void EqChart::setSumPlotColor(const QColor &color)
     m_sumPlotColor = color;
 }
 
+QColor EqChart::warningColor() const
+{
+    return m_warningColor;
+}
+
+void EqChart::setWarningColor(const QColor &color)
+{
+    m_warningColor = color;
+}
+
+QColor EqChart::criticalColor() const
+{
+    return m_criticalColor;
+}
+
+void EqChart::setCriticalColor(const QColor &color)
+{
+    m_criticalColor = color;
+}
+
 int EqChart::currentPlot() const
 {
     return m_currentPlot;
@@ -80,14 +96,123 @@ void EqChart::setCurrentPlot(int i)
 
 void EqChart::paint(QPainter *painter)
 {
-    painter->setPen(QPen(m_currentPlotColor, 2.0));
     QTransform trans;
     trans.scale(width()/(twelfthOctaveBandsTable.size()-1.0), height()/-36.0);
     trans.translate(0.0, -9.0);
     painter->setRenderHints(QPainter::Antialiasing, true);
 
-    for (const auto& p : m_plots) {
-        painter->drawPolyline(trans.map(p));
+    // Paint plots, except current one
+    /*
+    painter->setPen(QPen(m_plotColor, 1.0));
+    for (auto i = 0; i < m_plots.size(); ++i) {
+        if (i == m_currentPlot) continue;
+        painter->drawPolyline(trans.map(m_plots.at(i)));
+    }
+    */
+
+    // Paint sum plot
+    /*
+    painter->setPen(QPen(QColor(0, 0, 0, 0), 0.0));
+    QPolygonF sumPlot1(twelfthOctaveBandsTable.size());
+    for (int i = 0; i < twelfthOctaveBandsTable.size(); ++i) {
+        sumPlot1[i].rx() = i;
+    }
+    for (auto& plot : m_plots) {
+        for (int i = 0; i < plot.size(); ++i) {
+            sumPlot1[i].ry() += plot[i].ry();
+        }
+    }
+    sumPlot1 << QPointF(sumPlot1.back().rx()+1.0, sumPlot1.back().ry());
+    sumPlot1 << QPointF(sumPlot1.back().rx(), -30.0);
+    sumPlot1 << QPointF(-1.0, -30.0);
+    sumPlot1 << QPointF(-1.0, sumPlot1.front().ry());
+    sumPlot1 << sumPlot1.front();
+    */
+
+    painter->setPen(QPen(QColor(0, 0, 0, 0), 1.0));
+    QPolygonF sumPlot1(twelfthOctaveBandsTable.size());
+    for (int i = 0; i < twelfthOctaveBandsTable.size(); ++i) {
+        sumPlot1[i].rx() = i;
+    }
+    for (auto& plot : m_plots) {
+        for (int i = 0; i < plot.size(); ++i) {
+            sumPlot1[i].ry() += plot[i].ry();
+        }
+    }
+    sumPlot1 << QPointF(sumPlot1.back().rx()+1.0, sumPlot1.back().ry());
+    sumPlot1 << QPointF(sumPlot1.back().rx(), -30.0);
+    sumPlot1 << QPointF(-1.0, -30.0);
+    sumPlot1 << QPointF(-1.0, sumPlot1.front().ry());
+    sumPlot1 << sumPlot1.front();
+
+    QLinearGradient grad(trans.map(QPointF(0.0, 6.0)), trans.map(QPointF(0.0, -24.0)));
+    auto col = m_sumPlotColor;
+    col.setAlpha(0);
+    grad.setColorAt(1.0, col);
+    col.setAlpha(24);
+    grad.setColorAt(0.99, col);
+    col.setAlpha(32);
+    grad.setColorAt(0.9, col);
+
+    col.setAlpha(56);
+    grad.setColorAt(0.89, col);
+    col.setAlpha(64);
+    grad.setColorAt(0.8, col);
+
+    col.setAlpha(88);
+    grad.setColorAt(0.79, col);
+    col.setAlpha(96);
+    grad.setColorAt(0.70, col);
+
+    col.setAlpha(120);
+    grad.setColorAt(0.69, col);
+    col.setAlpha(128);
+    grad.setColorAt(0.60, col);
+
+    col.setAlpha(152);
+    grad.setColorAt(0.59, col);
+    col.setAlpha(160);
+    grad.setColorAt(0.50, col);
+
+    col.setAlpha(184);
+    grad.setColorAt(0.49, col);
+    col.setAlpha(192);
+    grad.setColorAt(0.40, col);
+
+    col.setAlpha(216);
+    grad.setColorAt(0.39, col);
+    col.setAlpha(224);
+    grad.setColorAt(0.30, col);
+
+    col.setAlpha(248);
+    grad.setColorAt(0.29, col);
+    col.setAlpha(255);
+    grad.setColorAt(0.20, col);
+
+    col.setAlpha(255);
+    grad.setColorAt(0.19, col);
+
+    col = m_criticalColor; col.setAlpha(127);
+    grad.setColorAt(0.0, col);
+
+    /*
+    QLinearGradient grad2(trans.map(QPointF(-8, 5)), trans.map(QPointF(0.0, 0.0)));
+    col = m_criticalColor;
+    col.setAlpha(0);
+    grad2.setColorAt(1.0, col);
+    col = m_criticalColor; col.setAlpha(127);
+    grad2.setColorAt(0.0, col);
+    */
+
+    painter->setBrush(QBrush(grad));
+    painter->drawPolygon(trans.map(sumPlot1));
+    //painter->setBrush(QBrush(grad2));
+    //painter->drawPolygon(trans.map(sumPlot1));
+
+    // Paint current plot
+    painter->setPen(QPen(m_plotColor, 1.1));
+    if (m_currentPlot >= 0 && m_currentPlot < m_plots.size()) {
+        painter->drawPolyline(trans.map(m_plots.at(m_currentPlot)));
     }
 }
 

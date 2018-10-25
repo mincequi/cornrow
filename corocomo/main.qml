@@ -1,6 +1,6 @@
 import QtQuick 2.8
 import QtQuick.Controls 2.2
-import QtQuick.Controls.Material 2.1
+import QtQuick.Controls.Material 2.2
 import QtQuick.Layouts 1.3
 import Cornrow.EqChart 1.0
 import Cornrow.Model 1.0
@@ -8,23 +8,38 @@ import Cornrow.Model 1.0
 ApplicationWindow {
     id: appWindow
     visible: true
-    width: 320
-    height: 568
-    title: qsTr("Scroll")
+    width: 375
+    height: 667
+
+    Material.theme: Material.Dark
+    Material.accent: Material.color(Material.Indigo)
+    Material.primary: Material.color(Material.Indigo)
+
 
     CornrowModel {
         id: model
 
         onFilterCountChanged: {
+            // Bug in QML? Need to call this before for loop
+            //eqChart.setFilterCount(model.filterCount);
             for (var i = 0; filtersLayout.children.length; i++) {
                 filtersLayout.children[i].enabled = i < model.filterCount;
             }
-
-            //filters.enabled = model.filterCount > 0
+        }
+        onFilterAdded: {
+            eqChart.addFilter();
+        }
+        onFilterRemoved: {
+            eqChart.removeFilter(i);
         }
 
         onCurrentFilterChanged: {
+            eqChart.currentPlot = model.currentFilter
             filtersLayout.children[model.currentFilter].checked = true
+        }
+
+        onFilterChanged: {
+            eqChart.setFilter(i, t, f, g, q);
         }
 
         onTypeChanged: {
@@ -47,6 +62,10 @@ ApplicationWindow {
     CornrowEqChart {
         id: eqChart
         currentPlotColor: Material.accent
+        plotColor: Material.foreground
+        sumPlotColor: Material.primary
+        warningColor: "orange"
+        criticalColor: "red" //"red"
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
