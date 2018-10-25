@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
 
 add_subdirectory(src/audio)
-#add_subdirectory(src/ble)
+add_subdirectory(src/ble)
 add_subdirectory(src/bluetooth)
 add_subdirectory(tests)
 
@@ -17,6 +17,6 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     audio
-    #ble
+    ble
     bluetooth
 )
