@@ -18,7 +18,6 @@
 #pragma once
 
 #include <QObject>
-#include <Qt5GStreamer/QGst/Pipeline>
 
 class QDBusObjectPath;
 

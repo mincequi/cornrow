@@ -28,7 +28,12 @@ class Controller : public QObject
 
 public:
     explicit Controller(QObject *parent = nullptr);
+    ~Controller();
 
+private:
+    void startAdvertising();
+
+    class ControllerPrivate *const d = nullptr;
 };
 
 } // namespace ble
