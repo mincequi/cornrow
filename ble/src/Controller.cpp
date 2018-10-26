@@ -49,32 +49,29 @@ struct ControllerPrivate
         advertisingData.setIncludePowerLevel(true);
         advertisingData.setLocalName("CornRow");
         advertisingData.setServices({audioDspServiceUuid});
+
+        // Peq characteristic
+        QLowEnergyCharacteristicData charData;
+        charData.setUuid(peqCharacteristicUuid);
+        charData.setValue(QByteArray("abc123"));
+        charData.setProperties(QLowEnergyCharacteristic::Read);
+
+        // Service
+        serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        serviceData.setUuid(audioDspServiceUuid);
+        serviceData.addCharacteristic(charData);
     }
 
     QLowEnergyController*       peripheral;
     QLowEnergyService*          service;
     QLowEnergyAdvertisingData   advertisingData;
+    QLowEnergyServiceData       serviceData;
 };
 
 Controller::Controller(QObject *parent)
     : QObject(parent),
       d(new ControllerPrivate(this))
 {
-    // Peq characteristic
-    QLowEnergyCharacteristicData charData;
-    charData.setUuid(peqCharacteristicUuid);
-    charData.setValue(QByteArray("abc123"));
-    charData.setProperties(QLowEnergyCharacteristic::Read);
-
-    // Service
-    QLowEnergyServiceData serviceData;
-    serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
-    serviceData.setUuid(audioDspServiceUuid);
-    serviceData.addCharacteristic(charData);
-
-    // Publish service
-    d->service = d->peripheral->addService(serviceData);
-
     //! [Provide Heartbeat]
     /*
     QTimer heartbeatTimer;
@@ -113,6 +110,8 @@ Controller::~Controller()
 
 void Controller::startAdvertising()
 {
+    // Publish service
+    d->service = d->peripheral->addService(d->serviceData);
     d->peripheral->startAdvertising(QLowEnergyAdvertisingParameters(), d->advertisingData, d->advertisingData);
 }
 
