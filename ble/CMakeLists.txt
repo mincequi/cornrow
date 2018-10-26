@@ -1,6 +1,7 @@
 find_package(Qt5Bluetooth REQUIRED)
 
 add_library(ble STATIC
+    include/ble/Controller.h
     src/PeqAdapter.cpp
     src/Controller.cpp
 )
