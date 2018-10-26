@@ -105,6 +105,8 @@ Controller::Controller(QObject *parent)
 
 Controller::~Controller()
 {
+    d->peripheral->stopAdvertising();
+    d->peripheral->disconnectFromDevice();
     delete d;
 }
 
