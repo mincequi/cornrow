@@ -17,6 +17,8 @@
 
 #include "Controller.h"
 
+#include "Defines.h"
+
 #include <QtBluetooth/QLowEnergyController>
 
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -46,40 +48,32 @@ struct ControllerPrivate
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
         advertisingData.setLocalName("CornRow");
-        advertisingData.setServices(QList<QBluetoothUuid>() << QBluetoothUuid::CurrentTimeService);
+        advertisingData.setServices({audioDspServiceUuid});
     }
 
-    QLowEnergyController* peripheral;
-    QLowEnergyAdvertisingData advertisingData;
+    QLowEnergyController*       peripheral;
+    QLowEnergyService*          service;
+    QLowEnergyAdvertisingData   advertisingData;
 };
 
 Controller::Controller(QObject *parent)
     : QObject(parent),
       d(new ControllerPrivate(this))
 {
+    // Peq characteristic
     QLowEnergyCharacteristicData charData;
-    charData.setUuid(QBluetoothUuid::BodySensorLocation);
-    //charData.setUuid(QBluetoothUuid(quint16(0x2a3a)));
-    charData.setValue(QByteArray(2, 0));
-    charData.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
-    const QLowEnergyDescriptorData clientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                QByteArray(2, 0));
-    charData.addDescriptor(clientConfig);
+    charData.setUuid(peqCharacteristicUuid);
+    charData.setValue(QByteArray("abc123"));
+    charData.setProperties(QLowEnergyCharacteristic::Read);
 
     // Service
     QLowEnergyServiceData serviceData;
     serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
-    serviceData.setUuid(QBluetoothUuid::BodySensorLocation);
+    serviceData.setUuid(audioDspServiceUuid);
     serviceData.addCharacteristic(charData);
 
-    const auto service = d->peripheral->addService(serviceData);
-    // Characteristic
-    QByteArray value;
-    value.append(char(0)); // Flags that specify the format of the value.
-    value.append(char(70)); // Actual value.
-    QLowEnergyCharacteristic characteristic = service->characteristic(QBluetoothUuid(quint16(0x2a3a)));
-    service->writeCharacteristic(characteristic, value); // Potentially causes notification.
-
+    // Publish service
+    d->service = d->peripheral->addService(serviceData);
 
     //! [Provide Heartbeat]
     /*
