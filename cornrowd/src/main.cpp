@@ -20,7 +20,7 @@
 #include <QThread>
 
 #include "audio/Controller.h"
-#include <ble/Controller.h>
+#include <ble/Peripheral.h>
 #include "bluetooth/Controller.h"
 
 int main(int argc, char **argv)
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     // Create objects
     auto bluetoothController = new bluetooth::Controller();
     auto audioController = new audio::Controller();
-    auto bleController = new ble::Controller();
+    auto bleController = new ble::Peripheral();
 
     // The stream is transported through unix file descriptors, which cannot be read/write
     // acquired from within same thread. So, AudioController gets another thread.

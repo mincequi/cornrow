@@ -1,9 +1,11 @@
 find_package(Qt5Bluetooth REQUIRED)
 
 add_library(ble STATIC
-    include/ble/Controller.h
+    include/ble/Central.h
+    include/ble/Peripheral.h
+    src/Central.cpp
     src/PeqAdapter.cpp
-    src/Controller.cpp
+    src/Peripheral.cpp
 )
 
 target_include_directories(ble

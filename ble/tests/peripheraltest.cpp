@@ -1,12 +1,12 @@
 #include <QCoreApplication>
 
-#include <ble/Controller.h>
+#include <ble/Peripheral.h>
 
 int main(int argc, char** argv)
 {
     QCoreApplication app(argc, argv);
 
-    auto bleController = new ble::Controller();
+    auto peripheral = new ble::Peripheral();
 
     return app.exec();
 }

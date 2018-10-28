@@ -22,18 +22,34 @@
 namespace ble
 {
 
-class Controller : public QObject
+class Central : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Controller(QObject *parent = nullptr);
-    ~Controller();
+    enum class Error {
+        None,
+        NoService,
+        InvalidCharacteristic
+    };
+
+    explicit Central(QObject *parent = nullptr);
+    ~Central();
+
+    bool startDiscovering();
+    void disconnect();
+
+signals:
+    void error(Error error);
+    void peq(const QByteArray& value);
+    void crossover(const QByteArray& value);
+    void loudness(const QByteArray& value);
 
 private:
-    void startAdvertising();
+    void setError(Error error);
 
-    class ControllerPrivate *const d = nullptr;
+    class CentralPrivate *const d = nullptr;
+    friend class CentralPrivate;
 };
 
 } // namespace ble
