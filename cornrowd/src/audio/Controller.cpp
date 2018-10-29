@@ -24,6 +24,8 @@
 #include <Qt5GStreamer/QGst/ElementFactory>
 #include <Qt5GStreamer/QGst/Init>
 
+#include <common/Types.h>
+
 #include "Pipeline.h"
 
 namespace audio
@@ -34,6 +36,20 @@ Controller::Controller(QObject *parent)
 {
     // Init GStreamer
     QGst::init();
+}
+
+const std::vector<common::Filter> Controller::peq() const
+{
+    return {
+        { common::FilterType::Peak, 8755.0, -9.7, 0.7 },
+        { common::FilterType::LowPass, 513.0, 3.4, 0.5 },
+        { common::FilterType::HighPass, 4007.0, -8.3, 0.11 }
+    };
+}
+
+void Controller::setPeq(const std::vector<common::Filter>& filters)
+{
+
 }
 
 void Controller::setTransport(const QDBusObjectPath& transport)

@@ -21,6 +21,11 @@
 
 class QDBusObjectPath;
 
+namespace common
+{
+struct Filter;
+}
+
 namespace audio
 {
 class Pipeline;
@@ -32,8 +37,8 @@ class Controller : public QObject
 public:
     explicit Controller(QObject *parent = nullptr);
 
-    //const std::vector<Filter> peq() const;
-    //void setPeq(const std::vector<Filter>& filters);
+    const std::vector<common::Filter> peq() const;
+    void setPeq(const std::vector<common::Filter>& filters);
 
 public slots:
     void setTransport(const QDBusObjectPath& transport);

@@ -15,16 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <csignal>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QThread>
+
+#include "Config.h"
 
 #include "audio/Controller.h"
 #include <ble/Peripheral.h>
 #include "bluetooth/Controller.h"
 
+struct SignalHandler
+{
+    SignalHandler()
+    {
+        signal(SIGINT, &SignalHandler::quit);
+        signal(SIGTERM, &SignalHandler::quit);
+        signal(SIGSTOP, &SignalHandler::quit);
+    }
+
+    static void quit(int sig)
+    {
+        QCoreApplication::exit();
+    }
+};
+
 int main(int argc, char **argv)
 {
+    SignalHandler signalHandler;
     QCoreApplication a(argc, argv);
 
     qDebug() << "Waiting for bluetooth audio source to connect. Ctrl + C to cancel...";
@@ -45,6 +65,14 @@ int main(int argc, char **argv)
                      audioController, &audio::Controller::setTransport, Qt::QueuedConnection);
     QObject::connect(bluetoothController, &bluetooth::Controller::configurationCleared,
                      audioController, &audio::Controller::clearTransport, Qt::QueuedConnection);
+
+    QObject::connect(&a, &QCoreApplication::aboutToQuit, [&]() {
+        qDebug() << "about to quit...";
+        writeConfig(*audioController);
+        thread->quit();
+        thread->wait();
+        return;
+    });
 
     return a.exec();
 }

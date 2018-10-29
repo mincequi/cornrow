@@ -7,6 +7,7 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Core REQUIRED)
 
 add_subdirectory(ble)
+add_subdirectory(common)
 add_subdirectory(cornrowd)
 add_subdirectory(thirdparty/bluez-qt)
 add_subdirectory(thirdparty/gstreamermm-dsp)

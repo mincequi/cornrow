@@ -1,10 +1,12 @@
-#ifndef TYPES_H
-#define TYPES_H
+#pragma once
 
 #include <cstdint>
 #include <set>
 #include <string>
 #include <vector>
+
+namespace common
+{
 
 extern const std::set<int> validSampleRates;
 
@@ -91,4 +93,4 @@ extern const std::vector<float> twelfthOctaveBandsTable;
 extern const std::vector<float> twentyFourthOctaveBandsTable;
 extern const std::vector<float> qTable;
 
-#endif // TYPES_H
+} // namespace common

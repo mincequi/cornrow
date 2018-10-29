@@ -6,6 +6,7 @@ add_library(audio STATIC
 )
 
 target_link_libraries(audio
+    common
     Qt5::Core
     Qt5GStreamer
 )

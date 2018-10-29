@@ -11,6 +11,7 @@ add_subdirectory(src/bluetooth)
 add_subdirectory(tests)
 
 add_executable(${PROJECT_NAME}
+    src/Config.cpp
     src/main.cpp
 )
 
