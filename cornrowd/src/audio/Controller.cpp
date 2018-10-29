@@ -49,11 +49,14 @@ const std::vector<common::Filter> Controller::peq() const
 
 void Controller::setPeq(const std::vector<common::Filter>& filters)
 {
-
+    for (const auto& filter : filters) {
+        qDebug() << "type:" << static_cast<uint>(filter.type) << ", f:" << filter.f << ", g:" << filter.g << ", q:" << filter.q;
+    }
 }
 
 void Controller::setTransport(const QDBusObjectPath& transport)
 {
+    // @TODO: reuse pipeline
     if (m_pipeline) {
         qDebug() << "Another device is connected";
         return;

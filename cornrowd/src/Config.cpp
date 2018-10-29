@@ -13,17 +13,29 @@ static const std::string audioPath("/var/lib/cornrowd/audio.conf");
 
 void readConfig(audio::Controller& audioController)
 {
-    pt::ptree root;
+    pt::ptree tree;
 
     try {
-        pt::read_json(audioPath, root);
+        pt::read_json(audioPath, tree);
     } catch (...) {
+        return;
     }
+
+    std::vector<common::Filter> peq;
+    for (const auto& filterNode : tree.get_child("Peq")) {
+        common::Filter filter;
+        filter.type = static_cast<common::FilterType>(filterNode.second.get<uint>("type"));
+        filter.f = filterNode.second.get<float>("f");
+        filter.g = filterNode.second.get<float>("g");
+        filter.q = filterNode.second.get<float>("q");
+        peq.push_back(filter);
+    }
+
+    audioController.setPeq(peq);
 }
 
 void writeConfig(const audio::Controller& audioController)
 {
-    qDebug() << "close1";
     pt::ptree tree;
     pt::ptree peq;
     pt::ptree crossover;
@@ -40,7 +52,9 @@ void writeConfig(const audio::Controller& audioController)
     }
     tree.add_child("Peq", peq);
 
-    qDebug() << "close2";
-    write_json(audioPath, tree);
-    qDebug() << "close3";
+    try {
+        pt::write_json(audioPath, tree);
+    } catch (...) {
+        return;
+    }
 }

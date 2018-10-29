@@ -31,14 +31,9 @@ struct SignalHandler
 {
     SignalHandler()
     {
-        signal(SIGINT, &SignalHandler::quit);
-        signal(SIGTERM, &SignalHandler::quit);
-        signal(SIGSTOP, &SignalHandler::quit);
-    }
-
-    static void quit(int sig)
-    {
-        QCoreApplication::exit();
+        signal(SIGINT, &QCoreApplication::exit);
+        signal(SIGTERM, &QCoreApplication::exit);
+        signal(SIGSTOP, &QCoreApplication::exit);
     }
 };
 
@@ -54,6 +49,9 @@ int main(int argc, char **argv)
     auto audioController = new audio::Controller();
     auto bleController = new ble::Peripheral();
 
+    // Read persistence
+    readConfig(*audioController);
+
     // The stream is transported through unix file descriptors, which cannot be read/write
     // acquired from within same thread. So, AudioController gets another thread.
     auto thread = new QThread();
@@ -67,10 +65,7 @@ int main(int argc, char **argv)
                      audioController, &audio::Controller::clearTransport, Qt::QueuedConnection);
 
     QObject::connect(&a, &QCoreApplication::aboutToQuit, [&]() {
-        qDebug() << "about to quit...";
         writeConfig(*audioController);
-        thread->quit();
-        thread->wait();
         return;
     });
 
