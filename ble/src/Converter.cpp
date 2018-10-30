@@ -26,6 +26,8 @@ QByteArray Converter::filtersToBle(const std::vector<common::Filter>& filters)
         value.append(gToBle(filter.g));
         value.append(qToBle(filter.q));
     }
+
+    return value;
 }
 
 std::vector<common::Filter> Converter::filtersFromBle(const QByteArray& array)
