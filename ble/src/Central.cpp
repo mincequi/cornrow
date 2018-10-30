@@ -123,7 +123,7 @@ void CentralPrivate::onServiceDiscovered(const QBluetoothUuid& serviceUuid)
     qDebug() << "Cornrow service discovered...";
     m_service = m_control->createServiceObject(ble::cornrowServiceUuid, this);
     connect(m_service, &QLowEnergyService::stateChanged, this, &CentralPrivate::onServiceStateChanged);
-    connect(m_service, &QLowEnergyService::characteristicRead, this, &CentralPrivate::onCharacteristicRead);
+    connect(m_service, &QLowEnergyService::characteristicRead, q, &Central::characteristicRead);
     connect(m_service, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error),
     [this] (QLowEnergyService::ServiceError error) {
         qDebug() << __func__;
@@ -142,21 +142,6 @@ void CentralPrivate::onServiceDiscoveryFinished()
     }
     qDebug() << __func__;
     q->setError(Central::Error::NoService);
-}
-
-void CentralPrivate::onCharacteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &value)
-{
-    // ignore any other characteristic, should not happen
-    if (characteristic.uuid() == ble::peqCharacteristicUuid) {
-        //qDebug() << "peq:" << value;
-        emit q->peq(value);
-    } else if (characteristic.uuid() == ble::crossoverCharacteristicUuid) {
-        emit q->crossover(value);
-    } else if (characteristic.uuid() == ble::loudnessCharacteristicUuid) {
-        emit q->loudness(value);
-    } else {
-         q->setError(Central::Error::InvalidCharacteristic);
-    }
 }
 
 void CentralPrivate::onServiceStateChanged(QLowEnergyService::ServiceState s)

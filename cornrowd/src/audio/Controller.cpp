@@ -41,9 +41,9 @@ Controller::Controller(QObject *parent)
 const std::vector<common::Filter> Controller::peq() const
 {
     return {
-        { common::FilterType::Peak, 8755.0, -9.7, 0.7 },
-        { common::FilterType::LowPass, 513.0, 3.4, 0.5 },
-        { common::FilterType::HighPass, 4007.0, -8.3, 0.11 }
+        { common::FilterType::Peak, 2335.0, -9.7, 15.7 },
+        { common::FilterType::LowPass, 12222.0, 3.4, 0.5 },
+        { common::FilterType::HighPass, 47.0, -8.3, 0.8 }
     };
 }
 

@@ -36,16 +36,9 @@ struct PeripheralPrivate
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setServices({cornrowServiceUuid});
 
-        // Peq characteristic
-        QLowEnergyCharacteristicData charData;
-        charData.setUuid(peqCharacteristicUuid);
-        charData.setValue(QByteArray("abc123"));
-        charData.setProperties(QLowEnergyCharacteristic::Read | QLowEnergyCharacteristic::Write);
-
         // Service
         serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
         serviceData.setUuid(cornrowServiceUuid);
-        serviceData.addCharacteristic(charData);
     }
 
     QLowEnergyController*       peripheral;
@@ -70,24 +63,25 @@ Peripheral::~Peripheral()
     delete d;
 }
 
+void Peripheral::setCharacteristics(const std::map<QBluetoothUuid, QByteArray>& characteristicsMap)
+{
+    QList<QLowEnergyCharacteristicData> characteristics;
+    for (const auto& kv : characteristicsMap) {
+        QLowEnergyCharacteristicData characteristicData;
+        characteristicData.setUuid(kv.first);
+        characteristicData.setValue(kv.second);
+        characteristicData.setProperties(QLowEnergyCharacteristic::Read | QLowEnergyCharacteristic::Write);
+        characteristics << characteristicData;
+    }
+    d->serviceData.setCharacteristics(characteristics);
+}
+
 void Peripheral::startPublishing()
 {
     // Publish service
     d->service = d->peripheral->addService(d->serviceData);
-    connect(d->service, &QLowEnergyService::characteristicChanged, this, &Peripheral::onCharacteristicChanged);
+    connect(d->service, &QLowEnergyService::characteristicChanged, this, &Peripheral::characteristicChanged);
     d->peripheral->startAdvertising(QLowEnergyAdvertisingParameters(), d->advertisingData/*, d->advertisingData*/);
-}
-
-void Peripheral::onCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
-{
-    // ignore any other characteristic, should not happen
-    if (characteristic.uuid() == ble::peqCharacteristicUuid) {
-        emit peq(newValue);
-    } else if (characteristic.uuid() == ble::crossoverCharacteristicUuid) {
-        emit crossover(newValue);
-    } else if (characteristic.uuid() == ble::loudnessCharacteristicUuid) {
-        emit loudness(newValue);
-    }
 }
 
 } // namespace ble

@@ -19,6 +19,7 @@
 
 #include <QObject>
 
+class QBluetoothUuid;
 class QLowEnergyCharacteristic;
 
 namespace ble
@@ -33,15 +34,17 @@ public:
     ~Peripheral();
 
 signals:
-    void peq(const QByteArray& value);
-    void crossover(const QByteArray& value);
-    void loudness(const QByteArray& value);
+    // Signals, that a client has changed a characteristic
+    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
 private:
+    // Adapter should set initial values of characteristics
+    void setCharacteristics(const std::map<QBluetoothUuid, QByteArray>& characteristics);
+
     void startPublishing();
-    void onCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
     class PeripheralPrivate *const d = nullptr;
+    friend class Adapter;
 };
 
 } // namespace ble

@@ -24,6 +24,7 @@
 #include "Config.h"
 
 #include "audio/Controller.h"
+#include <ble/Adapter.h>
 #include <ble/Peripheral.h>
 #include "bluetooth/Controller.h"
 
@@ -52,6 +53,12 @@ int main(int argc, char **argv)
     // Read persistence
     readConfig(*audioController);
 
+    // Write persistence, when we quit
+    QObject::connect(&a, &QCoreApplication::aboutToQuit, [&]() {
+        writeConfig(*audioController);
+        return;
+    });
+
     // The stream is transported through unix file descriptors, which cannot be read/write
     // acquired from within same thread. So, AudioController gets another thread.
     auto thread = new QThread();
@@ -64,10 +71,9 @@ int main(int argc, char **argv)
     QObject::connect(bluetoothController, &bluetooth::Controller::configurationCleared,
                      audioController, &audio::Controller::clearTransport, Qt::QueuedConnection);
 
-    QObject::connect(&a, &QCoreApplication::aboutToQuit, [&]() {
-        writeConfig(*audioController);
-        return;
-    });
+    // BLE
+    auto adapter = new ble::Adapter(bleController, audioController->peq());
+    QObject::connect(adapter, &ble::Adapter::peq, audioController, &audio::Controller::setPeq);
 
     return a.exec();
 }

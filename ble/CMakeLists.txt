@@ -1,10 +1,12 @@
 find_package(Qt5Bluetooth REQUIRED)
 
 add_library(ble STATIC
+    include/ble/Adapter.h
     include/ble/Central.h
     include/ble/Peripheral.h
+    src/Adapter.cpp
     src/Central.cpp
-    src/PeqAdapter.cpp
+    src/Converter.cpp
     src/Peripheral.cpp
 )
 
@@ -17,6 +19,7 @@ PRIVATE
 )
 
 target_link_libraries(ble
+    common
     Qt5Bluetooth
     Qt5::Core
 )

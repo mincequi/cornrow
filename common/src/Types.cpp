@@ -16,7 +16,9 @@ Config::Config(Source source_, int rate_, SampleFormat format_, std::string watc
 {
 }
 
+// Renard R40
 const std::vector<float> twelfthOctaveBandsTable = {
+    16.0,     17.0,    18.0,    19.0,
     20.0,     21.2,    22.4,    23.6,
     25.0,     26.5,    28.0,    30.0,
     31.5,     33.5,    35.5,    37.5,
@@ -47,7 +49,7 @@ const std::vector<float> twelfthOctaveBandsTable = {
     10000.0, 10600.0, 11200.0, 11800.0,
     12500.0, 13200.0, 14000.0, 15000.0,
     16000.0, 17000.0, 18000.0, 19000.0,
-    20000.0
+    20000.0, 21200.0
 };
 
 // Renard R80
@@ -87,7 +89,7 @@ const std::vector<float> twentyFourthOctaveBandsTable {
     12500.0, 12800.0, 13200.0, 13600.0, 14000.0, 14500.0, 15000.0, 15500.0,
     16000.0, 16500.0, 17000.0, 17500.0, 18000.0, 18500.0, 19000.0, 19500.0,
 
-    20000.0
+    20000.0, 20600.0, 21200.0, 21800.0 //, 22400.0, 23000.0, 23600.0
 };
 
 // Renard R20 most rounded

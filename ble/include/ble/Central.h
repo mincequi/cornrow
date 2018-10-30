@@ -19,6 +19,8 @@
 
 #include <QObject>
 
+class QLowEnergyCharacteristic;
+
 namespace ble
 {
 
@@ -41,9 +43,9 @@ public:
 
 signals:
     void error(Error error);
-    void peq(const QByteArray& value);
-    void crossover(const QByteArray& value);
-    void loudness(const QByteArray& value);
+
+    // Emits initial values
+    void characteristicRead(const QLowEnergyCharacteristic &info, const QByteArray &value);
 
 private:
     void setError(Error error);
