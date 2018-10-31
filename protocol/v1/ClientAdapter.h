@@ -25,16 +25,16 @@ public:
     ClientAdapter(rpc::client& client, ErrorCallback callback = nullptr);
     virtual ~ClientAdapter();
 
-    virtual std::vector<::Preset> getPresets();
-    virtual ::Preset getPreset(const std::string& name);
+    virtual std::vector<common::Preset> getPresets();
+    virtual common::Preset getPreset(const std::string& name);
     virtual std::vector<std::string> getPresetNames();
     virtual void setPreset(const std::string& name);
-    virtual void savePreset(const ::Preset& preset);
+    virtual void savePreset(const common::Preset& preset);
     virtual void renamePreset(const std::string& oldName, const std::string& newName);
     virtual void deletePreset(const std::string& name);
 
     virtual void setFilterCount(uint8_t i);
-    virtual void setFilterType(uint8_t i, FilterType t);
+    virtual void setFilterType(uint8_t i, common::FilterType t);
     virtual void setFilterFreq(uint8_t i, uint8_t f);
     virtual void setFilterGain(uint8_t i, float  g);
     virtual void setFilterQ(uint8_t i, uint8_t q);

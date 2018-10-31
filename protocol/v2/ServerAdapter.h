@@ -9,7 +9,7 @@ namespace v2 {
 class ServerAdapter : public v1::ServerAdapter
 {
 public:
-    ServerAdapter(rpc::server& server, IControllable& controllable);
+    ServerAdapter(rpc::server& server, common::IControllable& controllable);
 
 private:
     Converter m_converter;

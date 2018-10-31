@@ -6,13 +6,13 @@
 #include <rpc/server.h>
 
 #include "Converter.h"
-#include "common/IControllable.h"
+#include <common/IControllable.h>
 
 namespace v1 {
 
 #define FUNC(code) std::string(1, static_cast<uint8_t>(code))
 
-ServerAdapter::ServerAdapter(rpc::server& server, IControllable& c)
+ServerAdapter::ServerAdapter(rpc::server& server, common::IControllable& c)
 {
     std::cerr << "protocol v1" << std::endl;
 
@@ -27,7 +27,7 @@ ServerAdapter::ServerAdapter(rpc::server& server, IControllable& c)
     server.bind(FUNC(Code::DeletePreset),   [this, &c] (const std::string& name)  { c.deletePreset(name); });
 
     server.bind(FUNC(Code::SetFilterCount), [this, &c] (uint8_t i)            { c.setFilterCount(i); });
-    server.bind(FUNC(Code::SetFilterType),  [this, &c] (uint8_t i, FilterType t) { c.setFilterType(i, t); });
+    server.bind(FUNC(Code::SetFilterType),  [this, &c] (uint8_t i, common::FilterType t) { c.setFilterType(i, t); });
     server.bind(FUNC(Code::SetFilterFreq),  [this, &c] (uint8_t i, uint8_t f) { c.setFilterFreq(i, m_converter.freqFromProto(f)); });
     server.bind(FUNC(Code::SetFilterGain),  [this, &c] (uint8_t i, int8_t  g) { c.setFilterGain(i, m_converter.gainFromProto(g)); });
     server.bind(FUNC(Code::SetFilterQ),     [this, &c] (uint8_t i, uint8_t q) { c.setFilterQ(i, m_converter.qFromProto(q)); });

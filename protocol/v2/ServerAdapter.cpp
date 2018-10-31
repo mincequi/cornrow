@@ -14,7 +14,7 @@ using Code = ::v1::Code;
 
 #define FUNC(code) std::string(1, static_cast<uint8_t>(code))
 
-ServerAdapter::ServerAdapter(rpc::server& server, IControllable& c)
+ServerAdapter::ServerAdapter(rpc::server& server, common::IControllable& c)
     : v1::ServerAdapter(server, c)
 {
     std::cerr << "protocol v2" << std::endl;

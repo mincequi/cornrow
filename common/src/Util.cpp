@@ -3,6 +3,9 @@
 #include <cmath>
 #include <complex>
 
+namespace common
+{
+
 bool computeBiQuad(int r, const Filter& f, BiQuad* biquad)
 {
     switch (f.type) {
@@ -105,3 +108,5 @@ bool computeResponse(const Filter& f, const std::vector<float>& freqs, std::vect
 
     return true;
 }
+
+} // namespace common

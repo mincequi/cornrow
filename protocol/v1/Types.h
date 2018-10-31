@@ -5,9 +5,9 @@
 
 #include <rpc/msgpack.hpp>
 
-#include "common/Types.h"
+#include <common/Types.h>
 
-MSGPACK_ADD_ENUM(FilterType)
+MSGPACK_ADD_ENUM(common::FilterType)
 
 namespace v1 {
 
@@ -55,7 +55,7 @@ enum class Code : uint8_t {
 
 struct Filter
 {
-    FilterType    type; // max 127
+    common::FilterType    type; // max 127
     uint8_t freq; // max 121
     int8_t  gain; // -32 ... 127
     uint8_t q;    // max 55

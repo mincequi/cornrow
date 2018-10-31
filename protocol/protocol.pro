@@ -24,7 +24,7 @@ HEADERS += \
 
 # common
 LIBS += -L$$OUT_PWD/../common/ -lcommon
-INCLUDEPATH += $$PWD/../common
+INCLUDEPATH += $$PWD/../common/include
 DEPENDPATH += $$PWD/../common
 PRE_TARGETDEPS += $$OUT_PWD/../common/libcommon.a
 

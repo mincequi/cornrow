@@ -13,8 +13,8 @@ Model::Model(const std::vector<float>& freqTable,
 
 Model::Model(QObject *parent) :
     QObject(parent),
-    m_freqTable(twelfthOctaveBandsTable),
-    m_qTable(qTable)
+    m_freqTable(common::twelfthOctaveBandsTable),
+    m_qTable(common::qTable)
 {
     connect(this, &Model::typeChanged, this, &Model::onCurrentFilterParameterChanged);
     connect(this, &Model::freqChanged, this, &Model::onCurrentFilterParameterChanged);
@@ -85,7 +85,7 @@ int Model::type() const
 
 void Model::setType(int type)
 {
-    FilterType t = static_cast<FilterType>(type);
+    common::FilterType t = static_cast<common::FilterType>(type);
     if (m_curFilter->t == t) return;
 
     m_curFilter->t = t;

@@ -4,7 +4,7 @@
 #include <QQuickPaintedItem>
 #include <QPolygonF>
 
-#include "common/Types.h"
+#include <common/include/common/Types.h>
 
 class EqChart : public QQuickPaintedItem
 {
@@ -41,7 +41,7 @@ public:
     void paint(QPainter *painter) override;
 
 private:
-    void computeResponse(const Filter& f, QPolygonF* mags);
+    void computeResponse(const common::Filter& f, QPolygonF* mags);
 
     QColor m_plotColor;         // background plots
     QColor m_currentPlotColor;  // current plot

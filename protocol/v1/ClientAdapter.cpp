@@ -23,12 +23,12 @@ ClientAdapter::~ClientAdapter()
 {
 }
 
-std::vector<::Preset> ClientAdapter::getPresets()
+std::vector<common::Preset> ClientAdapter::getPresets()
 {
     return m_converter.presetsFromProto(call(FUNC(Code::GetPresets)).as<std::vector<Preset>>());
 }
 
-::Preset ClientAdapter::getPreset(const std::string& name)
+common::Preset ClientAdapter::getPreset(const std::string& name)
 {
     return m_converter.presetFromProto(call(FUNC(Code::GetPreset), name).as<Preset>());
 }
@@ -43,7 +43,7 @@ void ClientAdapter::setPreset(const std::string& name)
     call(FUNC(Code::SetPreset), name);
 }
 
-void ClientAdapter::savePreset(const ::Preset& preset)
+void ClientAdapter::savePreset(const common::Preset& preset)
 {
     call(FUNC(Code::SavePreset), m_converter.presetToProto(preset));
 }
@@ -63,7 +63,7 @@ void ClientAdapter::setFilterCount(uint8_t i)
     call(FUNC(Code::SetFilterCount), i);
 }
 
-void ClientAdapter::setFilterType(uint8_t i, FilterType t)
+void ClientAdapter::setFilterType(uint8_t i, common::FilterType t)
 {
     call(FUNC(Code::SetFilterType), i, t);
 }

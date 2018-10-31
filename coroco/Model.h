@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "common/Types.h"
+#include <common/include/common/Types.h>
 
 class Model : public QObject
 {
@@ -67,7 +67,7 @@ private:
     void onCurrentFilterParameterChanged();
 
     struct Filter {
-        FilterType    t = FilterType::Peak;
+        common::FilterType t = common::FilterType::Peak;
         int     f = 68;
         float   g = 0.0;
         int     q = 17;

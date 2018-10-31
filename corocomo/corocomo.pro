@@ -15,14 +15,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 include(../cornrow.pri)
 
 SOURCES += main.cpp \
-    ../common/Types.cpp \
+    ../common/src/Types.cpp \
     ../coroco/Model.cpp \
     EqChart.cpp
 
 HEADERS += \
-    ../common/Types.h \
+    ../common/include/common/Types.h \
     ../coroco/Model.h \
     EqChart.h
+
+INCLUDEPATH += \
+    ../common/include/common
 
 RESOURCES += qml.qrc
 

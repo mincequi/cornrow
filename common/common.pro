@@ -3,10 +3,13 @@ CONFIG -= qt
 CONFIG += staticlib c++11 create_prl
 
 SOURCES += \
-    Util.cpp \
-    Types.cpp
+    src/Util.cpp \
+    src/Types.cpp
 
 HEADERS += \
-    IControllable.h \
-    Util.h \
-    Types.h
+    include/common/IControllable.h \
+    include/common/Util.h \
+    include/common/Types.h
+
+INCLUDEPATH += \
+    include/common

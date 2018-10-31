@@ -11,13 +11,13 @@ public:
     Converter();
     virtual ~Converter();
 
-    virtual std::vector<Preset> presetsToProto(const std::vector<::Preset>& presets);
-    virtual std::vector<::Preset> presetsFromProto(const std::vector<Preset>& presets);
-    virtual Preset presetToProto(const ::Preset& preset);
-    virtual ::Preset presetFromProto(const Preset& preset);
+    virtual std::vector<Preset> presetsToProto(const std::vector<common::Preset>& presets);
+    virtual std::vector<common::Preset> presetsFromProto(const std::vector<Preset>& presets);
+    virtual Preset presetToProto(const common::Preset& preset);
+    virtual common::Preset presetFromProto(const Preset& preset);
 
-    virtual Filter filterToProto(const ::Filter& filter);
-    virtual ::Filter filterFromProto(const Filter& filter);
+    virtual Filter filterToProto(const common::Filter& filter);
+    virtual common::Filter filterFromProto(const Filter& filter);
 
     virtual uint8_t freqToProto(float);
     virtual float freqFromProto(uint8_t i);

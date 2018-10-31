@@ -4,7 +4,7 @@
 
 #include <QPainter>
 
-#include "common/Util.h"
+#include "Util.h"
 
 EqChart::EqChart(QQuickItem *parent) :
     QQuickPaintedItem(parent)
@@ -13,8 +13,8 @@ EqChart::EqChart(QQuickItem *parent) :
 
 void EqChart::addFilter()
 {
-    QPolygonF poly(twelfthOctaveBandsTable.size());
-    for (int i = 0; i < twelfthOctaveBandsTable.size(); ++i) {
+    QPolygonF poly(common::twelfthOctaveBandsTable.size());
+    for (size_t i = 0; i < common::twelfthOctaveBandsTable.size(); ++i) {
         poly[i].rx() = i;
     }
     m_plots.append(poly);
@@ -31,7 +31,7 @@ void EqChart::setFilter(int i, uchar t, float f, float g, float q)
 {
     if (i >= m_plots.size()) return;
 
-    computeResponse({static_cast<FilterType>(t), f, g, q}, &m_plots[i]);
+    computeResponse({static_cast<common::FilterType>(t), f, g, q}, &m_plots[i]);
     update();
 }
 
@@ -97,7 +97,7 @@ void EqChart::setCurrentPlot(int i)
 void EqChart::paint(QPainter *painter)
 {
     QTransform trans;
-    trans.scale(width()/(twelfthOctaveBandsTable.size()-1.0), height()/-36.0);
+    trans.scale(width()/(common::twelfthOctaveBandsTable.size()-1.0), height()/-36.0);
     trans.translate(0.0, -9.0);
     painter->setRenderHints(QPainter::Antialiasing, true);
 
@@ -130,8 +130,8 @@ void EqChart::paint(QPainter *painter)
     */
 
     painter->setPen(QPen(QColor(0, 0, 0, 0), 1.0));
-    QPolygonF sumPlot1(twelfthOctaveBandsTable.size());
-    for (int i = 0; i < twelfthOctaveBandsTable.size(); ++i) {
+    QPolygonF sumPlot1(common::twelfthOctaveBandsTable.size());
+    for (size_t i = 0; i < common::twelfthOctaveBandsTable.size(); ++i) {
         sumPlot1[i].rx() = i;
     }
     for (auto& plot : m_plots) {
@@ -216,13 +216,13 @@ void EqChart::paint(QPainter *painter)
     }
 }
 
-void EqChart::computeResponse(const Filter& f, QPolygonF* mags)
+void EqChart::computeResponse(const common::Filter& f, QPolygonF* mags)
 {
-    BiQuad biquad;
+    common::BiQuad biquad;
     if (!computeBiQuad(48000, f, &biquad)) return;
 
     for (QPointF& m : *mags) {
-        double w = 2.0*M_PI*twelfthOctaveBandsTable.at(m.rx())/48000;
+        double w = 2.0*M_PI*common::twelfthOctaveBandsTable.at(m.rx())/48000;
         std::complex<double> z(cos(w), sin(w));
         std::complex<double> numerator = biquad.b0 + (biquad.b1 + biquad.b2*z)*z;
         std::complex<double> denominator = 1.0 + (biquad.a1 + biquad.a2*z)*z;
