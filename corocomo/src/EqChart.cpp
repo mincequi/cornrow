@@ -4,7 +4,7 @@
 
 #include <QPainter>
 
-#include "Util.h"
+#include <common/Util.h>
 
 EqChart::EqChart(QQuickItem *parent) :
     QQuickPaintedItem(parent)
@@ -219,10 +219,10 @@ void EqChart::paint(QPainter *painter)
 void EqChart::computeResponse(const common::Filter& f, QPolygonF* mags)
 {
     common::BiQuad biquad;
-    if (!computeBiQuad(48000, f, &biquad)) return;
+    if (!computeBiQuad(44100, f, &biquad)) return;
 
     for (QPointF& m : *mags) {
-        double w = 2.0*M_PI*common::twelfthOctaveBandsTable.at(m.rx())/48000;
+        double w = 2.0*M_PI*common::twelfthOctaveBandsTable.at(m.rx())/44100;
         std::complex<double> z(cos(w), sin(w));
         std::complex<double> numerator = biquad.b0 + (biquad.b1 + biquad.b2*z)*z;
         std::complex<double> denominator = 1.0 + (biquad.a1 + biquad.a2*z)*z;

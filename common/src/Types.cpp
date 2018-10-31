@@ -18,7 +18,7 @@ Config::Config(Source source_, int rate_, SampleFormat format_, std::string watc
 
 // Renard R40
 const std::vector<float> twelfthOctaveBandsTable = {
-    16.0,     17.0,    18.0,    19.0,
+    //16.0,     17.0,    18.0,    19.0,
     20.0,     21.2,    22.4,    23.6,
     25.0,     26.5,    28.0,    30.0,
     31.5,     33.5,    35.5,    37.5,
@@ -49,7 +49,7 @@ const std::vector<float> twelfthOctaveBandsTable = {
     10000.0, 10600.0, 11200.0, 11800.0,
     12500.0, 13200.0, 14000.0, 15000.0,
     16000.0, 17000.0, 18000.0, 19000.0,
-    20000.0, 21200.0
+    20000.0 //, 21200.0
 };
 
 // Renard R80

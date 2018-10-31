@@ -204,6 +204,9 @@ ApplicationWindow {
     }
     Slider {
         id: freqSlider
+        stepSize: 1
+        from: 0
+        to: 120
         anchors.bottom: gainLabel.top
         anchors.left: decFreq.right
         anchors.right: incFreq.left

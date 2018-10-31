@@ -1,5 +1,6 @@
 add_library(common STATIC
     src/Types.cpp
+    src/Util.cpp
 )
 
 target_include_directories(common

@@ -104,8 +104,8 @@ QString Model::freqReadout() const
 void Model::stepFreq(int i)
 {
     int idx = m_curFilter->f + i;
-    if (idx < 0) return;
-    if (idx > m_freqTable.size()-1) return;
+    if (idx < m_minFreq) return;
+    if (idx > m_maxFreq) return;
     if (m_curFilter->f == idx) return;
 
     m_curFilter->f = idx;
@@ -116,18 +116,18 @@ void Model::stepFreq(int i)
 
 float Model::freqSlider() const
 {
-    if (!m_curFilter) return (float)m_defaultFreq/(float)(m_freqTable.size()-1);
+    if (!m_curFilter) return m_defaultFreq;
 
-    return (float)m_curFilter->f/(float)(m_freqTable.size()-1);
+    return m_curFilter->f;
 }
 
 void Model::setFreqSlider(float f)
 {
     // @TODO(mawe): this can crash we removing last filter band
-    int idx = qRound(f*(m_freqTable.size()-1));
-    if (m_curFilter->f == idx) return;
+    if (!m_curFilter) return;
+    if (m_curFilter->f == int(f)) return;
 
-    m_curFilter->f = idx;
+    m_curFilter->f = (int)f;
     emit freqChanged();
 }
 

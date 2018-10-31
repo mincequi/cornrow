@@ -2,8 +2,7 @@
 #include <QQmlApplicationEngine>
 
 #include "EqChart.h"
-
-#include "../coroco/Model.h"
+#include "Model.h"
 
 int main(int argc, char *argv[])
 {

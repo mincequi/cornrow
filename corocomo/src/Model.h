@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <common/include/common/Types.h>
+#include <common/Types.h>
 
 class Model : public QObject
 {
@@ -79,6 +79,8 @@ private:
     const std::vector<float> m_freqTable;
     const std::vector<float> m_qTable;
     const int m_defaultFreq = 68;
+    const int m_minFreq = 0;
+    const int m_maxFreq = 120;
     const int m_defaultQ = 17;
     const float m_minGain = -24.0;
     const float m_maxGain = 6.0;

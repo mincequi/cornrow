@@ -1,10 +1,10 @@
 #ifndef EQCHART_H
 #define EQCHART_H
 
-#include <QQuickPaintedItem>
 #include <QPolygonF>
+#include <QQuickPaintedItem>
 
-#include <common/include/common/Types.h>
+#include <common/Types.h>
 
 class EqChart : public QQuickPaintedItem
 {
