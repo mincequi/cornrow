@@ -17,6 +17,7 @@
 
 #include "Central.h"
 
+#include "Converter.h"
 #include "Defines.h"
 
 #include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>
@@ -62,6 +63,8 @@ struct CentralPrivate : public QObject
     QBluetoothDeviceDiscoveryAgent* m_discoverer = nullptr;
     QLowEnergyController*   m_control = nullptr;
     QLowEnergyService*      m_service = nullptr;
+
+    Converter m_converter;
 };
 
 void CentralPrivate::connectDevice(const QBluetoothDeviceInfo &device)
@@ -123,7 +126,7 @@ void CentralPrivate::onServiceDiscovered(const QBluetoothUuid& serviceUuid)
     qDebug() << "Cornrow service discovered...";
     m_service = m_control->createServiceObject(ble::cornrowServiceUuid, this);
     connect(m_service, &QLowEnergyService::stateChanged, this, &CentralPrivate::onServiceStateChanged);
-    connect(m_service, &QLowEnergyService::characteristicRead, q, &Central::characteristicRead);
+    connect(m_service, &QLowEnergyService::characteristicRead, q, &Central::onCharacteristicRead);
     connect(m_service, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error),
     [this] (QLowEnergyService::ServiceError error) {
         qDebug() << __func__;
@@ -206,12 +209,27 @@ void Central::disconnect()
     }
 }
 
+void Central::writeCharacteristic(const QBluetoothUuid& uuid, const QByteArray &value)
+{
+    const auto characteristic = d->m_service->characteristic(uuid);
+    if (!characteristic.isValid()) {
+        qDebug() << __func__ << "Characteristic invalid:" << uuid;
+        return;
+    }
+    d->m_service->writeCharacteristic(characteristic, value);
+}
+
 void Central::setError(Error _error)
 {
     disconnect();
 
     qDebug() << "Error:" << static_cast<int32_t>(_error);
     emit error(_error);
+}
+
+void Central::onCharacteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &value)
+{
+    emit characteristicRead(d->m_converter.fromBle(characteristic.uuid()), value);
 }
 
 } // namespace ble

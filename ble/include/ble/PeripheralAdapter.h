@@ -8,18 +8,16 @@ class QLowEnergyCharacteristic;
 
 namespace ble
 {
-class Central;
 class Converter;
 class Peripheral;
 
-class Adapter : public QObject
+class PeripheralAdapter : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Adapter(Central* central);
-    explicit Adapter(Peripheral* peripheral, const std::vector<common::Filter>& filters);
-    ~Adapter();
+    explicit PeripheralAdapter(Peripheral* peripheral, const std::vector<common::Filter>& filters);
+    ~PeripheralAdapter();
 
 signals:
     void peq(const std::vector<common::Filter>& filters);
@@ -29,9 +27,7 @@ signals:
 private:
     void onCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
 
-    Central* m_central;
     Peripheral* m_peripheral;
-
     Converter* m_converter;
 };
 

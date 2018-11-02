@@ -19,6 +19,9 @@
 
 #include <QObject>
 
+#include <common/Types.h>
+
+class QBluetoothUuid;
 class QLowEnergyCharacteristic;
 
 namespace ble
@@ -41,14 +44,17 @@ public:
     bool startDiscovering();
     void disconnect();
 
+    void writeCharacteristic(const QBluetoothUuid& uuid, const QByteArray &value);
+
 signals:
     void error(Error error);
 
     // Emits initial values
-    void characteristicRead(const QLowEnergyCharacteristic &info, const QByteArray &value);
+    void characteristicRead(common::FilterTask task, const QByteArray &value);
 
 private:
     void setError(Error error);
+    void onCharacteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
 
     class CentralPrivate *const d = nullptr;
     friend class CentralPrivate;

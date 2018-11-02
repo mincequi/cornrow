@@ -2,6 +2,16 @@
 
 #include <QPen>
 
+Model* Model::instance()
+{
+    static Model* s_instance = nullptr;
+    if (!s_instance) {
+        s_instance = new Model();
+    }
+
+    return s_instance;
+}
+
 Model::Model(const std::vector<float>& freqTable,
              const std::vector<float>& qTable,
              QObject *parent) :
@@ -16,10 +26,17 @@ Model::Model(QObject *parent) :
     m_freqTable(common::twelfthOctaveBandsTable),
     m_qTable(common::qTable)
 {
-    connect(this, &Model::typeChanged, this, &Model::onCurrentFilterParameterChanged);
-    connect(this, &Model::freqChanged, this, &Model::onCurrentFilterParameterChanged);
-    connect(this, &Model::gainChanged, this, &Model::onCurrentFilterParameterChanged);
-    connect(this, &Model::qChanged, this, &Model::onCurrentFilterParameterChanged);
+    m_filters.append(Filter());
+    m_filters.append(Filter());
+    m_filters.append(Filter());
+    m_filters.append(Filter());
+    m_filters.append(Filter());
+    setCurrentBand(0);
+
+    connect(this, &Model::typeChanged, this, &Model::onParameterChanged);
+    connect(this, &Model::freqChanged, this, &Model::onParameterChanged);
+    connect(this, &Model::gainChanged, this, &Model::onParameterChanged);
+    connect(this, &Model::qChanged, this, &Model::onParameterChanged);
 }
 
 void Model::addFilter()
@@ -28,7 +45,7 @@ void Model::addFilter()
     emit filterAdded();
     emit filterCountChanged();
 
-    setCurrentFilter(m_filters.size()-1);
+    setCurrentBand(m_filters.size()-1);
 }
 
 void Model::deleteFilter()
@@ -39,17 +56,17 @@ void Model::deleteFilter()
     emit filterRemoved(m_curIndex);
     emit filterCountChanged();
 
-    setCurrentFilter(m_curIndex);
+    setCurrentBand(m_curIndex);
 }
 
-void Model::setCurrentFilter(int i)
+void Model::setCurrentBand(int i)
 {
     if (m_filters.empty()) {
         m_curFilter = nullptr;
         if (m_curIndex == -1) return;
         m_curIndex = -1;
 
-        emit currentFilterChanged();
+        emit currentBandChanged();
     } else {
         if (i >= m_filters.size()) {
             m_curIndex = m_filters.size()-1;
@@ -58,7 +75,7 @@ void Model::setCurrentFilter(int i)
         }
         m_curFilter = &(m_filters[m_curIndex]);
 
-        emit currentFilterChanged();
+        emit currentBandChanged();
         emit typeChanged();
         emit freqChanged();
         emit freqSliderChanged();
@@ -73,7 +90,7 @@ int Model::filterCount() const
     return m_filters.size();
 }
 
-int Model::currentFilter() const
+int Model::currentBand() const
 {
     return m_curIndex;
 }
@@ -104,28 +121,26 @@ QString Model::freqReadout() const
 void Model::stepFreq(int i)
 {
     int idx = m_curFilter->f + i;
-    if (idx < m_minFreq) return;
-    if (idx > m_maxFreq) return;
-    if (m_curFilter->f == idx) return;
+    if (idx < m_minFreq || idx > m_maxFreq || idx == m_curFilter->f) {
+        return;
+    }
 
     m_curFilter->f = idx;
-
     emit freqChanged();
     emit freqSliderChanged();
 }
 
 float Model::freqSlider() const
 {
-    if (!m_curFilter) return m_defaultFreq;
-
     return m_curFilter->f;
 }
 
 void Model::setFreqSlider(float f)
 {
     // @TODO(mawe): this can crash we removing last filter band
-    if (!m_curFilter) return;
-    if (m_curFilter->f == int(f)) return;
+    if (m_curFilter->f == int(f)) {
+        return;
+    }
 
     m_curFilter->f = (int)f;
     emit freqChanged();
@@ -186,7 +201,18 @@ void Model::setQSlider(float q)
     emit qChanged();
 }
 
-void Model::onCurrentFilterParameterChanged()
+void Model::setFilters(const std::vector<common::Filter>& filters)
+{
+    for (size_t i = 0; i < filters.size(); ++i) {
+        m_filters[i].t = filters.at(i).type;
+        m_filters[i].f = filters.at(i).f;
+        m_filters[i].g = filters.at(i).g;
+        m_filters[i].q = filters.at(i).q;
+        emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_freqTable.at(m_filters[i].f), m_filters[i].g, m_qTable.at(m_filters[i].q));
+    }
+}
+
+void Model::onParameterChanged()
 {
     if (m_curFilter) {
         emit filterChanged(m_curIndex, static_cast<uchar>(m_curFilter->t), m_freqTable.at(m_curFilter->f), m_curFilter->g, m_qTable.at(m_curFilter->q));

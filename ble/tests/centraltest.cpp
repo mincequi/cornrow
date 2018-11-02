@@ -9,8 +9,8 @@ int main(int argc, char** argv)
     QCoreApplication app(argc, argv);
 
     auto central = new ble::Central();
-    QObject::connect(central, &ble::Central::characteristicRead, [](const QLowEnergyCharacteristic &info, const QByteArray &value) {
-        qDebug() << "info:" << info.uuid() << ", value:" << value;
+    QObject::connect(central, &ble::Central::characteristicRead, [](common::FilterTask task, const QByteArray &value) {
+        qDebug() << "task:" << (int)task << ", value:" << value;
     });
     central->startDiscovering();
 

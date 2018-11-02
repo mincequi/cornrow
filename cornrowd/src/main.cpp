@@ -21,11 +21,11 @@
 #include <QDebug>
 #include <QThread>
 
-#include "Config.h"
-
-#include "audio/Controller.h"
-#include <ble/Adapter.h>
 #include <ble/Peripheral.h>
+#include <ble/PeripheralAdapter.h>
+
+#include "Config.h"
+#include "audio/Controller.h"
 #include "bluetooth/Controller.h"
 
 struct SignalHandler
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     // Create objects
     auto bluetoothController = new bluetooth::Controller();
     auto audioController = new audio::Controller();
-    auto bleController = new ble::Peripheral();
+    auto blePeripheral = new ble::Peripheral();
 
     // Read persistence
     readConfig(*audioController);
@@ -72,8 +72,8 @@ int main(int argc, char **argv)
                      audioController, &audio::Controller::clearTransport, Qt::QueuedConnection);
 
     // BLE
-    auto adapter = new ble::Adapter(bleController, audioController->peq());
-    QObject::connect(adapter, &ble::Adapter::peq, audioController, &audio::Controller::setPeq);
+    auto adapter = new ble::PeripheralAdapter(blePeripheral, audioController->peq());
+    QObject::connect(adapter, &ble::PeripheralAdapter::peq, audioController, &audio::Controller::setPeq);
 
     return a.exec();
 }

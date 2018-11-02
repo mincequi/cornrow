@@ -4,6 +4,8 @@
 
 #include <QByteArray>
 
+#include "Defines.h"
+
 namespace ble
 {
 
@@ -13,6 +15,19 @@ Converter::Converter()
 
 Converter::~Converter()
 {
+}
+
+common::FilterTask Converter::fromBle(const QBluetoothUuid& uuid)
+{
+    if (uuid == ble::peqCharacteristicUuid) {
+        return common::FilterTask::Peq;
+    } else if (uuid == ble::crossoverCharacteristicUuid) {
+        return common::FilterTask::Crossover;
+    } else if (uuid == ble::loudnessCharacteristicUuid) {
+        return common::FilterTask::Loudness;
+    }
+
+    return common::FilterTask::Invalid;
 }
 
 QByteArray Converter::filtersToBle(const std::vector<common::Filter>& filters)

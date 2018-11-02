@@ -2,6 +2,7 @@
 
 #include <common/Types.h>
 
+class QBluetoothUuid;
 class QByteArray;
 
 namespace ble
@@ -12,6 +13,8 @@ class Converter
 public:
     Converter();
     virtual ~Converter();
+
+    virtual common::FilterTask fromBle(const QBluetoothUuid& uuid);
 
     virtual QByteArray filtersToBle(const std::vector<common::Filter>& filters);
     virtual std::vector<common::Filter> filtersFromBle(const QByteArray& array);

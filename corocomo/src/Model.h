@@ -7,32 +7,31 @@
 
 class Model : public QObject
 {
-    friend class MainWindow;
-
     Q_OBJECT
 
     Q_PROPERTY(int filterCount READ filterCount NOTIFY filterCountChanged)
-    Q_PROPERTY(int currentFilter READ currentFilter WRITE setCurrentFilter NOTIFY currentFilterChanged)
-    Q_PROPERTY(int type READ type WRITE setType NOTIFY typeChanged)
-    Q_PROPERTY(QString freqReadout READ freqReadout NOTIFY freqChanged)
-    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
-    Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
+    Q_PROPERTY(int currentBand READ currentBand WRITE setCurrentBand NOTIFY currentBandChanged)
+
+    Q_PROPERTY(uint type READ type WRITE setType NOTIFY typeChanged)
+
     Q_PROPERTY(float freqSlider READ freqSlider WRITE setFreqSlider NOTIFY freqSliderChanged)
+    Q_PROPERTY(QString freqReadout READ freqReadout NOTIFY freqChanged)
+
+    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
+
     Q_PROPERTY(float qSlider READ qSlider WRITE setQSlider NOTIFY qSliderChanged)
+    Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
 
 public:
-    Model(const std::vector<float>& freqTable,
-          const std::vector<float>& qTable,
-          QObject *parent = nullptr);
-    Model(QObject *parent = nullptr);
+    static Model* instance();
 
     Q_INVOKABLE void addFilter();
     Q_INVOKABLE void deleteFilter();
 
     int         filterCount() const;
 
-    int         currentFilter() const;
-    Q_INVOKABLE void setCurrentFilter(int i);
+    int         currentBand() const;
+    Q_INVOKABLE void setCurrentBand(int i);
 
     int         type() const;
     void        setType(int type);
@@ -54,7 +53,7 @@ signals:
     void filterCountChanged();
     void filterAdded();
     void filterRemoved(int i);
-    void currentFilterChanged();
+    void currentBandChanged();
     void filterChanged(int i, uchar t, float f, float g, float q);
     void typeChanged();
     void freqChanged();
@@ -64,16 +63,21 @@ signals:
     void qSliderChanged();
 
 private:
-    void onCurrentFilterParameterChanged();
+    Model(const std::vector<float>& freqTable,
+          const std::vector<float>& qTable,
+          QObject *parent = nullptr);
+    Model(QObject *parent = nullptr);
 
+    void setFilters(const std::vector<common::Filter>& filters);
+
+    void onParameterChanged();
+
+    // This is the model-oriented filter struct. We use indexed values here.
     struct Filter {
-        common::FilterType t = common::FilterType::Peak;
+        common::FilterType t = common::FilterType::Invalid;
         int     f = 68;
         float   g = 0.0;
         int     q = 17;
-
-        std::vector<float> mags;
-        std::vector<float> phases;
     };
 
     const std::vector<float> m_freqTable;
@@ -87,8 +91,10 @@ private:
 
     QList<Filter>   m_filters;
     Filter*         m_curFilter = nullptr;
-    int             m_curIndex = -1;
+    int             m_curIndex = 0;
     float           m_freqSlider;
+
+    friend int main(int argc, char *argv[]);
 };
 
 #endif // MODEL_H

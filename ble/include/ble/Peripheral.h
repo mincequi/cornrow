@@ -44,7 +44,7 @@ private:
     void startPublishing();
 
     class PeripheralPrivate *const d = nullptr;
-    friend class Adapter;
+    friend class PeripheralAdapter;
 };
 
 } // namespace ble

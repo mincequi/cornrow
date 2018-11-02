@@ -9,6 +9,7 @@
 class EqChart : public QQuickPaintedItem
 {
     Q_OBJECT
+    Q_PROPERTY(int plotCount WRITE setPlotCount)
     Q_PROPERTY(QColor plotColor READ plotColor WRITE setPlotColor)
     Q_PROPERTY(QColor currentPlotColor READ currentPlotColor WRITE setCurrentPlotColor)
     Q_PROPERTY(QColor sumPlotColor READ sumPlotColor WRITE setSumPlotColor)
@@ -24,6 +25,7 @@ public:
     Q_INVOKABLE void removeFilter(int i);
     Q_INVOKABLE void setFilter(int i, uchar t, float f, float g, float q);
 
+    void setPlotCount(int i);
     QColor plotColor() const;
     void setPlotColor(const QColor &color);
     QColor currentPlotColor() const;

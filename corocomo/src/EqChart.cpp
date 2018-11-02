@@ -11,6 +11,17 @@ EqChart::EqChart(QQuickItem *parent) :
 {
 }
 
+void EqChart::setPlotCount(int count)
+{
+    for (int i = 0; i < count; ++i) {
+        QPolygonF poly(common::twelfthOctaveBandsTable.size());
+        for (size_t j = 0; j < common::twelfthOctaveBandsTable.size(); ++j) {
+            poly[j].rx() = j;
+        }
+        m_plots.append(poly);
+    }
+}
+
 void EqChart::addFilter()
 {
     QPolygonF poly(common::twelfthOctaveBandsTable.size());
@@ -219,7 +230,12 @@ void EqChart::paint(QPainter *painter)
 void EqChart::computeResponse(const common::Filter& f, QPolygonF* mags)
 {
     common::BiQuad biquad;
-    if (!computeBiQuad(44100, f, &biquad)) return;
+    if (!computeBiQuad(44100, f, &biquad)) {
+        for (QPointF& m : *mags) {
+            m.ry() = 0.0;
+        }
+        return;
+    }
 
     for (QPointF& m : *mags) {
         double w = 2.0*M_PI*common::twelfthOctaveBandsTable.at(m.rx())/44100;

@@ -1,6 +1,7 @@
-import QtQuick 2.8
-import QtQuick.Controls 2.2
-import QtQuick.Controls.Material 2.2
+import QtQml 2.2
+import QtQuick 2.9
+import QtQuick.Controls 2.4
+import QtQuick.Controls.Material 2.4
 import QtQuick.Layouts 1.3
 import Cornrow.EqChart 1.0
 import Cornrow.Model 1.0
@@ -8,59 +9,28 @@ import Cornrow.Model 1.0
 ApplicationWindow {
     id: appWindow
     visible: true
-    width: 375
-    height: 667
+    // iPhone SE
+    width: 320
+    height: 568
+    // iPhone 6
+    //width: 375
+    //height: 667
 
     Material.theme: Material.Dark
     Material.accent: Material.color(Material.Indigo)
     Material.primary: Material.color(Material.Indigo)
 
-
-    CornrowModel {
-        id: model
-
-        onFilterCountChanged: {
-            // Bug in QML? Need to call this before for loop
-            //eqChart.setFilterCount(model.filterCount);
-            for (var i = 0; filtersLayout.children.length; i++) {
-                filtersLayout.children[i].enabled = i < model.filterCount;
-            }
-        }
-        onFilterAdded: {
-            eqChart.addFilter();
-        }
-        onFilterRemoved: {
-            eqChart.removeFilter(i);
-        }
-
-        onCurrentFilterChanged: {
-            eqChart.currentPlot = model.currentFilter
-            filtersLayout.children[model.currentFilter].checked = true
-        }
-
+    Connections {
+        target: CornrowModel
         onFilterChanged: {
             eqChart.setFilter(i, t, f, g, q);
-        }
-
-        onTypeChanged: {
-            for (var i = 0; type.children.length; i++) {
-                typesLayout.children[i].checked = i+1 == model.type;
-            }
-        }
-
-        onFreqSliderChanged: {
-            freqSlider.value = model.freqSlider
-        }
-        onGainChanged: {
-            gainSlider.value = model.gain
-        }
-        onQSliderChanged: {
-            qSlider.value = model.qSlider
         }
     }
 
     CornrowEqChart {
         id: eqChart
+        plotCount: CornrowModel.filterCount
+        currentPlot: CornrowModel.currentBand
         currentPlotColor: Material.accent
         plotColor: Material.foreground
         sumPlotColor: Material.primary
@@ -69,111 +39,125 @@ ApplicationWindow {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: bandLabel.top
+        anchors.bottom: bandBar.top
     }
 
+    /*
     Label {
         id: bandLabel
         text: "Band"
-        anchors.left: remBand.horizontalCenter
-        anchors.bottom: remBand.top
+        anchors.left: typeLabel.left
+        anchors.bottom: bandBar.top
     }
 
     ToolButton {
         id: remBand
-        enabled: model.filterCount > 0
+        enabled: CornrowModel.filterCount > 0
         text: qsTr("-")
         anchors.bottom: typeLabel.top
         anchors.left: parent.left
 
-        onPressed: model.deleteFilter()
+        onPressed: CornrowModel.deleteFilter()
     }
     ToolButton {
         id: addBand
-        enabled: model.filterCount < 4
+        enabled: CornrowModel.filterCount < 4
         text: qsTr("+")
         anchors.bottom: typeLabel.top
         anchors.right: parent.right
 
-        onPressed: model.addFilter()
+        onPressed: CornrowModel.addFilter()
     }
+    */
 
     ToolBar {
-        anchors.left: remBand.right
-        anchors.right: addBand.left
-        anchors.bottom: addBand.bottom
+        id: bandBar
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: typeBar.top
         background: background
 
-        RowLayout {
-            id: filtersLayout
+        Row {
+            id: bandRow
             ToolButton {
                 text: qsTr("1")
                 autoExclusive: true
-                enabled: false
-
-                onPressed: model.setCurrentFilter(0)
+                checked: CornrowModel.currentBand == 0
+                onPressed: CornrowModel.setCurrentBand(0)
             }
             ToolButton {
                 text: qsTr("2")
                 autoExclusive: true
-                enabled: false
-
-                onPressed: model.setCurrentFilter(1)
+                checked: CornrowModel.currentBand == 1
+                onPressed: CornrowModel.setCurrentBand(1)
             }
             ToolButton {
                 text: qsTr("3")
                 autoExclusive: true
-                enabled: false
-
-                onPressed: model.setCurrentFilter(2)
+                checked: CornrowModel.currentBand == 2
+                onPressed: CornrowModel.setCurrentBand(2)
             }
             ToolButton {
                 text: qsTr("4")
                 autoExclusive: true
-                enabled: false
-
-                onPressed: model.setCurrentFilter(3)
+                checked: CornrowModel.currentBand == 3
+                onPressed: CornrowModel.setCurrentBand(3)
+            }
+            ToolButton {
+                text: qsTr("5")
+                autoExclusive: true
+                checked: CornrowModel.currentBand == 4
+                onPressed: CornrowModel.setCurrentBand(4)
             }
         }
     }
 
+    // Type
+    /*
     Label {
         id: typeLabel
         text: "Type"
         anchors.left: freqLabel.left
         anchors.bottom: type.top
     }
+    */
     ToolBar {
-        id: type
+        id: typeBar
         anchors.bottom: freqLabel.top
-        anchors.left: freqSlider.left
+        anchors.left: parent.left
         anchors.right: parent.right
         background: background
 
-        RowLayout {
-            id: typesLayout
+        Row {
+            id: typeRow
+            ToolButton {
+                text: qsTr("Off")
+                autoExclusive: true
+                checked: CornrowModel.type == 0
+                onPressed: CornrowModel.type = 0
+            }
             ToolButton {
                 text: qsTr("Peaking")
                 autoExclusive: true
-                checked: true
-
-                onPressed: model.type = 1
+                checked: CornrowModel.type == 1
+                onPressed: CornrowModel.type = 1
             }
             ToolButton {
                 text: qsTr("LowPass")
                 autoExclusive: true
-
-                onPressed: model.type = 2
+                checked: CornrowModel.type == 2
+                onPressed: CornrowModel.type = 2
             }
             ToolButton {
                 text: qsTr("HighPass")
                 autoExclusive: true
-
-                onPressed: model.type = 3
+                checked: CornrowModel.type == 3
+                onPressed: CornrowModel.type = 3
             }
         }
     }
 
+    // Frequency
     Label {
         id: freqLabel
         text: "Frequency"
@@ -182,7 +166,7 @@ ApplicationWindow {
     }
     Label {
         id: freqReadout
-        text: model.freqReadout
+        text: CornrowModel.freqReadout
         anchors.horizontalCenter: freqSlider.horizontalCenter
         anchors.bottom: freqSlider.top
     }
@@ -192,7 +176,7 @@ ApplicationWindow {
         anchors.bottom: gainLabel.top
         anchors.left: parent.left
 
-        onPressed: model.stepFreq(-1)
+        onPressed: CornrowModel.stepFreq(-1)
     }
     ToolButton {
         id: incFreq
@@ -200,7 +184,7 @@ ApplicationWindow {
         anchors.bottom: gainLabel.top
         anchors.right: parent.right
 
-        onPressed: model.stepFreq(1)
+        onPressed: CornrowModel.stepFreq(1)
     }
     Slider {
         id: freqSlider
@@ -212,9 +196,11 @@ ApplicationWindow {
         anchors.right: incFreq.left
         anchors.top: incFreq.top
 
-        onValueChanged: model.freqSlider = value
+        value: CornrowModel.freqSlider
+        onValueChanged: CornrowModel.freqSlider = value
     }
 
+    // Gain
     Label {
         id: gainLabel
         text: "Gain"
@@ -223,7 +209,7 @@ ApplicationWindow {
     }
     Label {
         id: gainReadout
-        text: model.gain.toFixed(1)
+        text: CornrowModel.gain.toFixed(1)
         anchors.horizontalCenter: gainSlider.horizontalCenter
         anchors.bottom: gainSlider.top
     }
@@ -233,7 +219,7 @@ ApplicationWindow {
         anchors.bottom: qLabel.top
         anchors.left: parent.left
 
-        onPressed: model.gain -= 0.5
+        onPressed: CornrowModel.gain -= 0.5
     }
     ToolButton {
         id: incGain
@@ -241,7 +227,7 @@ ApplicationWindow {
         anchors.bottom: qLabel.top
         anchors.right: parent.right
 
-        onPressed: model.gain += 0.5
+        onPressed: CornrowModel.gain += 0.5
     }
     Slider {
         id: gainSlider
@@ -253,9 +239,11 @@ ApplicationWindow {
         anchors.right: incGain.left
         anchors.top: incGain.top
 
-        onValueChanged: model.gain = value
+        value: CornrowModel.gain
+        onValueChanged: CornrowModel.gain = value
     }
 
+    // Q
     Label {
         id: qLabel
         text: "Q"
@@ -264,7 +252,7 @@ ApplicationWindow {
     }
     Label {
         id: qReadout
-        text: model.qReadout
+        text: CornrowModel.qReadout
         anchors.horizontalCenter: qSlider.horizontalCenter
         anchors.bottom: qSlider.top
     }
@@ -273,16 +261,14 @@ ApplicationWindow {
         text: qsTr("-")
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-
-        onPressed: model.stepQ(-1)
+        onPressed: CornrowModel.stepQ(-1)
     }
     ToolButton {
         id: incQ
         text: qsTr("+")
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-
-        onPressed: model.stepQ(1)
+        onPressed: CornrowModel.stepQ(1)
     }
     Slider {
         id: qSlider
@@ -291,6 +277,7 @@ ApplicationWindow {
         anchors.right: incQ.left
         anchors.top: incQ.top
 
-        onValueChanged: model.qSlider = value
+        value: CornrowModel.qSlider
+        onValueChanged: CornrowModel.qSlider = value
     }
 }

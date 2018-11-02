@@ -5,6 +5,7 @@ qtquick_compiler_add_resources(RESOURCES
 )
 
 add_executable(corocomo
+    src/BleCentralAdapter.cpp
     src/EqChart.cpp
     src/Model.cpp
     src/main.cpp
