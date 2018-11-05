@@ -65,19 +65,19 @@ std::vector<common::Filter> Converter::filtersFromBle(const QByteArray& array)
 uint8_t Converter::fToBle(float f)
 {
     uint8_t i = 0;
-    for (; i < common::twentyFourthOctaveBandsTable.size(); ++i) {
-        if (common::twentyFourthOctaveBandsTable.at(i+1) >= f) break;
+    for (; i < common::twelfthOctaveBandsTable.size(); ++i) {
+        if (common::twelfthOctaveBandsTable.at(i+1) >= f) break;
     }
 
-    float c = sqrt(common::twentyFourthOctaveBandsTable.at(i)*common::twentyFourthOctaveBandsTable.at(i+1));
+    float c = sqrt(common::twelfthOctaveBandsTable.at(i)*common::twelfthOctaveBandsTable.at(i+1));
     if (f <= c) return i;
     else return i+1;
 }
 
 float Converter::fFromBle(uint8_t i)
 {
-    if (i >= common::twentyFourthOctaveBandsTable.size()) return 0.0;
-    return common::twentyFourthOctaveBandsTable[i];
+    if (i >= common::twelfthOctaveBandsTable.size()) return 0.0;
+    return common::twelfthOctaveBandsTable[i];
 }
 
 int8_t Converter::gToBle(float g)
