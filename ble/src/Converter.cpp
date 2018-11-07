@@ -30,6 +30,20 @@ common::FilterTask Converter::fromBle(const QBluetoothUuid& uuid)
     return common::FilterTask::Invalid;
 }
 
+QBluetoothUuid Converter::toBle(common::FilterTask task)
+{
+    switch (task) {
+    case common::FilterTask::Peq:
+        return ble::peqCharacteristicUuid;
+    case common::FilterTask::Crossover:
+        return ble::crossoverCharacteristicUuid;
+    case common::FilterTask::Loudness:
+        return ble::loudnessCharacteristicUuid;
+    }
+
+    return QBluetoothUuid();
+}
+
 QByteArray Converter::filtersToBle(const std::vector<common::Filter>& filters)
 {
     QByteArray value;

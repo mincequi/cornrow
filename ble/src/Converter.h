@@ -15,6 +15,7 @@ public:
     virtual ~Converter();
 
     virtual common::FilterTask fromBle(const QBluetoothUuid& uuid);
+    virtual QBluetoothUuid toBle(common::FilterTask task);
 
     virtual QByteArray filtersToBle(const std::vector<common::Filter>& filters);
     virtual std::vector<common::Filter> filtersFromBle(const QByteArray& array);
