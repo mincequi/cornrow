@@ -32,10 +32,12 @@ class Central : public QObject
     Q_OBJECT
 
 public:
-    enum class Error {
-        None,
-        NoService,
-        InvalidCharacteristic
+    enum class Status {
+        Discovering,
+        Connected,
+        Timeout,
+        Lost,
+        Error
     };
 
     explicit Central(QObject *parent = nullptr);
@@ -44,16 +46,16 @@ public:
     bool startDiscovering();
     void disconnect();
 
-    void writeCharacteristic(const QBluetoothUuid& uuid, const QByteArray &value);
+    void writeCharacteristic(common::FilterTask task, const QByteArray &value);
 
 signals:
-    void error(Error error);
+    void status(Status status, const QString& errorString = QString());
 
     // Emits initial values
     void characteristicRead(common::FilterTask task, const QByteArray &value);
 
 private:
-    void setError(Error error);
+    void setStatus(Status status, const QString& errorString = QString());
     void onCharacteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
 
     class CentralPrivate *const d = nullptr;

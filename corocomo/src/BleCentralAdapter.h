@@ -2,31 +2,32 @@
 
 #include <QObject>
 
+#include <ble/Central.h>
 #include <common/Types.h>
 
-class QLowEnergyCharacteristic;
+#include "Model.h"
 
-namespace ble
-{
-class Central;
-
-class CentralAdapter : public QObject
+class BleCentralAdapter : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit CentralAdapter(Central* central);
-    ~CentralAdapter();
+    explicit BleCentralAdapter(ble::Central* central);
+    ~BleCentralAdapter();
+
+    void setFilters(const std::vector<Model::Filter>& filters);
 
 signals:
-    void peq(const std::vector<common::Filter>& filters);
+    void status(Model::Status status, const QString& errorString = QString());
+    void peq(const std::vector<Model::Filter>& filters);
     void crossover(const QByteArray& value);
     void loudness(const QByteArray& value);
 
 private:
+    void onStatus(ble::Central::Status status, const QString& errorString);
     void onCharacteristicRead(common::FilterTask task, const QByteArray &value);
 
-    Central* m_central;
+    ble::Central* m_central;
 };
 
-} // namespace ble
+

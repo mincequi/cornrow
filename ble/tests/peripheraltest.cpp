@@ -4,7 +4,7 @@
 #include <ble/Peripheral.h>
 #include <ble/PeripheralAdapter.h>
 
-void printFilters(const std::vector<common::Filter>& filters)
+void printFilters(const QVector<common::Filter>& filters)
 {
     for (const auto& filter : filters) {
         qDebug() << "t:" << static_cast<uint>(filter.type)

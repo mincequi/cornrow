@@ -31,7 +31,7 @@ void readConfig(audio::Controller& audioController)
         peq.push_back(filter);
     }
 
-    audioController.setPeq(peq);
+    audioController.setPeq(QVector<common::Filter>::fromStdVector(peq));
 }
 
 void writeConfig(const audio::Controller& audioController)

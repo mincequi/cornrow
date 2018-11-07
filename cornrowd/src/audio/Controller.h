@@ -38,7 +38,7 @@ public:
     explicit Controller(QObject *parent = nullptr);
 
     const std::vector<common::Filter> peq() const;
-    void setPeq(const std::vector<common::Filter>& filters);
+    void setPeq(const QVector<common::Filter>& filters);
 
 public slots:
     void setTransport(const QDBusObjectPath& transport);

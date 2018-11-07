@@ -2,6 +2,10 @@
 
 #include <QPen>
 
+#include <ble/Central.h>
+
+#include "BleCentralAdapter.h"
+
 Model* Model::instance()
 {
     static Model* s_instance = nullptr;
@@ -37,6 +41,47 @@ Model::Model(QObject *parent) :
     connect(this, &Model::freqChanged, this, &Model::onParameterChanged);
     connect(this, &Model::gainChanged, this, &Model::onParameterChanged);
     connect(this, &Model::qChanged, this, &Model::onParameterChanged);
+
+    m_central = new ble::Central(this);
+    m_adapter = new BleCentralAdapter(m_central);
+
+    connect(m_adapter, &BleCentralAdapter::peq, this, &Model::setFilters);
+    connect(m_adapter, &BleCentralAdapter::status, this, &Model::onBleStatus);
+
+    m_central->startDiscovering();
+}
+
+Model::Filter::Filter()
+{
+}
+
+Model::Filter::Filter(common::FilterType _t, uint8_t _f, float _g, uint8_t _q)
+    : t(_t),
+      f(_f),
+      g(_g),
+      q(_q)
+{
+}
+
+void Model::startDiscovering()
+{
+    m_central->startDiscovering();
+    onBleStatus(Status::Discovering, QString());
+}
+
+Model::Status Model::status() const
+{
+    return m_status;
+}
+
+QString Model::statusReadout() const
+{
+    return m_statusReadout;
+}
+
+QString Model::errorReadout() const
+{
+    return m_errorReadout;
 }
 
 void Model::addFilter()
@@ -201,15 +246,17 @@ void Model::setQSlider(float q)
     emit qChanged();
 }
 
-void Model::setFilters(const std::vector<common::Filter>& filters)
+void Model::setFilters(const std::vector<Filter>& filters)
 {
     for (size_t i = 0; i < filters.size(); ++i) {
-        m_filters[i].t = filters.at(i).type;
+        m_filters[i].t = filters.at(i).t;
         m_filters[i].f = filters.at(i).f;
         m_filters[i].g = filters.at(i).g;
         m_filters[i].q = filters.at(i).q;
         emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_freqTable.at(m_filters[i].f), m_filters[i].g, m_qTable.at(m_filters[i].q));
     }
+
+    setCurrentBand(0);
 }
 
 void Model::onParameterChanged()
@@ -219,4 +266,35 @@ void Model::onParameterChanged()
     } else {
         emit filterChanged(m_curIndex, 0, 0.0f, 0.0f, 0.0f);
     }
+
+    m_adapter->setFilters(m_filters.toVector().toStdVector());
+}
+
+void Model::onBleStatus(Status _status, const QString& errorString)
+{
+    m_status = _status;
+    m_errorReadout.clear();
+
+    switch (_status) {
+    case Status::Discovering:
+        m_statusReadout = "Discovering";
+        break;
+    case Status::Connected:
+        m_statusReadout = "";
+        break;
+    case Status::Timeout:
+        m_statusReadout = "Timeout";
+        m_errorReadout = "Be sure to be close to a Cornrow device.";
+        break;
+    case Status::Lost:
+        m_statusReadout = "Lost";
+        m_errorReadout = "Connection has been interrupted.";
+        break;
+    case Status::Error:
+        m_statusReadout = "Error";
+        m_errorReadout = errorString;
+        break;
+    }
+
+    emit statusChanged();
 }

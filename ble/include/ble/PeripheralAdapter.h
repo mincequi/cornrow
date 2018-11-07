@@ -20,7 +20,7 @@ public:
     ~PeripheralAdapter();
 
 signals:
-    void peq(const std::vector<common::Filter>& filters);
+    void peq(const QVector<common::Filter>& filters);
     void crossover(const QByteArray& value);
     void loudness(const QByteArray& value);
 

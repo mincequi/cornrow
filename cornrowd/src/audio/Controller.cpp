@@ -40,6 +40,7 @@ Controller::Controller(QObject *parent)
 
 const std::vector<common::Filter> Controller::peq() const
 {
+    // @TODO: get real values
     return {
         { common::FilterType::Peak, 2335.0, -9.7, 15.7 },
         { common::FilterType::LowPass, 12222.0, 3.4, 0.5 },
@@ -47,11 +48,13 @@ const std::vector<common::Filter> Controller::peq() const
     };
 }
 
-void Controller::setPeq(const std::vector<common::Filter>& filters)
+void Controller::setPeq(const QVector<common::Filter>& filters)
 {
+    // @TODO: set values to pipeline
     for (const auto& filter : filters) {
         qDebug() << "type:" << static_cast<uint>(filter.type) << ", f:" << filter.f << ", g:" << filter.g << ", q:" << filter.q;
     }
+    qDebug() << "";
 }
 
 void Controller::setTransport(const QDBusObjectPath& transport)

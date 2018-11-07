@@ -28,35 +28,25 @@ namespace ble
 
 struct CentralPrivate : public QObject
 {
-    CentralPrivate(Central* _q)
-        : q(_q)
-    {
-        m_discoverer = new QBluetoothDeviceDiscoveryAgent(q);
-        m_discoverer->setLowEnergyDiscoveryTimeout(5000);
+    CentralPrivate(Central* _q);
 
-        connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &CentralPrivate::onDeviceDiscovered);
-        connect(m_discoverer, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error),
-        [this] (QBluetoothDeviceDiscoveryAgent::Error error) {
-            qDebug() << __func__ << "error:" << error;
-        });
-
-        connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::finished, this, &CentralPrivate::onDeviceDiscoveryFinished);
-        //connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::canceled, this, &CentralPrivateAlt::onDeviceDiscoveryFinished);
-    }
-
-    void connectDevice(const QBluetoothDeviceInfo &device);
     void disconnect();
 
     // QBluetoothDeviceDiscoveryAgent
     void onDeviceDiscovered(const QBluetoothDeviceInfo&);
+    void onDeviceDiscoveryError(QBluetoothDeviceDiscoveryAgent::Error);
     void onDeviceDiscoveryFinished();
 
     // QLowEnergyController
+    void onDeviceConnected();
+    void onDeviceDisconnected();
     void onServiceDiscovered(const QBluetoothUuid&);
+    void onServiceDiscoveryError(QLowEnergyController::Error);
     void onServiceDiscoveryFinished();
 
     // QLowEnergyService
     void onServiceStateChanged(QLowEnergyService::ServiceState s);
+    void onServiceError(QLowEnergyService::ServiceError error);
     void onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
 
     Central* q;
@@ -67,50 +57,75 @@ struct CentralPrivate : public QObject
     Converter m_converter;
 };
 
-void CentralPrivate::connectDevice(const QBluetoothDeviceInfo &device)
+CentralPrivate::CentralPrivate(Central* _q)
+    : q(_q)
 {
-    m_control = new QLowEnergyController(device, this);
-    m_control->setRemoteAddressType(QLowEnergyController::PublicAddress);
-    connect(m_control, &QLowEnergyController::serviceDiscovered, this, &CentralPrivate::onServiceDiscovered);
-    connect(m_control, &QLowEnergyController::discoveryFinished, this, &CentralPrivate::onServiceDiscoveryFinished);
-    connect(m_control, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error),
-    [this] (QLowEnergyController::Error error) {
-        //qDebug() << __LINE__;
-        q->setError(Central::Error::NoService);
-    });
+    m_discoverer = new QBluetoothDeviceDiscoveryAgent(q);
+    m_discoverer->setLowEnergyDiscoveryTimeout(2500);
 
-    connect(m_control, &QLowEnergyController::connected, [this]() {
-        qDebug() << "Device connected. Discovering services...";
-        m_control->discoverServices();
-    });
-    connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
-        //qDebug() << __LINE__;
-        q->setError(Central::Error::NoService);
-    });
-
-    // Connect
-    m_control->connectToDevice();
+    connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &CentralPrivate::onDeviceDiscovered);
+    connect(m_discoverer, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &CentralPrivate::onDeviceDiscoveryError);
+    connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::finished, this, &CentralPrivate::onDeviceDiscoveryFinished);
 }
 
 void CentralPrivate::onDeviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     // Only check LE devices
-    if (device.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration) {
-        qDebug() << device.serviceUuids();
-        if (!device.serviceUuids().contains(ble::cornrowServiceUuid)) {
-            return;
-        }
-        m_discoverer->stop();
-        connectDevice(device);
+    if (!(device.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration)) {
+        return;
     }
+
+    qDebug() << device.serviceUuids();
+    if (!device.serviceUuids().contains(ble::cornrowServiceUuid)) {
+        return;
+    }
+
+    m_discoverer->stop();
+
+    m_control = new QLowEnergyController(device, this);
+    m_control->setRemoteAddressType(QLowEnergyController::PublicAddress);
+
+    // Discover services after device has been connected
+    connect(m_control, &QLowEnergyController::serviceDiscovered, this, &CentralPrivate::onServiceDiscovered);
+    connect(m_control, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error), this, &CentralPrivate::onServiceDiscoveryError);
+    connect(m_control, &QLowEnergyController::discoveryFinished, this, &CentralPrivate::onServiceDiscoveryFinished);
+
+    // Connect to device
+    connect(m_control, &QLowEnergyController::connected, this, &CentralPrivate::onDeviceConnected);
+    connect(m_control, &QLowEnergyController::disconnected, this, &CentralPrivate::onDeviceDisconnected);
+    m_control->connectToDevice();
+}
+
+void CentralPrivate::onDeviceDiscoveryError(QBluetoothDeviceDiscoveryAgent::Error error)
+{
+    qDebug() << __func__ << "error:" << error << "string:" << m_discoverer->errorString();
+
+    q->setStatus(Central::Status::Error, m_discoverer->errorString());
 }
 
 void CentralPrivate::onDeviceDiscoveryFinished()
 {
+    qDebug() << __func__;
+
     if (!m_control) {
-        qDebug() << __func__;
-        q->setError(Central::Error::NoService);
+        q->setStatus(Central::Status::Timeout);
     }
+}
+
+void CentralPrivate::onDeviceConnected()
+{
+    qDebug() << "Device connected. Discovering services...";
+
+    q->setStatus(Central::Status::Discovering, "Device connected. Discovering services.");
+    m_control->discoverServices();
+}
+
+void CentralPrivate::onDeviceDisconnected()
+{
+    qDebug() << __func__;
+
+    q->disconnect();
+    q->setStatus(Central::Status::Lost);
 }
 
 void CentralPrivate::onServiceDiscovered(const QBluetoothUuid& serviceUuid)
@@ -127,24 +142,29 @@ void CentralPrivate::onServiceDiscovered(const QBluetoothUuid& serviceUuid)
     m_service = m_control->createServiceObject(ble::cornrowServiceUuid, this);
     connect(m_service, &QLowEnergyService::stateChanged, this, &CentralPrivate::onServiceStateChanged);
     connect(m_service, &QLowEnergyService::characteristicRead, q, &Central::onCharacteristicRead);
-    connect(m_service, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error),
-    [this] (QLowEnergyService::ServiceError error) {
-        qDebug() << __func__;
-        q->setError(Central::Error::NoService);
-    });
+    connect(m_service, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error), this, &CentralPrivate::onServiceError);
 
     // We cannot access characteristics here, but we have to wait for appropriate state change.
     // discoverDetails() will trigger those state changes.
     m_service->discoverDetails();
 }
 
+void CentralPrivate::onServiceDiscoveryError(QLowEnergyController::Error error)
+{
+    qDebug() << __func__;
+
+    q->setStatus(Central::Status::Error, m_control->errorString());
+}
+
 void CentralPrivate::onServiceDiscoveryFinished()
 {
+    qDebug() << __func__;
+
     if (m_service) {
         return;
     }
-    qDebug() << __func__;
-    q->setError(Central::Error::NoService);
+
+    q->setStatus(Central::Status::Timeout);
 }
 
 void CentralPrivate::onServiceStateChanged(QLowEnergyService::ServiceState s)
@@ -154,7 +174,8 @@ void CentralPrivate::onServiceStateChanged(QLowEnergyService::ServiceState s)
         qDebug() << "Service details discovered.";
         const QLowEnergyCharacteristic peq = m_service->characteristic(ble::peqCharacteristicUuid);
         if (!peq.isValid()) {
-            q->setError(Central::Error::InvalidCharacteristic);
+            q->disconnect();
+            q->setStatus(Central::Status::Error, "Invalid characteristic.");
             return;
         }
         m_service->readCharacteristic(m_service->characteristic(ble::peqCharacteristicUuid));
@@ -162,7 +183,7 @@ void CentralPrivate::onServiceStateChanged(QLowEnergyService::ServiceState s)
     }
     case QLowEnergyService::InvalidService:
         qDebug() << __func__;
-        q->setError(Central::Error::NoService);
+        q->setStatus(Central::Status::Lost);
         break;
     case QLowEnergyService::DiscoveryRequired:
         // Rename DiscoveringServices -> DiscoveringDetails or DiscoveringService
@@ -171,6 +192,13 @@ void CentralPrivate::onServiceStateChanged(QLowEnergyService::ServiceState s)
     default:
         break;
     }
+}
+
+void CentralPrivate::onServiceError(QLowEnergyService::ServiceError error)
+{
+    qDebug() << __func__;
+
+    q->setStatus(Central::Status::Error, "Service error");
 }
 
 Central::Central(QObject *parent)
@@ -191,44 +219,42 @@ bool Central::startDiscovering()
         return false;
     }
 
+    setStatus(Status::Discovering);
     d->m_discoverer->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     return true;
 }
 
 void Central::disconnect()
 {
-    if (d->m_service) {
-        delete d->m_service;
-        d->m_service = nullptr;
-    }
-
     if (d->m_control) {
         d->m_control->disconnectFromDevice();
         delete d->m_control;
         d->m_control = nullptr;
     }
+    delete d->m_service;
+    d->m_service = nullptr;
 }
 
-void Central::writeCharacteristic(const QBluetoothUuid& uuid, const QByteArray &value)
+void Central::writeCharacteristic(common::FilterTask task, const QByteArray &value)
 {
-    const auto characteristic = d->m_service->characteristic(uuid);
+    const auto characteristic = d->m_service->characteristic(d->m_converter.toBle(task));
     if (!characteristic.isValid()) {
-        qDebug() << __func__ << "Characteristic invalid:" << uuid;
+        qDebug() << __func__ << "Characteristic invalid:" << characteristic.uuid();
         return;
     }
     d->m_service->writeCharacteristic(characteristic, value);
 }
 
-void Central::setError(Error _error)
+void Central::setStatus(Status _error, const QString& errorString)
 {
-    disconnect();
-
-    qDebug() << "Error:" << static_cast<int32_t>(_error);
-    emit error(_error);
+    qDebug() << "Status:" << static_cast<int32_t>(_error) << "error:" << errorString;
+    emit status(_error, errorString);
 }
 
 void Central::onCharacteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &value)
 {
+    qDebug() << __func__;
+    emit status(Status::Connected);
     emit characteristicRead(d->m_converter.fromBle(characteristic.uuid()), value);
 }
 

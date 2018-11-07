@@ -5,9 +5,19 @@
 
 #include <common/Types.h>
 
+class BleCentralAdapter;
+namespace ble
+{
+class Central;
+}
+
 class Model : public QObject
 {
     Q_OBJECT
+
+    Q_PROPERTY(Status status READ status NOTIFY statusChanged)
+    Q_PROPERTY(QString statusReadout READ statusReadout NOTIFY statusChanged)
+    Q_PROPERTY(QString errorReadout READ errorReadout NOTIFY statusChanged)
 
     Q_PROPERTY(int filterCount READ filterCount NOTIFY filterCountChanged)
     Q_PROPERTY(int currentBand READ currentBand WRITE setCurrentBand NOTIFY currentBandChanged)
@@ -23,7 +33,34 @@ class Model : public QObject
     Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
 
 public:
+    enum Status : uint8_t
+    {
+        Discovering,
+        Connected,
+        Timeout,
+        Lost,
+        Error
+    };
+    Q_ENUM(Status)
+
+    struct Configuration {
+        std::vector<float> freqTable;
+        uint8_t freqDefault;
+
+        std::vector<float> qTable;
+        uint8_t qDefault;
+
+        int8_t gainMin;
+        int8_t gainMax;
+    };
+
     static Model* instance();
+
+    Q_INVOKABLE void startDiscovering();
+
+    Status      status() const;
+    QString     statusReadout() const;
+    QString     errorReadout() const;
 
     Q_INVOKABLE void addFilter();
     Q_INVOKABLE void deleteFilter();
@@ -50,6 +87,7 @@ public:
     void        setQSlider(float);
 
 signals:
+    void statusChanged();
     void filterCountChanged();
     void filterAdded();
     void filterRemoved(int i);
@@ -68,17 +106,20 @@ private:
           QObject *parent = nullptr);
     Model(QObject *parent = nullptr);
 
-    void setFilters(const std::vector<common::Filter>& filters);
-
-    void onParameterChanged();
-
     // This is the model-oriented filter struct. We use indexed values here.
     struct Filter {
+        Filter();
+        Filter(common::FilterType t, uint8_t f, float g, uint8_t q);
         common::FilterType t = common::FilterType::Invalid;
-        int     f = 68;
+        uint8_t f = 68;
         float   g = 0.0;
-        int     q = 17;
+        uint8_t q = 17;
     };
+
+    void setFilters(const std::vector<Filter>& filters);
+
+    void onParameterChanged();
+    void onBleStatus(Status status, const QString& errorString);
 
     const std::vector<float> m_freqTable;
     const std::vector<float> m_qTable;
@@ -89,12 +130,19 @@ private:
     const float m_minGain = -24.0;
     const float m_maxGain = 6.0;
 
+    Status          m_status = Status::Discovering;
+    QString         m_statusReadout = "Discovering";
+    QString         m_errorReadout;
     QList<Filter>   m_filters;
     Filter*         m_curFilter = nullptr;
     int             m_curIndex = 0;
     float           m_freqSlider;
 
-    friend int main(int argc, char *argv[]);
+    // BLE
+    ble::Central* m_central = nullptr;
+    BleCentralAdapter* m_adapter = nullptr;
+
+    friend class BleCentralAdapter;
 };
 
 #endif // MODEL_H

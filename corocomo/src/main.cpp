@@ -1,9 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-#include <ble/Central.h>
-
-#include "BleCentralAdapter.h"
 #include "EqChart.h"
 #include "Model.h"
 
@@ -22,11 +19,6 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
-
-    // BLE
-    auto central = new ble::Central();
-    auto adapter = new ble::CentralAdapter(central);
-    QObject::connect(adapter, &ble::CentralAdapter::peq, Model::instance(), &Model::setFilters);
 
     return app.exec();
 }
