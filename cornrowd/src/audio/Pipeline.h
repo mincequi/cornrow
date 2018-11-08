@@ -20,6 +20,9 @@
 #include <QObject>
 #include <Qt5GStreamer/QGst/Pipeline>
 
+//#include <Peq.h>
+#include <common/Types.h>
+
 class QDBusObjectPath;
 
 namespace audio
@@ -35,11 +38,17 @@ public:
         QString transport;
     };
 
-    explicit Pipeline(const Configuration &configuration, QObject *parent = nullptr);
+    explicit Pipeline(const Configuration& configuration, QObject *parent = nullptr);
     ~Pipeline();
+
+    void start();
+    void stop();
+
+    //GstDsp::Peq* peq();
 
 private:
     QGst::ElementPtr    m_bluetoothSource;
+    QGst::ElementPtr    m_peq;
     QGst::PipelinePtr   m_pipeline;
 };
 

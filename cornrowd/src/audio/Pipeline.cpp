@@ -29,26 +29,46 @@ namespace audio
 Pipeline::Pipeline(const Configuration& configuration, QObject* parent)
     : QObject(parent)
 {
+    qDebug() << __func__ << configuration.transport;
+
     m_bluetoothSource = QGst::ElementFactory::make("avdtpsrc");
     auto depay = QGst::ElementFactory::make("rtpsbcdepay");
     auto parse = QGst::ElementFactory::make("sbcparse");
     auto decoder = QGst::ElementFactory::make("sbcdec");
-    auto converter = QGst::ElementFactory::make("audioconvert");
+    auto conv1 = QGst::ElementFactory::make("audioconvert");
+    m_peq = QGst::ElementFactory::make("peq");
+    auto conv2 = QGst::ElementFactory::make("audioconvert");
     auto sink = QGst::ElementFactory::make("autoaudiosink");
     // Avoid resync since it causes ugly glitches.
     sink->setProperty("sync", false);
 
     m_pipeline = QGst::Pipeline::create();
-    m_pipeline->add(m_bluetoothSource, depay, parse, decoder, converter, sink);
-    bool success = QGst::Element::linkMany(m_bluetoothSource, depay, parse, decoder, converter, sink);
+    m_pipeline->add(m_bluetoothSource, depay, parse, decoder, conv1, m_peq, conv2, sink);
+    bool success = QGst::Element::linkMany(m_bluetoothSource, depay, parse, decoder, conv1, m_peq, conv2, sink);
 
     m_bluetoothSource->setProperty("transport", configuration.transport);
-    m_pipeline->setState(QGst::StatePlaying);
 }
 
 Pipeline::~Pipeline()
 {
+    stop();
+}
+
+void Pipeline::start()
+{
+    m_pipeline->setState(QGst::StatePlaying);
+}
+
+void Pipeline::stop()
+{
     m_pipeline->setState(QGst::StateNull);
 }
+
+/*
+GstDsp::Peq* Pipeline::peq()
+{
+    return nullptr; //m_peq->object<GstDsp::Peq*>();
+}
+*/
 
 } // namespace audio

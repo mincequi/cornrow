@@ -1,33 +1,24 @@
-#ifndef CONTROLLER_H
-#define CONTROLLER_H
+#pragma once
 
-#include <glibmm/main.h>
+#include <QObject>
 
-#include <rpc/server.h>
-#include <rpc/this_handler.h>
+#include "audio/Controller.h"
+#include "bluetooth/Controller.h"
+#include "config/Controller.h"
 
-#include "common/Types.h"
-#include "input/hifiberrydigi/RateFileWatcher.h"
-#include "gstreamermm-dsp/GstDspWrapper.h"
-#include "protocol/v1/ServerAdapter.h"
-#include "zeroconf/ZeroconfWrapper.h"
-
-class Controller : public sigc::trackable
+class Controller : public QObject
 {
+    Q_OBJECT
+
 public:
-    Controller(const Config& config);
+    Controller(QObject* parent = nullptr);
     ~Controller();
 
 private:
-    bool onLogin(Version version, std::string password);
-    void onRateChanged(int rate);
+    void onBluetoothConnected(const QDBusObjectPath &transportObjectPath);
+    void onBluetoothDisconnected(const QDBusObjectPath &transportObjectPath);
 
-    rpc::server                     m_server;
-    Glib::RefPtr<Glib::MainLoop>    m_mainloop;
-    GstDspWrapper                   m_gst;
-    v1::ServerAdapter*              m_adapter = nullptr;
-    ZeroconfWrapper                 m_zeroconf;
-    RateFileWatcher  m_watcher;
+    audio::Controller*      m_audio;
+    bluetooth::Controller*  m_bluetooth;
+    config::Controller*     m_config;
 };
-
-#endif // CONTROLLER_H

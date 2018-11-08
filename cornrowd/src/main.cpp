@@ -19,14 +19,8 @@
 
 #include <QCoreApplication>
 #include <QDebug>
-#include <QThread>
 
-#include <ble/Peripheral.h>
-#include <ble/PeripheralAdapter.h>
-
-#include "Config.h"
-#include "audio/Controller.h"
-#include "bluetooth/Controller.h"
+#include "Controller.h"
 
 struct SignalHandler
 {
@@ -45,35 +39,8 @@ int main(int argc, char **argv)
 
     qDebug() << "Waiting for bluetooth audio source to connect. Ctrl + C to cancel...";
 
-    // Create objects
-    auto bluetoothController = new bluetooth::Controller();
-    auto audioController = new audio::Controller();
-    auto blePeripheral = new ble::Peripheral();
-
-    // Read persistence
-    readConfig(*audioController);
-
-    // Write persistence, when we quit
-    QObject::connect(&a, &QCoreApplication::aboutToQuit, [&]() {
-        writeConfig(*audioController);
-        return;
-    });
-
-    // The stream is transported through unix file descriptors, which cannot be read/write
-    // acquired from within same thread. So, AudioController gets another thread.
-    auto thread = new QThread();
-    audioController->moveToThread(thread);
-    thread->start();
-
-    // We inherently need a QueuedConnection here (apparently, an AutoConnection does not work).
-    QObject::connect(bluetoothController, &bluetooth::Controller::configurationSet,
-                     audioController, &audio::Controller::setTransport, Qt::QueuedConnection);
-    QObject::connect(bluetoothController, &bluetooth::Controller::configurationCleared,
-                     audioController, &audio::Controller::clearTransport, Qt::QueuedConnection);
-
-    // BLE
-    auto adapter = new ble::PeripheralAdapter(blePeripheral, audioController->peq());
-    QObject::connect(adapter, &ble::PeripheralAdapter::peq, audioController, &audio::Controller::setPeq);
+    new Controller();
 
     return a.exec();
 }
+

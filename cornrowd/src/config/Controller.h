@@ -19,16 +19,13 @@
 
 #include <QObject>
 
-class QDBusObjectPath;
+#include <ble/Peripheral.h>
+#include <ble/PeripheralAdapter.h>
 
-namespace common
-{
-struct Filter;
-}
+#include "../audio/Controller.h"
 
-namespace audio
+namespace config
 {
-class Pipeline;
 
 class Controller : public QObject
 {
@@ -37,14 +34,18 @@ class Controller : public QObject
 public:
     explicit Controller(QObject *parent = nullptr);
 
-    void setTransport(const QDBusObjectPath& transport);
-    void clearTransport();
-
-    const std::vector<common::Filter> peq() const;
-    void setPeq(const std::vector<common::Filter>& filters);
+    void setAudioController(audio::Controller* audio);
+    void unsetAudioController();
 
 private:
-    Pipeline* m_pipeline = nullptr;
+    void onPeqChanged(const std::vector<common::Filter>& filters);
+
+    std::vector<common::Filter> m_peq;
+
+    ble::Peripheral* m_ble = nullptr;
+    ble::PeripheralAdapter* m_bleAdapter = nullptr;
+
+    audio::Controller* m_audio = nullptr;
 };
 
-} // namespace audio
+} // namespace config

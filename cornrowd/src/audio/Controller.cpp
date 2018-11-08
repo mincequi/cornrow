@@ -24,6 +24,7 @@
 #include <Qt5GStreamer/QGst/ElementFactory>
 #include <Qt5GStreamer/QGst/Init>
 
+#include <gstreamermm-dsp.h>
 #include <common/Types.h>
 
 #include "Pipeline.h"
@@ -34,8 +35,10 @@ namespace audio
 Controller::Controller(QObject *parent)
     : QObject(parent)
 {
-    // Init GStreamer
+    // Init QtGStreamer
     QGst::init();
+    // Init gstreamermm-dsp
+    GstDsp::init();
 }
 
 const std::vector<common::Filter> Controller::peq() const
@@ -48,7 +51,7 @@ const std::vector<common::Filter> Controller::peq() const
     };
 }
 
-void Controller::setPeq(const QVector<common::Filter>& filters)
+void Controller::setPeq(const std::vector<common::Filter>& filters)
 {
     // @TODO: set values to pipeline
     for (const auto& filter : filters) {
@@ -59,16 +62,20 @@ void Controller::setPeq(const QVector<common::Filter>& filters)
 
 void Controller::setTransport(const QDBusObjectPath& transport)
 {
-    // @TODO: reuse pipeline
     if (m_pipeline) {
         qDebug() << "Another device is connected";
         return;
     }
-    m_pipeline = new Pipeline({transport.path()}, this);
+
+    m_pipeline = new Pipeline({transport.path()});
+    QMetaObject::invokeMethod(m_pipeline, &audio::Pipeline::start, Qt::QueuedConnection);
 }
 
 void Controller::clearTransport()
 {
+    m_pipeline->stop();
+    //QMetaObject::invokeMethod(m_pipeline, &audio::Pipeline::stop, Qt::QueuedConnection);
+
     if (m_pipeline) {
         delete m_pipeline;
         m_pipeline = nullptr;

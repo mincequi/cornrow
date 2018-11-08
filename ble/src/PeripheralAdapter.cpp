@@ -28,7 +28,7 @@ void PeripheralAdapter::onCharacteristicChanged(const QLowEnergyCharacteristic &
 {
     // ignore any other characteristic, should not happen
     if (characteristic.uuid() == ble::peqCharacteristicUuid) {
-        emit peq(QVector<common::Filter>::fromStdVector(m_converter->filtersFromBle(value)));
+        emit peq(m_converter->filtersFromBle(value));
     } else if (characteristic.uuid() == ble::crossoverCharacteristicUuid) {
         emit crossover(value);
     } else if (characteristic.uuid() == ble::loudnessCharacteristicUuid) {

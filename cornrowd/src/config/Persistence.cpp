@@ -1,49 +1,47 @@
-#include "Config.h"
+#include "Persistence.h"
 
 #include <boost/property_tree/json_parser.hpp>
-#include <QDebug>
 
-#include <common/Types.h>
-
-#include "audio/Controller.h"
+namespace config
+{
 
 namespace pt = boost::property_tree;
 
 static const std::string audioPath("/var/lib/cornrowd/audio.conf");
 
-void readConfig(audio::Controller& audioController)
+std::vector<common::Filter> readConfig()
 {
     pt::ptree tree;
 
     try {
         pt::read_json(audioPath, tree);
     } catch (...) {
-        return;
+        return {};
     }
 
     std::vector<common::Filter> peq;
     for (const auto& filterNode : tree.get_child("Peq")) {
         common::Filter filter;
-        filter.type = static_cast<common::FilterType>(filterNode.second.get<uint>("type"));
+        filter.type = static_cast<common::FilterType>(filterNode.second.get<uint>("t"));
         filter.f = filterNode.second.get<float>("f");
         filter.g = filterNode.second.get<float>("g");
         filter.q = filterNode.second.get<float>("q");
         peq.push_back(filter);
     }
 
-    audioController.setPeq(QVector<common::Filter>::fromStdVector(peq));
+    return peq;
 }
 
-void writeConfig(const audio::Controller& audioController)
+void writeConfig(const std::vector<common::Filter>& filters)
 {
     pt::ptree tree;
     pt::ptree peq;
     pt::ptree crossover;
     pt::ptree loudness;
 
-    for (const auto& filter : audioController.peq()) {
+    for (const auto& filter : filters) {
         pt::ptree child;
-        child.put("type", static_cast<uint>(filter.type));
+        child.put("t", static_cast<uint>(filter.type));
         child.put("f", filter.f);
         child.put("g", filter.g);
         child.put("q", filter.q);
@@ -58,3 +56,5 @@ void writeConfig(const audio::Controller& audioController)
         return;
     }
 }
+
+} // namespace config
