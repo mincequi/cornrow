@@ -39,6 +39,8 @@ QBluetoothUuid Converter::toBle(common::FilterTask task)
         return ble::crossoverCharacteristicUuid;
     case common::FilterTask::Loudness:
         return ble::loudnessCharacteristicUuid;
+    case common::FilterTask::Invalid:
+        return QBluetoothUuid();
     }
 
     return QBluetoothUuid();

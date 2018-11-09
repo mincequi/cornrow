@@ -56,6 +56,7 @@ enum class FilterType : uint8_t {
     HighPass,
     LowShelf,
     HighShelf,
+    /*
     AllPass,
 
     Crossover   = 16,   // Q indicates characteristics, while gain indicates cascading. (Base) order is always 2.
@@ -74,6 +75,7 @@ enum class FilterType : uint8_t {
     User        = 96,
 
     Max         = 127
+    */
 };
 
 struct Filter

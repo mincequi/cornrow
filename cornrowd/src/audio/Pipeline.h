@@ -17,39 +17,40 @@
 
 #pragma once
 
-#include <QObject>
-#include <Qt5GStreamer/QGst/Pipeline>
+#include <glibmm/refptr.h>
 
-//#include <Peq.h>
 #include <common/Types.h>
 
-class QDBusObjectPath;
+namespace Gst
+{
+class Element;
+class Pipeline;
+}
+
+namespace GstDsp
+{
+class Peq;
+}
 
 namespace audio
 {
 
-class Pipeline : public QObject
+class Pipeline
 {
-    Q_OBJECT
-
 public:
-    /** Configuration for Pipeline construction. */
-    struct Configuration {
-        QString transport;
-    };
-
-    explicit Pipeline(const Configuration& configuration, QObject *parent = nullptr);
+    explicit Pipeline();
     ~Pipeline();
 
-    void start();
+    void start(const std::string& transport);
     void stop();
 
-    //GstDsp::Peq* peq();
+    void setPeq(const std::vector<common::Filter> filters);
+    std::vector<common::Filter> peq() const;
 
 private:
-    QGst::ElementPtr    m_bluetoothSource;
-    QGst::ElementPtr    m_peq;
-    QGst::PipelinePtr   m_pipeline;
+    Glib::RefPtr<Gst::Element>  m_bluetoothSource;
+    Glib::RefPtr<GstDsp::Peq>   m_peq;
+    Glib::RefPtr<Gst::Pipeline> m_pipeline;
 };
 
 } // namespace audio

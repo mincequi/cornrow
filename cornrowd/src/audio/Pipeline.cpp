@@ -17,36 +17,32 @@
 
 #include "Pipeline.h"
 
-#include <QDebug>
-#include <QThread>
-#include <QtDBus/QDBusObjectPath>
-#include <Qt5GStreamer/QGst/Bin>
-#include <Qt5GStreamer/QGst/ElementFactory>
+#include <gstreamermm/element.h>
+#include <gstreamermm/pipeline.h>
+
+#include <Peq.h>
+
+#include "Converter.h"
 
 namespace audio
 {
 
-Pipeline::Pipeline(const Configuration& configuration, QObject* parent)
-    : QObject(parent)
+Pipeline::Pipeline()
 {
-    qDebug() << __func__ << configuration.transport;
-
-    m_bluetoothSource = QGst::ElementFactory::make("avdtpsrc");
-    auto depay = QGst::ElementFactory::make("rtpsbcdepay");
-    auto parse = QGst::ElementFactory::make("sbcparse");
-    auto decoder = QGst::ElementFactory::make("sbcdec");
-    auto conv1 = QGst::ElementFactory::make("audioconvert");
-    m_peq = QGst::ElementFactory::make("peq");
-    auto conv2 = QGst::ElementFactory::make("audioconvert");
-    auto sink = QGst::ElementFactory::make("autoaudiosink");
+    m_bluetoothSource = Gst::ElementFactory::create_element("avdtpsrc");
+    auto depay = Gst::ElementFactory::create_element("rtpsbcdepay");
+    auto parse = Gst::ElementFactory::create_element("sbcparse");
+    auto decoder = Gst::ElementFactory::create_element("sbcdec");
+    auto conv1 = Gst::ElementFactory::create_element("audioconvert");
+    m_peq = Glib::RefPtr<GstDsp::Peq>::cast_static(Gst::ElementFactory::create_element("peq"));
+    auto conv2 = Gst::ElementFactory::create_element("audioconvert");
+    auto sink = Gst::ElementFactory::create_element("autoaudiosink");
     // Avoid resync since it causes ugly glitches.
-    sink->setProperty("sync", false);
+    sink->set_property("sync", false);
 
-    m_pipeline = QGst::Pipeline::create();
-    m_pipeline->add(m_bluetoothSource, depay, parse, decoder, conv1, m_peq, conv2, sink);
-    bool success = QGst::Element::linkMany(m_bluetoothSource, depay, parse, decoder, conv1, m_peq, conv2, sink);
-
-    m_bluetoothSource->setProperty("transport", configuration.transport);
+    m_pipeline = Gst::Pipeline::create();
+    m_pipeline->add(m_bluetoothSource)->add(depay)->add(parse)->add(decoder)->add(conv1)->add(m_peq)->add(conv2)->add(sink);
+    m_bluetoothSource->link(depay)->link(parse)->link(decoder)->link(conv1)->link(m_peq)->link(conv2)->link(sink);
 }
 
 Pipeline::~Pipeline()
@@ -54,21 +50,25 @@ Pipeline::~Pipeline()
     stop();
 }
 
-void Pipeline::start()
+void Pipeline::start(const std::string& transport)
 {
-    m_pipeline->setState(QGst::StatePlaying);
+    m_bluetoothSource->set_property("transport", transport);
+    m_pipeline->set_state(Gst::STATE_PLAYING);
 }
 
 void Pipeline::stop()
 {
-    m_pipeline->setState(QGst::StateNull);
+    m_pipeline->set_state(Gst::STATE_NULL);
 }
 
-/*
-GstDsp::Peq* Pipeline::peq()
+void Pipeline::setPeq(const std::vector<common::Filter> filters)
 {
-    return nullptr; //m_peq->object<GstDsp::Peq*>();
+    m_peq->setFilters(toGstDsp(filters));
 }
-*/
+
+std::vector<common::Filter> Pipeline::peq() const
+{
+    return fromGstDsp(m_peq->filters());
+}
 
 } // namespace audio

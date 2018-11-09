@@ -36,6 +36,7 @@ class Controller : public QObject
 
 public:
     explicit Controller(QObject *parent = nullptr);
+    ~Controller();
 
     void setTransport(const QDBusObjectPath& transport);
     void clearTransport();

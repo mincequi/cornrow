@@ -81,7 +81,7 @@ bool computeBiQuad(int r, const Filter& f, BiQuad* biquad)
     }
 
     case FilterType::Invalid:
-    case FilterType::Max:
+    //case FilterType::Max:
         return false;
     }
 

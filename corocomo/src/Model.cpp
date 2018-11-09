@@ -221,7 +221,7 @@ void Model::stepQ(int i)
 {
     int idx = m_curFilter->q + i;
     if (idx < 0) return;
-    if (idx > m_qTable.size()-1) return;
+    if (idx > static_cast<int>(m_qTable.size())-1) return;
     if (m_curFilter->q == idx) return;
 
     m_curFilter->q = idx;

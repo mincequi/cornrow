@@ -9,7 +9,9 @@ Controller::Controller(QObject *parent)
     m_audio = new audio::Controller(this);
     m_config = new config::Controller(this);
 
-    connect(m_bluetooth, &bluetooth::Controller::configurationSet, this, &Controller::onBluetoothConnected);
+    // When config has been set from bluez, we have to delay further execution
+    // (probably because of unix fd is not opened yet). Hence, the QueuedConnection.
+    connect(m_bluetooth, &bluetooth::Controller::configurationSet, this, &Controller::onBluetoothConnected, Qt::QueuedConnection);
     connect(m_bluetooth, &bluetooth::Controller::configurationCleared, this, &Controller::onBluetoothDisconnected);
 }
 
