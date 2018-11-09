@@ -4,23 +4,36 @@
 
 #include "Model.h"
 
-BleCentralAdapter::BleCentralAdapter(ble::Central* central)
+BleCentralAdapter::BleCentralAdapter(ble::Central* central, Model* model)
     : QObject(central),
-      m_central(central)
+      m_central(central),
+      m_model(model)
 {
     connect(m_central, &ble::Central::characteristicRead, this, &BleCentralAdapter::onCharacteristicRead);
     connect(m_central, &ble::Central::status, this, &BleCentralAdapter::onStatus);
+
+    m_timer.setInterval(100);
+    m_timer.setSingleShot(true);
+    connect(&m_timer, &QTimer::timeout, this, &BleCentralAdapter::doWriteCharc);
 }
 
 BleCentralAdapter::~BleCentralAdapter()
 {
 }
 
-void BleCentralAdapter::setFilters(const std::vector<Model::Filter>& filters)
+void BleCentralAdapter::setPeqDirty()
 {
+    if (!m_timer.isActive()) {
+        m_timer.start();
+    }
+}
+
+void BleCentralAdapter::doWriteCharc()
+{
+    const auto& filters = m_model->m_filters;
     QByteArray value(filters.size()*4, 0);
 
-    for (uint i = 0; i < filters.size(); ++i) {
+    for (int i = 0; i < filters.size(); ++i) {
         value[i*4]   = static_cast<char>(filters.at(i).t);
         value[i*4+1] = filters.at(i).f;
         value[i*4+2] = filters.at(i).g*2.0;
@@ -66,7 +79,7 @@ void BleCentralAdapter::onCharacteristicRead(common::FilterTask task, const QByt
                                 static_cast<int8_t>(value.at(i+2))/2.0f,
                                 static_cast<uint8_t>(value.at(i+3)) });
         }
-        emit peq(filters);
+        emit initPeq(filters);
 
         break;
     }

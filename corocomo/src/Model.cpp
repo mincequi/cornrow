@@ -43,9 +43,9 @@ Model::Model(QObject *parent) :
     connect(this, &Model::qChanged, this, &Model::onParameterChanged);
 
     m_central = new ble::Central(this);
-    m_adapter = new BleCentralAdapter(m_central);
+    m_adapter = new BleCentralAdapter(m_central, this);
 
-    connect(m_adapter, &BleCentralAdapter::peq, this, &Model::setFilters);
+    connect(m_adapter, &BleCentralAdapter::initPeq, this, &Model::setFilters);
     connect(m_adapter, &BleCentralAdapter::status, this, &Model::onBleStatus);
 
     m_central->startDiscovering();
@@ -267,7 +267,7 @@ void Model::onParameterChanged()
         emit filterChanged(m_curIndex, 0, 0.0f, 0.0f, 0.0f);
     }
 
-    m_adapter->setFilters(m_filters.toVector().toStdVector());
+    m_adapter->setPeqDirty();
 }
 
 void Model::onBleStatus(Status _status, const QString& errorString)

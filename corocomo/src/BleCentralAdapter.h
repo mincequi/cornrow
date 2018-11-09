@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QTimer>
 
 #include <ble/Central.h>
 #include <common/Types.h>
@@ -12,22 +13,27 @@ class BleCentralAdapter : public QObject
     Q_OBJECT
 
 public:
-    explicit BleCentralAdapter(ble::Central* central);
+    explicit BleCentralAdapter(ble::Central* central,
+                               Model* model);
     ~BleCentralAdapter();
 
-    void setFilters(const std::vector<Model::Filter>& filters);
+    void setPeqDirty();
 
 signals:
     void status(Model::Status status, const QString& errorString = QString());
-    void peq(const std::vector<Model::Filter>& filters);
-    void crossover(const QByteArray& value);
-    void loudness(const QByteArray& value);
+    void initPeq(const std::vector<Model::Filter>& filters);
+    void initXo(const QByteArray& value);
+    void initLoudness(const QByteArray& value);
 
 private:
+    void doWriteCharc();
     void onStatus(ble::Central::Status status, const QString& errorString);
     void onCharacteristicRead(common::FilterTask task, const QByteArray &value);
 
-    ble::Central* m_central;
+    ble::Central*   m_central;
+    Model*          m_model;
+
+    QTimer          m_timer;
 };
 
 
