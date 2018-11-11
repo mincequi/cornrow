@@ -24,7 +24,6 @@ BleCentralAdapter::~BleCentralAdapter()
 void BleCentralAdapter::setPeqDirty()
 {
     if (!m_timer.isActive()) {
-        doWriteCharc();
         m_timer.start();
     }
 }

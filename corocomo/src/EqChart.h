@@ -19,7 +19,7 @@ class EqChart : public QQuickPaintedItem
     Q_PROPERTY(int currentPlot READ currentPlot WRITE setCurrentPlot)
 
 public:
-    EqChart(QQuickItem *parent = 0);
+    EqChart(QQuickItem *parent = nullptr);
 
     Q_INVOKABLE void addFilter();
     Q_INVOKABLE void removeFilter(int i);
