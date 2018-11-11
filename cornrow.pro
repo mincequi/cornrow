@@ -1,15 +1,18 @@
 TEMPLATE = subdirs
 
-INCLUDEPATH += $$top_srcdir
+CONFIG += ordered
 
 SUBDIRS += \
+    ble \
     common \
-    #coroco \
-    protocol \
-    zeroconf
+    corocomo \
+    #protocol \
+    #zeroconf
 
 common.subdir           = common
-#coroco.subdir           = coroco
-protocol.subdir         = protocol
-zeroconf.subdir         = zeroconf
-#coroco.depends          = protocol
+corocomo.subdir		= corocomo
+#protocol.subdir        = protocol
+#zeroconf.subdir        = zeroconf
+
+ble.depends = common
+corocomo.depends = ble

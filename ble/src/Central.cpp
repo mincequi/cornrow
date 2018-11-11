@@ -26,8 +26,9 @@
 namespace ble
 {
 
-struct CentralPrivate : public QObject
+class CentralPrivate : public QObject
 {
+public:
     CentralPrivate(Central* _q);
 
     void disconnect();
@@ -61,7 +62,7 @@ CentralPrivate::CentralPrivate(Central* _q)
     : q(_q)
 {
     m_discoverer = new QBluetoothDeviceDiscoveryAgent(q);
-    m_discoverer->setLowEnergyDiscoveryTimeout(2500);
+    m_discoverer->setLowEnergyDiscoveryTimeout(5000);
 
     connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &CentralPrivate::onDeviceDiscovered);
     connect(m_discoverer, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &CentralPrivate::onDeviceDiscoveryError);

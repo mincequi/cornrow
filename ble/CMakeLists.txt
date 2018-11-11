@@ -20,7 +20,7 @@ PRIVATE
 
 target_link_libraries(ble
     common
-    Qt5Bluetooth
+    Qt5::Bluetooth
     Qt5::Core
 )
 

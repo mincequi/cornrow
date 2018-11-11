@@ -27,8 +27,9 @@
 namespace ble
 {
 
-struct PeripheralPrivate
+class PeripheralPrivate
 {
+public:
     PeripheralPrivate(Peripheral* q)
     {
         peripheral = QLowEnergyController::createPeripheral(q);

@@ -1,1 +1,3 @@
-INCLUDEPATH += $$top_srcdir
+INCLUDEPATH += \
+    ../ble/include \
+    ../common/include
