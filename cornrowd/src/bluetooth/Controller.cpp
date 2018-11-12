@@ -18,16 +18,16 @@
 #include "Controller.h"
 
 #include <QDebug>
+#include <QtBluetooth/QBluetoothLocalDevice>
 #include <QtDBus/QDBusObjectPath>
 
-#include <BluezQt/device.h>
-#include <BluezQt/initmanagerjob.h>
-#include <BluezQt/initobexmanagerjob.h>
-#include <BluezQt/manager.h>
-#include <BluezQt/media.h>
-#include <BluezQt/mediaendpoint.h>
-#include <BluezQt/services.h>
-#include <BluezQt/types.h>
+#include <BluezQt/Device>
+#include <BluezQt/InitManagerJob>
+#include <BluezQt/Manager>
+#include <BluezQt/Media>
+#include <BluezQt/MediaEndpoint>
+#include <BluezQt/Services>
+#include <BluezQt/Types>
 
 #include "AudioSinkAgent.h"
 
@@ -39,6 +39,10 @@ using namespace BluezQt;
 Controller::Controller(QObject *parent)
     : QObject(parent)
 {
+    //
+    QBluetoothLocalDevice localDevice;
+    localDevice.setHostMode(QBluetoothLocalDevice::HostDiscoverable);
+
     // Init BluezQt
     Manager* manager = new Manager(this);
     InitManagerJob *initJob = manager->init();
