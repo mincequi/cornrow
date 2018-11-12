@@ -30,10 +30,8 @@ namespace ble
 class PeripheralPrivate
 {
 public:
-    PeripheralPrivate(Peripheral* q)
+    PeripheralPrivate()
     {
-        peripheral = QLowEnergyController::createPeripheral(q);
-
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setServices({cornrowServiceUuid});
 
@@ -50,11 +48,8 @@ public:
 
 Peripheral::Peripheral(QObject *parent)
     : QObject(parent),
-      d(new PeripheralPrivate(this))
+      d(new PeripheralPrivate())
 {
-    // Advertising will stop once a client connects, so re-advertise once disconnected.
-    connect(d->peripheral, &QLowEnergyController::disconnected, this, &Peripheral::startPublishing);
-    startPublishing();
 }
 
 Peripheral::~Peripheral()
@@ -64,7 +59,7 @@ Peripheral::~Peripheral()
     delete d;
 }
 
-void Peripheral::setCharacteristics(const std::map<QBluetoothUuid, QByteArray>& characteristicsMap)
+void Peripheral::init(const std::map<QBluetoothUuid, QByteArray>& characteristicsMap)
 {
     QList<QLowEnergyCharacteristicData> characteristics;
     for (const auto& kv : characteristicsMap) {
@@ -75,13 +70,19 @@ void Peripheral::setCharacteristics(const std::map<QBluetoothUuid, QByteArray>& 
         characteristics << characteristicData;
     }
     d->serviceData.setCharacteristics(characteristics);
+
+    d->peripheral = QLowEnergyController::createPeripheral(this);
+    d->service = d->peripheral->addService(d->serviceData);
+    connect(d->service, &QLowEnergyService::characteristicChanged, this, &Peripheral::characteristicChanged);
+
+    // Advertising will stop once a client connects, so re-advertise once disconnected.
+    startPublishing();
+    connect(d->peripheral, &QLowEnergyController::disconnected, this, &Peripheral::startPublishing);
 }
 
 void Peripheral::startPublishing()
 {
     // Publish service
-    d->service = d->peripheral->addService(d->serviceData);
-    connect(d->service, &QLowEnergyService::characteristicChanged, this, &Peripheral::characteristicChanged);
     d->peripheral->startAdvertising(QLowEnergyAdvertisingParameters(), d->advertisingData/*, d->advertisingData*/);
 }
 

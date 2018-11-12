@@ -15,7 +15,7 @@ PeripheralAdapter::PeripheralAdapter(Peripheral* peripheral, const std::vector<c
       m_peripheral(peripheral),
       m_converter(new Converter())
 {
-    m_peripheral->setCharacteristics( {{ peqCharacteristicUuid, m_converter->filtersToBle(filters)}} );
+    m_peripheral->init( {{ peqCharacteristicUuid, m_converter->filtersToBle(filters)}} );
     connect(m_peripheral, &Peripheral::characteristicChanged, this, &PeripheralAdapter::onCharacteristicChanged);
 }
 

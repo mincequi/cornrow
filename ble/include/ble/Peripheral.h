@@ -39,7 +39,7 @@ signals:
 
 private:
     // Adapter should set initial values of characteristics
-    void setCharacteristics(const std::map<QBluetoothUuid, QByteArray>& characteristics);
+    void init(const std::map<QBluetoothUuid, QByteArray>& characteristics);
 
     void startPublishing();
 
