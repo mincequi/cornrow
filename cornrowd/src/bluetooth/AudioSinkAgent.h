@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <BluezQt/Agent>
+#include <BluezQt/agent.h>
 
 namespace bluetooth
 {

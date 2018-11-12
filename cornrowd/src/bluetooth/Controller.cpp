@@ -20,13 +20,14 @@
 #include <QDebug>
 #include <QtDBus/QDBusObjectPath>
 
-#include <BluezQt/Device>
-#include <BluezQt/InitManagerJob>
-#include <BluezQt/Manager>
-#include <BluezQt/Media>
-#include <BluezQt/MediaEndpoint>
-#include <BluezQt/Services>
-#include <BluezQt/Types>
+#include <BluezQt/device.h>
+#include <BluezQt/initmanagerjob.h>
+#include <BluezQt/initobexmanagerjob.h>
+#include <BluezQt/manager.h>
+#include <BluezQt/media.h>
+#include <BluezQt/mediaendpoint.h>
+#include <BluezQt/services.h>
+#include <BluezQt/types.h>
 
 #include "AudioSinkAgent.h"
 

@@ -3,6 +3,7 @@
 #include "config/Controller.h"
 
 Controller::Controller(QObject *parent)
+    : QObject(parent)
 {
     // Create objects
     m_bluetooth = new bluetooth::Controller(this);

@@ -65,8 +65,15 @@ Model::Filter::Filter(common::FilterType _t, uint8_t _f, float _g, uint8_t _q)
 
 void Model::startDiscovering()
 {
+    m_demoMode = false;
     m_central->startDiscovering();
     onBleStatus(Status::Discovering, QString());
+}
+
+void Model::startDemoMode()
+{
+    m_demoMode = true;
+    onBleStatus(Status::Connected, QString());
 }
 
 Model::Status Model::status() const
@@ -267,7 +274,9 @@ void Model::onParameterChanged()
         emit filterChanged(m_curIndex, 0, 0.0f, 0.0f, 0.0f);
     }
 
-    m_adapter->setPeqDirty();
+    if (!m_demoMode) {
+        m_adapter->setPeqDirty();
+    }
 }
 
 void Model::onBleStatus(Status _status, const QString& errorString)

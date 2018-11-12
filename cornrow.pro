@@ -10,6 +10,7 @@ SUBDIRS += \
     #protocol \
     #zeroconf
 
+ble.subdir              = ble
 common.subdir           = common
 corocomo.subdir		= corocomo
 #protocol.subdir        = protocol

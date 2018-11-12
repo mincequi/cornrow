@@ -57,6 +57,7 @@ public:
     static Model* instance();
 
     Q_INVOKABLE void startDiscovering();
+    Q_INVOKABLE void startDemoMode();
 
     Status      status() const;
     QString     statusReadout() const;
@@ -137,6 +138,7 @@ private:
     Filter*         m_curFilter = nullptr;
     int             m_curIndex = 0;
     float           m_freqSlider;
+    bool            m_demoMode = false;
 
     // BLE
     ble::Central* m_central = nullptr;

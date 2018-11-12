@@ -20,7 +20,7 @@
 #include <QDebug>
 #include <QtDBus/QDBusObjectPath>
 
-#include <BluezQt/Device>
+#include <BluezQt/device.h>
 
 namespace bluetooth
 {

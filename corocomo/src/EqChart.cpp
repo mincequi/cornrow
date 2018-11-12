@@ -108,8 +108,8 @@ void EqChart::setCurrentPlot(int i)
 void EqChart::paint(QPainter *painter)
 {
     QTransform trans;
-    trans.scale(width()/(common::twelfthOctaveBandsTable.size()-1.0), height()/-36.0);
-    trans.translate(0.0, -9.0);
+    trans.scale(width()/(common::twelfthOctaveBandsTable.size()-1.0), height()/-33);
+    trans.translate(0.0, -7.5);
     painter->setRenderHints(QPainter::Antialiasing, true);
 
     // Paint plots, except current one

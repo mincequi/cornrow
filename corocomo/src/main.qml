@@ -10,11 +10,17 @@ ApplicationWindow {
     id: appWindow
     visible: true
     // iPhone SE
-    width: 320
-    height: 568
+    //width: 320
+    //height: 568
     // iPhone 6
     //width: 375
     //height: 667
+    // Nexus 5
+    width: 360
+    height: 640
+    // Pixel
+    //width: 411
+    //height: 731
 
     Material.theme: Material.Dark
     Material.accent: Material.color(Material.Indigo)
@@ -60,14 +66,24 @@ ApplicationWindow {
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
-    Button {
-        text: "Retry"
-        font.capitalization: Font.AllUppercase
-        visible: CornrowModel.status != CornrowModel.Discovering && CornrowModel.status != CornrowModel.Connected
+    // Button
+    ToolBar {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 48
         anchors.horizontalCenter: parent.horizontalCenter
-        onPressed: CornrowModel.startDiscovering()
+        //background: background
+        visible: CornrowModel.status != CornrowModel.Discovering && CornrowModel.status != CornrowModel.Connected
+
+        Row {
+            ToolButton {
+                text: "Retry"
+                onPressed: CornrowModel.startDiscovering()
+            }
+            ToolButton {
+                text: "Demo"
+                onPressed: CornrowModel.startDemoMode()
+            }
+        }
     }
 
     Item {
@@ -94,33 +110,33 @@ ApplicationWindow {
             anchors.bottom: bandBar.top
         }
 
-    /*
-    Label {
-        id: bandLabel
-        text: "Band"
-        anchors.left: typeLabel.left
-        anchors.bottom: bandBar.top
-    }
+        /*
+        Label {
+            id: bandLabel
+            text: "Band"
+            anchors.left: typeLabel.left
+            anchors.bottom: bandBar.top
+        }
 
-    ToolButton {
-        id: remBand
-        enabled: CornrowModel.filterCount > 0
-        text: qsTr("-")
-        anchors.bottom: typeLabel.top
-        anchors.left: parent.left
+        ToolButton {
+            id: remBand
+            enabled: CornrowModel.filterCount > 0
+            text: qsTr("-")
+            anchors.bottom: typeLabel.top
+            anchors.left: parent.left
 
-        onPressed: CornrowModel.deleteFilter()
-    }
-    ToolButton {
-        id: addBand
-        enabled: CornrowModel.filterCount < 4
-        text: qsTr("+")
-        anchors.bottom: typeLabel.top
-        anchors.right: parent.right
+            onPressed: CornrowModel.deleteFilter()
+        }
+        ToolButton {
+            id: addBand
+            enabled: CornrowModel.filterCount < 4
+            text: qsTr("+")
+            anchors.bottom: typeLabel.top
+            anchors.right: parent.right
 
-        onPressed: CornrowModel.addFilter()
-    }
-    */
+            onPressed: CornrowModel.addFilter()
+        }
+        */
 
         ToolBar {
             id: bandBar
@@ -165,14 +181,6 @@ ApplicationWindow {
         }
 
         // Type
-        /*
-        Label {
-            id: typeLabel
-            text: "Type"
-            anchors.left: freqLabel.left
-            anchors.bottom: type.top
-        }
-        */
         ToolBar {
             id: typeBar
             anchors.bottom: freqLabel.top
@@ -312,6 +320,7 @@ ApplicationWindow {
             id: decQ
             text: qsTr("-")
             anchors.bottom: parent.bottom
+            anchors.bottomMargin: 16
             anchors.left: parent.left
             onPressed: CornrowModel.stepQ(-1)
         }
@@ -319,6 +328,7 @@ ApplicationWindow {
             id: incQ
             text: qsTr("+")
             anchors.bottom: parent.bottom
+            anchors.bottomMargin: 16
             anchors.right: parent.right
             onPressed: CornrowModel.stepQ(1)
         }
