@@ -14,28 +14,12 @@ EqChart::EqChart(QQuickItem *parent) :
 void EqChart::setPlotCount(int count)
 {
     for (int i = 0; i < count; ++i) {
-        QPolygonF poly(common::twelfthOctaveBandsTable.size());
-        for (size_t j = 0; j < common::twelfthOctaveBandsTable.size(); ++j) {
+        QPolygonF poly(m_frequencyTable.size());
+        for (size_t j = 0; j < m_frequencyTable.size(); ++j) {
             poly[j].rx() = j;
         }
         m_plots.append(poly);
     }
-}
-
-void EqChart::addFilter()
-{
-    QPolygonF poly(common::twelfthOctaveBandsTable.size());
-    for (size_t i = 0; i < common::twelfthOctaveBandsTable.size(); ++i) {
-        poly[i].rx() = i;
-    }
-    m_plots.append(poly);
-}
-
-void EqChart::removeFilter(int i)
-{
-    if (i >= m_plots.size() || i < 0) return;
-
-    m_plots.removeAt(i);
 }
 
 void EqChart::setFilter(int i, uchar t, float f, float g, float q)
@@ -108,7 +92,7 @@ void EqChart::setCurrentPlot(int i)
 void EqChart::paint(QPainter *painter)
 {
     QTransform trans;
-    trans.scale(width()/(common::twelfthOctaveBandsTable.size()-1.0), height()/-33);
+    trans.scale(width()/(m_frequencyTable.size()-1.0), height()/-33);
     trans.translate(0.0, -7.5);
     painter->setRenderHints(QPainter::Antialiasing, true);
 
@@ -122,27 +106,9 @@ void EqChart::paint(QPainter *painter)
     */
 
     // Paint sum plot
-    /*
-    painter->setPen(QPen(QColor(0, 0, 0, 0), 0.0));
-    QPolygonF sumPlot1(twelfthOctaveBandsTable.size());
-    for (int i = 0; i < twelfthOctaveBandsTable.size(); ++i) {
-        sumPlot1[i].rx() = i;
-    }
-    for (auto& plot : m_plots) {
-        for (int i = 0; i < plot.size(); ++i) {
-            sumPlot1[i].ry() += plot[i].ry();
-        }
-    }
-    sumPlot1 << QPointF(sumPlot1.back().rx()+1.0, sumPlot1.back().ry());
-    sumPlot1 << QPointF(sumPlot1.back().rx(), -30.0);
-    sumPlot1 << QPointF(-1.0, -30.0);
-    sumPlot1 << QPointF(-1.0, sumPlot1.front().ry());
-    sumPlot1 << sumPlot1.front();
-    */
-
     painter->setPen(QPen(QColor(0, 0, 0, 0), 1.0));
-    QPolygonF sumPlot1(common::twelfthOctaveBandsTable.size());
-    for (size_t i = 0; i < common::twelfthOctaveBandsTable.size(); ++i) {
+    QPolygonF sumPlot1(m_frequencyTable.size());
+    for (size_t i = 0; i < m_frequencyTable.size(); ++i) {
         sumPlot1[i].rx() = i;
     }
     for (auto& plot : m_plots) {
@@ -238,13 +204,11 @@ void EqChart::computeResponse(const common::Filter& f, QPolygonF* mags)
     }
 
     for (QPointF& m : *mags) {
-        double w = 2.0*M_PI*common::twelfthOctaveBandsTable.at(m.rx())/44100;
+        double w = 2.0*M_PI*m_frequencyTable.at(m.rx())/44100;
         std::complex<double> z(cos(w), sin(w));
         std::complex<double> numerator = biquad.b0 + (biquad.b1 + biquad.b2*z)*z;
         std::complex<double> denominator = 1.0 + (biquad.a1 + biquad.a2*z)*z;
         std::complex<double> response = numerator / denominator;
         m.ry() = 20.0*log10(abs(response));
     }
-
-    return;
 }

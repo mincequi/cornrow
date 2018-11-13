@@ -23,7 +23,8 @@ SOURCES += \
 HEADERS += \
     src/BleCentralAdapter.h \
     src/EqChart.h \
-    src/Model.h
+    src/Model.h \
+    src/ModelConfiguration.h
 
 RESOURCES += src/qml.qrc
 

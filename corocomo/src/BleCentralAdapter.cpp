@@ -31,13 +31,14 @@ void BleCentralAdapter::setPeqDirty()
 void BleCentralAdapter::doWriteCharc()
 {
     const auto& filters = m_model->m_filters;
+    const auto& config = m_model->m_configuration;
     QByteArray value(filters.size()*4, 0);
 
     for (int i = 0; i < filters.size(); ++i) {
         value[i*4]   = static_cast<char>(filters.at(i).t);
-        value[i*4+1] = filters.at(i).f;
-        value[i*4+2] = filters.at(i).g*2.0;
-        value[i*4+3] = filters.at(i).q;
+        value[i*4+1] = filters.at(i).f*config.freqStep+config.freqMin;
+        value[i*4+2] = static_cast<int8_t>(filters.at(i).g*2.0);
+        value[i*4+3] = filters.at(i).q*config.qStep+config.qMin;
     }
 
     m_central->writeCharacteristic(common::FilterTask::Peq, value);
@@ -66,6 +67,8 @@ void BleCentralAdapter::onStatus(ble::Central::Status _status, const QString& er
 
 void BleCentralAdapter::onCharacteristicRead(common::FilterTask task, const QByteArray &value)
 {
+    const auto& config = m_model->m_configuration;
+
     switch (task) {
     case common::FilterTask::Peq: {
         if (value.size()%4 != 0) {
@@ -74,10 +77,10 @@ void BleCentralAdapter::onCharacteristicRead(common::FilterTask task, const QByt
         std::vector<Model::Filter> filters;
         filters.reserve(value.size()/4);
         for (int i = 0; i < value.size(); i += 4) {
-            filters.push_back({ static_cast<common::FilterType>(value.at(i)),
-                                static_cast<uint8_t>(value.at(i+1)),
-                                static_cast<int8_t>(value.at(i+2))/2.0f,
-                                static_cast<uint8_t>(value.at(i+3)) });
+            filters.push_back(Model::Filter(static_cast<common::FilterType>(value.at(i)),
+                                            static_cast<uint8_t>((value.at(i+1)-config.freqMin)/config.freqStep),
+                                            value.at(i+2)*0.5,
+                                            static_cast<uint8_t>((value.at(i+3)-config.qMin)/config.qStep)));
         }
         emit initPeq(filters);
 

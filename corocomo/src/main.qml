@@ -5,6 +5,7 @@ import QtQuick.Controls.Material 2.4
 import QtQuick.Layouts 1.3
 import Cornrow.EqChart 1.0
 import Cornrow.Model 1.0
+import Cornrow.ModelConfiguration 1.0
 
 ApplicationWindow {
     id: appWindow
@@ -15,10 +16,13 @@ ApplicationWindow {
     // iPhone 6
     //width: 375
     //height: 667
-    // Nexus 5
+    // Google Nexus 5, Samsung Galaxy S5, S6, S7
     width: 360
     height: 640
-    // Pixel
+    // Samsung Galaxy S8
+    //width: 360
+    //height: 740
+    // Google Pixel
     //width: 411
     //height: 731
 
@@ -29,7 +33,7 @@ ApplicationWindow {
     Connections {
         target: CornrowModel
         onFilterChanged: {
-            eqChart.setFilter(i, t, f, g, q);
+            eqChart.setFilter(i, t, f, g, q); // @TODO(mawe): make struct
         }
     }
 
@@ -71,7 +75,6 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 48
         anchors.horizontalCenter: parent.horizontalCenter
-        //background: background
         visible: CornrowModel.status != CornrowModel.Discovering && CornrowModel.status != CornrowModel.Connected
 
         Row {
@@ -97,13 +100,14 @@ ApplicationWindow {
 
         CornrowEqChart {
             id: eqChart
+            frequencyTable: CornrowModel.configuration.freqTable
             plotCount: CornrowModel.filterCount
             currentPlot: CornrowModel.currentBand
             currentPlotColor: Material.accent
             plotColor: Material.foreground
             sumPlotColor: Material.primary
-            warningColor: "orange"
-            criticalColor: "red" //"red"
+            warningColor: "orange" // unused
+            criticalColor: "red"
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
@@ -116,25 +120,6 @@ ApplicationWindow {
             text: "Band"
             anchors.left: typeLabel.left
             anchors.bottom: bandBar.top
-        }
-
-        ToolButton {
-            id: remBand
-            enabled: CornrowModel.filterCount > 0
-            text: qsTr("-")
-            anchors.bottom: typeLabel.top
-            anchors.left: parent.left
-
-            onPressed: CornrowModel.deleteFilter()
-        }
-        ToolButton {
-            id: addBand
-            enabled: CornrowModel.filterCount < 4
-            text: qsTr("+")
-            anchors.bottom: typeLabel.top
-            anchors.right: parent.right
-
-            onPressed: CornrowModel.addFilter()
         }
         */
 
@@ -248,9 +233,6 @@ ApplicationWindow {
         }
         Slider {
             id: freqSlider
-            stepSize: 1
-            from: 0
-            to: 120
             anchors.bottom: gainLabel.top
             anchors.left: decFreq.right
             anchors.right: incFreq.left
@@ -269,7 +251,7 @@ ApplicationWindow {
         }
         Label {
             id: gainReadout
-            text: CornrowModel.gain.toFixed(1)
+            text: CornrowModel.configuration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
             anchors.horizontalCenter: gainSlider.horizontalCenter
             anchors.bottom: gainSlider.top
         }
@@ -278,22 +260,20 @@ ApplicationWindow {
             text: qsTr("-")
             anchors.bottom: qLabel.top
             anchors.left: parent.left
-
-            onPressed: CornrowModel.gain -= 0.5
+            onPressed: CornrowModel.stepGain(-1)
         }
         ToolButton {
             id: incGain
             text: qsTr("+")
             anchors.bottom: qLabel.top
             anchors.right: parent.right
-
-            onPressed: CornrowModel.gain += 0.5
+            onPressed: CornrowModel.stepGain(1)
         }
         Slider {
             id: gainSlider
-            stepSize: 0.5
-            to: 6
-            from: -24
+            stepSize: CornrowModel.configuration.gainStep
+            from: CornrowModel.configuration.gainMin
+            to: CornrowModel.configuration.gainMax
             anchors.bottom: qLabel.top
             anchors.left: decGain.right
             anchors.right: incGain.left
