@@ -9,7 +9,7 @@
 class EqChart : public QQuickPaintedItem
 {
     Q_OBJECT
-    Q_PROPERTY(std::vector<qreal> frequencyTable MEMBER m_frequencyTable)
+    Q_PROPERTY(std::vector<double> frequencyTable MEMBER m_frequencyTable)
     Q_PROPERTY(int plotCount WRITE setPlotCount)
     Q_PROPERTY(QColor plotColor READ plotColor WRITE setPlotColor)
     Q_PROPERTY(QColor currentPlotColor READ currentPlotColor WRITE setCurrentPlotColor)
@@ -44,7 +44,7 @@ public:
 private:
     void computeResponse(const common::Filter& f, QPolygonF* mags);
 
-    std::vector<qreal>  m_frequencyTable;
+    std::vector<double>  m_frequencyTable;
     QColor m_plotColor;         // background plots
     QColor m_currentPlotColor;  // current plot
     QColor m_sumPlotColor;      // sum plot
@@ -55,5 +55,7 @@ private:
 
     QList<QPolygonF>    m_plots;
 };
+// QVector<qreal> is Qt 5.9 compatible. Qt 5.11 also accepts std::vector<double>.
+Q_DECLARE_METATYPE(std::vector<double>)
 
 #endif // EQCHART_H

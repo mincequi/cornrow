@@ -18,7 +18,8 @@ SOURCES += \
     src/BleCentralAdapter.cpp \
     src/EqChart.cpp \
     src/Model.cpp \
-    src/main.cpp
+    src/main.cpp \
+    src/ModelConfiguration.cpp
 
 HEADERS += \
     src/BleCentralAdapter.h \

@@ -24,23 +24,9 @@ Model* Model::init(const ModelConfiguration& configuration)
 }
 
 Model::Model(const ModelConfiguration& configuration, QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    m_configuration(configuration)
 {
-    m_configuration = configuration;
-    m_configuration.freqTable.resize(0);
-    for (auto it = configuration.freqTable.begin()+configuration.freqMin;
-         it < configuration.freqTable.begin()+configuration.freqMax+1; it+=configuration.freqStep) {
-        m_configuration.freqTable.push_back(*it);
-    }
-    m_configuration.freqDefault = (configuration.freqDefault-configuration.freqMin)/configuration.freqStep;
-
-    m_configuration.qTable.resize(0);
-    for (auto it = configuration.qTable.begin()+configuration.qMin;
-         it < configuration.qTable.begin()+configuration.qMax+1; it+=configuration.qStep) {
-        m_configuration.qTable.push_back(*it);
-    }
-    m_configuration.qDefault = (configuration.qDefault-configuration.qMin)/configuration.qStep;
-
     resizeFilters(m_configuration.filterCount);
     setCurrentBand(0);
 

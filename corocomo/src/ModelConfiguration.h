@@ -1,16 +1,29 @@
 #ifndef MODELCONFIGURATION_H
 #define MODELCONFIGURATION_H
 
-#include <QMetaType>
+#include <QObject>
+#include <QVector>
 
-class ModelConfiguration {
-    Q_GADGET
+// @TODO(mawe): rename to Config
+class ModelConfiguration : public QObject
+{
+    Q_OBJECT
+
     Q_PROPERTY(std::vector<double> freqTable MEMBER freqTable CONSTANT)
     Q_PROPERTY(double gainMin MEMBER gainMin CONSTANT)
     Q_PROPERTY(double gainMax MEMBER gainMax CONSTANT)
     Q_PROPERTY(double gainStep MEMBER gainStep CONSTANT)
 
 public:
+    enum class Type : uint8_t {
+        Low,
+        Mid,
+        High
+    };
+
+    static ModelConfiguration* init(Type type);
+    static ModelConfiguration* instance();
+
     uint8_t filterCount = 1;
 
     std::vector<double> freqTable;
@@ -28,7 +41,12 @@ public:
     double gainMin = -24.0;
     double gainMax = 6.0;
     double gainStep = 1.0;
+
+private:
+    explicit ModelConfiguration(Type type, QObject *parent = nullptr);
+    static ModelConfiguration* s_instance;
 };
-Q_DECLARE_METATYPE(ModelConfiguration)
+// QVector<qreal> is Qt 5.9 compatible. Qt 5.11 also accepts std::vector<double>.
+//Q_DECLARE_METATYPE(std::vector<double>)
 
 #endif // MODELCONFIGURATION_H

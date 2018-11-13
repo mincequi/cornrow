@@ -78,9 +78,9 @@ void BleCentralAdapter::onCharacteristicRead(common::FilterTask task, const QByt
         filters.reserve(value.size()/4);
         for (int i = 0; i < value.size(); i += 4) {
             filters.push_back(Model::Filter(static_cast<common::FilterType>(value.at(i)),
-                                            static_cast<uint8_t>((value.at(i+1)-config.freqMin)/config.freqStep),
+                                            (static_cast<uint8_t>(value.at(i+1)-config.freqMin)/config.freqStep),
                                             value.at(i+2)*0.5,
-                                            static_cast<uint8_t>((value.at(i+3)-config.qMin)/config.qStep)));
+                                            (static_cast<uint8_t>(value.at(i+3)-config.qMin)/config.qStep)));
         }
         emit initPeq(filters);
 

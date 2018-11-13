@@ -21,7 +21,6 @@ class Model : public QObject
     Q_PROPERTY(QString statusReadout READ statusReadout NOTIFY statusChanged)
     Q_PROPERTY(QString errorReadout READ errorReadout NOTIFY statusChanged)
 
-    Q_PROPERTY(ModelConfiguration configuration MEMBER m_configuration CONSTANT)
     Q_PROPERTY(int filterCount READ filterCount NOTIFY filterCountChanged)
     Q_PROPERTY(int currentBand READ currentBand WRITE setCurrentBand NOTIFY currentBandChanged)
 
@@ -112,7 +111,7 @@ private:
 
     static Model* s_instance;
 
-    ModelConfiguration m_configuration;
+    const ModelConfiguration& m_configuration;
 
     Status          m_status = Status::Discovering;
     QString         m_statusReadout = "Discovering";

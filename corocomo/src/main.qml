@@ -1,11 +1,11 @@
 import QtQml 2.2
 import QtQuick 2.9
-import QtQuick.Controls 2.4
-import QtQuick.Controls.Material 2.4
+import QtQuick.Controls 2.2
+import QtQuick.Controls.Material 2.2
 import QtQuick.Layouts 1.3
+import Cornrow.Configuration 1.0
 import Cornrow.EqChart 1.0
 import Cornrow.Model 1.0
-import Cornrow.ModelConfiguration 1.0
 
 ApplicationWindow {
     id: appWindow
@@ -100,7 +100,7 @@ ApplicationWindow {
 
         CornrowEqChart {
             id: eqChart
-            frequencyTable: CornrowModel.configuration.freqTable
+            frequencyTable: CornrowConfiguration.freqTable
             plotCount: CornrowModel.filterCount
             currentPlot: CornrowModel.currentBand
             currentPlotColor: Material.accent
@@ -251,7 +251,7 @@ ApplicationWindow {
         }
         Label {
             id: gainReadout
-            text: CornrowModel.configuration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
+            text: CornrowConfiguration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
             anchors.horizontalCenter: gainSlider.horizontalCenter
             anchors.bottom: gainSlider.top
         }
@@ -271,9 +271,9 @@ ApplicationWindow {
         }
         Slider {
             id: gainSlider
-            stepSize: CornrowModel.configuration.gainStep
-            from: CornrowModel.configuration.gainMin
-            to: CornrowModel.configuration.gainMax
+            stepSize: CornrowConfiguration.gainStep
+            from: CornrowConfiguration.gainMin
+            to: CornrowConfiguration.gainMax
             anchors.bottom: qLabel.top
             anchors.left: decGain.right
             anchors.right: incGain.left
