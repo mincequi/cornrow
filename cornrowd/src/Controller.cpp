@@ -25,8 +25,7 @@ void Controller::onBluetoothConnected(const QDBusObjectPath &transportObjectPath
     m_audio->setTransport(transportObjectPath);
 }
 
-void Controller::onBluetoothDisconnected(const QDBusObjectPath &transportObjectPath)
+void Controller::onBluetoothDisconnected(const QDBusObjectPath& /*transportObjectPath*/)
 {
-    m_config->writeConfig();
     m_audio->clearTransport();
 }

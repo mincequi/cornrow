@@ -33,8 +33,16 @@ Controller::Controller(audio::Controller* audio, QObject *parent)
     m_ble = new ble::Server(this);
     m_bleAdapter = new ble::ServerAdapter(m_ble, std::bind(&audio::Controller::peq, m_audio));
 
+    // Once a (control) client disconnects, we write persistence.
+    connect(m_ble, &ble::Server::deviceDisconnected, this, &config::Controller::writeConfig);
+
     // BLE adapter can change config of audio controller
     connect(m_bleAdapter, &ble::ServerAdapter::peq, m_audio, &audio::Controller::setPeq);
+}
+
+Controller::~Controller()
+{
+    writeConfig();
 }
 
 void Controller::writeConfig()

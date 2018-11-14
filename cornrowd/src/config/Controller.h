@@ -33,10 +33,11 @@ class Controller : public QObject
 
 public:
     explicit Controller(audio::Controller* audio, QObject *parent = nullptr);
-
-    void writeConfig();
+    ~Controller();
 
 private:
+    void writeConfig();
+
     ble::Server* m_ble = nullptr;
     ble::ServerAdapter* m_bleAdapter = nullptr;
 

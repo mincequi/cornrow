@@ -38,6 +38,8 @@ public:
 signals:
     // Signals, that a client has changed a characteristic
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    // Signals, that a device disconnected. Used to trigger persistence.
+    void deviceDisconnected();
 
 private:
     // Adapter should set initial values of characteristics
