@@ -22,7 +22,7 @@ void EqChart::setPlotCount(int count)
     }
 }
 
-void EqChart::setFilter(int i, uchar t, float f, float g, float q)
+void EqChart::setFilter(int i, uchar t, double f, double g, double q)
 {
     if (i >= m_plots.size()) return;
 

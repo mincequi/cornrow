@@ -12,7 +12,7 @@ void printFilters(const std::vector<common::Filter>& filters)
                  << "g:" << filter.g
                  << "q:" << filter.q;
     }
-    qDebug();
+    qDebug() << "";
 }
 
 int main(int argc, char** argv)

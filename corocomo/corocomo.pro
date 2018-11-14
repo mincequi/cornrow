@@ -19,13 +19,13 @@ SOURCES += \
     src/EqChart.cpp \
     src/Model.cpp \
     src/main.cpp \
-    src/ModelConfiguration.cpp
+    src/Config.cpp
 
 HEADERS += \
     src/BleCentralAdapter.h \
     src/EqChart.h \
     src/Model.h \
-    src/ModelConfiguration.h
+    src/Config.h
 
 RESOURCES += src/qml.qrc
 

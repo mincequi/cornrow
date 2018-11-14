@@ -22,7 +22,7 @@ class EqChart : public QQuickPaintedItem
 public:
     EqChart(QQuickItem *parent = nullptr);
 
-    Q_INVOKABLE void setFilter(int i, uchar t, float f, float g, float q);
+    Q_INVOKABLE void setFilter(int i, uchar t, double f, double g, double q);
     Q_INVOKABLE void setPlotCount(int i);
 
     QColor plotColor() const;

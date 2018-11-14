@@ -5,7 +5,7 @@
 
 #include <common/Types.h>
 
-#include "ModelConfiguration.h"
+#include "Config.h"
 
 class BleCentralAdapter;
 namespace ble
@@ -26,12 +26,12 @@ class Model : public QObject
 
     Q_PROPERTY(uint type READ type WRITE setType NOTIFY typeChanged)
 
-    Q_PROPERTY(float freqSlider READ freqSlider WRITE setFreqSlider NOTIFY freqSliderChanged)
+    Q_PROPERTY(double freqSlider READ freqSlider WRITE setFreqSlider NOTIFY freqSliderChanged)
     Q_PROPERTY(QString freqReadout READ freqReadout NOTIFY freqChanged)
 
-    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
+    Q_PROPERTY(double gain READ gain WRITE setGain NOTIFY gainChanged)
 
-    Q_PROPERTY(float qSlider READ qSlider WRITE setQSlider NOTIFY qSliderChanged)
+    Q_PROPERTY(double qSlider READ qSlider WRITE setQSlider NOTIFY qSliderChanged)
     Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
 
 public:
@@ -45,7 +45,7 @@ public:
     };
     Q_ENUM(Status)
 
-    static Model* init(const ModelConfiguration& configuration);
+    static Model* init(const Config& configuration);
     static Model* instance();
 
     Q_INVOKABLE void startDiscovering();
@@ -57,7 +57,6 @@ public:
 
     Q_INVOKABLE void resizeFilters(int diff);
 
-    std::vector<qreal>  frequencyTable() const;
     int         filterCount() const;
 
     int         currentBand() const;
@@ -68,23 +67,23 @@ public:
 
     QString     freqReadout() const;
     Q_INVOKABLE void stepFreq(int i);
-    float       freqSlider() const;
-    void        setFreqSlider(float);
+    double      freqSlider() const;
+    void        setFreqSlider(double);
 
-    float       gain() const;
+    double      gain() const;
     Q_INVOKABLE void stepGain(int i);
-    void        setGain(float g);
+    void        setGain(double g);
 
     QString     qReadout() const;
     Q_INVOKABLE void stepQ(int i);
-    float       qSlider() const;
-    void        setQSlider(float);
+    double      qSlider() const;
+    void        setQSlider(double);
 
 signals:
     void statusChanged();
     void filterCountChanged();
     void currentBandChanged();
-    void filterChanged(int i, uchar t, float f, float g, float q);
+    void filterChanged(int i, uchar t, double f, double g, double q);
     void typeChanged();
     void freqChanged();
     void freqSliderChanged();
@@ -93,7 +92,7 @@ signals:
     void qSliderChanged();
 
 private:
-    Model(const ModelConfiguration& configuration, QObject *parent = nullptr);
+    Model(const Config& configuration, QObject *parent = nullptr);
 
     // This is the model-oriented filter struct. We use indexed values here.
     struct Filter {
@@ -111,7 +110,7 @@ private:
 
     static Model* s_instance;
 
-    const ModelConfiguration& m_configuration;
+    const Config& m_configuration;
 
     Status          m_status = Status::Discovering;
     QString         m_statusReadout = "Discovering";
@@ -119,7 +118,7 @@ private:
     QList<Filter>   m_filters;
     Filter*         m_currentFilter = nullptr;
     int             m_currentBand = 0;
-    float           m_freqSlider;
+    double          m_freqSlider;
     bool            m_demoMode = false;
 
     // BLE

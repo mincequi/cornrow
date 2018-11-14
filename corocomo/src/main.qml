@@ -279,7 +279,7 @@ ApplicationWindow {
             anchors.right: incGain.left
             anchors.top: incGain.top
 
-            value: CornrowModel.gain
+            value: CornrowModel.gain // @TODO(mawe) fix binding loop
             onValueChanged: CornrowModel.gain = value
         }
 

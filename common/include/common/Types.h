@@ -81,9 +81,9 @@ enum class FilterType : uint8_t {
 struct Filter
 {
     FilterType  type;
-    float       f;
-    float       g;
-    float       q;
+    double      f;
+    double      g;
+    double      q;
 };
 
 struct Preset

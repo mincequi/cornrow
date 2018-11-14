@@ -1,25 +1,25 @@
-#include "ModelConfiguration.h"
+#include "Config.h"
 
 #include <common/Types.h>
 
-ModelConfiguration* ModelConfiguration::s_instance = nullptr;
+Config* Config::s_instance = nullptr;
 
-ModelConfiguration* ModelConfiguration::instance()
+Config* Config::instance()
 {
     return s_instance;
 }
 
-ModelConfiguration* ModelConfiguration::init(Type type)
+Config* Config::init(Type type)
 {
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new ModelConfiguration(type);
+    s_instance = new Config(type);
     return s_instance;
 }
 
-ModelConfiguration::ModelConfiguration(Type type, QObject *parent)
+Config::Config(Type type, QObject *parent)
     : QObject(parent)
 {
     // lowConf
@@ -49,6 +49,9 @@ ModelConfiguration::ModelConfiguration(Type type, QObject *parent)
         break;
     case Type::High:
         freqStep = 1; // 8x
+        gainStep = 0.2;
+        //qTable = common::qTableHigh; // @TODO(mawe): add 3 digit table
+        qMax = qTable.size()-1;
         break;
     }
 

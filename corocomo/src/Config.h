@@ -4,8 +4,7 @@
 #include <QObject>
 #include <QVector>
 
-// @TODO(mawe): rename to Config
-class ModelConfiguration : public QObject
+class Config : public QObject
 {
     Q_OBJECT
 
@@ -21,8 +20,8 @@ public:
         High
     };
 
-    static ModelConfiguration* init(Type type);
-    static ModelConfiguration* instance();
+    static Config* init(Type type);
+    static Config* instance();
 
     uint8_t filterCount = 1;
 
@@ -43,8 +42,8 @@ public:
     double gainStep = 1.0;
 
 private:
-    explicit ModelConfiguration(Type type, QObject *parent = nullptr);
-    static ModelConfiguration* s_instance;
+    explicit Config(Type type, QObject *parent = nullptr);
+    static Config* s_instance;
 };
 // QVector<qreal> is Qt 5.9 compatible. Qt 5.11 also accepts std::vector<double>.
 //Q_DECLARE_METATYPE(std::vector<double>)

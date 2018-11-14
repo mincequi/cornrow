@@ -150,7 +150,7 @@ void CentralPrivate::onServiceDiscovered(const QBluetoothUuid& serviceUuid)
     m_service->discoverDetails();
 }
 
-void CentralPrivate::onServiceDiscoveryError(QLowEnergyController::Error error)
+void CentralPrivate::onServiceDiscoveryError(QLowEnergyController::Error /*error*/)
 {
     qDebug() << __func__;
 
@@ -190,12 +190,11 @@ void CentralPrivate::onServiceStateChanged(QLowEnergyService::ServiceState s)
         // Rename DiscoveringServices -> DiscoveringDetails or DiscoveringService
     case QLowEnergyService::DiscoveringServices: // discoverDetails() called and running
     case QLowEnergyService::LocalService:   // Only in peripheral role
-    default:
         break;
     }
 }
 
-void CentralPrivate::onServiceError(QLowEnergyService::ServiceError error)
+void CentralPrivate::onServiceError(QLowEnergyService::ServiceError /*error*/)
 {
     qDebug() << __func__;
 
@@ -215,10 +214,7 @@ Central::~Central()
 
 bool Central::startDiscovering()
 {
-    if (d->m_control || d->m_discoverer->isActive()) {
-        qDebug() << __func__ << ": already started";
-        return false;
-    }
+    disconnect();
 
     setStatus(Status::Discovering);
     d->m_discoverer->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);

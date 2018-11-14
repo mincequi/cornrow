@@ -13,7 +13,7 @@ Model* Model::instance()
     return s_instance;
 }
 
-Model* Model::init(const ModelConfiguration& configuration)
+Model* Model::init(const Config& configuration)
 {
     if (s_instance) {
         return s_instance;
@@ -23,7 +23,7 @@ Model* Model::init(const ModelConfiguration& configuration)
     return s_instance;
 }
 
-Model::Model(const ModelConfiguration& configuration, QObject *parent) :
+Model::Model(const Config& configuration, QObject *parent) :
     QObject(parent),
     m_configuration(configuration)
 {
@@ -117,11 +117,6 @@ void Model::setCurrentBand(int i)
     }
 }
 
-std::vector<qreal> Model::frequencyTable() const
-{
-    return m_configuration.freqTable;
-}
-
 int Model::filterCount() const
 {
     return m_filters.size();
@@ -148,7 +143,7 @@ void Model::setType(int type)
 
 QString Model::freqReadout() const
 {
-    float value = m_configuration.freqTable.at(m_currentFilter->f);
+    double value = m_configuration.freqTable.at(m_currentFilter->f);
 
     if (value < 1.0) return QString::number(value, 'f', 2);
     else if (value < 100.0) return QString::number(value, 'f', 1);
@@ -158,21 +153,21 @@ QString Model::freqReadout() const
 void Model::stepFreq(int i)
 {
     int idx = m_currentFilter->f + i;
-    if (idx < 0 || idx > m_configuration.freqTable.size()-1 || idx == m_currentFilter->f) {
+    if (idx < 0 || idx > static_cast<int>(m_configuration.freqTable.size()-1) || idx == m_currentFilter->f) {
         return;
     }
 
-    m_currentFilter->f = idx;
+    m_currentFilter->f = static_cast<uint8_t>(idx);
     emit freqChanged();
     emit freqSliderChanged();
 }
 
-float Model::freqSlider() const
+double Model::freqSlider() const
 {
-    return static_cast<float>(m_currentFilter->f)/(m_configuration.freqTable.size()-1);
+    return static_cast<double>(m_currentFilter->f)/(m_configuration.freqTable.size()-1);
 }
 
-void Model::setFreqSlider(float f)
+void Model::setFreqSlider(double f)
 {
     uint8_t idx = static_cast<uint8_t>(qRound(f*(m_configuration.freqTable.size()-1)));
     if (m_currentFilter->f == idx) return;
@@ -181,7 +176,7 @@ void Model::setFreqSlider(float f)
     emit freqChanged();
 }
 
-float Model::gain() const
+double Model::gain() const
 {
     return m_currentFilter->g;
 }
@@ -197,7 +192,7 @@ void Model::stepGain(int i)
     emit gainChanged();
 }
 
-void Model::setGain(float g)
+void Model::setGain(double g)
 {
     if (g > m_configuration.gainMax || g < m_configuration.gainMin) {
         return;
@@ -209,7 +204,7 @@ void Model::setGain(float g)
 
 QString Model::qReadout() const
 {
-    float value = m_configuration.qTable.at(m_currentFilter->q);
+    double value = m_configuration.qTable.at(m_currentFilter->q);
 
     if (value < 1.0) return QString::number(value, 'f', 2);
     else if (value < 10.0) return QString::number(value, 'f', 1);
@@ -223,18 +218,18 @@ void Model::stepQ(int i)
     if (idx > static_cast<int>(m_configuration.qTable.size())-1) return;
     if (m_currentFilter->q == idx) return;
 
-    m_currentFilter->q = idx;
+    m_currentFilter->q = static_cast<uint8_t>(idx);
 
     emit qChanged();
     emit qSliderChanged();
 }
 
-float Model::qSlider() const
+double Model::qSlider() const
 {
-    return static_cast<float>(m_currentFilter->q)/(m_configuration.qTable.size()-1);
+    return static_cast<double>(m_currentFilter->q)/(m_configuration.qTable.size()-1);
 }
 
-void Model::setQSlider(float q)
+void Model::setQSlider(double q)
 {
     uint8_t idx = static_cast<uint8_t>(qRound(q*(m_configuration.qTable.size()-1)));
     if (m_currentFilter->q == idx) return;
@@ -245,7 +240,7 @@ void Model::setQSlider(float q)
 
 void Model::setFilters(const std::vector<Filter>& filters)
 {
-    for (size_t i = 0; i < filters.size(); ++i) {
+    for (int i = 0; i < filters.size(); ++i) {
         m_filters[i].t = filters.at(i).t;
         m_filters[i].f = filters.at(i).f;
         m_filters[i].g = filters.at(i).g;
@@ -261,7 +256,7 @@ void Model::onParameterChanged()
     if (m_currentFilter) {
         emit filterChanged(m_currentBand, static_cast<uchar>(m_currentFilter->t), m_configuration.freqTable.at(m_currentFilter->f), m_currentFilter->g, m_configuration.qTable.at(m_currentFilter->q));
     } else {
-        emit filterChanged(m_currentBand, 0, 0.0f, 0.0f, 0.0f);
+        emit filterChanged(m_currentBand, 0, 0.0, 0.0, 0.0);
     }
 
     if (!m_demoMode) {
