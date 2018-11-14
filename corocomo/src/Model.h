@@ -10,7 +10,7 @@
 class BleCentralAdapter;
 namespace ble
 {
-class Central;
+class Client;
 }
 
 class Model : public QObject
@@ -122,7 +122,7 @@ private:
     bool            m_demoMode = false;
 
     // BLE
-    ble::Central* m_central = nullptr;
+    ble::Client* m_central = nullptr;
     BleCentralAdapter* m_adapter = nullptr;
     friend class BleCentralAdapter;
 };

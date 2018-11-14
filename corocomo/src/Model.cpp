@@ -2,7 +2,7 @@
 
 #include <QPen>
 
-#include <ble/Central.h>
+#include <ble/Client.h>
 
 #include "BleCentralAdapter.h"
 
@@ -35,7 +35,7 @@ Model::Model(const Config& configuration, QObject *parent) :
     connect(this, &Model::gainChanged, this, &Model::onParameterChanged);
     connect(this, &Model::qChanged, this, &Model::onParameterChanged);
 
-    m_central = new ble::Central(this);
+    m_central = new ble::Client(this);
     m_adapter = new BleCentralAdapter(m_central, this);
 
     connect(m_adapter, &BleCentralAdapter::initPeq, this, &Model::setFilters);
@@ -240,7 +240,7 @@ void Model::setQSlider(double q)
 
 void Model::setFilters(const std::vector<Filter>& filters)
 {
-    for (int i = 0; i < filters.size(); ++i) {
+    for (uint i = 0; i < filters.size(); ++i) {
         m_filters[i].t = filters.at(i).t;
         m_filters[i].f = filters.at(i).f;
         m_filters[i].g = filters.at(i).g;

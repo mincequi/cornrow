@@ -21,13 +21,12 @@
 
 #include <common/Types.h>
 
-class QBluetoothUuid;
 class QLowEnergyCharacteristic;
 
 namespace ble
 {
 
-class Central : public QObject
+class Client : public QObject
 {
     Q_OBJECT
 
@@ -40,8 +39,8 @@ public:
         Error
     };
 
-    explicit Central(QObject *parent = nullptr);
-    ~Central();
+    explicit Client(QObject *parent = nullptr);
+    ~Client();
 
     bool startDiscovering();
     void disconnect();
@@ -58,8 +57,8 @@ private:
     void setStatus(Status status, const QString& errorString = QString());
     void onCharacteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
 
-    class CentralPrivate *const d = nullptr;
-    friend class CentralPrivate;
+    class ClientSession* m_clientSession = nullptr;
+    friend class ClientSession;
 };
 
 } // namespace ble

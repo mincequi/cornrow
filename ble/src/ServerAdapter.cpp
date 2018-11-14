@@ -1,8 +1,8 @@
-#include "PeripheralAdapter.h"
+#include "ServerAdapter.h"
 
 #include "Converter.h"
 #include "Defines.h"
-#include "Peripheral.h"
+#include "Server.h"
 
 #include <QTimer>
 #include <QtBluetooth/QLowEnergyCharacteristic>

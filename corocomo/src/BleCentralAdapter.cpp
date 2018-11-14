@@ -1,16 +1,16 @@
 #include "BleCentralAdapter.h"
 
-#include <ble/Central.h>
+#include <ble/Client.h>
 
 #include "Model.h"
 
-BleCentralAdapter::BleCentralAdapter(ble::Central* central, Model* model)
+BleCentralAdapter::BleCentralAdapter(ble::Client* central, Model* model)
     : QObject(central),
       m_central(central),
       m_model(model)
 {
-    connect(m_central, &ble::Central::characteristicRead, this, &BleCentralAdapter::onCharacteristicRead);
-    connect(m_central, &ble::Central::status, this, &BleCentralAdapter::onStatus);
+    connect(m_central, &ble::Client::characteristicRead, this, &BleCentralAdapter::onCharacteristicRead);
+    connect(m_central, &ble::Client::status, this, &BleCentralAdapter::onStatus);
 
     m_timer.setInterval(100);
     m_timer.setSingleShot(true);
@@ -44,22 +44,22 @@ void BleCentralAdapter::doWriteCharc()
     m_central->writeCharacteristic(common::FilterTask::Peq, value);
 }
 
-void BleCentralAdapter::onStatus(ble::Central::Status _status, const QString& errorString)
+void BleCentralAdapter::onStatus(ble::Client::Status _status, const QString& errorString)
 {
     switch (_status) {
-    case ble::Central::Status::Discovering:
+    case ble::Client::Status::Discovering:
         emit status(Model::Status::Discovering);
         return;
-    case ble::Central::Status::Connected:
+    case ble::Client::Status::Connected:
         emit status(Model::Status::Connected);
         return;
-    case ble::Central::Status::Timeout:
+    case ble::Client::Status::Timeout:
         emit status(Model::Status::Timeout);
         return;
-    case ble::Central::Status::Lost:
+    case ble::Client::Status::Lost:
         emit status(Model::Status::Lost);
         return;
-    case ble::Central::Status::Error:
+    case ble::Client::Status::Error:
         emit status(Model::Status::Error, errorString);
         return;
     }
