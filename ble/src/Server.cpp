@@ -56,6 +56,7 @@ void Server::startPublishing()
     // Advertising will stop once a client connects, so re-advertise once disconnected.
     connect(m_session->peripheral, &QLowEnergyController::disconnected, this, &Server::startPublishing);
     connect(m_session->peripheral, &QLowEnergyController::disconnected, this, &Server::deviceDisconnected);
+    connect(m_session->peripheral, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error), this, &Server::deviceDisconnected);
 }
 
 } // namespace ble
