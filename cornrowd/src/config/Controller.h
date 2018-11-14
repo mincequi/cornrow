@@ -32,16 +32,11 @@ class Controller : public QObject
     Q_OBJECT
 
 public:
-    explicit Controller(QObject *parent = nullptr);
+    explicit Controller(audio::Controller* audio, QObject *parent = nullptr);
 
-    void setAudioController(audio::Controller* audio);
-    void unsetAudioController();
+    void writeConfig();
 
 private:
-    void onPeqChanged(const std::vector<common::Filter>& filters);
-
-    std::vector<common::Filter> m_peq;
-
     ble::Server* m_ble = nullptr;
     ble::ServerAdapter* m_bleAdapter = nullptr;
 

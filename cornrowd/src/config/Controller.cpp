@@ -22,43 +22,25 @@
 namespace config
 {
 
-Controller::Controller(QObject *parent)
-    : QObject(parent)
+Controller::Controller(audio::Controller* audio, QObject *parent)
+    : QObject(parent),
+      m_audio(audio)
 {
     // On start-up we read config from disk
-    m_peq = readConfig();
+    m_audio->setPeq(readConfig());
 
     // Create BLE server and adapter. Provide config provider.
     m_ble = new ble::Server(this);
-    m_bleAdapter = new ble::ServerAdapter(m_ble, readConfig);
+    m_bleAdapter = new ble::ServerAdapter(m_ble, std::bind(&audio::Controller::peq, m_audio));
 
-    // BLE adapter can change config
-    connect(m_bleAdapter, &ble::ServerAdapter::peq, this, &Controller::onPeqChanged);
+    // BLE adapter can change config of audio controller
+    connect(m_bleAdapter, &ble::ServerAdapter::peq, m_audio, &audio::Controller::setPeq);
 }
 
-void Controller::setAudioController(audio::Controller* audio)
-{
-    // Assign new audio controller (and apply config).
-    m_audio = audio;
-    m_audio->setPeq(m_peq);
-}
-
-void Controller::unsetAudioController()
+void Controller::writeConfig()
 {
     // If connection is closed, we write config to disk
-    writeConfig(m_audio->peq());
-    m_audio = nullptr;
-}
-
-void Controller::onPeqChanged(const std::vector<common::Filter>& filters)
-{
-    // Assign new config (from BLE) to local object
-    m_peq = filters;
-
-    // Also set config to audio controller (if existing).
-    if (m_audio) {
-        m_audio->setPeq(m_peq);
-    }
+    config::writeConfig(m_audio->peq());
 }
 
 } // namespace config

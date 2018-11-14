@@ -43,7 +43,7 @@ Controller::~Controller()
     delete m_pipeline;
 }
 
-const std::vector<common::Filter> Controller::peq() const
+std::vector<common::Filter> Controller::peq() const
 {
     return m_pipeline->peq();
 }

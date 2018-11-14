@@ -41,7 +41,7 @@ public:
     void setTransport(const QDBusObjectPath& transport);
     void clearTransport();
 
-    const std::vector<common::Filter> peq() const;
+    std::vector<common::Filter> peq() const;
     void setPeq(const std::vector<common::Filter>& filters);
 
 private:
