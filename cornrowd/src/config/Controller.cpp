@@ -28,12 +28,12 @@ Controller::Controller(QObject *parent)
     // On start-up we read config from disk
     m_peq = readConfig();
 
-    // Create BLE and adapter. Init with current config
-    m_ble = new ble::Peripheral(this);
-    m_bleAdapter = new ble::PeripheralAdapter(m_ble, m_peq);
+    // Create BLE server and adapter. Provide config provider.
+    m_ble = new ble::Server(this);
+    m_bleAdapter = new ble::ServerAdapter(m_ble, readConfig);
 
     // BLE adapter can change config
-    connect(m_bleAdapter, &ble::PeripheralAdapter::peq, this, &Controller::onPeqChanged);
+    connect(m_bleAdapter, &ble::ServerAdapter::peq, this, &Controller::onPeqChanged);
 }
 
 void Controller::setAudioController(audio::Controller* audio)

@@ -10,21 +10,22 @@
 namespace ble
 {
 
-PeripheralAdapter::PeripheralAdapter(Peripheral* peripheral, const std::vector<common::Filter>& filters)
-    : QObject(peripheral),
-      m_peripheral(peripheral),
+ServerAdapter::ServerAdapter(Server* server, ValuesProvider valuesProvides)
+    : QObject(server),
+      m_server(server),
+      m_valuesProvider(valuesProvides),
       m_converter(new Converter())
 {
-    m_peripheral->init( {{ peqCharacteristicUuid, m_converter->filtersToBle(filters)}} );
-    connect(m_peripheral, &Peripheral::characteristicChanged, this, &PeripheralAdapter::onCharacteristicChanged);
+    m_server->init(std::bind(&ServerAdapter::provideCharcs, this));
+    connect(m_server, &Server::characteristicChanged, this, &ServerAdapter::onCharacteristicChanged);
 }
 
-PeripheralAdapter::~PeripheralAdapter()
+ServerAdapter::~ServerAdapter()
 {
     delete m_converter;
 }
 
-void PeripheralAdapter::onCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &value)
+void ServerAdapter::onCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &value)
 {
     // ignore any other characteristic, should not happen
     if (characteristic.uuid() == ble::peqCharacteristicUuid) {
@@ -36,6 +37,11 @@ void PeripheralAdapter::onCharacteristicChanged(const QLowEnergyCharacteristic &
     } else {
         qDebug() << __func__ << "unknown uuid:" << characteristic.uuid();
     }
+}
+
+std::map<QBluetoothUuid, QByteArray> ServerAdapter::provideCharcs()
+{
+    return {{ peqCharacteristicUuid, m_converter->filtersToBle(m_valuesProvider())}};
 }
 
 } // namespace ble

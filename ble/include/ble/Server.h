@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QObject>
 
 class QBluetoothUuid;
@@ -25,13 +27,13 @@ class QLowEnergyCharacteristic;
 namespace ble
 {
 
-class Peripheral : public QObject
+class Server : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Peripheral(QObject *parent = nullptr);
-    ~Peripheral();
+    explicit Server(QObject *parent = nullptr);
+    ~Server();
 
 signals:
     // Signals, that a client has changed a characteristic
@@ -39,12 +41,15 @@ signals:
 
 private:
     // Adapter should set initial values of characteristics
-    void init(const std::map<QBluetoothUuid, QByteArray>& characteristics);
+    using CharcsProvider = std::function<std::map<QBluetoothUuid, QByteArray>()>;
+    void init(CharcsProvider);
 
     void startPublishing();
 
-    class PeripheralPrivate *const d = nullptr;
-    friend class PeripheralAdapter;
+    CharcsProvider m_charcsProvider = nullptr;
+
+    class ServerSession* m_session = nullptr;
+    friend class ServerAdapter;
 };
 
 } // namespace ble

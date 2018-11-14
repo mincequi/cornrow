@@ -18,6 +18,7 @@
 #include "Server.h"
 
 #include "Defines.h"
+#include "ServerSession.h"
 
 #include <QtBluetooth/QLowEnergyAdvertisingParameters>
 #include <QtBluetooth/QLowEnergyCharacteristicData>
@@ -27,63 +28,33 @@
 namespace ble
 {
 
-class PeripheralPrivate
-{
-public:
-    PeripheralPrivate()
-    {
-        advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
-        advertisingData.setServices({cornrowServiceUuid});
-
-        // Service
-        serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
-        serviceData.setUuid(cornrowServiceUuid);
-    }
-
-    QLowEnergyController*       peripheral;
-    QLowEnergyService*          service;
-    QLowEnergyAdvertisingData   advertisingData;
-    QLowEnergyServiceData       serviceData;
-};
-
-Peripheral::Peripheral(QObject *parent)
-    : QObject(parent),
-      d(new PeripheralPrivate())
+Server::Server(QObject *parent)
+    : QObject(parent)
 {
 }
 
-Peripheral::~Peripheral()
+Server::~Server()
 {
-    d->peripheral->stopAdvertising();
-    d->peripheral->disconnectFromDevice();
-    delete d;
 }
 
-void Peripheral::init(const std::map<QBluetoothUuid, QByteArray>& characteristicsMap)
+void Server::init(CharcsProvider charcsProvider)
 {
-    QList<QLowEnergyCharacteristicData> characteristics;
-    for (const auto& kv : characteristicsMap) {
-        QLowEnergyCharacteristicData characteristicData;
-        characteristicData.setUuid(kv.first);
-        characteristicData.setValue(kv.second);
-        characteristicData.setProperties(QLowEnergyCharacteristic::Read | QLowEnergyCharacteristic::Write);
-        characteristics << characteristicData;
-    }
-    d->serviceData.setCharacteristics(characteristics);
+    m_charcsProvider = charcsProvider;
 
-    d->peripheral = QLowEnergyController::createPeripheral(this);
-    d->service = d->peripheral->addService(d->serviceData);
-    connect(d->service, &QLowEnergyService::characteristicChanged, this, &Peripheral::characteristicChanged);
-
-    // Advertising will stop once a client connects, so re-advertise once disconnected.
     startPublishing();
-    connect(d->peripheral, &QLowEnergyController::disconnected, this, &Peripheral::startPublishing);
 }
 
-void Peripheral::startPublishing()
+void Server::startPublishing()
 {
+    if (m_session) {
+        delete m_session;
+        m_session = nullptr;
+    }
+
     // Publish service
-    d->peripheral->startAdvertising(QLowEnergyAdvertisingParameters(), d->advertisingData/*, d->advertisingData*/);
+    m_session = new ServerSession(this, m_charcsProvider());
+    // Advertising will stop once a client connects, so re-advertise once disconnected.
+    connect(m_session->peripheral, &QLowEnergyController::disconnected, this, &Server::startPublishing);
 }
 
 } // namespace ble

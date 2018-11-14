@@ -1,8 +1,8 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-#include <ble/Peripheral.h>
-#include <ble/PeripheralAdapter.h>
+#include <ble/Server.h>
+#include <ble/ServerAdapter.h>
 
 void printFilters(const std::vector<common::Filter>& filters)
 {
@@ -19,14 +19,15 @@ int main(int argc, char** argv)
 {
     QCoreApplication app(argc, argv);
 
-    auto peripheral = new ble::Peripheral();
-    auto adapter = new ble::PeripheralAdapter(peripheral, {
-        { common::FilterType::Peak, 2335.0, -9.7, 15.7 },
-        { common::FilterType::LowPass, 12222.0, 3.4, 0.5 },
-        { common::FilterType::HighPass, 47.0, -8.3, 0.8 }
+    auto peripheral = new ble::Server();
+    auto adapter = new ble::ServerAdapter(peripheral, []() -> std::vector<common::Filter>
+    {
+        return { { common::FilterType::Peak, 2335.0, -9.7, 15.7 },
+                 { common::FilterType::LowPass, 12222.0, 3.4, 0.5 },
+                 { common::FilterType::HighPass, 47.0, -8.3, 0.8 } };
     });
 
-    QObject::connect(adapter, &ble::PeripheralAdapter::peq, &printFilters);
+    QObject::connect(adapter, &ble::ServerAdapter::peq, &printFilters);
 
     return app.exec();
 }

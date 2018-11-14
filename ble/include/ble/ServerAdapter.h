@@ -1,23 +1,27 @@
 #pragma once
 
+#include <functional>
+
 #include <QObject>
 
 #include <common/Types.h>
 
+class QBluetoothUuid;
 class QLowEnergyCharacteristic;
 
 namespace ble
 {
 class Converter;
-class Peripheral;
+class Server;
 
-class PeripheralAdapter : public QObject
+class ServerAdapter : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit PeripheralAdapter(Peripheral* peripheral, const std::vector<common::Filter>& filters);
-    ~PeripheralAdapter();
+    using ValuesProvider = std::function<std::vector<common::Filter>()>;
+    explicit ServerAdapter(Server* server, ValuesProvider valuesProvider);
+    ~ServerAdapter();
 
 signals:
     void peq(const std::vector<common::Filter>& filters);
@@ -26,8 +30,10 @@ signals:
 
 private:
     void onCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
+    std::map<QBluetoothUuid, QByteArray> provideCharcs();
 
-    Peripheral* m_peripheral;
+    Server* m_server;
+    ValuesProvider m_valuesProvider;
     Converter* m_converter;
 };
 

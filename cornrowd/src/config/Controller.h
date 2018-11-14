@@ -19,8 +19,8 @@
 
 #include <QObject>
 
-#include <ble/Peripheral.h>
-#include <ble/PeripheralAdapter.h>
+#include <ble/Server.h>
+#include <ble/ServerAdapter.h>
 
 #include "../audio/Controller.h"
 
@@ -42,8 +42,8 @@ private:
 
     std::vector<common::Filter> m_peq;
 
-    ble::Peripheral* m_ble = nullptr;
-    ble::PeripheralAdapter* m_bleAdapter = nullptr;
+    ble::Server* m_ble = nullptr;
+    ble::ServerAdapter* m_bleAdapter = nullptr;
 
     audio::Controller* m_audio = nullptr;
 };
