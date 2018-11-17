@@ -20,7 +20,7 @@ std::vector<common::Filter> readConfig()
     }
 
     std::vector<common::Filter> peq;
-    for (const auto& filterNode : tree.get_child("Peq")) {
+    for (const auto& filterNode : tree.get_child("peq")) {
         common::Filter filter;
         filter.type = static_cast<common::FilterType>(filterNode.second.get<uint>("t"));
         filter.f = filterNode.second.get<float>("f");
@@ -48,7 +48,7 @@ void writeConfig(const std::vector<common::Filter>& filters)
 
         peq.push_back(std::make_pair("", child));
     }
-    tree.add_child("Peq", peq);
+    tree.add_child("peq", peq);
 
     try {
         pt::write_json(audioPath, tree);

@@ -32,7 +32,9 @@ class Client : public QObject
 
 public:
     enum class Status {
+        NoBluetooth,    // Currently unused, since we cannot tell on iOS wether Bluetooth is on.
         Discovering,
+        Connecting,     // Connecting state hangs from time to time, so provide user interaction
         Connected,
         Timeout,
         Lost,

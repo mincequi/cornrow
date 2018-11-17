@@ -20,8 +20,8 @@
 #include <functional>
 
 #include <QObject>
+#include <QtBluetooth/QBluetoothUuid>
 
-class QBluetoothUuid;
 class QLowEnergyCharacteristic;
 
 namespace ble

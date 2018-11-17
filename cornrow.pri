@@ -1,4 +1,4 @@
-QMAKE_CXXFLAGS += -Werror
+QMAKE_CXXFLAGS += -Werror -Wno-shorten-64-to-32
 
 INCLUDEPATH += \
     ../ble/include \

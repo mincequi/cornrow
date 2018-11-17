@@ -40,8 +40,6 @@ Model::Model(const Config& configuration, QObject *parent) :
 
     connect(m_adapter, &BleCentralAdapter::initPeq, this, &Model::setFilters);
     connect(m_adapter, &BleCentralAdapter::status, this, &Model::onBleStatus);
-
-    m_central->startDiscovering();
 }
 
 Model::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_t _q)
@@ -56,7 +54,6 @@ void Model::startDiscovering()
 {
     m_demoMode = false;
     m_central->startDiscovering();
-    onBleStatus(Status::Discovering, QString());
 }
 
 void Model::startDemoMode()
@@ -70,14 +67,14 @@ Model::Status Model::status() const
     return m_status;
 }
 
-QString Model::statusReadout() const
+QString Model::statusLabel() const
 {
-    return m_statusReadout;
+    return m_statusLabel;
 }
 
-QString Model::errorReadout() const
+QString Model::statusText() const
 {
-    return m_errorReadout;
+    return m_statusText;
 }
 
 void Model::resizeFilters(int diff)
@@ -264,29 +261,38 @@ void Model::onParameterChanged()
     }
 }
 
-void Model::onBleStatus(Status _status, const QString& errorString)
+void Model::onBleStatus(Status _status, const QString& statusText)
 {
     m_status = _status;
-    m_errorReadout.clear();
+    m_statusText.clear();
 
     switch (_status) {
+    case Status::NoBluetooth:
+        m_statusLabel = "Bluetooth disabled";
+        m_statusText = "Enable Bluetooth in your device's settings.";
+        break;
     case Status::Discovering:
-        m_statusReadout = "Discovering";
+        m_statusLabel = "Discovering";
+        m_statusText = statusText;
+        break;
+    case Status::Connecting:
+        m_statusLabel = "Connecting";
+        m_statusText = statusText;
         break;
     case Status::Connected:
-        m_statusReadout = "";
+        m_statusLabel = "";
         break;
     case Status::Timeout:
-        m_statusReadout = "Timeout";
-        m_errorReadout = "Be sure to be close to a Cornrow device.";
+        m_statusLabel = "Timeout";
+        m_statusText = "Be sure to be close to a cornrow device.";
         break;
     case Status::Lost:
-        m_statusReadout = "Lost";
-        m_errorReadout = "Connection has been interrupted.";
+        m_statusLabel = "Lost";
+        m_statusText = "Connection has been interrupted.";
         break;
     case Status::Error:
-        m_statusReadout = "Error";
-        m_errorReadout = errorString;
+        m_statusLabel = "Error";
+        m_statusText = statusText;
         break;
     }
 

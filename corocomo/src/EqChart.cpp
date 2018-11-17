@@ -15,7 +15,7 @@ void EqChart::setPlotCount(int count)
 {
     for (int i = 0; i < count; ++i) {
         QPolygonF poly(m_frequencyTable.size());
-        for (size_t j = 0; j < m_frequencyTable.size(); ++j) {
+        for (uint j = 0; j < m_frequencyTable.size(); ++j) {
             poly[j].rx() = j;
         }
         m_plots.append(poly);
@@ -169,7 +169,10 @@ void EqChart::paint(QPainter *painter)
     col.setAlpha(255);
     grad.setColorAt(0.19, col);
 
-    col = m_criticalColor; col.setAlpha(127);
+    grad.setColorAt(0.13, QColor(0x67, 0x3A, 0xB7)); // DeepPurple
+    grad.setColorAt(0.065, QColor(0x9C, 0x27, 0xB0)); // Purple
+
+    col = m_criticalColor; col.setAlpha(255); // 127
     grad.setColorAt(0.0, col);
 
     /*

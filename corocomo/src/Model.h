@@ -18,8 +18,8 @@ class Model : public QObject
     Q_OBJECT
 
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
-    Q_PROPERTY(QString statusReadout READ statusReadout NOTIFY statusChanged)
-    Q_PROPERTY(QString errorReadout READ errorReadout NOTIFY statusChanged)
+    Q_PROPERTY(QString statusLabel READ statusLabel NOTIFY statusChanged)
+    Q_PROPERTY(QString statusText READ statusText NOTIFY statusChanged)
 
     Q_PROPERTY(int filterCount READ filterCount NOTIFY filterCountChanged)
     Q_PROPERTY(int currentBand READ currentBand WRITE setCurrentBand NOTIFY currentBandChanged)
@@ -37,7 +37,9 @@ class Model : public QObject
 public:
     enum Status : uint8_t
     {
+        NoBluetooth,
         Discovering,
+        Connecting,
         Connected,
         Timeout,
         Lost,
@@ -52,8 +54,8 @@ public:
     Q_INVOKABLE void startDemoMode();
 
     Status      status() const;
-    QString     statusReadout() const;
-    QString     errorReadout() const;
+    QString     statusLabel() const;
+    QString     statusText() const;
 
     Q_INVOKABLE void resizeFilters(int diff);
 
@@ -113,8 +115,8 @@ private:
     const Config& m_configuration;
 
     Status          m_status = Status::Discovering;
-    QString         m_statusReadout = "Discovering";
-    QString         m_errorReadout;
+    QString         m_statusLabel = "Discovering";
+    QString         m_statusText;
     QList<Filter>   m_filters;
     Filter*         m_currentFilter = nullptr;
     int             m_currentBand = 0;

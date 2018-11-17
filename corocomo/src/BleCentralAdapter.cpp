@@ -44,11 +44,17 @@ void BleCentralAdapter::doWriteCharc()
     m_central->writeCharacteristic(common::FilterTask::Peq, value);
 }
 
-void BleCentralAdapter::onStatus(ble::Client::Status _status, const QString& errorString)
+void BleCentralAdapter::onStatus(ble::Client::Status _status, const QString& statusText)
 {
     switch (_status) {
+    case ble::Client::Status::NoBluetooth:
+        emit status(Model::Status::NoBluetooth);
+        return;
     case ble::Client::Status::Discovering:
-        emit status(Model::Status::Discovering);
+        emit status(Model::Status::Discovering, statusText);
+        return;
+    case ble::Client::Status::Connecting:
+        emit status(Model::Status::Connecting, statusText);
         return;
     case ble::Client::Status::Connected:
         emit status(Model::Status::Connected);
@@ -60,7 +66,7 @@ void BleCentralAdapter::onStatus(ble::Client::Status _status, const QString& err
         emit status(Model::Status::Lost);
         return;
     case ble::Client::Status::Error:
-        emit status(Model::Status::Error, errorString);
+        emit status(Model::Status::Error, statusText);
         return;
     }
 }

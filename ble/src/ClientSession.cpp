@@ -10,7 +10,7 @@ ClientSession::ClientSession(Client* _q)
     : q(_q)
 {
     m_discoverer = new QBluetoothDeviceDiscoveryAgent(q);
-    m_discoverer->setLowEnergyDiscoveryTimeout(5000);
+    m_discoverer->setLowEnergyDiscoveryTimeout(8000);
 
     connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &ClientSession::onDeviceDiscovered);
     connect(m_discoverer, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &ClientSession::onDeviceDiscoveryError);
@@ -29,9 +29,12 @@ void ClientSession::onDeviceDiscovered(const QBluetoothDeviceInfo &device)
         return;
     }
 
-
-    qDebug() << __func__ << ": found Cornrow device:" << device.name();
+    qDebug() << __func__ << ": found cornrow device:" << device.name();
+    q->setStatus(Client::Status::Discovering, "Found cornrow device " + device.name() + ".");
     m_devices.push_back(device);
+
+    // @TODO(mawe): until we do not support multiple devices, we can stop here.
+    onDeviceDiscoveryFinished();
 }
 
 void ClientSession::onDeviceDiscoveryError(QBluetoothDeviceDiscoveryAgent::Error error)
@@ -64,6 +67,8 @@ void ClientSession::onDeviceDiscoveryFinished()
     m_control->setRemoteAddressType(QLowEnergyController::PublicAddress);
 
     // Connect to device
+    q->setStatus(Client::Status::Connecting, "Connecting " + m_control->remoteName() + ".");
+
     connect(m_control, &QLowEnergyController::connected, this, &ClientSession::onDeviceConnected);
     connect(m_control, &QLowEnergyController::disconnected, this, &ClientSession::onDeviceDisconnected);
     m_control->connectToDevice();
@@ -78,7 +83,6 @@ void ClientSession::onDeviceConnected()
 {
     qDebug() << "Device connected. Discovering services...";
 
-    q->setStatus(Client::Status::Discovering, "Device connected. Discovering services.");
     m_control->discoverServices();
 }
 
@@ -107,7 +111,7 @@ void ClientSession::onServiceDiscoveryFinished()
     qDebug() << __func__;
 
     if (!m_control->services().contains(ble::cornrowServiceUuid)) {
-        q->setStatus(Client::Status::Error, "Could not find Cornrow service on device " + m_control->remoteName() + ".");
+        q->setStatus(Client::Status::Error, "Could not find cornrow service on device " + m_control->remoteName() + ".");
         return;
     }
     m_service = m_control->createServiceObject(ble::cornrowServiceUuid, this);
@@ -118,6 +122,7 @@ void ClientSession::onServiceDiscoveryFinished()
     // We cannot access characteristics here, but we have to wait for appropriate state change.
     // discoverDetails() will trigger those state changes.
     m_service->discoverDetails();
+    q->setStatus(Client::Status::Connecting, "Reading settings from " + m_control->remoteName() + ".");
 }
 
 void ClientSession::onServiceStateChanged(QLowEnergyService::ServiceState s)
@@ -150,7 +155,7 @@ void ClientSession::onServiceError(QLowEnergyService::ServiceError /*error*/)
 {
     qDebug() << __func__;
 
-    q->setStatus(Client::Status::Error, "Service error");
+    q->setStatus(Client::Status::Error, "Service error.");
 }
 
 } // namespace ble

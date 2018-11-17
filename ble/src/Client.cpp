@@ -22,6 +22,7 @@
 #include "Defines.h"
 
 #include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>
+#include <QtBluetooth/QBluetoothLocalDevice>
 #include <QtBluetooth/QLowEnergyAdvertisingParameters>
 
 namespace ble
@@ -43,7 +44,15 @@ bool Client::startDiscovering()
         delete m_clientSession;
     }
 
-    setStatus(Status::Discovering);
+    // @TODO(mawe) this check always fails on iOS
+    /*
+    QBluetoothLocalDevice localDevice;
+    if (!localDevice.isValid()) {
+        setStatus(Status::NoBluetooth);
+        return false;
+    }*/
+
+    setStatus(Status::Discovering, "Searching for cornrow devices.");
     m_clientSession = new ClientSession(this);
     return true;
 }
