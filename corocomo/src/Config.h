@@ -2,7 +2,6 @@
 #define MODELCONFIGURATION_H
 
 #include <QObject>
-#include <QVector>
 
 class Config : public QObject
 {

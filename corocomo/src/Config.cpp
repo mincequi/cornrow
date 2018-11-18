@@ -42,7 +42,7 @@ Config::Config(Type type, QObject *parent)
     case Type::Low:
         break;
     case Type::Mid:
-        freqStep = 2;   // 4x
+        freqStep = 4;   // 2x
         gainStep = 0.5; // 2x
         qMin = 0;       // +14
         qMax = qTable.size()-1; // +17

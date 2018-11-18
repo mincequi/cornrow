@@ -190,7 +190,7 @@ void EqChart::paint(QPainter *painter)
     //painter->drawPolygon(trans.map(sumPlot1));
 
     // Paint current plot
-    painter->setPen(QPen(m_plotColor, 1.1));
+    painter->setPen(QPen(m_plotColor, 1.0));
     if (m_currentPlot >= 0 && m_currentPlot < m_plots.size()) {
         painter->drawPolyline(trans.map(m_plots.at(m_currentPlot)));
     }
