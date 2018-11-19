@@ -12,4 +12,4 @@
 	url = https://github.com/mincequi/gstreamermm-dsp
 [submodule "thirdparty/bluez-qt"]
 	path = thirdparty/bluez-qt
-	url = https://github.com/KDE/bluez-qt.git
+	url = https://github.com/mincequi/bluez-qt.git
