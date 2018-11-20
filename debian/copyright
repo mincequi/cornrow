@@ -1,0 +1,12 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: cornrowd
+Upstream-Contact: Manuel Weichselbaumer <mincequi@web.de>
+Source: https://github.com/mincequi/cornrow
+
+Files: thirdparty/bluez-qt
+Copyright: 2014-2015 David Rosca <nowrep@gmail.com>>
+License: LGPL-2.1
+
+Files: *
+Copyright: 2018 Manuel Weichselbaumer <mincequi@web.de>
+License: GPL-3.0+
