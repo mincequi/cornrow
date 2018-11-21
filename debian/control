@@ -4,11 +4,10 @@ Priority: optional
 Maintainer: Manuel Weichselbaumer <mincequi@web.de>
 Build-Depends: debhelper (>= 11)
 Standards-Version: 4.1.3
-#Vcs-Browser: https://salsa.debian.org/debian/cornrowd
 Vcs-Git: https://github.com/mincequi/cornrow.git
 
 Package: cornrowd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Bluetooth audio player
-This is a bluetooth audio daemon which accepts and plays audio from any bluetooth source and turns your computer into a bluetooth speaker.
+    This is a bluetooth audio daemon which accepts and plays audio from any bluetooth source and turns your computer into a bluetooth speaker.

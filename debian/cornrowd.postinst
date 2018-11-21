@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    configure)
+    # create cornrowd user if not there already
+    if ! getent passwd lightdm >/dev/null; then
+        adduser --disabled-password --quiet --system --home /var/lib/cornrowd --group cornrowd
+        adduser cornrowd audio
+        adduser cornrowd bluetooth
+        chown -R cornrowd:cornrowd /var/lib/cornrowd
+        # @TODO(mawe): add setcap
+    fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0

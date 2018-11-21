@@ -1,0 +1,22 @@
+# Automatically added by dh_installsystemd/11.1.6ubuntu2
+if [ "$1" = "remove" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper mask 'cornrowd.service' >/dev/null || true
+	fi
+fi
+
+if [ "$1" = "purge" ]; then
+	if [ -x "/usr/bin/deb-systemd-helper" ]; then
+		deb-systemd-helper purge 'cornrowd.service' >/dev/null || true
+		deb-systemd-helper unmask 'cornrowd.service' >/dev/null || true
+	fi
+fi
+# End automatically added section
+
+if [ "$1" = "purge" ]; then
+    deluser --quiet --system cornrowd > /dev/null || true
+    delgroup --quiet --system cornrowd > /dev/null || true
+    # Cleanup /var/lib/cornrowd
+    rm -rf /var/lib/cornrowd > /dev/null 2>&1
+fi
+

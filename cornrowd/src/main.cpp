@@ -17,9 +17,11 @@
 
 #include <csignal>
 
+#include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QDebug>
 
+#include "daemon.h"
 #include "Controller.h"
 
 struct SignalHandler
@@ -34,10 +36,27 @@ struct SignalHandler
 
 int main(int argc, char **argv)
 {
-    SignalHandler signalHandler;
     QCoreApplication a(argc, argv);
+    QCoreApplication::setApplicationName("cornrowd");
+    QCoreApplication::setApplicationVersion("0.1.0");
+
+    // command line options
+    QCommandLineParser parser;
+    parser.setApplicationDescription("cornrowd is a software DSP service with Bluetooth audio sink and Bluetooth LE control capabilities.");
+    parser.addVersionOption();
+    parser.addHelpOption();
+    QCommandLineOption daemonOption(QStringList() << "d" << "daemon", "Start as daemon.");
+    parser.addOption(daemonOption);
+    parser.process(a);
+
+    // daemonize
+    if (parser.isSet(daemonOption)) {
+        daemonize();
+    }
 
     qDebug() << "Waiting for bluetooth audio source to connect. Ctrl + C to cancel...";
+
+    SignalHandler signalHandler;
 
     new Controller();
 

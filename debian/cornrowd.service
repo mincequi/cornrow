@@ -1,0 +1,16 @@
+[Unit]
+Description=Cornrow daemon
+After=sound.target
+Requires=avahi-daemon.service bluetooth.service
+After=avahi-daemon.service
+After=bluetooth.service
+
+[Service]
+ExecStart=/usr/bin/cornrowd --daemon
+Restart=always
+User=cornrowd
+Group=cornrowd
+
+[Install]
+WantedBy=multi-user.target
+

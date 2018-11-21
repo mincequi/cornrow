@@ -14,6 +14,7 @@ add_subdirectory(tests)
 add_executable(${PROJECT_NAME}
     src/Controller.cpp
     src/main.cpp
+    src/daemon.c
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -21,4 +22,8 @@ target_link_libraries(${PROJECT_NAME}
     ble
     bluetooth
     config
+)
+
+install(TARGETS ${PROJECT_NAME}
+    RUNTIME DESTINATION bin
 )
