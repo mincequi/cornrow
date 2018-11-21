@@ -6,8 +6,8 @@ After=avahi-daemon.service
 After=bluetooth.service
 
 [Service]
+Type=forking
 ExecStart=/usr/bin/cornrowd --daemon
-Restart=always
 User=cornrowd
 Group=cornrowd
 

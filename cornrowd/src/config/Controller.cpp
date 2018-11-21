@@ -22,8 +22,8 @@
 namespace config
 {
 
-Controller::Controller(audio::Controller* audio, QObject *parent)
-    : QObject(parent),
+Controller::Controller(audio::Controller* audio, QObject */*parent*/)
+    : QObject(audio),
       m_audio(audio)
 {
     // On start-up we read config from disk

@@ -5,13 +5,13 @@ set -e
 case "$1" in
     configure)
     # create cornrowd user if not there already
-    if ! getent passwd lightdm >/dev/null; then
+    if ! getent passwd cornrowd >/dev/null; then
         adduser --disabled-password --quiet --system --home /var/lib/cornrowd --group cornrowd
         adduser cornrowd audio
         adduser cornrowd bluetooth
-        chown -R cornrowd:cornrowd /var/lib/cornrowd
-        # @TODO(mawe): add setcap
     fi
+    chown -R cornrowd:cornrowd /var/lib/cornrowd
+    setcap CAP_NET_RAW+ep /usr/bin/cornrowd
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
