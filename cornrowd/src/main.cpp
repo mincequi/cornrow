@@ -49,16 +49,16 @@ int main(int argc, char **argv)
     parser.addOption(daemonOption);
     parser.process(a);
 
+    SignalHandler signalHandler;
+
     // daemonize
     if (parser.isSet(daemonOption)) {
         daemonize();
     }
 
+    new Controller(&a);
+
     qDebug() << "Waiting for bluetooth audio source to connect. Ctrl + C to cancel...";
-
-    SignalHandler signalHandler;
-
-    new Controller();
 
     return a.exec();
 }

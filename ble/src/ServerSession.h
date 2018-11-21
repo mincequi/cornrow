@@ -23,6 +23,9 @@ public:
     QLowEnergyServiceData       serviceData;
 
 private:
+    void onError();
+    void onDisconnected();
+
     Server* m_server = nullptr;
 };
 

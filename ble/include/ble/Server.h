@@ -52,6 +52,7 @@ private:
 
     class ServerSession* m_session = nullptr;
     friend class ServerAdapter;
+    friend class ServerSession;
 };
 
 } // namespace ble
