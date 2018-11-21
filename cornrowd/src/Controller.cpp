@@ -18,6 +18,7 @@ Controller::Controller(QObject *parent)
 
 Controller::~Controller()
 {
+    m_config->writeConfig();
 }
 
 void Controller::onBluetoothConnected(const QDBusObjectPath &transportObjectPath)
