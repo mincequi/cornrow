@@ -1,0 +1,14 @@
+tar-ignore=.*
+tar-ignore=*.a
+tar-ignore=*.o
+tar-ignore=*.la
+tar-ignore=*.lo
+tar-ignore=*.so
+tar-ignore=*.user*
+tar-ignore=build*
+tar-ignore=corocomo
+tar-ignore=legacy
+tar-ignore=obj*
+tar-ignore=thirdparty/libmicrodns
+tar-ignore=thirdparty/rpclib
+tar-ignore=thirdparty/tinysvcmdns
