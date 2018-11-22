@@ -3,7 +3,7 @@ Section: Audio
 Priority: optional
 Maintainer: Manuel Weichselbaumer <mincequi@web.de>
 Build-Depends:
-    debhelper (>= 11),
+    debhelper (>= 10),
 #qtbase5-dev (>= 5.9),
     qtconnectivity5-dev (>= 5.9),
 # internal gstreamermm has a lot of deps
