@@ -3,28 +3,28 @@ Section: Audio
 Priority: optional
 Maintainer: Manuel Weichselbaumer <mincequi@web.de>
 Build-Depends:
+    cmake,
     debhelper (>= 10),
-#qtbase5-dev (>= 5.9),
-    qtconnectivity5-dev (>= 5.9),
-# internal gstreamermm has a lot of deps
-#doxygen,
-#graphviz,
-#gstreamer1.0-tools,
+    libboost-dev,
+    libtool,
+#bluezqt deps
+    extra-cmake-modules,
+#gstreamermm deps
+    gstreamer1.0-alsa,
+    gstreamer1.0-tools,
+    mm-common,
     libglibmm-2.4-dev (>= 2.44.0-2),
     libgstreamer-plugins-base1.0-dev,
-#libgstreamer1.0-dev,
-#libtool,
-#libxml++2.6-dev (>= 2.38.1-2),
-#libxml-parser-perl,
-#mm-common,
-#xsltproc,
+    libxml-parser-perl,
+#bluetooth le deps
+    qtconnectivity5-dev (>= 5.7),
 Standards-Version: 4.1.3
 Vcs-Git: https://github.com/mincequi/cornrow.git
 
 Package: cornrowd
 Architecture: any
 Conflicts: pulseaudio
-#Depends: bluez, libqt5core5a (>= 5.9), libqt5bluetooth5 (>= 5.9), libglibmm-2.4-1v5
-Depends: bluez, ${shlibs:Depends}, ${misc:Depends}
+#Depends: bluez, libqt5core5a (>= 5.7), libqt5bluetooth5 (>= 5.7), libglibmm-2.4-1v5
+Depends: bluez, ${shlibs:Depends}, ${misc:Depends}, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad
 Description: Bluetooth audio player
     This is a bluetooth audio daemon which accepts and plays audio from any bluetooth source and turns your computer into a bluetooth speaker.
