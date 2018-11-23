@@ -1,9 +1,11 @@
 tar-ignore=.*
 tar-ignore=*.a
+tar-ignore=*.log
 tar-ignore=*.o
 tar-ignore=*.la
 tar-ignore=*.lo
 tar-ignore=*.so
+tar-ignore=*.status
 tar-ignore=*.user*
 tar-ignore=build*
 tar-ignore=corocomo
