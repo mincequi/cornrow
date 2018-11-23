@@ -29,13 +29,13 @@ Config::Config(Type type, QObject *parent)
     freqMin = 8;
     freqMax = 248;
     freqStep = 8;
-    gainMin = -24.0;
-    gainMax = 6.0;
+    gainMin = -12.0;
+    gainMax = 3.0;
     gainStep = 1.0;
     qTable = common::qTable;
     qDefault = 17;
     qMin = 14;
-    qMax = 34;
+    qMax = 26;
     qStep = 1;
 
     switch (type) {
@@ -43,6 +43,8 @@ Config::Config(Type type, QObject *parent)
         break;
     case Type::Mid:
         freqStep = 4;   // 2x
+        gainMin = -24.0;
+        gainMax = 6.0;
         gainStep = 0.5; // 2x
         qMin = 0;       // +14
         qMax = qTable.size()-1; // +17

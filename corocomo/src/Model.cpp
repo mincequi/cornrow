@@ -242,6 +242,7 @@ void Model::setFilters(const std::vector<Filter>& filters)
         m_filters[i].f = filters.at(i).f;
         m_filters[i].g = filters.at(i).g;
         m_filters[i].q = filters.at(i).q;
+        // @TODO(mawe): range check filter parameters (e.g. Q from server might be out of local range).
         emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_configuration.freqTable.at(m_filters[i].f), m_filters[i].g, m_configuration.qTable.at(m_filters[i].q));
     }
 
