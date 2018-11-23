@@ -10,17 +10,21 @@ It accepts bluetooth audio sources and transforms your computer into a bluetooth
 * Bluez
 
 ## Arbitrary distro
-$git clone --recursive https://github.com/mincequi/cornrow
-$cd cornrow
-$mkdir build
-$cd build
-$cmake ..
-$make
+```
+git clone --recursive https://github.com/mincequi/cornrow
+cd cornrow
+mkdir build
+cd build
+cmake ..
+make
+```
 
 ## Debian based distro (e.g. Ubuntu)
-$git clone --recursive https://github.com/mincequi/cornrow
-$cd cornrow
-$dpkg-buildpackage
+```
+git clone --recursive https://github.com/mincequi/cornrow
+cd cornrow
+dpkg-buildpackage
+```
 
 # To do
 
