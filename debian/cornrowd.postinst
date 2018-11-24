@@ -10,7 +10,7 @@ case "$1" in
         adduser cornrowd audio
         adduser cornrowd bluetooth
     fi
-    chown -R cornrowd:cornrowd /var/lib/cornrowd
+    chown cornrowd:cornrowd /var/lib/cornrowd
     setcap CAP_NET_RAW+ep /usr/bin/cornrowd
     ;;
 
