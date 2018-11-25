@@ -1,5 +1,7 @@
 #include "ClientSession.h"
 
+#include <QtGlobal>
+
 #include "Client.h"
 #include "Defines.h"
 
@@ -10,16 +12,18 @@ ClientSession::ClientSession(Client* _q)
     : q(_q)
 {
     m_discoverer = new QBluetoothDeviceDiscoveryAgent(q);
-    // @TODO(mawe): commented out, so we are Qt 5.7 compatible
-    //m_discoverer->setLowEnergyDiscoveryTimeout(8000);
 
     connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &ClientSession::onDeviceDiscovered);
     connect(m_discoverer, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &ClientSession::onDeviceDiscoveryError);
     connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::finished, this, &ClientSession::onDeviceDiscoveryFinished);
 
-    // @TODO(mawe): commented out, so we are Qt 5.7 compatible
-    //m_discoverer->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    // @TODO(mawe): make Qt 5.7 compatible
+#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
+    m_discoverer->setLowEnergyDiscoveryTimeout(8000);
+    m_discoverer->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+#else
     m_discoverer->start();
+#endif
 }
 
 void ClientSession::onDeviceDiscovered(const QBluetoothDeviceInfo &device)

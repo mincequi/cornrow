@@ -1,7 +1,5 @@
 #include "BusyIndicatorModel.h"
 
-#include <complex>
-
 #include <QDebug>
 
 BusyIndicatorModel::BusyIndicatorModel(QObject *parent) :
@@ -42,7 +40,9 @@ void BusyIndicatorModel::setThetaDeviation(double dev)
 void BusyIndicatorModel::randomize()
 {
     for (uint i = 0; i < m_numPoints; ++i) {
-        std::complex<double> coord = std::polar(abs(m_radius+randRho()), (i*M_PI*2.0/m_numPoints)+randTheta());
+        // @TODO(mawe): android 4.4 does not have std::polar. So, using own impl.
+        //std::complex<double> coord = std::polar(abs(m_radius+randRho()), (i*M_PI*2.0/m_numPoints)+randTheta());
+        std::complex<double> coord = polar(abs(m_radius+randRho()), (i*M_PI*2.0/m_numPoints)+randTheta());
         m_xCoords[i] = m_center.x() + coord.real();
         m_yCoords[i] = m_center.y() + coord.imag();
     }
@@ -71,4 +71,9 @@ double BusyIndicatorModel::randRho()
 double BusyIndicatorModel::randTheta()
 {
     return m_thetaDist(m_gen);
+}
+
+std::complex<double> BusyIndicatorModel::polar(double rho, double theta)
+{
+    return std::complex<double>(rho * cos(theta), rho * sin(theta));
 }

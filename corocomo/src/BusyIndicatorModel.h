@@ -1,5 +1,6 @@
 #pragma once
 
+#include <complex>
 #include <random>
 
 #include <QObject>
@@ -34,6 +35,7 @@ private:
     void randomize();
     double randRho();
     double randTheta();
+    std::complex<double> polar(double rho, double theta);
 
     bool        m_active = false;
     QVector2D   m_center = {60, 60};
