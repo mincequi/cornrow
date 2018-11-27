@@ -9,9 +9,24 @@
                 <key>CFBundleIconFiles</key>
                 <array>
                     <string>cornrow5_120.png</string>
+                    <string>cornrow5_180.png</string>
                 </array>
             </dict>
         </dict>
+
+        <key>CFBundleIcons~ipad</key>
+        <dict>
+            <key>CFBundlePrimaryIcon</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array>
+                    <string>cornrow5_76.png</string>
+                    <string>cornrow5_152.png</string>
+                    <string>cornrow5_167.png</string>
+                </array>
+            </dict>
+        </dict>
+
 	<key>CFBundleDisplayName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundleExecutable</key>

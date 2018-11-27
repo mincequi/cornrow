@@ -43,16 +43,17 @@ Config::Config(Type type, QObject *parent)
         break;
     case Type::Mid:
         freqStep = 4;   // 2x
-        gainMin = -24.0;
-        gainMax = 6.0;
         gainStep = 0.5; // 2x
         qMin = 0;       // +14
-        qMax = qTable.size()-1; // +17
+        qMax = 40;
         break;
     case Type::High:
         freqStep = 1; // 8x
+        gainMin = -24.0;
+        gainMax = 6.0;
         gainStep = 0.2;
         //qTable = common::qTableHigh; // @TODO(mawe): add 3 digit table
+        qMin = 0;
         qMax = qTable.size()-1;
         break;
     }

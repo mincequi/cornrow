@@ -169,25 +169,12 @@ void EqChart::paint(QPainter *painter)
     col.setAlpha(255);
     grad.setColorAt(0.19, col);
 
-    grad.setColorAt(0.13, QColor(0x67, 0x3A, 0xB7)); // DeepPurple
-    grad.setColorAt(0.065, QColor(0x9C, 0x27, 0xB0)); // Purple
-
-    col = m_criticalColor; col.setAlpha(255); // 127
-    grad.setColorAt(0.0, col);
-
-    /*
-    QLinearGradient grad2(trans.map(QPointF(-8, 5)), trans.map(QPointF(0.0, 0.0)));
-    col = m_criticalColor;
-    col.setAlpha(0);
-    grad2.setColorAt(1.0, col);
-    col = m_criticalColor; col.setAlpha(127);
-    grad2.setColorAt(0.0, col);
-    */
+    grad.setColorAt(0.15, QColor(0x67, 0x3A, 0xB7)); // DeepPurple
+    grad.setColorAt(0.10, QColor(0x9C, 0x27, 0xB0)); // Purple
+    grad.setColorAt(0.05, m_criticalColor);
 
     painter->setBrush(QBrush(grad));
     painter->drawPolygon(trans.map(sumPlot1));
-    //painter->setBrush(QBrush(grad2));
-    //painter->drawPolygon(trans.map(sumPlot1));
 
     // Paint current plot
     painter->setPen(QPen(m_plotColor, 1.0));
