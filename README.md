@@ -1,10 +1,11 @@
 # Cornrow
 
 Cornrow is a bluetooth audio daemon designed for embedded devices or low-powered boards like the Raspberry Pi. It accepts bluetooth audio sources and transforms your computer into a bluetooth speaker.
+
 Currently, it is compatible with Ubuntu 18.04 Bionic and Debian Stretch (and later) and offers full integration into Debian based environments. This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
 
 ## Installation
-### For the impatient (and Debian users)
+### For Debian users
 ```
 sudo apt install libgstreamermm-1.0-1 libqt5bluetooth5 gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad # get dependecies
 git clone --recursive https://github.com/mincequi/cornrow # clone repo including third-party libs
