@@ -4,6 +4,8 @@ Cornrow is a bluetooth audio daemon designed for embedded devices or low-powered
 
 Currently, it is compatible with Ubuntu 18.04 Bionic and Debian Stretch (and later) and offers full integration into Debian based environments. This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
 
+All this is in an early stage. However, i am willing to provide an easy out-of-the-box solution for anyone. So, your experience with this little daemon is very appreciated. Please leave your comments and issues using it. Thanks a lot.
+
 ## Installation
 ### For Debian users
 ```
