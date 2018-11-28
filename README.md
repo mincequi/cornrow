@@ -6,7 +6,9 @@ Currently, it is compatible with Ubuntu 18.04 Bionic and Debian Stretch (and lat
 
 All this is in an early stage. However, i am willing to provide an easy out-of-the-box solution for anyone. So, your experience with this little daemon is very appreciated. Please leave your comments and issues using it. Thanks a lot.
 
-![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png "corocomo -- an app to remote control for built-in equalizer")
+The daemon has a built-in equalizer which can be remote controlled via this app:
+[corocomo](https://play.google.com/store/apps/details?id=org.cornrow.corocomo)
+![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
 ## Installation
 ### For Debian users
