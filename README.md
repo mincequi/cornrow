@@ -14,10 +14,12 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 ### For Debian users
 ```
 sudo apt install \
-  cmake \
+  cmake extra-cmake-modules \
+  libboost-dev \
   libgstreamermm-1.0-dev \
   libqt5bluetooth5 \
-  gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad # get dependecies
+  gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
+  qtconnectivity5-dev # get dependecies
 git clone --recursive https://github.com/mincequi/cornrow # clone repo including third-party libs
 cd cornrow
 dpkg-buildpackage -us -uc                           # build unsigned debian package
