@@ -41,6 +41,7 @@ make
 
 ## Details
 
-## To do
+## To Do
+* Implement volume control
 
 ## Thanks
