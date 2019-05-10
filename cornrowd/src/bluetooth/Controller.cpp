@@ -21,6 +21,7 @@
 #include <QtBluetooth/QBluetoothLocalDevice>
 #include <QtDBus/QDBusObjectPath>
 
+#include <BluezQt/Adapter>
 #include <BluezQt/Device>
 #include <BluezQt/InitManagerJob>
 #include <BluezQt/Manager>
@@ -60,6 +61,13 @@ Controller::Controller(QObject *parent)
     connect(sbcSink, &MediaEndpoint::configurationSet, this, &Controller::onConfigurationSet);
     connect(sbcSink, &MediaEndpoint::configurationCleared, this, &Controller::onConfigurationCleared);
     manager->media()->registerEndpoint(sbcSink);
+
+    for (auto adapter : manager->adapters()) {
+        adapter->setDiscoverableTimeout(0);
+        adapter->setPairableTimeout(0);
+        adapter->setDiscoverable(true);
+        adapter->setPairable(true);
+    }
 }
 
 void Controller::onConfigurationSet(const QString& transportObjectPath, const QVariantMap& properties)

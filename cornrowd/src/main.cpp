@@ -20,6 +20,7 @@
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QLoggingCategory>
 
 #include "daemon.h"
 #include "Controller.h"
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
 {
     QCoreApplication a(argc, argv);
     QCoreApplication::setApplicationName("cornrowd");
-    QCoreApplication::setApplicationVersion("0.1.0");
+    QCoreApplication::setApplicationVersion("0.2.0");
 
     // command line options
     QCommandLineParser parser;
@@ -48,6 +49,9 @@ int main(int argc, char **argv)
     QCommandLineOption daemonOption(QStringList() << "d" << "daemon", "Start as daemon.");
     parser.addOption(daemonOption);
     parser.process(a);
+
+    // suppress some qt bluetooth warnings
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth.bluez.warning=false"));
 
     SignalHandler signalHandler;
 
