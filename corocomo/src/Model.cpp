@@ -25,12 +25,17 @@ Model* Model::init(const Config& configuration)
 
 Model::Model(const Config& configuration, QObject *parent) :
     QObject(parent),
-    m_configuration(configuration)
+    m_configuration(configuration),
+    m_xoBand(configuration.filterCount),
+    m_swBand(configuration.filterCount+1)
 {
-    resizeFilters(m_configuration.filterCount);
+    auto filterCount = m_configuration.filterCount;
+    if (m_configuration.xoAvailable) ++filterCount;
+    if (m_configuration.swAvailable) ++filterCount;
+    resizeFilters(filterCount);
     setCurrentBand(0);
 
-    connect(this, &Model::typeChanged, this, &Model::onParameterChanged);
+    connect(this, &Model::filterTypeChanged, this, &Model::onParameterChanged);
     connect(this, &Model::freqChanged, this, &Model::onParameterChanged);
     connect(this, &Model::gainChanged, this, &Model::onParameterChanged);
     connect(this, &Model::qChanged, this, &Model::onParameterChanged);
@@ -96,27 +101,23 @@ void Model::setCurrentBand(int i)
         m_currentBand = -1;
 
         emit currentBandChanged();
-    } else {
-        if (i >= m_filters.size()) {
-            m_currentBand = m_filters.size()-1;
-        } else {
-            m_currentBand = i;
-        }
-        m_currentFilter = &(m_filters[m_currentBand]);
-
-        emit currentBandChanged();
-        emit typeChanged();
-        emit freqChanged();
-        emit freqSliderChanged();
-        emit gainChanged();
-        emit qChanged();
-        emit qSliderChanged();
     }
+
+    m_currentBand = i;
+    m_currentFilter = &(m_filters[m_currentBand]);
+
+    emit currentBandChanged();
+    emit filterTypeChanged();
+    emit freqChanged();
+    emit freqSliderChanged();
+    emit gainChanged();
+    emit qChanged();
+    emit qSliderChanged();
 }
 
-int Model::filterCount() const
+int Model::peqFilterCount() const
 {
-    return m_filters.size();
+    return m_configuration.filterCount;
 }
 
 int Model::currentBand() const
@@ -124,18 +125,44 @@ int Model::currentBand() const
     return m_currentBand;
 }
 
-int Model::type() const
+int Model::filterType() const
 {
-    return static_cast<int>(m_currentFilter->t);
+    if (m_currentBand < m_configuration.filterCount) {
+        return static_cast<int>(m_currentFilter->t);
+    } else if (m_currentBand == m_xoBand) {
+        return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : 1;
+    } else if (m_currentBand == m_swBand) {
+        return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : 1;
+    }
+
+    return 0;
 }
 
-void Model::setType(int type)
+void Model::setFilterType(int type)
 {
-    common::FilterType t = static_cast<common::FilterType>(type);
+    common::FilterType t = common::FilterType::Invalid;
+
+    if (m_currentBand < m_configuration.filterCount) {
+        t = static_cast<common::FilterType>(type);
+    } else if (m_currentBand == m_xoBand) {
+        t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Crossover;
+    } else if (m_currentBand == m_swBand) {
+        t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Subwoofer;
+    }
+
     if (m_currentFilter->t == t) return;
 
     m_currentFilter->t = t;
-    emit typeChanged();
+    emit filterTypeChanged();
+}
+
+QStringList Model::filterTypeNames() const
+{
+    if (m_currentBand < m_configuration.filterCount) {
+        return { "Off", "Peaking", "LowPass", "HighPass" };
+    } else {
+        return { "Off", "On" };
+    }
 }
 
 QString Model::freqReadout() const
@@ -258,7 +285,7 @@ void Model::onParameterChanged()
     }
 
     if (!m_demoMode) {
-        m_adapter->setPeqDirty();
+        m_adapter->setDirty();
     }
 }
 

@@ -21,10 +21,11 @@ class Model : public QObject
     Q_PROPERTY(QString statusLabel READ statusLabel NOTIFY statusChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusChanged)
 
-    Q_PROPERTY(int filterCount READ filterCount NOTIFY filterCountChanged)
+    Q_PROPERTY(int peqFilterCount READ peqFilterCount)
     Q_PROPERTY(int currentBand READ currentBand WRITE setCurrentBand NOTIFY currentBandChanged)
 
-    Q_PROPERTY(uint type READ type WRITE setType NOTIFY typeChanged)
+    Q_PROPERTY(uint filterType READ filterType WRITE setFilterType NOTIFY filterTypeChanged)
+    Q_PROPERTY(QStringList filterTypeNames READ filterTypeNames NOTIFY currentBandChanged)
 
     Q_PROPERTY(double freqSlider READ freqSlider WRITE setFreqSlider NOTIFY freqSliderChanged)
     Q_PROPERTY(QString freqReadout READ freqReadout NOTIFY freqChanged)
@@ -59,13 +60,14 @@ public:
 
     Q_INVOKABLE void resizeFilters(int diff);
 
-    int         filterCount() const;
+    int         peqFilterCount() const;
 
     int         currentBand() const;
     Q_INVOKABLE void setCurrentBand(int i);
 
-    int         type() const;
-    void        setType(int type);
+    int         filterType() const;
+    void        setFilterType(int filterType);
+    QStringList filterTypeNames() const;
 
     QString     freqReadout() const;
     Q_INVOKABLE void stepFreq(int i);
@@ -83,10 +85,9 @@ public:
 
 signals:
     void statusChanged();
-    void filterCountChanged();
     void currentBandChanged();
     void filterChanged(int i, uchar t, double f, double g, double q);
-    void typeChanged();
+    void filterTypeChanged();
     void freqChanged();
     void freqSliderChanged();
     void gainChanged();
@@ -120,6 +121,8 @@ private:
     QList<Filter>   m_filters;
     Filter*         m_currentFilter = nullptr;
     int             m_currentBand = 0;
+    const int       m_xoBand;
+    const int       m_swBand;
     double          m_freqSlider;
     bool            m_demoMode = false;
 

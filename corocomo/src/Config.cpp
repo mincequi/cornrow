@@ -46,6 +46,7 @@ Config::Config(Type type, QObject *parent)
         gainStep = 0.5; // 2x
         qMin = 0;       // +14
         qMax = 40;
+        xoAvailable = true;
         break;
     case Type::High:
         freqStep = 1; // 8x
@@ -55,6 +56,8 @@ Config::Config(Type type, QObject *parent)
         //qTable = common::qTableHigh; // @TODO(mawe): add 3 digit table
         qMin = 0;
         qMax = qTable.size()-1;
+        xoAvailable = true;
+        swAvailable = true;
         break;
     }
 

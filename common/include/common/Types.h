@@ -40,11 +40,11 @@ enum class Version : uint8_t {
 };
 
 enum class FilterTask : uint8_t {
-    Invalid     = 0,
+    Invalid     = 0x0,
 
-    Peq         = 1,
-    Crossover   = 2,
-    Loudness    = 3
+    Peq         = 0x1,
+    Crossover   = 0x2,
+    Loudness    = 0x4
 };
 
 enum class FilterType : uint8_t {
@@ -56,16 +56,18 @@ enum class FilterType : uint8_t {
     HighPass,
     LowShelf,
     HighShelf,
-    /*
-    AllPass,
+
+    //AllPass,
 
     Crossover   = 16,   // Q indicates characteristics, while gain indicates cascading. (Base) order is always 2.
                         // e.g. LR4: q = 0.707, g = 2
                         //      BW:  q = 0.707, g <= 1
                         //      Bessel: q = 0.577, g <= 1
                         //      Chebyshev:  q = 1.0, g <= 1
-    CrossoverLfe,       // LFE Crossover (max. 120 Hz, better 80 Hz)
 
+    Subwoofer,       // LFE Crossover (max. 120 Hz, better 80 Hz)
+
+    /*
     Loudness    = 32,
 
     // Non-linear filters
@@ -80,10 +82,17 @@ enum class FilterType : uint8_t {
 
 struct Filter
 {
-    FilterType  type;
-    double      f;
-    double      g;
-    double      q;
+    Filter(FilterType _type = FilterType::Invalid, double _f = 0.0, double _g = 0.0, double _q = 0.0) :
+        type(_type),
+        f(_f),
+        g(_g),
+        q(_q)
+    {}
+
+    FilterType  type = FilterType::Invalid;
+    double      f = 0.0;
+    double      g = 0.0;
+    double      q = 0.0;
 };
 
 struct Preset

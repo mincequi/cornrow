@@ -18,6 +18,7 @@ SOURCES += \
     src/BleCentralAdapter.cpp \
     src/BusyIndicatorModel.cpp \
     src/EqChart.cpp \
+    src/EqGraph.cpp \
     src/Model.cpp \
     src/main.cpp \
     src/Config.cpp

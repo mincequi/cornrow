@@ -11,6 +11,8 @@ class Config : public QObject
     Q_PROPERTY(double gainMin MEMBER gainMin CONSTANT)
     Q_PROPERTY(double gainMax MEMBER gainMax CONSTANT)
     Q_PROPERTY(double gainStep MEMBER gainStep CONSTANT)
+    Q_PROPERTY(bool xoAvailable MEMBER xoAvailable CONSTANT)
+    Q_PROPERTY(bool swAvailable MEMBER swAvailable CONSTANT)
 
 public:
     enum class Type : uint8_t {
@@ -39,6 +41,9 @@ public:
     double gainMin = -24.0;
     double gainMax = 6.0;
     double gainStep = 1.0;
+
+    bool xoAvailable = false;
+    bool swAvailable = false;
 
 private:
     explicit Config(Type type, QObject *parent = nullptr);

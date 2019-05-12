@@ -17,7 +17,7 @@ public:
                                Model* model);
     ~BleCentralAdapter();
 
-    void setPeqDirty();
+    void setDirty();
 
 signals:
     void status(Model::Status status, const QString& errorString = QString());

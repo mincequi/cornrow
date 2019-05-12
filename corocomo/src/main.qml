@@ -14,14 +14,14 @@ ApplicationWindow {
     id: appWindow
     visible: true
     // iPhone SE
-    //width: 320
-    //height: 568
+    width: 320
+    height: 568
     // iPhone 6
     //width: 375
     //height: 667
     // Google Nexus 5, Samsung Galaxy S5, S6, S7
-    width: 360
-    height: 640
+    //width: 360
+    //height: 640
     // Samsung Galaxy S8
     //width: 360
     //height: 740
@@ -36,6 +36,7 @@ ApplicationWindow {
 
     Component.onCompleted: {
         CornrowModel.startDiscovering()
+
     }
 
     Connections {
@@ -77,7 +78,7 @@ ApplicationWindow {
                     Behavior on startX { SmoothedAnimation { velocity: 10; duration: 5000 }}
                     Behavior on startY { SmoothedAnimation { velocity: 10; duration: 5000 }}
 
-                    // @TODO(Qt): Repeater does not work here (and probably never will. We might mvoe this to C++).
+                    // @TODO(Qt): Repeater does not work here (and probably never will. We might move this to C++).
                     PathCurve { x: model.xCoords[1]; y: model.yCoords[1]
                         Behavior on x { SmoothedAnimation { velocity: 10; duration: 5000 }}
                         Behavior on y { SmoothedAnimation { velocity: 10; duration: 5000 }}
@@ -215,8 +216,7 @@ ApplicationWindow {
         CornrowEqChart {
             id: eqChart
             frequencyTable: CornrowConfiguration.freqTable
-            plotCount: CornrowModel.filterCount
-            currentPlot: CornrowModel.currentBand
+            currentFilter: CornrowModel.currentBand
             currentPlotColor: Material.accent
             plotColor: Material.foreground
             sumPlotColor: Material.primary
@@ -228,15 +228,6 @@ ApplicationWindow {
             anchors.bottom: bandBar.top
         }
 
-        /*
-        Label {
-            id: bandLabel
-            text: "Band"
-            anchors.left: typeLabel.left
-            anchors.bottom: bandBar.top
-        }
-        */
-
         ToolBar {
             id: bandBar
             anchors.left: parent.left
@@ -246,36 +237,28 @@ ApplicationWindow {
 
             Row {
                 id: bandRow
-                // @TODO(mawe): use Repeater
+                Repeater {
+                    model: CornrowModel.peqFilterCount
+                    ToolButton {
+                        text: index+1
+                        autoExclusive: true
+                        checked: CornrowModel.currentBand == index
+                        onPressed: CornrowModel.setCurrentBand(index)
+                    }
+                } // Repeater
                 ToolButton {
-                    text: qsTr("1")
+                    text: "XO"
+                    enabled: CornrowConfiguration.xoAvailable
                     autoExclusive: true
-                    checked: CornrowModel.currentBand == 0
-                    onPressed: CornrowModel.setCurrentBand(0)
+                    checked: CornrowModel.currentBand == CornrowModel.peqFilterCount
+                    onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount)
                 }
                 ToolButton {
-                    text: qsTr("2")
+                    text: "SW"
+                    enabled: CornrowConfiguration.swAvailable
                     autoExclusive: true
-                    checked: CornrowModel.currentBand == 1
-                    onPressed: CornrowModel.setCurrentBand(1)
-                }
-                ToolButton {
-                    text: qsTr("3")
-                    autoExclusive: true
-                    checked: CornrowModel.currentBand == 2
-                    onPressed: CornrowModel.setCurrentBand(2)
-                }
-                ToolButton {
-                    text: qsTr("4")
-                    autoExclusive: true
-                    checked: CornrowModel.currentBand == 3
-                    onPressed: CornrowModel.setCurrentBand(3)
-                }
-                ToolButton {
-                    text: qsTr("5")
-                    autoExclusive: true
-                    checked: CornrowModel.currentBand == 4
-                    onPressed: CornrowModel.setCurrentBand(4)
+                    checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
+                    onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+1)
                 }
             }
         }
@@ -290,29 +273,14 @@ ApplicationWindow {
 
             Row {
                 id: typeRow
-                ToolButton {
-                    text: qsTr("Off")
-                    autoExclusive: true
-                    checked: CornrowModel.type == 0
-                    onPressed: CornrowModel.type = 0
-                }
-                ToolButton {
-                    text: qsTr("Peaking")
-                    autoExclusive: true
-                    checked: CornrowModel.type == 1
-                    onPressed: CornrowModel.type = 1
-                }
-                ToolButton {
-                    text: qsTr("LowPass")
-                    autoExclusive: true
-                    checked: CornrowModel.type == 2
-                    onPressed: CornrowModel.type = 2
-                }
-                ToolButton {
-                    text: qsTr("HighPass")
-                    autoExclusive: true
-                    checked: CornrowModel.type == 3
-                    onPressed: CornrowModel.type = 3
+                Repeater {
+                    model: CornrowModel.filterTypeNames
+                    ToolButton {
+                        text: CornrowModel.filterTypeNames[index]
+                        autoExclusive: true
+                        checked: CornrowModel.filterType == index
+                        onPressed: CornrowModel.filterType = index
+                    }
                 }
             }
         }

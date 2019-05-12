@@ -21,7 +21,7 @@ BleCentralAdapter::~BleCentralAdapter()
 {
 }
 
-void BleCentralAdapter::setPeqDirty()
+void BleCentralAdapter::setDirty()
 {
     if (!m_timer.isActive()) {
         m_timer.start();

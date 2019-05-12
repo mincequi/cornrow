@@ -11,22 +11,19 @@ EqChart::EqChart(QQuickItem *parent) :
 {
 }
 
-void EqChart::setPlotCount(int count)
+void EqChart::setFilter(int idx, uchar t, double f, double g, double q)
 {
-    for (int i = 0; i < count; ++i) {
-        QPolygonF poly(m_frequencyTable.size());
-        for (uint j = 0; j < m_frequencyTable.size(); ++j) {
-            poly[j].rx() = j;
-        }
-        m_plots.append(poly);
+    // Dynamically append graphs
+    int diff = idx-m_graphs.size()+1;
+    while (diff-- > 0) {
+        EqGraph graph(m_frequencyTable);
+        m_graphs.append(graph);
     }
-}
 
-void EqChart::setFilter(int i, uchar t, double f, double g, double q)
-{
-    if (i >= m_plots.size()) return;
+    // Apply filter parameters
+    auto type = static_cast<common::FilterType>(t);
+    m_graphs[idx].setFilter({type, f, g, q});
 
-    computeResponse({static_cast<common::FilterType>(t), f, g, q}, &m_plots[i]);
     update();
 }
 
@@ -80,13 +77,13 @@ void EqChart::setCriticalColor(const QColor &color)
     m_criticalColor = color;
 }
 
-int EqChart::currentPlot() const
+int EqChart::currentFilter() const
 {
-    return m_currentPlot;
+    return m_currentFilter;
 }
-void EqChart::setCurrentPlot(int i)
+void EqChart::setCurrentFilter(int i)
 {
-    m_currentPlot = i;
+    m_currentFilter = i;
 }
 
 void EqChart::paint(QPainter *painter)
@@ -111,9 +108,9 @@ void EqChart::paint(QPainter *painter)
     for (size_t i = 0; i < m_frequencyTable.size(); ++i) {
         sumPlot1[i].rx() = i;
     }
-    for (auto& plot : m_plots) {
-        for (int i = 0; i < plot.size(); ++i) {
-            sumPlot1[i].ry() += plot[i].ry();
+    for (auto& graph : m_graphs) {
+        for (int i = 0; i < graph.sum().size(); ++i) {
+            sumPlot1[i].ry() += graph.sum().at(i).y();
         }
     }
     sumPlot1 << QPointF(sumPlot1.back().rx()+1.0, sumPlot1.back().ry());
@@ -178,27 +175,9 @@ void EqChart::paint(QPainter *painter)
 
     // Paint current plot
     painter->setPen(QPen(m_plotColor, 1.0));
-    if (m_currentPlot >= 0 && m_currentPlot < m_plots.size()) {
-        painter->drawPolyline(trans.map(m_plots.at(m_currentPlot)));
-    }
-}
-
-void EqChart::computeResponse(const common::Filter& f, QPolygonF* mags)
-{
-    common::BiQuad biquad;
-    if (!computeBiQuad(44100, f, &biquad)) {
-        for (QPointF& m : *mags) {
-            m.ry() = 0.0;
+    if (m_currentFilter >= 0 && m_currentFilter < m_graphs.size()) {
+        for (const auto& graph : m_graphs.at(m_currentFilter).graphs()) {
+            painter->drawPolyline(trans.map(graph));
         }
-        return;
-    }
-
-    for (QPointF& m : *mags) {
-        double w = 2.0*M_PI*m_frequencyTable.at(m.rx())/44100;
-        std::complex<double> z(cos(w), sin(w));
-        std::complex<double> numerator = biquad.b0 + (biquad.b1 + biquad.b2*z)*z;
-        std::complex<double> denominator = 1.0 + (biquad.a1 + biquad.a2*z)*z;
-        std::complex<double> response = numerator / denominator;
-        m.ry() = 20.0*log10(abs(response));
     }
 }
