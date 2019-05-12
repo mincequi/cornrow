@@ -28,6 +28,8 @@ GstDsp::FilterType toGstDsp(common::FilterType in)
     // @TODO(mawe): implement shelving filters
     case common::FilterType::LowShelf: return GstDsp::FilterType::Invalid;
     case common::FilterType::HighShelf: return GstDsp::FilterType::Invalid;
+    case common::FilterType::Crossover: return GstDsp::FilterType::Invalid;
+    case common::FilterType::Subwoofer: return GstDsp::FilterType::Invalid;
     }
 
     return GstDsp::FilterType::Invalid;

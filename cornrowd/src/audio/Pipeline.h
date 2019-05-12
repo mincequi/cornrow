@@ -29,6 +29,8 @@ class Pipeline;
 
 namespace GstDsp
 {
+class Crossover;
+class Loudness;
 class Peq;
 }
 
@@ -48,9 +50,13 @@ public:
     std::vector<common::Filter> peq() const;
 
 private:
-    Glib::RefPtr<Gst::Element>  m_bluetoothSource;
-    Glib::RefPtr<GstDsp::Peq>   m_peq;
-    Glib::RefPtr<Gst::Pipeline> m_pipeline;
+    Glib::RefPtr<Gst::Element>      m_bluetoothSource;
+    Glib::RefPtr<Gst::Element>      m_alsaSink;
+    Glib::RefPtr<Gst::Element>      m_alsaPassthroughSink;
+    Glib::RefPtr<GstDsp::Crossover> m_crossover;
+    Glib::RefPtr<GstDsp::Loudness>  m_loudness;
+    Glib::RefPtr<GstDsp::Peq>       m_peq;
+    Glib::RefPtr<Gst::Pipeline>     m_pipeline;
 };
 
 } // namespace audio

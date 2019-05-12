@@ -20,6 +20,8 @@
 #include <gstreamermm/element.h>
 #include <gstreamermm/pipeline.h>
 
+#include <Crossover.h>
+#include <Loudness.h>
 #include <Peq.h>
 
 #include "Converter.h"
@@ -36,13 +38,22 @@ Pipeline::Pipeline()
     auto conv1 = Gst::ElementFactory::create_element("audioconvert");
     m_peq = Glib::RefPtr<GstDsp::Peq>::cast_static(Gst::ElementFactory::create_element("peq"));
     auto conv2 = Gst::ElementFactory::create_element("audioconvert");
-    auto sink = Gst::ElementFactory::create_element("autoaudiosink");
-    // Avoid resync since it causes ugly glitches.
-    sink->set_property("sync", false);
+    m_alsaSink = Gst::ElementFactory::create_element("autoaudiosink");
+    m_alsaSink->set_property("sync", false);    // Avoid resync since it causes ugly glitches.
 
     m_pipeline = Gst::Pipeline::create();
-    m_pipeline->add(m_bluetoothSource)->add(depay)->add(parse)->add(decoder)->add(conv1)->add(m_peq)->add(conv2)->add(sink);
-    m_bluetoothSource->link(depay)->link(parse)->link(decoder)->link(conv1)->link(m_peq)->link(conv2)->link(sink);
+    m_pipeline->add(m_bluetoothSource)->add(depay)->add(parse)->add(decoder)->add(conv1)->add(m_peq)->add(conv2)->add(m_alsaSink);
+    m_bluetoothSource->link(depay)->link(parse)->link(decoder)->link(conv1)->link(m_peq)->link(conv2)->link(m_alsaSink);
+
+    // Create crossover, ac3 encoder, pasthrough sink
+    m_crossover = Glib::RefPtr<GstDsp::Crossover>::cast_static(Gst::ElementFactory::create_element("crossover"));
+    auto ac3Encoder = Gst::ElementFactory::create_element("avenc_ac3");
+    ac3Encoder->set_property("bitrate", 640000);
+    m_alsaPassthroughSink = Gst::ElementFactory::create_element("alsapassthroughsink");
+    m_alsaPassthroughSink->set_property("sync", false); // Avoid resync since it causes ugly glitches.
+    m_alsaPassthroughSink->set_property("device", Glib::ustring("iec958:CARD=MID,DEV=0"));
+    m_pipeline->add(m_crossover)->add(ac3Encoder)->add(m_alsaPassthroughSink);
+    m_crossover->link(ac3Encoder)->link(m_alsaPassthroughSink);
 }
 
 Pipeline::~Pipeline()
