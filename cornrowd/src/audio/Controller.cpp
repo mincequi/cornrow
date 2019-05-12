@@ -56,6 +56,14 @@ void Controller::setPeq(const std::vector<common::Filter>& filters)
     qDebug() << "";
 
     m_pipeline->setPeq(filters);
+
+    auto it = std::find_if(filters.begin(), filters.end(),
+                           [](const common::Filter& f){ return f.type == common::FilterType::Crossover; });
+    if (it != filters.end()) {
+
+    } else {
+
+    }
 }
 
 void Controller::setTransport(const QDBusObjectPath& transport)

@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    auto config = Config::init(Config::Type::Low);
+    auto config = Config::init(Config::Type::Mid);
     auto model = Model::init(*config);
     Q_UNUSED(model)
 

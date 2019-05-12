@@ -24,6 +24,8 @@
 namespace Gst
 {
 class Element;
+class OutputSelector;
+class Pad;
 class Pipeline;
 }
 
@@ -49,6 +51,9 @@ public:
     void setPeq(const std::vector<common::Filter> filters);
     std::vector<common::Filter> peq() const;
 
+    void setCrossover(const common::Filter& crossover);
+    common::Filter crossover() const;
+
 private:
     Glib::RefPtr<Gst::Element>      m_bluetoothSource;
     Glib::RefPtr<Gst::Element>      m_alsaSink;
@@ -56,6 +61,9 @@ private:
     Glib::RefPtr<GstDsp::Crossover> m_crossover;
     Glib::RefPtr<GstDsp::Loudness>  m_loudness;
     Glib::RefPtr<GstDsp::Peq>       m_peq;
+    Glib::RefPtr<Gst::OutputSelector>   m_outputSelector;
+    Glib::RefPtr<Gst::Pad>          m_regularPad;
+    Glib::RefPtr<Gst::Pad>          m_passthroughPad;
     Glib::RefPtr<Gst::Pipeline>     m_pipeline;
 };
 
