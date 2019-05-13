@@ -248,14 +248,14 @@ ApplicationWindow {
                 } // Repeater
                 ToolButton {
                     text: "XO"
-                    enabled: CornrowConfiguration.xoAvailable
+                    visible: CornrowConfiguration.xoAvailable
                     autoExclusive: true
                     checked: CornrowModel.currentBand == CornrowModel.peqFilterCount
                     onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount)
                 }
                 ToolButton {
                     text: "SW"
-                    enabled: CornrowConfiguration.swAvailable
+                    visible: CornrowConfiguration.swAvailable
                     autoExclusive: true
                     checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
                     onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+1)
@@ -289,7 +289,7 @@ ApplicationWindow {
         Label {
             id: freqLabel
             text: "Frequency"
-            anchors.left: decFreq.horizontalCenter
+            anchors.left: freqDec.horizontalCenter
             anchors.bottom: freqSlider.top
         }
         Label {
@@ -299,82 +299,36 @@ ApplicationWindow {
             anchors.bottom: freqSlider.top
         }
         ToolButton {
-            id: decFreq
+            id: freqDec
             text: qsTr("-")
-            anchors.bottom: gainLabel.top
-            anchors.horizontalCenter: decQ.horizontalCenter
-
+            anchors.bottom: qLabel.top
+            anchors.horizontalCenter: gainDec.horizontalCenter
             onPressed: CornrowModel.stepFreq(-1)
         }
         ToolButton {
-            id: incFreq
+            id: freqInc
             text: qsTr("+")
-            anchors.bottom: gainLabel.top
-            anchors.horizontalCenter: incQ.horizontalCenter
-
+            anchors.bottom: qLabel.top
+            anchors.horizontalCenter: gainInc.horizontalCenter
             onPressed: CornrowModel.stepFreq(1)
         }
         Slider {
             id: freqSlider
-            anchors.bottom: gainLabel.top
-            anchors.top: incFreq.top
-            anchors.left: qSlider.anchors.left
+            anchors.bottom: qLabel.top
+            anchors.top: freqInc.top
+            anchors.left: gainSlider.anchors.left
             anchors.leftMargin: 4
-            anchors.right: qSlider.anchors.right
+            anchors.right: gainSlider.anchors.right
             anchors.rightMargin: 4
-
             value: CornrowModel.freqSlider
             onValueChanged: CornrowModel.freqSlider = value
-        }
-
-        // Gain
-        Label {
-            id: gainLabel
-            text: "Gain"
-            anchors.left: decGain.horizontalCenter
-            anchors.bottom: gainSlider.top
-        }
-        Label {
-            id: gainReadout
-            text: CornrowConfiguration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
-            anchors.horizontalCenter: gainSlider.horizontalCenter
-            anchors.bottom: gainSlider.top
-        }
-        ToolButton {
-            id: decGain
-            text: qsTr("-")
-            anchors.bottom: qLabel.top
-            anchors.horizontalCenter: decQ.horizontalCenter
-            onPressed: CornrowModel.stepGain(-1)
-        }
-        ToolButton {
-            id: incGain
-            text: qsTr("+")
-            anchors.bottom: qLabel.top
-            anchors.horizontalCenter: incQ.horizontalCenter
-            onPressed: CornrowModel.stepGain(1)
-        }
-        Slider {
-            id: gainSlider
-            stepSize: CornrowConfiguration.gainStep
-            from: CornrowConfiguration.gainMin
-            to: CornrowConfiguration.gainMax
-            anchors.bottom: qLabel.top
-            anchors.top: incGain.top
-            anchors.left: qSlider.anchors.left
-            anchors.leftMargin: 4
-            anchors.right: qSlider.anchors.right
-            anchors.rightMargin: 4
-
-            value: CornrowModel.gain // @TODO(mawe) fix binding loop
-            onValueChanged: CornrowModel.gain = value
         }
 
         // Q
         Label {
             id: qLabel
             text: "Q"
-            anchors.left: decQ.horizontalCenter
+            anchors.left: qDec.horizontalCenter
             anchors.bottom: qSlider.top
         }
         Label {
@@ -384,32 +338,73 @@ ApplicationWindow {
             anchors.bottom: qSlider.top
         }
         ToolButton {
-            id: decQ
+            id: qDec
             text: qsTr("-")
-            anchors.verticalCenter: qSlider.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: 4
+            anchors.bottom: gainLabel.top
+            anchors.horizontalCenter: gainDec.horizontalCenter
             onPressed: CornrowModel.stepQ(-1)
         }
         ToolButton {
-            id: incQ
+            id: qInc
             text: qsTr("+")
-            anchors.verticalCenter: qSlider.verticalCenter
-            anchors.right: parent.right
-            anchors.rightMargin: 4
+            anchors.bottom: gainLabel.top
+            anchors.horizontalCenter: gainInc.horizontalCenter
             onPressed: CornrowModel.stepQ(1)
         }
         Slider {
             id: qSlider
+            anchors.bottom: gainLabel.top
+            anchors.top: qInc.top
+            anchors.left: gainSlider.anchors.left
+            anchors.leftMargin: 4
+            anchors.right: gainSlider.anchors.right
+            anchors.rightMargin: 4
+            value: CornrowModel.qSlider // @TODO(mawe) fix binding loop
+            onValueChanged: CornrowModel.qSlider = value
+        }
+
+        // Gain
+        Label {
+            id: gainLabel
+            text: "Gain"
+            anchors.left: gainDec.horizontalCenter
+            anchors.bottom: gainSlider.top
+        }
+        Label {
+            id: gainReadout
+            text: CornrowConfiguration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
+            anchors.horizontalCenter: gainSlider.horizontalCenter
+            anchors.bottom: gainSlider.top
+        }
+        ToolButton {
+            id: gainDec
+            text: qsTr("-")
+            anchors.verticalCenter: gainSlider.verticalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: 4
+            onPressed: CornrowModel.stepGain(-1)
+        }
+        ToolButton {
+            id: gainInc
+            text: qsTr("+")
+            anchors.verticalCenter: gainSlider.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: 4
+            onPressed: CornrowModel.stepGain(1)
+        }
+        Slider {
+            id: gainSlider
+            stepSize: CornrowConfiguration.gainStep
+            from: CornrowConfiguration.gainMin
+            to: CornrowConfiguration.gainMax
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 16
-            anchors.left: decQ.right
+            anchors.left: gainDec.right
             anchors.leftMargin: 4
-            anchors.right: incQ.left
+            anchors.right: gainInc.left
             anchors.rightMargin: 4
-
-            value: CornrowModel.qSlider
-            onValueChanged: CornrowModel.qSlider = value
+            value: CornrowModel.gain
+            onValueChanged: CornrowModel.gain = value
         }
     } // Item
 }

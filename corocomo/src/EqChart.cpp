@@ -21,8 +21,7 @@ void EqChart::setFilter(int idx, uchar t, double f, double g, double q)
     }
 
     // Apply filter parameters
-    auto type = static_cast<common::FilterType>(t);
-    m_graphs[idx].setFilter({type, f, g, q});
+    m_graphs[idx].setFilter({static_cast<common::FilterType>(t), f, g, q});
 
     update();
 }
