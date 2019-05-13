@@ -55,6 +55,10 @@ public:
     common::Filter crossover() const;
 
 private:
+    enum class Type {
+        Normal,
+        Crossover
+    };
     Glib::RefPtr<Gst::Element>      m_bluetoothSource;
     Glib::RefPtr<Gst::Element>      m_alsaSink;
     Glib::RefPtr<Gst::Element>      m_alsaPassthroughSink;

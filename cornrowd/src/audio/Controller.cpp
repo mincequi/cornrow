@@ -57,13 +57,11 @@ void Controller::setPeq(const std::vector<common::Filter>& filters)
 
     m_pipeline->setPeq(filters);
 
-    auto it = std::find_if(filters.begin(), filters.end(),
-                           [](const common::Filter& f){ return f.type == common::FilterType::Crossover; });
-    if (it != filters.end()) {
-
-    } else {
-
-    }
+    // Check if crossover was provided, if not, we disable crossover
+    auto it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
+        return f.type == common::FilterType::Crossover;
+    });
+    it != filters.end() ? m_pipeline->setCrossover(*it) : m_pipeline->setCrossover(common::Filter());
 }
 
 void Controller::setTransport(const QDBusObjectPath& transport)

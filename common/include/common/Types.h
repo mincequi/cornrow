@@ -56,9 +56,9 @@ enum class FilterType : uint8_t {
     HighPass,
     LowShelf,
     HighShelf,
-
     //AllPass,
 
+    // Crossover filters
     Crossover   = 16,   // Q indicates characteristics, while gain indicates cascading. (Base) order is always 2.
                         // e.g. LR4: q = 0.707, g = 2
                         //      BW:  q = 0.707, g <= 1
@@ -68,13 +68,14 @@ enum class FilterType : uint8_t {
     Subwoofer,       // LFE Crossover (max. 120 Hz, better 80 Hz)
 
     /*
+    // Combined filters
     Loudness    = 32,
 
     // Non-linear filters
-    Dynamic     = 64,   // Compressor, Expander
+    Dynamic     = 48,   // Compressor, Expander
 
     // Reserved
-    User        = 96,
+    User        = 64,
 
     Max         = 127
     */
