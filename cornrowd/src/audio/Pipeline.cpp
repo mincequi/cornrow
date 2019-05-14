@@ -34,53 +34,35 @@ Pipeline::Pipeline()
 {
     m_pipeline = Gst::Pipeline::create();
 
-    // Bluetooth related elements
+    // Common elements
     m_bluetoothSource = Gst::ElementFactory::create_element("avdtpsrc");
     auto depay = Gst::ElementFactory::create_element("rtpsbcdepay");
     auto parse = Gst::ElementFactory::create_element("sbcparse");
     auto decoder = Gst::ElementFactory::create_element("sbcdec");
-    auto bluetoothConverter = Gst::ElementFactory::create_element("audioconvert");
-    m_pipeline->add(m_bluetoothSource)->add(depay)->add(parse)->add(decoder)->add(bluetoothConverter);
-    m_bluetoothSource->link(depay)->link(parse)->link(decoder)->link(bluetoothConverter);
-
-    // Peq
+    auto bluetoothConverter = Gst::AudioConvert::create();
     m_peq = Glib::RefPtr<GstDsp::Peq>::cast_static(Gst::ElementFactory::create_element("peq"));
-    m_pipeline->add(m_peq);
+    m_pipeline->add(m_bluetoothSource)->add(depay)->add(parse)->add(decoder)->add(bluetoothConverter)->add(m_peq);
+    m_bluetoothSource->link(depay)->link(parse)->link(decoder)->link(bluetoothConverter)->link(m_peq);
 
-    // Regular output
-    auto alsaConverter = Gst::ElementFactory::create_element("audioconvert");
-    m_alsaSink = Gst::ElementFactory::create_element("alsasink");
+    // Normal output
+    auto alsaConverter = Gst::AudioConvert::create();
+    m_alsaSink = Gst::AlsaSink::create("alsasink");
     m_alsaSink->set_property("sync", false);    // Avoid resync since it causes ugly glitches.
-    m_pipeline->add(alsaConverter)->add(m_alsaSink);
-    alsaConverter->link(m_alsaSink);
 
-    // Crossover related elements
+
+    // Crossover output
     m_crossover = Glib::RefPtr<GstDsp::Crossover>::cast_static(Gst::ElementFactory::create_element("crossover"));
     auto ac3Encoder = Gst::ElementFactory::create_element("avenc_ac3");
     ac3Encoder->set_property("bitrate", 640000);
-    /*
     m_alsaPassthroughSink = Gst::ElementFactory::create_element("alsapassthroughsink");
     m_alsaPassthroughSink->set_property("sync", false); // Avoid resync since it causes ugly glitches.
     m_alsaPassthroughSink->set_property("device", Glib::ustring("iec958:CARD=sndrpihifiberry,DEV=0"));
     m_pipeline->add(m_crossover)->add(ac3Encoder)->add(m_alsaPassthroughSink);
-    //m_crossover->link(ac3Encoder)->link(m_alsaPassthroughSink);
-    */
 
-    // Output selector
-    m_outputSelector = Gst::OutputSelector::create();
-    m_outputSelector->property_pad_negotiation_mode().set_value(Gst::OUTPUT_SELECTOR_PAD_NEGOTIATION_MODE_ACTIVE);
-    m_regularPad = m_outputSelector->get_request_pad("src_%u");
-    m_passthroughPad = m_outputSelector->get_request_pad("src_%u");
-    m_pipeline->add(m_outputSelector);
+    m_elements[Type::Normal]    = { alsaConverter, m_alsaSink };
+    m_elements[Type::Crossover] = { m_crossover, ac3Encoder, m_alsaPassthroughSink };
 
-    // Bluetooth -> Peq -> OutoutSelector -> Sink
-    //                                    \-> Crossover -> PassthroughSink
-    bluetoothConverter->link(m_peq)->link(m_outputSelector);
-    m_regularPad->link(alsaConverter->get_static_pad("sink"));
-    m_passthroughPad->link(m_crossover->get_static_pad("sink"));
-
-    // Select regular pad
-    m_outputSelector->property_active_pad().set_value(m_regularPad);
+    constructPipeline(Type::Normal, true);
 }
 
 Pipeline::~Pipeline()
@@ -121,6 +103,52 @@ common::Filter Pipeline::crossover() const
     crossover.f = m_crossover->frequency();
 
     return crossover;
+}
+
+bool Pipeline::constructPipeline(Type type, bool force)
+{
+    if (m_currentType == type && !force) {
+        return true;
+    }
+
+    // Get current state
+    Gst::State state, pending;
+    auto ret = m_pipeline->get_state(state, pending, Gst::CLOCK_TIME_NONE);
+    if (ret != Gst::STATE_CHANGE_SUCCESS) {
+        return false;
+    }
+
+    // Stop pipeline
+    stop();
+
+    // Remove all elements which are not of current type
+    for (auto kv : m_elements) {
+        if (kv.first == type) {
+            continue;
+        }
+        for (auto element : kv.second) {
+            if (element->has_as_ancestor(m_pipeline)) {
+                m_pipeline->remove(element);
+            }
+        }
+    }
+
+    // Add elements which are of current type
+    for (auto it = m_elements.at(type).begin(); it != m_elements.at(type).end(); ++it) {
+        m_pipeline->add(*it);
+        if (it == m_elements.at(type).begin()) {
+            m_peq->link(*it);
+        } else {
+            (*(std::prev(it)))->link(*it);
+        }
+    }
+
+    // Set previous state
+    m_pipeline->set_state(state);
+
+    m_currentType = type;
+
+    return true;
 }
 
 } // namespace audio

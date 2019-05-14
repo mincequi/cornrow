@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <map>
+
 #include <glibmm/refptr.h>
 
 #include <common/Types.h>
@@ -59,16 +61,20 @@ private:
         Normal,
         Crossover
     };
+
+    bool constructPipeline(Type type, bool force = false);
+
+    Type m_currentType = Type::Normal;
+
     Glib::RefPtr<Gst::Element>      m_bluetoothSource;
     Glib::RefPtr<Gst::Element>      m_alsaSink;
     Glib::RefPtr<Gst::Element>      m_alsaPassthroughSink;
     Glib::RefPtr<GstDsp::Crossover> m_crossover;
     Glib::RefPtr<GstDsp::Loudness>  m_loudness;
     Glib::RefPtr<GstDsp::Peq>       m_peq;
-    Glib::RefPtr<Gst::OutputSelector>   m_outputSelector;
-    Glib::RefPtr<Gst::Pad>          m_regularPad;
-    Glib::RefPtr<Gst::Pad>          m_passthroughPad;
     Glib::RefPtr<Gst::Pipeline>     m_pipeline;
+
+    std::map<Type, std::vector<Glib::RefPtr<Gst::Element>>> m_elements;
 };
 
 } // namespace audio
