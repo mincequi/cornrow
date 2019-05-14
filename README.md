@@ -17,7 +17,6 @@ sudo apt install \
   cmake extra-cmake-modules \
   libboost-dev \
   libgstreamermm-1.0-dev \
-  libqt5bluetooth5 \
   gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
   qtconnectivity5-dev # get dependecies
 git clone --recursive https://github.com/mincequi/cornrow # clone repo including third-party libs
@@ -43,6 +42,6 @@ make
 
 ## To Do
 * Implement volume control
-* Set discoverable/pairable timeout to forever
+* ~~Set discoverable/pairable timeout to forever~~
 
 ## Thanks
