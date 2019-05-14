@@ -42,6 +42,6 @@ make
 
 ## To Do
 * Implement volume control
-~~* Set discoverable/pairable timeout to forever~~
+* ~~Set discoverable/pairable timeout to forever~~
 
 ## Thanks
