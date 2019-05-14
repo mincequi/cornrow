@@ -266,7 +266,7 @@ ApplicationWindow {
         // Type
         ToolBar {
             id: typeBar
-            anchors.bottom: freqLabel.top
+            anchors.bottom: filterParameters.top
             anchors.left: parent.left
             anchors.right: parent.right
             background: background
@@ -278,133 +278,11 @@ ApplicationWindow {
                     ToolButton {
                         text: CornrowModel.filterTypeNames[index]
                         autoExclusive: true
-                        checked: CornrowModel.filterType == index
+                        checked: CornrowModel.filterType === index
                         onPressed: CornrowModel.filterType = index
                     }
                 }
             }
-        }
-
-        // Frequency
-        Label {
-            id: freqLabel
-            text: "Frequency"
-            anchors.left: freqDec.horizontalCenter
-            anchors.bottom: freqSlider.top
-        }
-        Label {
-            id: freqReadout
-            text: CornrowModel.freqReadout
-            anchors.horizontalCenter: freqSlider.horizontalCenter
-            anchors.bottom: freqSlider.top
-        }
-        ToolButton {
-            id: freqDec
-            text: qsTr("-")
-            anchors.bottom: qLabel.top
-            anchors.horizontalCenter: gainDec.horizontalCenter
-            onPressed: CornrowModel.stepFreq(-1)
-        }
-        ToolButton {
-            id: freqInc
-            text: qsTr("+")
-            anchors.bottom: qLabel.top
-            anchors.horizontalCenter: gainInc.horizontalCenter
-            onPressed: CornrowModel.stepFreq(1)
-        }
-        Slider {
-            id: freqSlider
-            anchors.bottom: qLabel.top
-            anchors.top: freqInc.top
-            anchors.left: gainSlider.anchors.left
-            anchors.leftMargin: 4
-            anchors.right: gainSlider.anchors.right
-            anchors.rightMargin: 4
-            value: CornrowModel.freqSlider
-            onValueChanged: CornrowModel.freqSlider = value
-        }
-
-        // Q
-        Label {
-            id: qLabel
-            text: "Q"
-            anchors.left: qDec.horizontalCenter
-            anchors.bottom: qSlider.top
-        }
-        Label {
-            id: qReadout
-            text: CornrowModel.qReadout
-            anchors.horizontalCenter: qSlider.horizontalCenter
-            anchors.bottom: qSlider.top
-        }
-        ToolButton {
-            id: qDec
-            text: qsTr("-")
-            anchors.bottom: gainLabel.top
-            anchors.horizontalCenter: gainDec.horizontalCenter
-            onPressed: CornrowModel.stepQ(-1)
-        }
-        ToolButton {
-            id: qInc
-            text: qsTr("+")
-            anchors.bottom: gainLabel.top
-            anchors.horizontalCenter: gainInc.horizontalCenter
-            onPressed: CornrowModel.stepQ(1)
-        }
-        Slider {
-            id: qSlider
-            anchors.bottom: gainLabel.top
-            anchors.top: qInc.top
-            anchors.left: gainSlider.anchors.left
-            anchors.leftMargin: 4
-            anchors.right: gainSlider.anchors.right
-            anchors.rightMargin: 4
-            value: CornrowModel.qSlider // @TODO(mawe) fix binding loop
-            onValueChanged: CornrowModel.qSlider = value
-        }
-
-        // Gain
-        Label {
-            id: gainLabel
-            text: "Gain"
-            anchors.left: gainDec.horizontalCenter
-            anchors.bottom: gainSlider.top
-        }
-        Label {
-            id: gainReadout
-            text: CornrowConfiguration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
-            anchors.horizontalCenter: gainSlider.horizontalCenter
-            anchors.bottom: gainSlider.top
-        }
-        ToolButton {
-            id: gainDec
-            text: qsTr("-")
-            anchors.verticalCenter: gainSlider.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: 4
-            onPressed: CornrowModel.stepGain(-1)
-        }
-        ToolButton {
-            id: gainInc
-            text: qsTr("+")
-            anchors.verticalCenter: gainSlider.verticalCenter
-            anchors.right: parent.right
-            anchors.rightMargin: 4
-            onPressed: CornrowModel.stepGain(1)
-        }
-        Slider {
-            id: gainSlider
-            stepSize: CornrowConfiguration.gainStep
-            from: CornrowConfiguration.gainMin
-            to: CornrowConfiguration.gainMax
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 16
-            anchors.left: gainDec.right
-            anchors.leftMargin: 4
-            anchors.right: gainInc.left
-            anchors.rightMargin: 4
-            value: CornrowModel.gain
-            onValueChanged: CornrowModel.gain = value
         }
 
         Column {
@@ -414,26 +292,35 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.right: parent.right
 
-            visible: false  // true
-
             FilterParameter {
                 label: "Frequency"
-                readout: "123"
+                enabled: CornrowModel.filterType > 0
+                readout: CornrowModel.freqReadout
+                onStep: CornrowModel.stepFreq(i)
+                value: CornrowModel.freqSlider
+                onValueChanged: CornrowModel.freqSlider = value
             }
 
             FilterParameter {
                 label: "Q"
-                readout: "456"
-                enabled: false
+                enabled: CornrowModel.currentBand < CornrowModel.peqFilterCount &&
+                         CornrowModel.filterType > 0
+                readout: CornrowModel.qReadout
+                onStep: CornrowModel.stepQ(i)
+                value: CornrowModel.qSlider
+                onValueChanged: CornrowModel.qSlider = value
             }
             FilterParameter {
                 label: "Gain"
+                enabled: CornrowModel.currentBand < CornrowModel.peqFilterCount &&
+                         CornrowModel.filterType === 1
                 readout: CornrowConfiguration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
-                onStep: CornrowModel.stepGain(step)
+                onStep: CornrowModel.stepGain(i)
                 stepSize: CornrowConfiguration.gainStep
                 from: CornrowConfiguration.gainMin
                 to: CornrowConfiguration.gainMax
                 value: CornrowModel.gain
+                onValueChanged: CornrowModel.gain = value
             }
         }
     } // Item

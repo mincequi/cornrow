@@ -161,7 +161,7 @@ QStringList Model::filterTypeNames() const
     if (m_currentBand < m_configuration.filterCount) {
         return { "Off", "Peaking", "LowPass", "HighPass" };
     } else {
-        return { "Off", "On" };
+        return { "Off", "LR4" };
     }
 }
 

@@ -9,7 +9,7 @@ Item {
     property alias to: slider.to
     property alias stepSize: slider.stepSize
     property alias value: slider.value
-    signal step(int step)
+    signal step(int i)
     width: parent.width
     height: label.height + slider.height
 
@@ -46,5 +46,6 @@ Item {
         anchors.leftMargin: 4
         anchors.right: inc.left
         anchors.rightMargin: 4
+        onValueChanged: parameter.valueChanged(value)
     }
 }
