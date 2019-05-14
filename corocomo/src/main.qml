@@ -239,24 +239,27 @@ ApplicationWindow {
                 id: bandRow
                 Repeater {
                     model: CornrowModel.peqFilterCount
-                    ToolButton {
+                    FilterBandButton {
                         text: index+1
-                        autoExclusive: true
+                        indicatorColor: Material.primary
+                        indicatorVisible: CornrowModel.activeFilters[index]
                         checked: CornrowModel.currentBand == index
                         onPressed: CornrowModel.setCurrentBand(index)
                     }
                 } // Repeater
-                ToolButton {
+                FilterBandButton {
                     text: "XO"
+                    indicatorColor: Material.primary
+                    indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount]
                     visible: CornrowConfiguration.xoAvailable
-                    autoExclusive: true
                     checked: CornrowModel.currentBand == CornrowModel.peqFilterCount
                     onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount)
                 }
-                ToolButton {
+                FilterBandButton {
                     text: "SW"
+                    indicatorColor: Material.primary
+                    indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+1]
                     visible: CornrowConfiguration.swAvailable
-                    autoExclusive: true
                     checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
                     onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+1)
                 }

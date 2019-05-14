@@ -23,6 +23,7 @@ class Model : public QObject
 
     Q_PROPERTY(int peqFilterCount READ peqFilterCount)
     Q_PROPERTY(int currentBand READ currentBand WRITE setCurrentBand NOTIFY currentBandChanged)
+    Q_PROPERTY(std::vector<bool> activeFilters READ activeFilters NOTIFY filterTypeChanged)
 
     Q_PROPERTY(uint filterType READ filterType WRITE setFilterType NOTIFY filterTypeChanged)
     Q_PROPERTY(QStringList filterTypeNames READ filterTypeNames NOTIFY currentBandChanged)
@@ -64,6 +65,8 @@ public:
 
     int         currentBand() const;
     Q_INVOKABLE void setCurrentBand(int i);
+
+    std::vector<bool> activeFilters() const;
 
     int         filterType() const;
     void        setFilterType(int filterType);

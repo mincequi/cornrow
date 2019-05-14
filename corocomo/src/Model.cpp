@@ -115,6 +115,18 @@ void Model::setCurrentBand(int i)
     emit qSliderChanged();
 }
 
+std::vector<bool> Model::activeFilters() const
+{
+    std::vector<bool> ret;
+    ret.reserve(m_filters.size());
+
+    for (const auto& filter : m_filters) {
+        ret.push_back(filter.t != common::FilterType::Invalid);
+    }
+
+    return ret;
+};
+
 int Model::peqFilterCount() const
 {
     return m_configuration.filterCount;
