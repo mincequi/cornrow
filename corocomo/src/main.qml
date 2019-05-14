@@ -406,5 +406,35 @@ ApplicationWindow {
             value: CornrowModel.gain
             onValueChanged: CornrowModel.gain = value
         }
+
+        Column {
+            id: filterParameters
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 16
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            visible: false  // true
+
+            FilterParameter {
+                label: "Frequency"
+                readout: "123"
+            }
+
+            FilterParameter {
+                label: "Q"
+                readout: "456"
+                enabled: false
+            }
+            FilterParameter {
+                label: "Gain"
+                readout: CornrowConfiguration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
+                onStep: CornrowModel.stepGain(step)
+                stepSize: CornrowConfiguration.gainStep
+                from: CornrowConfiguration.gainMin
+                to: CornrowConfiguration.gainMax
+                value: CornrowModel.gain
+            }
+        }
     } // Item
 }
