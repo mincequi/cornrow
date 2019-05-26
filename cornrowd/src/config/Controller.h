@@ -23,6 +23,7 @@
 #include <ble/ServerAdapter.h>
 
 #include "../audio/Controller.h"
+#include "../bluetooth/Controller.h"
 
 namespace config
 {
@@ -32,7 +33,9 @@ class Controller : public QObject
     Q_OBJECT
 
 public:
-    explicit Controller(audio::Controller* audio, QObject *parent = nullptr);
+    explicit Controller(audio::Controller* audio,
+                        bluetooth::Controller* bluetooth,
+                        QObject* parent = nullptr);
     ~Controller();
 
     void writeConfig();
@@ -42,6 +45,7 @@ private:
     ble::ServerAdapter* m_bleAdapter = nullptr;
 
     audio::Controller* m_audio = nullptr;
+    bluetooth::Controller* m_bluetooth = nullptr;
 };
 
 } // namespace config

@@ -22,22 +22,28 @@
 namespace config
 {
 
-Controller::Controller(audio::Controller* audio, QObject *parent)
+Controller::Controller(audio::Controller* audio,
+                       bluetooth::Controller* bluetooth,
+                       QObject* parent)
     : QObject(parent),
-      m_audio(audio)
+      m_audio(audio),
+      m_bluetooth(bluetooth)
 {
     // On start-up we read config from disk
     m_audio->setPeq(readConfig());
 
     // Create BLE server and adapter. Provide config provider.
-    m_ble = new ble::Server(this);
-    m_bleAdapter = new ble::ServerAdapter(m_ble, std::bind(&audio::Controller::peq, m_audio));
+    //m_ble = new ble::Server(this);
+    //m_bleAdapter = new ble::ServerAdapter(m_ble, std::bind(&audio::Controller::peq, m_audio));
+
+    m_bluetooth->setReadFiltersCallback(std::bind(&audio::Controller::peq, m_audio));
+    connect(m_bluetooth, &bluetooth::Controller::filtersWritten, m_audio, &audio::Controller::setPeq);
 
     // Once a (control) client disconnects, we write persistence.
-    connect(m_ble, &ble::Server::deviceDisconnected, this, &config::Controller::writeConfig);
+    //connect(m_ble, &ble::Server::deviceDisconnected, this, &config::Controller::writeConfig);
 
     // BLE adapter can change config of audio controller
-    connect(m_bleAdapter, &ble::ServerAdapter::peq, m_audio, &audio::Controller::setPeq);
+    //connect(m_bleAdapter, &ble::ServerAdapter::peq, m_audio, &audio::Controller::setPeq);
 }
 
 Controller::~Controller()

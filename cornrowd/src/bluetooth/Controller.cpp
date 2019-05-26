@@ -23,7 +23,13 @@
 
 #include <BluezQt/Adapter>
 #include <BluezQt/Device>
+#include <BluezQt/GattApplication>
+#include <BluezQt/GattCharacteristic>
+#include <BluezQt/GattManager>
+#include <BluezQt/GattService>
 #include <BluezQt/InitManagerJob>
+#include <BluezQt/LEAdvertisement>
+#include <BluezQt/LEAdvertisingManager>
 #include <BluezQt/Manager>
 #include <BluezQt/Media>
 #include <BluezQt/MediaEndpoint>
@@ -45,8 +51,8 @@ Controller::Controller(QObject *parent)
     localDevice.setHostMode(QBluetoothLocalDevice::HostDiscoverable);
 
     // Init BluezQt
-    Manager* manager = new Manager(this);
-    InitManagerJob *initJob = manager->init();
+    m_manager = new Manager(this);
+    InitManagerJob *initJob = m_manager->init();
     initJob->exec();
     if (initJob->error()) {
         qWarning() << "Error initializing bluetooth manager:" << initJob->errorText();
@@ -54,20 +60,47 @@ Controller::Controller(QObject *parent)
     }
 
     AudioSinkAgent* agent = new AudioSinkAgent({Services::AdvancedAudioDistribution, Services::AudioVideoRemoteControl}, this);
-    manager->registerAgent(agent);
-    manager->requestDefaultAgent(agent);
+    m_manager->registerAgent(agent);
+    m_manager->requestDefaultAgent(agent);
 
-    MediaEndpoint *sbcSink = new MediaEndpoint({MediaEndpoint::Role::AudioSink, MediaEndpoint::Codec::Sbc}, manager);
+    MediaEndpoint *sbcSink = new MediaEndpoint({MediaEndpoint::Role::AudioSink, MediaEndpoint::Codec::Sbc}, m_manager);
     connect(sbcSink, &MediaEndpoint::configurationSet, this, &Controller::onConfigurationSet);
     connect(sbcSink, &MediaEndpoint::configurationCleared, this, &Controller::onConfigurationCleared);
-    manager->media()->registerEndpoint(sbcSink);
+    m_manager->usableAdapter()->media()->registerEndpoint(sbcSink);
 
-    for (auto adapter : manager->adapters()) {
+    for (auto adapter : m_manager->adapters()) {
         adapter->setDiscoverableTimeout(0);
         adapter->setPairableTimeout(0);
         adapter->setDiscoverable(true);
         adapter->setPairable(true);
     }
+
+    initBle();
+}
+
+Controller::~Controller()
+{
+    m_manager->usableAdapter()->leAdvertisingManager()->unregisterAdvertisement(m_advertisement);
+    m_manager->usableAdapter()->gattManager()->unregisterApplication(m_application);
+}
+
+void Controller::setReadFiltersCallback(ReadFiltersCallback callback)
+{
+    m_readCallback = callback;
+}
+
+void Controller::initBle()
+{
+    m_advertisement = new LEAdvertisement({QStringLiteral("ad100000-d901-11e8-9f8b-f2801f1b9fd1")}, this);
+    m_manager->usableAdapter()->leAdvertisingManager()->registerAdvertisement(m_advertisement);
+
+    m_application = new GattApplication(this);
+    auto service = new GattService(QStringLiteral("ad100000-d901-11e8-9f8b-f2801f1b9fd1"), true, m_application);
+    m_peqCharc = new GattCharacteristic(QStringLiteral("ad10e100-d901-11e8-9f8b-f2801f1b9fd1"), service);
+    m_peqCharc->setReadCallback(std::bind(&Controller::onReadFilters, this));
+    connect(m_peqCharc, &GattCharacteristic::valueWritten, this, &Controller::onWriteFilters);
+
+    m_manager->usableAdapter()->gattManager()->registerApplication(m_application);
 }
 
 void Controller::onConfigurationSet(const QString& transportObjectPath, const QVariantMap& properties)
@@ -80,6 +113,16 @@ void Controller::onConfigurationCleared(const QString& transportObjectPath)
 {
     qDebug() << "Cleared configuration for transport:" << transportObjectPath;
     emit configurationCleared(QDBusObjectPath(transportObjectPath));
+}
+
+QByteArray Controller::onReadFilters()
+{
+    return m_converter.filtersToBle(m_readCallback());
+}
+
+void Controller::onWriteFilters(const QByteArray& value)
+{
+    emit filtersWritten(m_converter.filtersFromBle(value));
 }
 
 } // namespace bluetooth

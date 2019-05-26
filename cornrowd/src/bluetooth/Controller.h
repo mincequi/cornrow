@@ -17,9 +17,21 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QObject>
 
+#include <ble/Converter.h>
+
 class QDBusObjectPath;
+
+namespace BluezQt
+{
+class GattApplication;
+class GattCharacteristic;
+class LEAdvertisement;
+class Manager;
+}
 
 namespace bluetooth
 {
@@ -30,14 +42,30 @@ class Controller : public QObject
 
 public:
     explicit Controller(QObject *parent = nullptr);
+    ~Controller();
+
+    using ReadFiltersCallback = std::function<std::vector<common::Filter>()>;
+    void setReadFiltersCallback(ReadFiltersCallback callback);
 
 signals:
-    void configurationSet(const QDBusObjectPath &transportObjectPath);
-    void configurationCleared(const QDBusObjectPath &transportObjectPath);
+    void configurationSet(const QDBusObjectPath& transportObjectPath);
+    void configurationCleared(const QDBusObjectPath& transportObjectPath);
+    void filtersWritten(const std::vector<common::Filter>& filters);
 
 private:
+    void initBle();
+
     void onConfigurationSet(const QString& transportObjectPath, const QVariantMap& properties);
     void onConfigurationCleared(const QString& transportObjectPath);
+    QByteArray onReadFilters();
+    void onWriteFilters(const QByteArray& value);
+
+    BluezQt::Manager* m_manager = nullptr;
+    BluezQt::GattCharacteristic* m_peqCharc = nullptr;
+    BluezQt::GattApplication* m_application = nullptr;
+    BluezQt::LEAdvertisement* m_advertisement = nullptr;
+    ReadFiltersCallback m_readCallback = nullptr;
+    ble::Converter m_converter;
 };
 
 } // namespace bluetooth

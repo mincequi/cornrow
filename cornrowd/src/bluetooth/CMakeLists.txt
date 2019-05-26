@@ -4,6 +4,7 @@ add_library(bluetooth STATIC
 )
 
 target_link_libraries(bluetooth
+    ble
     KF5BluezQt
-    Qt5DBus
+    Qt5::DBus
 )

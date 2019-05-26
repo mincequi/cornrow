@@ -2,7 +2,7 @@ project(cornrowd)
 
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt5Core REQUIRED)
+find_package(Qt5 CONFIG REQUIRED Core DBus)
 
 add_subdirectory(src/audio)
 add_subdirectory(src/bluetooth)
