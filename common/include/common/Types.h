@@ -39,12 +39,11 @@ enum class Version : uint8_t {
     Version2    = 2
 };
 
-enum class FilterTask : uint8_t {
+enum class FilterGroup : uint8_t {
     Invalid     = 0x0,
 
     Peq         = 0x1,
-    Crossover   = 0x2,
-    Loudness    = 0x4
+    Aux         = 0x2
 };
 
 enum class FilterType : uint8_t {

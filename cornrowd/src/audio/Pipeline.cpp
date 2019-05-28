@@ -94,6 +94,7 @@ std::vector<common::Filter> Pipeline::peq() const
 void Pipeline::setCrossover(const common::Filter& crossover)
 {
     m_crossover->setFrequency(crossover.f);
+    constructPipeline(crossover.type == common::FilterType::Crossover ? Type::Crossover : Type::Normal);
 }
 
 common::Filter Pipeline::crossover() const

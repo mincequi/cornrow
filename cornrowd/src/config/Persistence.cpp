@@ -9,7 +9,7 @@ namespace pt = boost::property_tree;
 
 static const std::string audioPath("/var/lib/cornrowd/audio.conf");
 
-std::vector<common::Filter> readConfig()
+std::vector<common::Filter> readPeq()
 {
     pt::ptree tree;
 

@@ -37,7 +37,7 @@ void ClientSession::onDeviceDiscovered(const QBluetoothDeviceInfo &device)
     }
 
     qDebug() << __func__ << ": found cornrow device:" << device.name();
-    q->setStatus(Client::Status::Discovering, "Found cornrow device " + device.name() + ".");
+    q->setStatus(Client::Status::Discovering, "Found cornrow device " + device.name());
     m_devices.push_back(device);
 
     // @TODO(mawe): until we do not support multiple devices, we can stop here.
@@ -74,7 +74,7 @@ void ClientSession::onDeviceDiscoveryFinished()
     m_control->setRemoteAddressType(QLowEnergyController::PublicAddress);
 
     // Connect to device
-    q->setStatus(Client::Status::Connecting, "Connecting " + m_control->remoteName() + ".");
+    q->setStatus(Client::Status::Connecting, "Connecting " + m_control->remoteName());
 
     connect(m_control, &QLowEnergyController::connected, this, &ClientSession::onDeviceConnected);
     connect(m_control, &QLowEnergyController::disconnected, this, &ClientSession::onDeviceDisconnected);
@@ -118,7 +118,7 @@ void ClientSession::onServiceDiscoveryFinished()
     qDebug() << __func__;
 
     if (!m_control->services().contains(ble::cornrowServiceUuid)) {
-        q->setStatus(Client::Status::Error, "Could not find cornrow service on device " + m_control->remoteName() + ".");
+        q->setStatus(Client::Status::Error, "Could not find cornrow service on device " + m_control->remoteName());
         return;
     }
     m_service = m_control->createServiceObject(ble::cornrowServiceUuid, this);
@@ -129,7 +129,7 @@ void ClientSession::onServiceDiscoveryFinished()
     // We cannot access characteristics here, but we have to wait for appropriate state change.
     // discoverDetails() will trigger those state changes.
     m_service->discoverDetails();
-    q->setStatus(Client::Status::Connecting, "Reading settings from " + m_control->remoteName() + ".");
+    q->setStatus(Client::Status::Connecting, "Reading settings from " + m_control->remoteName());
 }
 
 void ClientSession::onServiceStateChanged(QLowEnergyService::ServiceState s)
@@ -140,10 +140,19 @@ void ClientSession::onServiceStateChanged(QLowEnergyService::ServiceState s)
         const QLowEnergyCharacteristic peq = m_service->characteristic(ble::peqCharacteristicUuid);
         if (!peq.isValid()) {
             q->disconnect();
-            q->setStatus(Client::Status::Error, "Invalid characteristic.");
+            q->setStatus(Client::Status::Error, "Invalid PEQ characteristic");
             return;
         }
         m_service->readCharacteristic(m_service->characteristic(ble::peqCharacteristicUuid));
+
+        const QLowEnergyCharacteristic aux = m_service->characteristic(ble::auxCharacteristicUuid);
+        if (!aux.isValid()) {
+            q->disconnect();
+            q->setStatus(Client::Status::Error, "Invalid AUX characteristic");
+            return;
+        }
+        m_service->readCharacteristic(m_service->characteristic(ble::auxCharacteristicUuid));
+
         break;
     }
     case QLowEnergyService::InvalidService:
@@ -162,7 +171,7 @@ void ClientSession::onServiceError(QLowEnergyService::ServiceError /*error*/)
 {
     qDebug() << __func__;
 
-    q->setStatus(Client::Status::Error, "Service error.");
+    q->setStatus(Client::Status::Error, "Service error");
 }
 
 } // namespace ble

@@ -47,17 +47,17 @@ public:
     bool startDiscovering();
     void disconnect();
 
-    void writeCharacteristic(common::FilterTask task, const QByteArray &value);
+    void writeCharacteristic(common::FilterGroup task, const QByteArray& value);
 
 signals:
     void status(Status status, const QString& errorString = QString());
 
     // Emits initial values
-    void characteristicRead(common::FilterTask task, const QByteArray &value);
+    void characteristicRead(common::FilterGroup task, const QByteArray& value);
 
 private:
     void setStatus(Status status, const QString& errorString = QString());
-    void onCharacteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
+    void onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
 
     class ClientSession* m_clientSession = nullptr;
     friend class ClientSession;

@@ -98,7 +98,7 @@ signals:
     void qSliderChanged();
 
 private:
-    Model(const Config& configuration, QObject *parent = nullptr);
+    Model(const Config& config, QObject* parent = nullptr);
 
     // This is the model-oriented filter struct. We use indexed values here.
     struct Filter {
@@ -109,14 +109,14 @@ private:
         uint8_t q;
     };
 
-    void setFilters(const std::vector<Filter>& filters);
+    void setFilters(common::FilterGroup group, const std::vector<Filter>& filters);
 
     void onParameterChanged();
     void onBleStatus(Status status, const QString& errorString);
 
     static Model* s_instance;
 
-    const Config& m_configuration;
+    const Config& m_config;
 
     Status          m_status = Status::Discovering;
     QString         m_statusLabel = "Discovering";

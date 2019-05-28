@@ -52,7 +52,7 @@ bool Client::startDiscovering()
         return false;
     }*/
 
-    setStatus(Status::Discovering, "Searching for cornrow devices.");
+    setStatus(Status::Discovering, "Searching for Cornrow devices");
     m_clientSession = new ClientSession(this);
     return true;
 }
@@ -63,18 +63,18 @@ void Client::disconnect()
     m_clientSession = nullptr;
 }
 
-void Client::writeCharacteristic(common::FilterTask task, const QByteArray &value)
+void Client::writeCharacteristic(common::FilterGroup group, const QByteArray& value)
 {
     if (!m_clientSession) {
         return;
     }
 
-    const auto characteristic = m_clientSession->m_service->characteristic(m_clientSession->m_converter.toBle(task));
+    const auto characteristic = m_clientSession->m_service->characteristic(m_clientSession->m_converter.toBle(group));
     if (!characteristic.isValid()) {
         qDebug() << __func__ << "Characteristic invalid:" << characteristic.uuid();
         return;
     }
-    m_clientSession->m_service->writeCharacteristic(characteristic, value);
+    m_clientSession->m_service->writeCharacteristic(characteristic, value, QLowEnergyService::WriteWithoutResponse);
 }
 
 void Client::setStatus(Status _error, const QString& errorString)
@@ -83,7 +83,7 @@ void Client::setStatus(Status _error, const QString& errorString)
     emit status(_error, errorString);
 }
 
-void Client::onCharacteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &value)
+void Client::onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value)
 {
     qDebug() << __func__;
     emit status(Status::Connected);

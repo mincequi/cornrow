@@ -17,29 +17,25 @@ Converter::~Converter()
 {
 }
 
-common::FilterTask Converter::fromBle(const QBluetoothUuid& uuid)
+common::FilterGroup Converter::fromBle(const QBluetoothUuid& uuid)
 {
     if (uuid == ble::peqCharacteristicUuid) {
-        return common::FilterTask::Peq;
-    } else if (uuid == ble::crossoverCharacteristicUuid) {
-        return common::FilterTask::Crossover;
-    } else if (uuid == ble::loudnessCharacteristicUuid) {
-        return common::FilterTask::Loudness;
+        return common::FilterGroup::Peq;
+    } else if (uuid == ble::auxCharacteristicUuid) {
+        return common::FilterGroup::Aux;
     }
 
-    return common::FilterTask::Invalid;
+    return common::FilterGroup::Invalid;
 }
 
-QBluetoothUuid Converter::toBle(common::FilterTask task)
+QBluetoothUuid Converter::toBle(common::FilterGroup task)
 {
     switch (task) {
-    case common::FilterTask::Peq:
+    case common::FilterGroup::Peq:
         return ble::peqCharacteristicUuid;
-    case common::FilterTask::Crossover:
-        return ble::crossoverCharacteristicUuid;
-    case common::FilterTask::Loudness:
-        return ble::loudnessCharacteristicUuid;
-    case common::FilterTask::Invalid:
+    case common::FilterGroup::Aux:
+        return ble::auxCharacteristicUuid;
+    case common::FilterGroup::Invalid:
         return QBluetoothUuid();
     }
 

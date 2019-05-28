@@ -43,25 +43,47 @@ Controller::~Controller()
     delete m_pipeline;
 }
 
-std::vector<common::Filter> Controller::peq() const
+std::vector<common::Filter> Controller::filters(common::FilterGroup group) const
 {
-    return m_pipeline->peq();
+    switch (group) {
+    case common::FilterGroup::Peq:
+        return m_pipeline->peq();
+        break;
+    case common::FilterGroup::Aux:
+        return { m_pipeline->crossover() };
+        break;
+    case common::FilterGroup::Invalid:
+        return {};
+    }
+    return {};
 }
 
-void Controller::setPeq(const std::vector<common::Filter>& filters)
+void Controller::setFilters(common::FilterGroup group, const std::vector<common::Filter>& filters)
 {
     for (const auto& filter : filters) {
-        qDebug() << "type:" << static_cast<uint>(filter.type) << ", f:" << filter.f << ", g:" << filter.g << ", q:" << filter.q;
+        qDebug() << "group:" << static_cast<uint>(group) <<
+                    "type:" << static_cast<uint>(filter.type) <<
+                    ", f:" << filter.f <<
+                    ", g:" << filter.g <<
+                    ", q:" << filter.q;
     }
     qDebug() << "";
 
-    m_pipeline->setPeq(filters);
-
-    // Check if crossover was provided, if not, we disable crossover
-    auto it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
-        return f.type == common::FilterType::Crossover;
-    });
-    it != filters.end() ? m_pipeline->setCrossover(*it) : m_pipeline->setCrossover(common::Filter());
+    switch (group) {
+    case common::FilterGroup::Peq:
+        m_pipeline->setPeq(filters);
+        break;
+    case common::FilterGroup::Aux: {
+        // Check if crossover was provided, if not, we disable crossover
+        auto it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
+            return f.type == common::FilterType::Crossover;
+        });
+        it != filters.end() ? m_pipeline->setCrossover(*it) : m_pipeline->setCrossover(common::Filter());
+        break;
+    }
+    case common::FilterGroup::Invalid:
+        break;
+    }
 }
 
 void Controller::setTransport(const QDBusObjectPath& transport)

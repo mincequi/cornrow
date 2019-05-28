@@ -19,6 +19,8 @@
 
 #include "Persistence.h"
 
+using namespace std::placeholders;
+
 namespace config
 {
 
@@ -30,14 +32,15 @@ Controller::Controller(audio::Controller* audio,
       m_bluetooth(bluetooth)
 {
     // On start-up we read config from disk
-    m_audio->setPeq(readConfig());
+    m_audio->setFilters(common::FilterGroup::Peq, readPeq());
+    //m_audio->setFilters(common::FilterGroup::Aux, readPeq());
 
     // Create BLE server and adapter. Provide config provider.
     //m_ble = new ble::Server(this);
     //m_bleAdapter = new ble::ServerAdapter(m_ble, std::bind(&audio::Controller::peq, m_audio));
 
-    m_bluetooth->setReadFiltersCallback(std::bind(&audio::Controller::peq, m_audio));
-    connect(m_bluetooth, &bluetooth::Controller::filtersWritten, m_audio, &audio::Controller::setPeq);
+    m_bluetooth->setReadFiltersCallback(std::bind(&audio::Controller::filters, m_audio, _1));
+    connect(m_bluetooth, &bluetooth::Controller::filtersWritten, m_audio, &audio::Controller::setFilters);
 
     // Once a (control) client disconnects, we write persistence.
     //connect(m_ble, &ble::Server::deviceDisconnected, this, &config::Controller::writeConfig);
@@ -53,7 +56,7 @@ Controller::~Controller()
 void Controller::writeConfig()
 {
     // If connection is closed, we write config to disk
-    config::writeConfig(m_audio->peq());
+    config::writeConfig(m_audio->filters(common::FilterGroup::Peq));
 }
 
 } // namespace config

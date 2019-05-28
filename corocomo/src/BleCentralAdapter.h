@@ -21,14 +21,14 @@ public:
 
 signals:
     void status(Model::Status status, const QString& errorString = QString());
-    void initPeq(const std::vector<Model::Filter>& filters);
+    void filtersReceived(common::FilterGroup task, const std::vector<Model::Filter>& filters);
     void initXo(const QByteArray& value);
     void initLoudness(const QByteArray& value);
 
 private:
     void doWriteCharc();
     void onStatus(ble::Client::Status status, const QString& errorString);
-    void onCharacteristicRead(common::FilterTask task, const QByteArray &value);
+    void onCharacteristicRead(common::FilterGroup task, const QByteArray &value);
 
     ble::Client*   m_central;
     Model*          m_model;

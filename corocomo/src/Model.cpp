@@ -23,15 +23,15 @@ Model* Model::init(const Config& configuration)
     return s_instance;
 }
 
-Model::Model(const Config& configuration, QObject *parent) :
+Model::Model(const Config& config, QObject *parent) :
     QObject(parent),
-    m_configuration(configuration),
-    m_xoBand(configuration.filterCount),
-    m_swBand(configuration.filterCount+1)
+    m_config(config),
+    m_xoBand(config.peqFilterCount),
+    m_swBand(config.peqFilterCount+1)
 {
-    auto filterCount = m_configuration.filterCount;
-    if (m_configuration.xoAvailable) ++filterCount;
-    if (m_configuration.swAvailable) ++filterCount;
+    auto filterCount = m_config.peqFilterCount;
+    if (m_config.xoAvailable) ++filterCount;
+    if (m_config.swAvailable) ++filterCount;
     resizeFilters(filterCount);
     setCurrentBand(0);
 
@@ -43,7 +43,7 @@ Model::Model(const Config& configuration, QObject *parent) :
     m_central = new ble::Client(this);
     m_adapter = new BleCentralAdapter(m_central, this);
 
-    connect(m_adapter, &BleCentralAdapter::initPeq, this, &Model::setFilters);
+    connect(m_adapter, &BleCentralAdapter::filtersReceived, this, &Model::setFilters);
     connect(m_adapter, &BleCentralAdapter::status, this, &Model::onBleStatus);
 }
 
@@ -86,7 +86,7 @@ void Model::resizeFilters(int diff)
 {
     if (diff > 0) {
         while (diff--) {
-            m_filters.append(Filter(common::FilterType::Invalid, m_configuration.freqDefault, 0.0, m_configuration.qDefault));
+            m_filters.append(Filter(common::FilterType::Invalid, m_config.freqDefault, 0.0, m_config.qDefault));
         }
     } else if (diff < 0) {
         m_filters.erase(m_filters.end() + diff, m_filters.end());
@@ -125,11 +125,11 @@ std::vector<bool> Model::activeFilters() const
     }
 
     return ret;
-};
+}
 
 int Model::peqFilterCount() const
 {
-    return m_configuration.filterCount;
+    return m_config.peqFilterCount;
 }
 
 int Model::currentBand() const
@@ -139,7 +139,7 @@ int Model::currentBand() const
 
 int Model::filterType() const
 {
-    if (m_currentBand < m_configuration.filterCount) {
+    if (m_currentBand < m_config.peqFilterCount) {
         return static_cast<int>(m_currentFilter->t);
     } else if (m_currentBand == m_xoBand) {
         return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : 1;
@@ -154,7 +154,7 @@ void Model::setFilterType(int type)
 {
     common::FilterType t = common::FilterType::Invalid;
 
-    if (m_currentBand < m_configuration.filterCount) {
+    if (m_currentBand < m_config.peqFilterCount) {
         t = static_cast<common::FilterType>(type);
     } else if (m_currentBand == m_xoBand) {
         t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Crossover;
@@ -170,7 +170,7 @@ void Model::setFilterType(int type)
 
 QStringList Model::filterTypeNames() const
 {
-    if (m_currentBand < m_configuration.filterCount) {
+    if (m_currentBand < m_config.peqFilterCount) {
         return { "Off", "Peaking", "LowPass", "HighPass" };
     } else {
         return { "Off", "LR4" };
@@ -179,7 +179,7 @@ QStringList Model::filterTypeNames() const
 
 QString Model::freqReadout() const
 {
-    double value = m_configuration.freqTable.at(m_currentFilter->f);
+    double value = m_config.freqTable.at(m_currentFilter->f);
 
     if (value < 1.0) return QString::number(value, 'f', 2);
     else if (value < 100.0) return QString::number(value, 'f', 1);
@@ -189,7 +189,7 @@ QString Model::freqReadout() const
 void Model::stepFreq(int i)
 {
     int idx = m_currentFilter->f + i;
-    if (idx < 0 || idx > static_cast<int>(m_configuration.freqTable.size()-1) || idx == m_currentFilter->f) {
+    if (idx < 0 || idx > static_cast<int>(m_config.freqTable.size()-1) || idx == m_currentFilter->f) {
         return;
     }
 
@@ -200,12 +200,12 @@ void Model::stepFreq(int i)
 
 double Model::freqSlider() const
 {
-    return static_cast<double>(m_currentFilter->f)/(m_configuration.freqTable.size()-1);
+    return static_cast<double>(m_currentFilter->f)/(m_config.freqTable.size()-1);
 }
 
 void Model::setFreqSlider(double f)
 {
-    uint8_t idx = static_cast<uint8_t>(qRound(f*(m_configuration.freqTable.size()-1)));
+    uint8_t idx = static_cast<uint8_t>(qRound(f*(m_config.freqTable.size()-1)));
     if (m_currentFilter->f == idx) return;
 
     m_currentFilter->f = idx;
@@ -219,8 +219,8 @@ double Model::gain() const
 
 void Model::stepGain(int i)
 {
-    double g = m_currentFilter->g+i*m_configuration.gainStep;
-    if (g > m_configuration.gainMax || g < m_configuration.gainMin) {
+    double g = m_currentFilter->g+i*m_config.gainStep;
+    if (g > m_config.gainMax || g < m_config.gainMin) {
         return;
     }
 
@@ -230,7 +230,7 @@ void Model::stepGain(int i)
 
 void Model::setGain(double g)
 {
-    if (g > m_configuration.gainMax || g < m_configuration.gainMin) {
+    if (g > m_config.gainMax || g < m_config.gainMin) {
         return;
     }
 
@@ -240,7 +240,7 @@ void Model::setGain(double g)
 
 QString Model::qReadout() const
 {
-    double value = m_configuration.qTable.at(m_currentFilter->q);
+    double value = m_config.qTable.at(m_currentFilter->q);
 
     if (value < 1.0) return QString::number(value, 'f', 2);
     else if (value < 10.0) return QString::number(value, 'f', 1);
@@ -251,7 +251,7 @@ void Model::stepQ(int i)
 {
     int idx = m_currentFilter->q + i;
     if (idx < 0) return;
-    if (idx > static_cast<int>(m_configuration.qTable.size())-1) return;
+    if (idx > static_cast<int>(m_config.qTable.size())-1) return;
     if (m_currentFilter->q == idx) return;
 
     m_currentFilter->q = static_cast<uint8_t>(idx);
@@ -262,27 +262,28 @@ void Model::stepQ(int i)
 
 double Model::qSlider() const
 {
-    return static_cast<double>(m_currentFilter->q)/(m_configuration.qTable.size()-1);
+    return static_cast<double>(m_currentFilter->q)/(m_config.qTable.size()-1);
 }
 
 void Model::setQSlider(double q)
 {
-    uint8_t idx = static_cast<uint8_t>(qRound(q*(m_configuration.qTable.size()-1)));
+    uint8_t idx = static_cast<uint8_t>(qRound(q*(m_config.qTable.size()-1)));
     if (m_currentFilter->q == idx) return;
 
     m_currentFilter->q = idx;
     emit qChanged();
 }
 
-void Model::setFilters(const std::vector<Filter>& filters)
+void Model::setFilters(common::FilterGroup task, const std::vector<Filter>& filters)
 {
-    for (uint i = 0; i < filters.size(); ++i) {
+    uint i = (task == common::FilterGroup::Peq) ? 0 : m_config.peqFilterCount;
+    for (; i < filters.size(); ++i) {
         m_filters[i].t = filters.at(i).t;
         m_filters[i].f = filters.at(i).f;
         m_filters[i].g = filters.at(i).g;
         m_filters[i].q = filters.at(i).q;
         // @TODO(mawe): range check filter parameters (e.g. Q from server might be out of local range).
-        emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_configuration.freqTable.at(m_filters[i].f), m_filters[i].g, m_configuration.qTable.at(m_filters[i].q));
+        emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_config.freqTable.at(m_filters[i].f), m_filters[i].g, m_config.qTable.at(m_filters[i].q));
     }
 
     setCurrentBand(0);
@@ -291,7 +292,7 @@ void Model::setFilters(const std::vector<Filter>& filters)
 void Model::onParameterChanged()
 {
     if (m_currentFilter) {
-        emit filterChanged(m_currentBand, static_cast<uchar>(m_currentFilter->t), m_configuration.freqTable.at(m_currentFilter->f), m_currentFilter->g, m_configuration.qTable.at(m_currentFilter->q));
+        emit filterChanged(m_currentBand, static_cast<uchar>(m_currentFilter->t), m_config.freqTable.at(m_currentFilter->f), m_currentFilter->g, m_config.qTable.at(m_currentFilter->q));
     } else {
         emit filterChanged(m_currentBand, 0, 0.0, 0.0, 0.0);
     }

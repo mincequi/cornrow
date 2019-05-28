@@ -17,6 +17,8 @@
 
 #include "Controller.h"
 
+#include "AudioSinkAgent.h"
+
 #include <QDebug>
 #include <QtBluetooth/QBluetoothLocalDevice>
 #include <QtDBus/QDBusObjectPath>
@@ -36,7 +38,7 @@
 #include <BluezQt/Services>
 #include <BluezQt/Types>
 
-#include "AudioSinkAgent.h"
+using namespace std::placeholders;
 
 namespace bluetooth
 {
@@ -96,9 +98,16 @@ void Controller::initBle()
 
     m_application = new GattApplication(this);
     auto service = new GattService(QStringLiteral("ad100000-d901-11e8-9f8b-f2801f1b9fd1"), true, m_application);
-    m_peqCharc = new GattCharacteristic(QStringLiteral("ad10e100-d901-11e8-9f8b-f2801f1b9fd1"), service);
-    m_peqCharc->setReadCallback(std::bind(&Controller::onReadFilters, this));
-    connect(m_peqCharc, &GattCharacteristic::valueWritten, this, &Controller::onWriteFilters);
+
+    auto peqCharc = new GattCharacteristic(QStringLiteral("ad10e100-d901-11e8-9f8b-f2801f1b9fd1"), service);
+    peqCharc->setReadCallback(std::bind(&Controller::onReadFilters, this, common::FilterGroup::Peq));
+    connect(peqCharc, &GattCharacteristic::valueWritten, std::bind(&Controller::onWriteFilters, this, common::FilterGroup::Peq, _1));
+    m_charcs[common::FilterGroup::Peq] = peqCharc;
+
+    auto auxCharc = new GattCharacteristic(QStringLiteral("ad10a100-d901-11e8-9f8b-f2801f1b9fd1"), service);
+    auxCharc->setReadCallback(std::bind(&Controller::onReadFilters, this, common::FilterGroup::Aux));
+    connect(auxCharc, &GattCharacteristic::valueWritten, std::bind(&Controller::onWriteFilters, this, common::FilterGroup::Aux, _1));
+    m_charcs[common::FilterGroup::Aux] = auxCharc;
 
     m_manager->usableAdapter()->gattManager()->registerApplication(m_application);
 }
@@ -115,14 +124,14 @@ void Controller::onConfigurationCleared(const QString& transportObjectPath)
     emit configurationCleared(QDBusObjectPath(transportObjectPath));
 }
 
-QByteArray Controller::onReadFilters()
+QByteArray Controller::onReadFilters(common::FilterGroup group)
 {
-    return m_converter.filtersToBle(m_readCallback());
+    return m_converter.filtersToBle(m_readCallback(group));
 }
 
-void Controller::onWriteFilters(const QByteArray& value)
+void Controller::onWriteFilters(common::FilterGroup group, const QByteArray& value)
 {
-    emit filtersWritten(m_converter.filtersFromBle(value));
+    emit filtersWritten(group, m_converter.filtersFromBle(value));
 }
 
 } // namespace bluetooth

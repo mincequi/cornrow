@@ -44,24 +44,24 @@ public:
     explicit Controller(QObject *parent = nullptr);
     ~Controller();
 
-    using ReadFiltersCallback = std::function<std::vector<common::Filter>()>;
+    using ReadFiltersCallback = std::function<std::vector<common::Filter>(common::FilterGroup group)>;
     void setReadFiltersCallback(ReadFiltersCallback callback);
 
 signals:
     void configurationSet(const QDBusObjectPath& transportObjectPath);
     void configurationCleared(const QDBusObjectPath& transportObjectPath);
-    void filtersWritten(const std::vector<common::Filter>& filters);
+    void filtersWritten(common::FilterGroup group, const std::vector<common::Filter>& filters);
 
 private:
     void initBle();
 
     void onConfigurationSet(const QString& transportObjectPath, const QVariantMap& properties);
     void onConfigurationCleared(const QString& transportObjectPath);
-    QByteArray onReadFilters();
-    void onWriteFilters(const QByteArray& value);
+    QByteArray onReadFilters(common::FilterGroup group);
+    void onWriteFilters(common::FilterGroup group, const QByteArray& value);
 
     BluezQt::Manager* m_manager = nullptr;
-    BluezQt::GattCharacteristic* m_peqCharc = nullptr;
+    std::map<common::FilterGroup, BluezQt::GattCharacteristic*> m_charcs;
     BluezQt::GattApplication* m_application = nullptr;
     BluezQt::LEAdvertisement* m_advertisement = nullptr;
     ReadFiltersCallback m_readCallback = nullptr;

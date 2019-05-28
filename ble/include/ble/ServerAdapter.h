@@ -25,8 +25,7 @@ public:
 
 signals:
     void peq(const std::vector<common::Filter>& filters);
-    void crossover(const QByteArray& value);
-    void loudness(const QByteArray& value);
+    void aux(const QByteArray& value);
 
 private:
     void onCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);

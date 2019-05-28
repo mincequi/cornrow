@@ -24,7 +24,7 @@ public:
     static Config* init(Type type);
     static Config* instance();
 
-    uint8_t filterCount = 1;
+    uint8_t peqFilterCount = 1;
 
     std::vector<double> freqTable;
     uint8_t freqDefault;

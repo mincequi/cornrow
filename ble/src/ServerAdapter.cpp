@@ -25,15 +25,13 @@ ServerAdapter::~ServerAdapter()
     delete m_converter;
 }
 
-void ServerAdapter::onCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &value)
+void ServerAdapter::onCharacteristicChanged(const QLowEnergyCharacteristic& characteristic, const QByteArray& value)
 {
     // ignore any other characteristic, should not happen
     if (characteristic.uuid() == ble::peqCharacteristicUuid) {
         emit peq(m_converter->filtersFromBle(value));
-    } else if (characteristic.uuid() == ble::crossoverCharacteristicUuid) {
-        emit crossover(value);
-    } else if (characteristic.uuid() == ble::loudnessCharacteristicUuid) {
-        emit loudness(value);
+    } else if (characteristic.uuid() == ble::auxCharacteristicUuid) {
+        emit aux(value);
     } else {
         qDebug() << __func__ << "unknown uuid:" << characteristic.uuid();
     }

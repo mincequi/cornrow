@@ -17,14 +17,11 @@
 
 #pragma once
 
+#include <common/Types.h>
+
 #include <QObject>
 
 class QDBusObjectPath;
-
-namespace common
-{
-struct Filter;
-}
 
 namespace audio
 {
@@ -41,8 +38,8 @@ public:
     void setTransport(const QDBusObjectPath& transport);
     void clearTransport();
 
-    std::vector<common::Filter> peq() const;
-    void setPeq(const std::vector<common::Filter>& filters);
+    std::vector<common::Filter> filters(common::FilterGroup group) const;
+    void setFilters(common::FilterGroup group, const std::vector<common::Filter>& filters);
 
 private:
     Pipeline* m_pipeline = nullptr;

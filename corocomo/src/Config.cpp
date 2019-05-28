@@ -23,7 +23,7 @@ Config::Config(Type type, QObject *parent)
     : QObject(parent)
 {
     // lowConf
-    filterCount = 5;  // @TODO(mawe): implement dynamic filter count
+    peqFilterCount = 5;  // @TODO(mawe): implement dynamic filter count
     freqTable = common::frequencyTable;
     freqDefault = 144;
     freqMin = 8;

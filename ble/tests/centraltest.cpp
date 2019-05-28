@@ -9,7 +9,7 @@ int main(int argc, char** argv)
     QCoreApplication app(argc, argv);
 
     auto central = new ble::Client();
-    QObject::connect(central, &ble::Client::characteristicRead, [](common::FilterTask task, const QByteArray &value) {
+    QObject::connect(central, &ble::Client::characteristicRead, [](common::FilterGroup task, const QByteArray &value) {
         qDebug() << "task:" << (int)task << ", value:" << value.toHex();
     });
     central->startDiscovering();
