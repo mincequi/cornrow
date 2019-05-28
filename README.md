@@ -50,7 +50,7 @@ sudo rpi-update <commit-id>
 Commit | Date | Working
 --- | --- | ---
 6aec73e | 2019-01-09 | OK
-883750d | 2019-02-05 | 
+883750d | 2019-02-05 | OK
 29952e8 | 2019-03-08 | NOK
 
 ## To Do
