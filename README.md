@@ -41,7 +41,7 @@ make
 ```
 
 ## Known issues
-# Raspberry Pi 3 Model B (BCM43143)
+### Raspberry Pi 3 Model B (BCM43143)
 Apparently, there are issues with on-board Bluetooth. Depending on the installed firmware i get stuttering Bluetooth audio playback. Additionally, there seem to be issues when operating in classic Bluetooth and Low Energy simultaneously.
 Here is an incomplete list of working/non-working firmware versions. Use the rpi-update to flash your Raspberry Pi to the according version:
 ```shell
@@ -49,7 +49,9 @@ sudo rpi-update <commit-id>
 ```
 Commit | Date | Working
 --- | --- | ---
-6aec73e | 2019-01-09 | :v:
+6aec73e | 2019-01-09 | OK
+883750d | 2019-02-05 | 
+29952e8 | 2019-03-08 | NOK
 
 ## To Do
 * Implement volume control
