@@ -40,10 +40,17 @@ cmake ..
 make
 ```
 
-## Details
+## Known issues
+# Raspberry Pi 3 Model B (BCM43143)
+Apparently, there are issues with on-board Bluetooth. Depending on the installed firmware i get stuttering Bluetooth audio playback. Additionally, there seem to be issues when operating in classic Bluetooth and Low Energy simultaneously.
+Here is an incomplete list of working/non-working firmware versions. Use the rpi-update to flash your Raspberry Pi to the according version:
+```shell
+sudo rpi-update <commit-id>
+```
+Commit | Date | Working
+--- | --- | ---
+6aec73e | 2019-01-09 | :v:
 
 ## To Do
 * Implement volume control
 * ~~Set discoverable/pairable timeout to forever~~
-
-## Thanks
