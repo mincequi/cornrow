@@ -35,15 +35,16 @@ Controller::Controller(QObject *parent)
     // Init gstreamermm-dsp
     GstDsp::init();
 
-    m_normalPipeline = new Pipeline(Pipeline::Type::Normal);
-    m_crossoverPipeline = new Pipeline(Pipeline::Type::Crossover);
-    m_currentPipeline = m_normalPipeline;
+    //m_normalPipeline = new Pipeline(Pipeline::Type::Normal);
+    //m_crossoverPipeline = new Pipeline(Pipeline::Type::Crossover);
+    m_currentPipeline = new Pipeline(Pipeline::Type::Normal);;
 }
 
 Controller::~Controller()
 {
-    delete m_normalPipeline;
-    delete m_crossoverPipeline;
+    //delete m_normalPipeline;
+    //delete m_crossoverPipeline;
+    delete m_currentPipeline;
 }
 
 std::vector<common::Filter> Controller::filters(common::FilterGroup group)
@@ -112,13 +113,14 @@ void Controller::updatePipeline()
 
     // We want another pipeline, stop current one
     m_currentPipeline->setTransport(std::string());
+    delete m_currentPipeline;
 
     switch (type) {
     case Pipeline::Type::Normal:
-        m_currentPipeline = m_normalPipeline;
+        m_currentPipeline = new Pipeline(Pipeline::Type::Normal);
         break;
     case Pipeline::Type::Crossover:
-        m_currentPipeline = m_crossoverPipeline;
+        m_currentPipeline = new Pipeline(Pipeline::Type::Crossover);
         break;
     }
 
