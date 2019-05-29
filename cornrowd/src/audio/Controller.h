@@ -43,7 +43,9 @@ public:
 private:
     void updatePipeline();
 
-    Pipeline* m_pipeline = nullptr;
+    Pipeline* m_normalPipeline = nullptr;
+    Pipeline* m_crossoverPipeline = nullptr;
+    Pipeline* m_currentPipeline = nullptr;
 
     std::string m_transport;
     std::map<common::FilterGroup, std::vector<common::Filter>> m_filters;

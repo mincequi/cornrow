@@ -35,12 +35,15 @@ Controller::Controller(QObject *parent)
     // Init gstreamermm-dsp
     GstDsp::init();
 
-    m_pipeline = new Pipeline(Pipeline::Type::Normal);
+    m_normalPipeline = new Pipeline(Pipeline::Type::Normal);
+    m_crossoverPipeline = new Pipeline(Pipeline::Type::Crossover);
+    m_currentPipeline = m_normalPipeline;
 }
 
 Controller::~Controller()
 {
-    delete m_pipeline;
+    delete m_normalPipeline;
+    delete m_crossoverPipeline;
 }
 
 std::vector<common::Filter> Controller::filters(common::FilterGroup group)
@@ -64,7 +67,7 @@ void Controller::setFilters(common::FilterGroup group, const std::vector<common:
 
     switch (group) {
     case common::FilterGroup::Peq:
-        m_pipeline->setPeq(filters);
+        m_currentPipeline->setPeq(filters);
         break;
     case common::FilterGroup::Aux: {
         updatePipeline();
@@ -72,7 +75,7 @@ void Controller::setFilters(common::FilterGroup group, const std::vector<common:
         auto it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
             return f.type == common::FilterType::Crossover;
         });
-        it != filters.end() ? m_pipeline->setCrossover(*it) : m_pipeline->setCrossover(common::Filter());
+        it != filters.end() ? m_currentPipeline->setCrossover(*it) : m_currentPipeline->setCrossover(common::Filter());
         break;
     }
     case common::FilterGroup::Invalid:
@@ -83,33 +86,45 @@ void Controller::setFilters(common::FilterGroup group, const std::vector<common:
 void Controller::setTransport(const std::string& transport)
 {
     m_transport = transport;
-    m_pipeline->setTransport(m_transport);
+    m_currentPipeline->setTransport(m_transport);
 }
 
 void Controller::clearTransport()
 {
     m_transport = std::string();
-    m_pipeline->setTransport(m_transport);
+    m_currentPipeline->setTransport(m_transport);
 }
 
 void Controller::updatePipeline()
 {
+    // Check if a crossover is set
     auto it = std::find_if(m_filters[common::FilterGroup::Aux].begin(),
             m_filters[common::FilterGroup::Aux].end(),
             [](const common::Filter& f) {
         return f.type == common::FilterType::Crossover;
     });
 
+    // Check if current pipeline is desired type
     Pipeline::Type type = (it != m_filters[common::FilterGroup::Aux].end()) ? Pipeline::Type::Crossover : Pipeline::Type::Normal;
-    if (type == m_pipeline->type()) {
+    if (type == m_currentPipeline->type()) {
         return;
     }
 
-    delete m_pipeline;
-    m_pipeline = new Pipeline(type);
-    m_pipeline->setCrossover((it != m_filters[common::FilterGroup::Aux].end()) ? *it : common::Filter());
-    m_pipeline->setPeq(m_filters[common::FilterGroup::Peq]);
-    m_pipeline->setTransport(m_transport);
+    // We want another pipeline, stop current one
+    m_currentPipeline->setTransport(std::string());
+
+    switch (type) {
+    case Pipeline::Type::Normal:
+        m_currentPipeline = m_normalPipeline;
+        break;
+    case Pipeline::Type::Crossover:
+        m_currentPipeline = m_crossoverPipeline;
+        break;
+    }
+
+    m_currentPipeline->setCrossover((it != m_filters[common::FilterGroup::Aux].end()) ? *it : common::Filter());
+    m_currentPipeline->setPeq(m_filters[common::FilterGroup::Peq]);
+    m_currentPipeline->setTransport(m_transport);
 }
 
 } // namespace audio

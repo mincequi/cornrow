@@ -55,7 +55,7 @@ Pipeline::Pipeline(Type type)
     m_alsaPassthroughSink = Gst::ElementFactory::create_element("alsapassthroughsink");
     m_alsaPassthroughSink->set_property("sync", false); // Avoid resync since it causes ugly glitches.
     m_alsaPassthroughSink->set_property("device", Glib::ustring("iec958:CARD=sndrpihifiberry,DEV=0"));
-    m_pipeline->add(m_crossover)->add(ac3Encoder)->add(m_alsaPassthroughSink);
+    //m_pipeline->add(m_crossover)->add(ac3Encoder)->add(m_alsaPassthroughSink);
 
     m_elements[Type::Normal]    = { alsaConverter, m_alsaSink };
     m_elements[Type::Crossover] = { m_crossover, ac3Encoder, m_alsaPassthroughSink };
