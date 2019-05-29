@@ -17,15 +17,14 @@
 
 #pragma once
 
+#include "Pipeline.h"
+
 #include <common/Types.h>
 
 #include <QObject>
 
-class QDBusObjectPath;
-
 namespace audio
 {
-class Pipeline;
 
 class Controller : public QObject
 {
@@ -35,14 +34,19 @@ public:
     explicit Controller(QObject *parent = nullptr);
     ~Controller();
 
-    void setTransport(const QDBusObjectPath& transport);
+    void setTransport(const std::string& transport);
     void clearTransport();
 
-    std::vector<common::Filter> filters(common::FilterGroup group) const;
+    std::vector<common::Filter> filters(common::FilterGroup group);
     void setFilters(common::FilterGroup group, const std::vector<common::Filter>& filters);
 
 private:
+    void updatePipeline();
+
     Pipeline* m_pipeline = nullptr;
+
+    std::string m_transport;
+    std::map<common::FilterGroup, std::vector<common::Filter>> m_filters;
 };
 
 } // namespace audio

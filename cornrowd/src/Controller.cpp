@@ -2,6 +2,8 @@
 
 #include "config/Controller.h"
 
+#include <QDBusObjectPath>
+
 Controller::Controller(QObject *parent)
     : QObject(parent)
 {
@@ -21,9 +23,9 @@ Controller::~Controller()
     m_config->writeConfig();
 }
 
-void Controller::onBluetoothConnected(const QDBusObjectPath &transportObjectPath)
+void Controller::onBluetoothConnected(const QDBusObjectPath& transportObjectPath)
 {
-    m_audio->setTransport(transportObjectPath);
+    m_audio->setTransport(transportObjectPath.path().toStdString());
 }
 
 void Controller::onBluetoothDisconnected(const QDBusObjectPath& /*transportObjectPath*/)

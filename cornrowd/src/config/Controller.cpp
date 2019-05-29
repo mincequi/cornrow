@@ -19,6 +19,9 @@
 
 #include "Persistence.h"
 
+#include "../audio/Controller.h"
+#include "../bluetooth/Controller.h"
+
 using namespace std::placeholders;
 
 namespace config

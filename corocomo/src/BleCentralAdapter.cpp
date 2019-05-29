@@ -21,8 +21,10 @@ BleCentralAdapter::~BleCentralAdapter()
 {
 }
 
-void BleCentralAdapter::setDirty()
+void BleCentralAdapter::setDirty(common::FilterGroup group)
 {
+    m_dirtyFilterGroups.setFlag(group);
+
     if (!m_timer.isActive()) {
         m_timer.start();
     }
@@ -33,7 +35,7 @@ void BleCentralAdapter::doWriteCharc()
     const auto& filters = m_model->m_filters;
     const auto& config = m_model->m_config;
 
-    {
+    if (m_dirtyFilterGroups.testFlag(common::FilterGroup::Peq)) {
         QByteArray value(config.peqFilterCount*4, 0);
         for (int i = 0; i < config.peqFilterCount; ++i) {
             value[i*4]   = static_cast<char>(filters.at(i).t);
@@ -42,17 +44,17 @@ void BleCentralAdapter::doWriteCharc()
             value[i*4+3] = filters.at(i).q*config.qStep+config.qMin;
         }
         m_central->writeCharacteristic(common::FilterGroup::Peq, value);
-    }
-
-    {
+        m_dirtyFilterGroups.setFlag(common::FilterGroup::Peq, false);
+    } else if (m_dirtyFilterGroups.testFlag(common::FilterGroup::Aux)) {
         QByteArray value((filters.count() - config.peqFilterCount)*4, 0);
-        for (int i = config.peqFilterCount; i < filters.count(); ++i) {
-            value[i*4]   = static_cast<char>(filters.at(i).t);
-            value[i*4+1] = filters.at(i).f*config.freqStep+config.freqMin;
-            value[i*4+2] = static_cast<int8_t>(filters.at(i).g*2.0);
-            value[i*4+3] = filters.at(i).q*config.qStep+config.qMin;
+        for (int i = 0; i < (filters.count()-config.peqFilterCount); ++i) {
+            value[i*4]   = static_cast<char>(filters.at(i+config.peqFilterCount).t);
+            value[i*4+1] = filters.at(i+config.peqFilterCount).f*config.freqStep+config.freqMin;
+            value[i*4+2] = static_cast<int8_t>(filters.at(i+config.peqFilterCount).g*2.0);
+            value[i*4+3] = filters.at(i+config.peqFilterCount).q*config.qStep+config.qMin;
         }
         m_central->writeCharacteristic(common::FilterGroup::Aux, value);
+        m_dirtyFilterGroups.setFlag(common::FilterGroup::Aux, false);
     }
 }
 

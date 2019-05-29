@@ -74,7 +74,7 @@ void Client::writeCharacteristic(common::FilterGroup group, const QByteArray& va
         qDebug() << __func__ << "Characteristic invalid:" << characteristic.uuid();
         return;
     }
-    m_clientSession->m_service->writeCharacteristic(characteristic, value, QLowEnergyService::WriteWithoutResponse);
+    m_clientSession->m_service->writeCharacteristic(characteristic, value);
 }
 
 void Client::setStatus(Status _error, const QString& errorString)

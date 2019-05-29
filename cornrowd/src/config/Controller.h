@@ -22,8 +22,15 @@
 #include <ble/Server.h>
 #include <ble/ServerAdapter.h>
 
-#include "../audio/Controller.h"
-#include "../bluetooth/Controller.h"
+namespace audio
+{
+class Controller;
+}
+
+namespace bluetooth
+{
+class Controller;
+}
 
 namespace config
 {

@@ -17,7 +17,6 @@
 
 #include "Pipeline.h"
 
-#include <gstreamermm/element.h>
 #include <gstreamermm/outputselector.h>
 #include <gstreamermm/pipeline.h>
 
@@ -30,7 +29,7 @@
 namespace audio
 {
 
-Pipeline::Pipeline()
+Pipeline::Pipeline(Type type)
 {
     m_pipeline = Gst::Pipeline::create();
 
@@ -47,8 +46,7 @@ Pipeline::Pipeline()
     // Normal output
     auto alsaConverter = Gst::AudioConvert::create();
     m_alsaSink = Gst::AlsaSink::create("alsasink");
-    m_alsaSink->set_property("sync", false);    // Avoid resync since it causes ugly glitches.
-
+    m_alsaSink->set_property("sync", false);    // Avoid resync since it causes ugly glitches
 
     // Crossover output
     m_crossover = Glib::RefPtr<GstDsp::Crossover>::cast_static(Gst::ElementFactory::create_element("crossover"));
@@ -62,26 +60,30 @@ Pipeline::Pipeline()
     m_elements[Type::Normal]    = { alsaConverter, m_alsaSink };
     m_elements[Type::Crossover] = { m_crossover, ac3Encoder, m_alsaPassthroughSink };
 
-    constructPipeline(Type::Normal, true);
+    constructPipeline(type, true);
 }
 
 Pipeline::~Pipeline()
 {
-    stop();
-}
-
-void Pipeline::start(const std::string& transport)
-{
-    m_bluetoothSource->set_property("transport", transport);
-    m_pipeline->set_state(Gst::STATE_PLAYING);
-}
-
-void Pipeline::stop()
-{
     m_pipeline->set_state(Gst::STATE_NULL);
 }
 
-void Pipeline::setPeq(const std::vector<common::Filter> filters)
+Pipeline::Type Pipeline::type() const
+{
+    return m_currentType;
+}
+
+void Pipeline::setTransport(const std::string& transport)
+{
+    if (transport.empty()) {
+        m_pipeline->set_state(Gst::STATE_NULL);
+    } else {
+        m_bluetoothSource->set_property("transport", transport);
+        m_pipeline->set_state(Gst::STATE_PLAYING);
+    }
+}
+
+void Pipeline::setPeq(const std::vector<common::Filter>& filters)
 {
     m_peq->setFilters(toGstDsp(filters));
 }
@@ -94,7 +96,6 @@ std::vector<common::Filter> Pipeline::peq() const
 void Pipeline::setCrossover(const common::Filter& crossover)
 {
     m_crossover->setFrequency(crossover.f);
-    constructPipeline(crossover.type == common::FilterType::Crossover ? Type::Crossover : Type::Normal);
 }
 
 common::Filter Pipeline::crossover() const
@@ -111,16 +112,6 @@ bool Pipeline::constructPipeline(Type type, bool force)
     if (m_currentType == type && !force) {
         return true;
     }
-
-    // Get current state
-    Gst::State state, pending;
-    auto ret = m_pipeline->get_state(state, pending, Gst::CLOCK_TIME_NONE);
-    if (ret != Gst::STATE_CHANGE_SUCCESS) {
-        return false;
-    }
-
-    // Stop pipeline
-    stop();
 
     // Remove all elements which are not of current type
     for (auto kv : m_elements) {
@@ -143,9 +134,6 @@ bool Pipeline::constructPipeline(Type type, bool force)
             (*(std::prev(it)))->link(*it);
         }
     }
-
-    // Set previous state
-    m_pipeline->set_state(state);
 
     m_currentType = type;
 

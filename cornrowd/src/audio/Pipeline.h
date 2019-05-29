@@ -44,24 +44,25 @@ namespace audio
 class Pipeline
 {
 public:
-    explicit Pipeline();
+    enum class Type {
+        Normal,
+        Crossover
+    };
+
+    explicit Pipeline(Type type);
     ~Pipeline();
 
-    void start(const std::string& transport);
-    void stop();
+    Type type() const;
 
-    void setPeq(const std::vector<common::Filter> filters);
+    void setTransport(const std::string& transport);
+
+    void setPeq(const std::vector<common::Filter>& filters);
     std::vector<common::Filter> peq() const;
 
     void setCrossover(const common::Filter& crossover);
     common::Filter crossover() const;
 
 private:
-    enum class Type {
-        Normal,
-        Crossover
-    };
-
     bool constructPipeline(Type type, bool force = false);
 
     Type m_currentType = Type::Normal;

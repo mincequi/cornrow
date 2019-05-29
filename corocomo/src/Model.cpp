@@ -298,7 +298,7 @@ void Model::onParameterChanged()
     }
 
     if (!m_demoMode) {
-        m_adapter->setDirty();
+        m_adapter->setDirty(m_currentBand < m_config.peqFilterCount ? common::FilterGroup::Peq : common::FilterGroup::Aux);
     }
 }
 

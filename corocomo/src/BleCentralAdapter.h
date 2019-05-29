@@ -17,7 +17,7 @@ public:
                                Model* model);
     ~BleCentralAdapter();
 
-    void setDirty();
+    void setDirty(common::FilterGroup group);
 
 signals:
     void status(Model::Status status, const QString& errorString = QString());
@@ -30,10 +30,13 @@ private:
     void onStatus(ble::Client::Status status, const QString& errorString);
     void onCharacteristicRead(common::FilterGroup task, const QByteArray &value);
 
-    ble::Client*   m_central;
+    ble::Client*    m_central;
     Model*          m_model;
 
     QTimer          m_timer;
+
+    Q_DECLARE_FLAGS(FilterGroups, common::FilterGroup)
+    FilterGroups m_dirtyFilterGroups;
 };
 
 
