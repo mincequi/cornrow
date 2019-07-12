@@ -310,7 +310,7 @@ void Model::onBleStatus(Status _status, const QString& statusText)
     switch (_status) {
     case Status::NoBluetooth:
         m_statusLabel = "Bluetooth disabled";
-        m_statusText = "Enable Bluetooth in your device's settings.";
+        m_statusText = "Enable Bluetooth in your device's settings";
         break;
     case Status::Discovering:
         m_statusLabel = "Discovering";
@@ -325,11 +325,11 @@ void Model::onBleStatus(Status _status, const QString& statusText)
         break;
     case Status::Timeout:
         m_statusLabel = "Timeout";
-        m_statusText = "Be sure to be close to a cornrow device.";
+        m_statusText = "Be sure to be close to a cornrow device";
         break;
     case Status::Lost:
         m_statusLabel = "Lost";
-        m_statusText = "Connection has been interrupted.";
+        m_statusText = "Connection has been interrupted";
         break;
     case Status::Error:
         m_statusLabel = "Error";

@@ -19,22 +19,22 @@ Converter::~Converter()
 
 common::FilterGroup Converter::fromBle(const QBluetoothUuid& uuid)
 {
-    if (uuid == ble::peqCharacteristicUuid) {
+    if (uuid == common::peqCharacteristicUuid) {
         return common::FilterGroup::Peq;
-    } else if (uuid == ble::auxCharacteristicUuid) {
+    } else if (uuid == common::auxCharacteristicUuid) {
         return common::FilterGroup::Aux;
     }
 
     return common::FilterGroup::Invalid;
 }
 
-QBluetoothUuid Converter::toBle(common::FilterGroup task)
+QBluetoothUuid Converter::toBle(common::FilterGroup group)
 {
-    switch (task) {
+    switch (group) {
     case common::FilterGroup::Peq:
-        return ble::peqCharacteristicUuid;
+        return common::peqCharacteristicUuid;
     case common::FilterGroup::Aux:
-        return ble::auxCharacteristicUuid;
+        return common::auxCharacteristicUuid;
     case common::FilterGroup::Invalid:
         return QBluetoothUuid();
     }

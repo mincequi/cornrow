@@ -8,14 +8,6 @@ const std::set<int> validSampleRates = {
     48000
 };
 
-Config::Config(Source source_, int rate_, SampleFormat format_, std::string watchFilename_)
-    : source(source_),
-      rate(rate_),
-      format(format_),
-      watchFilename(watchFilename_)
-{
-}
-
 // Renard R80
 const std::vector<double> frequencyTable {
       16.0,     16.5,    17.0,    17.5,    18.0,    18.5,    19.0,    19.5,

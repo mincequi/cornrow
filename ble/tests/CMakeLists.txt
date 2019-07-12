@@ -7,5 +7,5 @@ endmacro()
 
 ble_tests(
     centraltest
-    peripheraltest
+    #peripheraltest
 )

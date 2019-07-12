@@ -15,8 +15,8 @@ public:
     ~Controller();
 
 private:
-    void onBluetoothConnected(const QDBusObjectPath &transportObjectPath);
-    void onBluetoothDisconnected(const QDBusObjectPath &transportObjectPath);
+    void onTransportChanged(int fd, uint16_t imtu, uint16_t omtu);
+    void onVolumeChanged(float volume);
 
     audio::Controller*      m_audio;
     bluetooth::Controller*  m_bluetooth;

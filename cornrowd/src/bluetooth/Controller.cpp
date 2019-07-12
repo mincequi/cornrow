@@ -19,9 +19,11 @@
 
 #include "AudioSinkAgent.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QtBluetooth/QBluetoothLocalDevice>
 #include <QtDBus/QDBusObjectPath>
+#include <QtDBus/QDBusUnixFileDescriptor>
 
 #include <BluezQt/Adapter>
 #include <BluezQt/Device>
@@ -37,6 +39,9 @@
 #include <BluezQt/MediaEndpoint>
 #include <BluezQt/Services>
 #include <BluezQt/Types>
+
+#include <cmath>
+#include <unistd.h>
 
 using namespace std::placeholders;
 
@@ -66,9 +71,10 @@ Controller::Controller(QObject *parent)
     m_manager->requestDefaultAgent(agent);
 
     MediaEndpoint *sbcSink = new MediaEndpoint({MediaEndpoint::Role::AudioSink, MediaEndpoint::Codec::Sbc}, m_manager);
-    connect(sbcSink, &MediaEndpoint::configurationSet, this, &Controller::onConfigurationSet);
-    connect(sbcSink, &MediaEndpoint::configurationCleared, this, &Controller::onConfigurationCleared);
     m_manager->usableAdapter()->media()->registerEndpoint(sbcSink);
+    connect(m_manager, &Manager::deviceChanged, [this](DevicePtr device) {
+        connect(device.data(), &Device::mediaTransportChanged, this, &Controller::onTransportChanged);
+    });
 
     for (auto adapter : m_manager->adapters()) {
         adapter->setDiscoverableTimeout(0);
@@ -112,16 +118,63 @@ void Controller::initBle()
     m_manager->usableAdapter()->gattManager()->registerApplication(m_application);
 }
 
-void Controller::onConfigurationSet(const QString& transportObjectPath, const QVariantMap& properties)
+void Controller::onTransportChanged(MediaTransportPtr transport)
 {
-    qDebug() << "Set configuration for transport:" << transportObjectPath << "to:" << properties;
-    emit configurationSet(QDBusObjectPath(transportObjectPath));
+    if (m_transport == transport) {
+        return;
+    }
+
+    if (m_transport) {
+        disconnect(m_transport.data(), &MediaTransport::stateChanged, this, &Controller::onTransportStateChanged);
+        disconnect(m_transport.data(), &MediaTransport::volumeChanged, this, &Controller::onTransportVolumeChanged);
+    }
+
+    m_transport = transport;
+    if (!m_transport) {
+        emit transportChanged(-1, 0, 0);
+        return;
+    }
+
+    connect(m_transport.data(), &MediaTransport::stateChanged, this, &Controller::onTransportStateChanged);
+    connect(m_transport.data(), &MediaTransport::volumeChanged, this, &Controller::onTransportVolumeChanged);
 }
 
-void Controller::onConfigurationCleared(const QString& transportObjectPath)
+void Controller::onTransportStateChanged(BluezQt::MediaTransport::State state)
 {
-    qDebug() << "Cleared configuration for transport:" << transportObjectPath;
-    emit configurationCleared(QDBusObjectPath(transportObjectPath));
+    qDebug() << "Transport state:" << state;
+
+    switch (state) {
+    case MediaTransport::State::Idle:
+        // Bluez already releases transport. No need to do manually.
+        //m_transport->release();
+        break;
+    case MediaTransport::State::Pending: {
+        //QCoreApplication::processEvents();
+        auto *call = m_transport->tryAcquire();
+        connect(call, &PendingCall::finished, [this, call]() {
+            qDebug() << __func__ << "fd: " << call->valueAt<0>().fileDescriptor() << "mtu read:" << call->valueAt<1>() << "mtu write:" << call->valueAt<2>();
+            // We have to dup() the file descriptor as long as QDBusUnixFileDescriptor object is valid
+            emit transportChanged(::dup(call->valueAt<0>().fileDescriptor()), call->valueAt<1>(), call->valueAt<2>());
+        });
+        break;
+    }
+    case MediaTransport::State::Active:
+        break;
+    }
+}
+
+void Controller::onTransportVolumeChanged(uint16_t volume)
+{
+    qDebug() << __func__ << "> transport volume:" << volume;
+
+    if (volume == 0) {
+        emit volumeChanged(0.0f);
+        return;
+    }
+
+    static const float factor = 4.0;        // 127 - 7 -> 0dB - -30dB
+    //static const float factor = 2.6666;   // 127 - 7 -> 0dB - -45dB
+    emit volumeChanged(pow(10.0, (volume-127)/(factor*20.0)));
 }
 
 QByteArray Controller::onReadFilters(common::FilterGroup group)

@@ -14,22 +14,22 @@ enum class Source : uint8_t {
     Invalid     = 0,
 
     Default     = 0x01, // platform specific (alsa on linux)
-    Bluetooth   = 0x02
+    Bluetooth   = 0x02,
+    Airplay     = 0x04
+};
+
+enum class SinkType : uint8_t {
+    Invalid     = 0,
+
+    Analog      = 0x01,
+    Spdif       = 0x02,
+    Hdmi        = 0x03
 };
 
 enum class SampleFormat : uint8_t {
     Invalid     = 0,
 
     I16         = 0x1
-};
-
-struct Config {
-    Config(Source source_, int rate_, SampleFormat format_, std::string watchFilename_ = std::string());
-
-    Source  source = Source::Invalid;
-    int     rate = 0;
-    SampleFormat format = SampleFormat::Invalid;
-    std::string watchFilename;
 };
 
 enum class Version : uint8_t {
@@ -110,5 +110,15 @@ struct BiQuad
 
 extern const std::vector<double> frequencyTable;
 extern const std::vector<double> qTable;
+
+namespace ble
+{
+
+static const std::string cornrowServiceUuid    ("ad100000-d901-11e8-9f8b-f2801f1b9fd1");
+static const std::string peqCharacteristicUuid ("ad10e100-d901-11e8-9f8b-f2801f1b9fd1");
+static const std::string auxCharacteristicUuid ("ad10a100-d901-11e8-9f8b-f2801f1b9fd1");
+static const std::string capsCharacteristicUuid("ad10c100-d901-11e8-9f8b-f2801f1b9fd1");
+
+}
 
 } // namespace common

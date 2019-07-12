@@ -3,7 +3,10 @@ cmake_minimum_required(VERSION 3.7)
 project(cornrow)
 
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Werror -Wno-narrowing -Wno-psabi -Wno-deprecated-declarations")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Werror \
+    -Wno-narrowing -Wno-psabi \
+    -Wno-deprecated-declarations \
+    -Wno-zero-as-null-pointer-constant")
 set(CMAKE_CXX_STANDARD 11)
 
 find_package(Qt5Core REQUIRED)

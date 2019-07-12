@@ -12,10 +12,8 @@ Controller::Controller(QObject *parent)
     m_audio = new audio::Controller(this);
     m_config = new config::Controller(m_audio, m_bluetooth, this);
 
-    // When config has been set from bluez, we have to delay further execution
-    // (probably because of unix fd is not opened yet). Hence, the QueuedConnection.
-    connect(m_bluetooth, &bluetooth::Controller::configurationSet, this, &Controller::onBluetoothConnected, Qt::QueuedConnection);
-    connect(m_bluetooth, &bluetooth::Controller::configurationCleared, this, &Controller::onBluetoothDisconnected);
+    connect(m_bluetooth, &bluetooth::Controller::transportChanged, this, &Controller::onTransportChanged);
+    connect(m_bluetooth, &bluetooth::Controller::volumeChanged, this, &Controller::onVolumeChanged);
 }
 
 Controller::~Controller()
@@ -23,12 +21,12 @@ Controller::~Controller()
     m_config->writeConfig();
 }
 
-void Controller::onBluetoothConnected(const QDBusObjectPath& transportObjectPath)
+void Controller::onTransportChanged(int fd, uint16_t imtu, uint16_t omtu)
 {
-    m_audio->setTransport(transportObjectPath.path().toStdString());
+    m_audio->setTransport(fd, imtu, omtu, 44100);
 }
 
-void Controller::onBluetoothDisconnected(const QDBusObjectPath& /*transportObjectPath*/)
+void Controller::onVolumeChanged(float volume)
 {
-    m_audio->clearTransport();
+    m_audio->setVolume(volume);
 }

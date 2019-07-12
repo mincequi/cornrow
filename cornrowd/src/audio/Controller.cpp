@@ -26,6 +26,8 @@
 
 #include "Pipeline.h"
 
+#include <unistd.h>
+
 namespace audio
 {
 
@@ -84,16 +86,19 @@ void Controller::setFilters(common::FilterGroup group, const std::vector<common:
     }
 }
 
-void Controller::setTransport(const std::string& transport)
+void Controller::setTransport(int fd, uint16_t imtu, uint16_t omtu, int rate)
 {
-    m_transport = transport;
-    m_currentPipeline->setTransport(m_transport);
+    //::close(m_fd);
+    m_fd = fd;
+    m_imtu = imtu;
+    m_omtu = omtu;
+    m_rate = rate;
+    m_currentPipeline->setTransport(m_fd, m_imtu, m_omtu, m_rate);
 }
 
-void Controller::clearTransport()
+void Controller::setVolume(float volume)
 {
-    m_transport = std::string();
-    m_currentPipeline->setTransport(m_transport);
+    m_currentPipeline->setVolume(volume);
 }
 
 void Controller::updatePipeline()
@@ -112,7 +117,7 @@ void Controller::updatePipeline()
     }
 
     // We want another pipeline, stop current one
-    m_currentPipeline->setTransport(std::string());
+    m_currentPipeline->setTransport(-1, 0, 0, 0);
     delete m_currentPipeline;
 
     switch (type) {
@@ -126,7 +131,8 @@ void Controller::updatePipeline()
 
     m_currentPipeline->setCrossover((it != m_filters[common::FilterGroup::Aux].end()) ? *it : common::Filter());
     m_currentPipeline->setPeq(m_filters[common::FilterGroup::Peq]);
-    m_currentPipeline->setTransport(m_transport);
+    //m_currentPipeline->setTransport(m_transport);
+    m_currentPipeline->setTransport(m_fd, m_imtu, m_omtu, m_rate);
 }
 
 } // namespace audio

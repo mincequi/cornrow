@@ -26,9 +26,11 @@
 namespace Gst
 {
 class Element;
+class FdSrc;
 class OutputSelector;
 class Pad;
 class Pipeline;
+class Volume;
 }
 
 namespace GstDsp
@@ -54,7 +56,9 @@ public:
 
     Type type() const;
 
-    void setTransport(const std::string& transport);
+    void setTransport(int fd, uint imtu, uint omtu, int rate);
+
+    void setVolume(float volume);
 
     void setPeq(const std::vector<common::Filter>& filters);
     std::vector<common::Filter> peq() const;
@@ -68,6 +72,7 @@ private:
     Type m_currentType = Type::Normal;
 
     Glib::RefPtr<Gst::Element>      m_bluetoothSource;
+    //Glib::RefPtr<Gst::FdSrc>        m_bluetoothSource;
     Glib::RefPtr<Gst::Element>      m_alsaSink;
     Glib::RefPtr<Gst::Element>      m_alsaPassthroughSink;
     Glib::RefPtr<GstDsp::Crossover> m_crossover;

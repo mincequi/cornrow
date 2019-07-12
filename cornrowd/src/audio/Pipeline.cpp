@@ -17,7 +17,7 @@
 
 #include "Pipeline.h"
 
-#include <gstreamermm/outputselector.h>
+#include <gstreamermm/fdsrc.h>
 #include <gstreamermm/pipeline.h>
 
 #include <Crossover.h>
@@ -25,6 +25,8 @@
 #include <Peq.h>
 
 #include "Converter.h"
+
+#include <iostream>
 
 namespace audio
 {
@@ -34,7 +36,8 @@ Pipeline::Pipeline(Type type)
     m_pipeline = Gst::Pipeline::create();
 
     // Common elements
-    m_bluetoothSource = Gst::ElementFactory::create_element("avdtpsrc");
+    m_bluetoothSource = Gst::ElementFactory::create_element("avdtpsrc2");
+    //m_bluetoothSource = Gst::ElementFactory::create_element("fdsrc2");
     auto depay = Gst::ElementFactory::create_element("rtpsbcdepay");
     auto parse = Gst::ElementFactory::create_element("sbcparse");
     auto decoder = Gst::ElementFactory::create_element("sbcdec");
@@ -73,14 +76,23 @@ Pipeline::Type Pipeline::type() const
     return m_currentType;
 }
 
-void Pipeline::setTransport(const std::string& transport)
+void Pipeline::setTransport(int fd, uint imtu, uint omtu, int rate)
 {
-    if (transport.empty()) {
+    if (fd < 0) {
         m_pipeline->set_state(Gst::STATE_NULL);
     } else {
-        m_bluetoothSource->set_property("transport", transport);
+        std::cout << __func__ << "> fd: " << fd << ", imtu: " << imtu << ", omtu: " << omtu << std::endl;
+        m_bluetoothSource->set_property("fd", fd);
+        m_bluetoothSource->set_property("imtu", imtu);
+        m_bluetoothSource->set_property("omtu", omtu);
+        //m_bluetoothSource->set_property("rate", rate);
         m_pipeline->set_state(Gst::STATE_PLAYING);
     }
+}
+
+void Pipeline::setVolume(float volume)
+{
+    m_peq->setVolume(volume);
 }
 
 void Pipeline::setPeq(const std::vector<common::Filter>& filters)

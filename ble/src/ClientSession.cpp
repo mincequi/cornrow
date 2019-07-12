@@ -26,13 +26,13 @@ ClientSession::ClientSession(Client* _q)
 #endif
 }
 
-void ClientSession::onDeviceDiscovered(const QBluetoothDeviceInfo &device)
+void ClientSession::onDeviceDiscovered(const QBluetoothDeviceInfo& device)
 {
     // Only check LE devices
     if (!(device.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration)) {
         return;
     }
-    if (!device.serviceUuids().contains(ble::cornrowServiceUuid)) {
+    if (!device.serviceUuids().contains(common::cornrowServiceUuid)) {
         return;
     }
 
@@ -117,11 +117,11 @@ void ClientSession::onServiceDiscoveryFinished()
 {
     qDebug() << __func__;
 
-    if (!m_control->services().contains(ble::cornrowServiceUuid)) {
+    if (!m_control->services().contains(common::cornrowServiceUuid)) {
         q->setStatus(Client::Status::Error, "Could not find cornrow service on device " + m_control->remoteName());
         return;
     }
-    m_service = m_control->createServiceObject(ble::cornrowServiceUuid, this);
+    m_service = m_control->createServiceObject(common::cornrowServiceUuid, this);
     connect(m_service, &QLowEnergyService::stateChanged, this, &ClientSession::onServiceStateChanged);
     connect(m_service, &QLowEnergyService::characteristicRead, q, &Client::onCharacteristicRead);
     connect(m_service, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error), this, &ClientSession::onServiceError);
@@ -137,21 +137,21 @@ void ClientSession::onServiceStateChanged(QLowEnergyService::ServiceState s)
     switch (s) {
     case QLowEnergyService::ServiceDiscovered: {
         qDebug() << "Service details discovered.";
-        const QLowEnergyCharacteristic peq = m_service->characteristic(ble::peqCharacteristicUuid);
+        const QLowEnergyCharacteristic peq = m_service->characteristic(common::peqCharacteristicUuid);
         if (!peq.isValid()) {
             q->disconnect();
             q->setStatus(Client::Status::Error, "Invalid PEQ characteristic");
             return;
         }
-        m_service->readCharacteristic(m_service->characteristic(ble::peqCharacteristicUuid));
+        m_service->readCharacteristic(m_service->characteristic(common::peqCharacteristicUuid));
 
-        const QLowEnergyCharacteristic aux = m_service->characteristic(ble::auxCharacteristicUuid);
+        const QLowEnergyCharacteristic aux = m_service->characteristic(common::auxCharacteristicUuid);
         if (!aux.isValid()) {
             q->disconnect();
             q->setStatus(Client::Status::Error, "Invalid AUX characteristic");
             return;
         }
-        m_service->readCharacteristic(m_service->characteristic(ble::auxCharacteristicUuid));
+        m_service->readCharacteristic(m_service->characteristic(common::auxCharacteristicUuid));
 
         break;
     }

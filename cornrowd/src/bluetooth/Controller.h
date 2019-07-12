@@ -23,14 +23,15 @@
 
 #include <ble/Converter.h>
 
+#include <BluezQt/MediaTransport>
+#include <BluezQt/Types>
+
 class QDBusObjectPath;
 
 namespace BluezQt
 {
-class GattApplication;
 class GattCharacteristic;
 class LEAdvertisement;
-class Manager;
 }
 
 namespace bluetooth
@@ -50,13 +51,18 @@ public:
 signals:
     void configurationSet(const QDBusObjectPath& transportObjectPath);
     void configurationCleared(const QDBusObjectPath& transportObjectPath);
+
+    void transportChanged(int fd, uint16_t imtu, uint16_t omtu);
+    void volumeChanged(float volume);
+
     void filtersWritten(common::FilterGroup group, const std::vector<common::Filter>& filters);
 
 private:
     void initBle();
 
-    void onConfigurationSet(const QString& transportObjectPath, const QVariantMap& properties);
-    void onConfigurationCleared(const QString& transportObjectPath);
+    void onTransportChanged(BluezQt::MediaTransportPtr transport);
+    void onTransportStateChanged(BluezQt::MediaTransport::State state);
+    void onTransportVolumeChanged(uint16_t volume);
     QByteArray onReadFilters(common::FilterGroup group);
     void onWriteFilters(common::FilterGroup group, const QByteArray& value);
 
@@ -64,6 +70,7 @@ private:
     std::map<common::FilterGroup, BluezQt::GattCharacteristic*> m_charcs;
     BluezQt::GattApplication* m_application = nullptr;
     BluezQt::LEAdvertisement* m_advertisement = nullptr;
+    BluezQt::MediaTransportPtr m_transport = nullptr;
     ReadFiltersCallback m_readCallback = nullptr;
     ble::Converter m_converter;
 };
