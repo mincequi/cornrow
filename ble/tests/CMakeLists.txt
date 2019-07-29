@@ -9,3 +9,11 @@ ble_tests(
     centraltest
     #peripheraltest
 )
+
+find_package(Qt5 CONFIG REQUIRED Core DBus)
+add_executable(peripheraltest peripheraltest.cpp)
+target_link_libraries(peripheraltest
+    ble
+    KF5BluezQt
+    Qt5::DBus
+)
