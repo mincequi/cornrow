@@ -27,9 +27,8 @@ common::FilterType fromGstDsp(GstDsp::FilterType in)
     case GstDsp::FilterType::Peak:      return common::FilterType::Peak;
     case GstDsp::FilterType::LowPass:   return common::FilterType::LowPass;
     case GstDsp::FilterType::HighPass:  return common::FilterType::HighPass;
-    // @TODO(mawe): implement shelving filters
-    //case GstDsp::FilterType::LowShelf: return GstDsp::FilterType::Invalid;
-    //case GstDsp::FilterType::HighShelf: return GstDsp::FilterType::Invalid;
+    case GstDsp::FilterType::LowShelf:  return common::FilterType::LowShelf;
+    case GstDsp::FilterType::HighShelf: return common::FilterType::HighShelf;
     }
 
     return common::FilterType::Invalid;
@@ -42,9 +41,8 @@ GstDsp::FilterType toGstDsp(common::FilterType in)
     case common::FilterType::Peak: return GstDsp::FilterType::Peak;
     case common::FilterType::LowPass: return GstDsp::FilterType::LowPass;
     case common::FilterType::HighPass: return GstDsp::FilterType::HighPass;
-    // @TODO(mawe): implement shelving filters
-    case common::FilterType::LowShelf: return GstDsp::FilterType::Invalid;
-    case common::FilterType::HighShelf: return GstDsp::FilterType::Invalid;
+    case common::FilterType::LowShelf: return GstDsp::FilterType::LowShelf;
+    case common::FilterType::HighShelf: return GstDsp::FilterType::HighShelf;
     case common::FilterType::Crossover: return GstDsp::FilterType::Invalid;
     case common::FilterType::Subwoofer: return GstDsp::FilterType::Invalid;
     }

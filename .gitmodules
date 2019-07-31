@@ -1,9 +1,3 @@
-[submodule "thirdparty/libmicrodns"]
-	path = thirdparty/libmicrodns
-	url = https://github.com/mincequi/libmicrodns.git
-[submodule "thirdparty/rpclib"]
-	path = thirdparty/rpclib
-	url = https://github.com/mincequi/rpclib.git
 [submodule "thirdparty/gstreamermm-dsp"]
 	path = thirdparty/gstreamermm-dsp
 	url = https://github.com/mincequi/gstreamermm-dsp
