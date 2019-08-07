@@ -8,13 +8,13 @@ SOURCES += \
     src/Converter.cpp \
     src/Client.cpp \
     src/Server.cpp \
-    src/ServerAdapter.cpp \
+    #src/ServerAdapter.cpp \
     src/ClientSession.cpp
 
 HEADERS += \
     include/ble/Client.h \
     include/ble/Server.h \
-    include/ble/ServerAdapter.h \
+    #include/ble/ServerAdapter.h \
     src/ClientSession.h
 
 INCLUDEPATH += \

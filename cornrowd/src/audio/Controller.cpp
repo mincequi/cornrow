@@ -86,14 +86,13 @@ void Controller::setFilters(common::FilterGroup group, const std::vector<common:
     }
 }
 
-void Controller::setTransport(int fd, uint16_t imtu, uint16_t omtu, int rate)
+void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 {
     //::close(m_fd);
     m_fd = fd;
-    m_imtu = imtu;
-    m_omtu = omtu;
+    m_blockSize = blockSize;
     m_rate = rate;
-    m_currentPipeline->setTransport(m_fd, m_imtu, m_omtu, m_rate);
+    m_currentPipeline->setTransport(m_fd, m_blockSize, m_rate);
 }
 
 void Controller::setVolume(float volume)
@@ -117,7 +116,7 @@ void Controller::updatePipeline()
     }
 
     // We want another pipeline, stop current one
-    m_currentPipeline->setTransport(-1, 0, 0, 0);
+    m_currentPipeline->setTransport(-1, 0, 0);
     delete m_currentPipeline;
 
     switch (type) {
@@ -132,7 +131,7 @@ void Controller::updatePipeline()
     m_currentPipeline->setCrossover((it != m_filters[common::FilterGroup::Aux].end()) ? *it : common::Filter());
     m_currentPipeline->setPeq(m_filters[common::FilterGroup::Peq]);
     //m_currentPipeline->setTransport(m_transport);
-    m_currentPipeline->setTransport(m_fd, m_imtu, m_omtu, m_rate);
+    m_currentPipeline->setTransport(m_fd, m_blockSize, m_rate);
 }
 
 } // namespace audio

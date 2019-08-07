@@ -34,7 +34,7 @@ public:
     explicit Controller(QObject* parent = nullptr);
     ~Controller();
 
-    void setTransport(int fd, uint16_t imtu, uint16_t omtu, int rate);
+    void setTransport(int fd, uint16_t blockSize, int rate);
 
     void setVolume(float volume);
 
@@ -50,8 +50,7 @@ private:
 
     std::string m_transport;
     int m_fd = -1;
-    uint16_t m_imtu = 0;
-    uint16_t m_omtu = 0;
+    uint16_t m_blockSize = 0;
     int m_rate = 44100;
     std::map<common::FilterGroup, std::vector<common::Filter>> m_filters;
 };

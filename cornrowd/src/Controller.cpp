@@ -21,9 +21,10 @@ Controller::~Controller()
     m_config->writeConfig();
 }
 
-void Controller::onTransportChanged(int fd, uint16_t imtu, uint16_t omtu)
+void Controller::onTransportChanged(int fd, uint16_t blockSize)
 {
-    m_audio->setTransport(fd, imtu, omtu, 44100);
+    m_config->writeConfig();
+    m_audio->setTransport(fd, blockSize, 44100);
 }
 
 void Controller::onVolumeChanged(float volume)

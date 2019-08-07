@@ -19,9 +19,6 @@
 
 #include <QObject>
 
-#include <ble/Server.h>
-#include <ble/ServerAdapter.h>
-
 namespace audio
 {
 class Controller;
@@ -48,9 +45,6 @@ public:
     void writeConfig();
 
 private:
-    ble::Server* m_ble = nullptr;
-    ble::ServerAdapter* m_bleAdapter = nullptr;
-
     audio::Controller* m_audio = nullptr;
     bluetooth::Controller* m_bluetooth = nullptr;
 };

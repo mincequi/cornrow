@@ -76,15 +76,14 @@ Pipeline::Type Pipeline::type() const
     return m_currentType;
 }
 
-void Pipeline::setTransport(int fd, uint imtu, uint omtu, int rate)
+void Pipeline::setTransport(int fd, uint blocksize, int rate)
 {
     if (fd < 0) {
         m_pipeline->set_state(Gst::STATE_NULL);
     } else {
-        std::cout << __func__ << "> fd: " << fd << ", imtu: " << imtu << ", omtu: " << omtu << std::endl;
+        std::cout << __func__ << "> fd: " << fd << ", blocksize: " << blocksize << std::endl;
         m_bluetoothSource->set_property("fd", fd);
-        m_bluetoothSource->set_property("imtu", imtu);
-        m_bluetoothSource->set_property("omtu", omtu);
+        m_bluetoothSource->set_property("blocksize", blocksize);
         //m_bluetoothSource->set_property("rate", rate);
         m_pipeline->set_state(Gst::STATE_PLAYING);
     }

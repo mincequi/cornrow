@@ -56,7 +56,7 @@ public:
 
     Type type() const;
 
-    void setTransport(int fd, uint imtu, uint omtu, int rate);
+    void setTransport(int fd, uint blocksize, int rate);
 
     void setVolume(float volume);
 

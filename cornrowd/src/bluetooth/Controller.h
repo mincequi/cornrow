@@ -49,10 +49,7 @@ public:
     void setReadFiltersCallback(ReadFiltersCallback callback);
 
 signals:
-    void configurationSet(const QDBusObjectPath& transportObjectPath);
-    void configurationCleared(const QDBusObjectPath& transportObjectPath);
-
-    void transportChanged(int fd, uint16_t imtu, uint16_t omtu);
+    void transportChanged(int fd, uint16_t blockSize);
     void volumeChanged(float volume);
 
     void filtersWritten(common::FilterGroup group, const std::vector<common::Filter>& filters);

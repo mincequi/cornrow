@@ -59,7 +59,7 @@ Controller::Controller(QObject *parent)
 
     // Init BluezQt
     m_manager = new Manager(this);
-    InitManagerJob *initJob = m_manager->init();
+    InitManagerJob* initJob = m_manager->init();
     initJob->exec();
     if (initJob->error()) {
         qWarning() << "Error initializing bluetooth manager:" << initJob->errorText();
@@ -70,7 +70,7 @@ Controller::Controller(QObject *parent)
     m_manager->registerAgent(agent);
     m_manager->requestDefaultAgent(agent);
 
-    MediaEndpoint *sbcSink = new MediaEndpoint({MediaEndpoint::Role::AudioSink, MediaEndpoint::Codec::Sbc}, m_manager);
+    MediaEndpoint* sbcSink = new MediaEndpoint({MediaEndpoint::Role::AudioSink, MediaEndpoint::Codec::Sbc}, m_manager);
     m_manager->usableAdapter()->media()->registerEndpoint(sbcSink);
     connect(m_manager, &Manager::deviceChanged, [this](DevicePtr device) {
         connect(device.data(), &Device::mediaTransportChanged, this, &Controller::onTransportChanged);
@@ -131,7 +131,7 @@ void Controller::onTransportChanged(MediaTransportPtr transport)
 
     m_transport = transport;
     if (!m_transport) {
-        emit transportChanged(-1, 0, 0);
+        emit transportChanged(-1, 0);
         return;
     }
 
@@ -154,7 +154,7 @@ void Controller::onTransportStateChanged(BluezQt::MediaTransport::State state)
         connect(call, &PendingCall::finished, [this, call]() {
             qDebug() << __func__ << "fd: " << call->valueAt<0>().fileDescriptor() << "mtu read:" << call->valueAt<1>() << "mtu write:" << call->valueAt<2>();
             // We have to dup() the file descriptor as long as QDBusUnixFileDescriptor object is valid
-            emit transportChanged(::dup(call->valueAt<0>().fileDescriptor()), call->valueAt<1>(), call->valueAt<2>());
+            emit transportChanged(::dup(call->valueAt<0>().fileDescriptor()), call->valueAt<1>());
         });
         break;
     }
@@ -174,7 +174,7 @@ void Controller::onTransportVolumeChanged(uint16_t volume)
 
     static const float factor = 4.0;        // 127 - 7 -> 0dB - -30dB
     //static const float factor = 2.6666;   // 127 - 7 -> 0dB - -45dB
-    emit volumeChanged(pow(10.0, (volume-127)/(factor*20.0)));
+    emit volumeChanged(pow(10.0f, (volume-127)/(factor*20.0f)));
 }
 
 QByteArray Controller::onReadFilters(common::FilterGroup group)
