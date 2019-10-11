@@ -31,10 +31,14 @@ void EqGraph::setFilter(const common::Filter& filter)
     case common::FilterType::Crossover:
     case common::FilterType::Subwoofer:
         resizeGraphs(2);
-        computeResponse({common::FilterType::LowPass, filter.f, filter.g, M_SQRT1_2}, m_graphs[0]);
-        for (auto& p : m_graphs[0]) { p.ry() += p.ry(); }   // 2nd pass for cascading
-        computeResponse({common::FilterType::HighPass, filter.f, filter.g, M_SQRT1_2}, m_graphs[1]);
-        for (auto& p : m_graphs[1]) { p.ry() += p.ry(); }   // 2nd pass for cascading
+        computeResponse({common::FilterType::LowPass, filter.f, filter.g, filter.q}, m_graphs[0]);
+        for (double g = 1.0; g < filter.g; g += 1.0) {
+            for (auto& p : m_graphs[0]) { p.ry() += p.ry(); }
+        } // multi pass for cascading
+        computeResponse({common::FilterType::HighPass, filter.f, filter.g, filter.q}, m_graphs[1]);
+        for (double g = 1.0; g < filter.g; g += 1.0) {
+            for (auto& p : m_graphs[1]) { p.ry() += p.ry(); }
+        } // multi pass for cascading
         sumResponses(m_graphs, m_sum);
         break;
     }

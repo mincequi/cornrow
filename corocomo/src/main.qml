@@ -303,9 +303,9 @@ ApplicationWindow {
                 value: CornrowModel.freqSlider
                 onValueChanged: CornrowModel.freqSlider = value
             }
-
             FilterParameter {
                 label: "Q"
+                opacity: CornrowModel.currentBand < CornrowModel.peqFilterCount
                 enabled: CornrowModel.currentBand < CornrowModel.peqFilterCount &&
                          CornrowModel.filterType > 0
                 readout: CornrowModel.qReadout
@@ -315,6 +315,7 @@ ApplicationWindow {
             }
             FilterParameter {
                 label: "Gain"
+                opacity: CornrowModel.currentBand < CornrowModel.peqFilterCount
                 enabled: CornrowModel.currentBand < CornrowModel.peqFilterCount &&
                          CornrowModel.filterType === 1
                 readout: CornrowConfiguration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)

@@ -33,29 +33,32 @@ Config::Config(Type type, QObject *parent)
     gainMax = 3.0;
     gainStep = 1.0;
     qTable = common::qTable;
-    qDefault = 17;
-    qMin = 14;
-    qMax = 26;
-    qStep = 1;
+    qDefault = 34;
+    qMin = 16;
+    qMax = 64;
+    qStep = 3;
 
     switch (type) {
     case Type::Low:
         break;
     case Type::Mid:
         freqStep = 4;   // 2x
+        gainMin = -24.0;
+        gainMax = 6.0;
         gainStep = 0.5; // 2x
-        qMin = 0;       // +14
-        qMax = 40;
+        qMin = 12;       // +14
+        qMax = 80;
+        qStep = 1;
         xoAvailable = true;
         break;
     case Type::High:
-        freqStep = 1; // 8x
-        gainMin = -24.0;
-        gainMax = 6.0;
-        gainStep = 0.2;
-        //qTable = common::qTableHigh; // @TODO(mawe): add 3 digit table
+        freqStep = 2; // 8x
+        gainMin = -48.0;
+        gainMax = 12.0;
+        gainStep = 0.5;
         qMin = 0;
         qMax = qTable.size()-1;
+        qStep = 1;
         xoAvailable = true;
         swAvailable = true;
         break;

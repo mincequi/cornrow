@@ -1,5 +1,7 @@
 #include "Model.h"
 
+#include <math.h>
+
 #include <QPen>
 
 #include <ble/Client.h>
@@ -142,9 +144,9 @@ int Model::filterType() const
     if (m_currentBand < m_config.peqFilterCount) {
         return static_cast<int>(m_currentFilter->t);
     } else if (m_currentBand == m_xoBand) {
-        return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : 1;
+        return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : static_cast<int>(m_currentFilter->g);
     } else if (m_currentBand == m_swBand) {
-        return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : 1;
+        return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : static_cast<int>(m_currentFilter->g);
     }
 
     return 0;
@@ -158,11 +160,15 @@ void Model::setFilterType(int type)
         t = static_cast<common::FilterType>(type);
     } else if (m_currentBand == m_xoBand) {
         t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Crossover;
+        m_currentFilter->q = type == 1 ? 28 : 34;
+        m_currentFilter->g = type == 1 ? 1.0 : 2.0;
     } else if (m_currentBand == m_swBand) {
         t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Subwoofer;
+        m_currentFilter->q = type == 1 ? 28 : 34;
+        m_currentFilter->g = type == 1 ? 1.0 : 2.0;
     }
 
-    if (m_currentFilter->t == t) return;
+    //if (m_currentFilter->t == t) return;
 
     m_currentFilter->t = t;
     emit filterTypeChanged();
@@ -173,7 +179,7 @@ QStringList Model::filterTypeNames() const
     if (m_currentBand < m_config.peqFilterCount) {
         return { "Off", "Peaking", "LowPass", "HighPass" };
     } else {
-        return { "Off", "LR4" };
+        return { "Off", "LR2", "LR4" };
     }
 }
 
@@ -242,9 +248,9 @@ QString Model::qReadout() const
 {
     double value = m_config.qTable.at(m_currentFilter->q);
 
-    if (value < 1.0) return QString::number(value, 'f', 2);
-    else if (value < 10.0) return QString::number(value, 'f', 1);
-    else return QString::number(value, 'f', 0);
+    if (value < 1.0) return QString::number(value, 'f', 3);
+    else if (value < 10.0) return QString::number(value, 'f', 2);
+    else return QString::number(value, 'f', 1);
 }
 
 void Model::stepQ(int i)
