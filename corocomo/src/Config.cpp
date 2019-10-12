@@ -49,7 +49,7 @@ Config::Config(Type type, QObject *parent)
         qMin = 12;       // +14
         qMax = 80;
         qStep = 1;
-        xoAvailable = true;
+        loudnessAvailable = true;
         break;
     case Type::High:
         freqStep = 2; // 8x
@@ -59,6 +59,7 @@ Config::Config(Type type, QObject *parent)
         qMin = 0;
         qMax = qTable.size()-1;
         qStep = 1;
+        loudnessAvailable = true;
         xoAvailable = true;
         swAvailable = true;
         break;

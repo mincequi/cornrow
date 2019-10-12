@@ -28,6 +28,19 @@ void EqGraph::setFilter(const common::Filter& filter)
         resizeGraphs(1);
         computeResponse(filter, m_graphs.front());
         break;
+    case common::FilterType::Loudness: {
+        resizeGraphs(3);
+        computeResponse({common::FilterType::Peak, 35.5, filter.g*0.3, 0.56}, m_graphs[0]);
+        computeResponse({common::FilterType::Peak, 100.0, filter.g*0.225, 0.25}, m_graphs[1]);
+        computeResponse({common::FilterType::HighShelf, 10000.0, filter.g*0.225, 0.80}, m_graphs[2]);
+        for (int i = 0; i < m_graphs.front().size(); ++i) {
+            m_sum[i].ry() = m_graphs.at(0).at(i).y() + m_graphs.at(1).at(i).y() + m_graphs.at(2).at(i).y();
+        }
+        double volume = (filter.g*-0.425);
+        for (auto& p : m_sum) { p.ry() += volume; };
+        m_graphs = {m_sum};
+        break;
+    }
     case common::FilterType::Crossover:
     case common::FilterType::Subwoofer:
         resizeGraphs(2);

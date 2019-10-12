@@ -66,10 +66,10 @@ enum class FilterType : uint8_t {
 
     Subwoofer,       // LFE Crossover (max. 120 Hz, better 80 Hz)
 
-    /*
     // Combined filters
     Loudness    = 32,
 
+    /*
     // Non-linear filters
     Dynamic     = 48,   // Compressor, Expander
 

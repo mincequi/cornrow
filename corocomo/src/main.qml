@@ -36,7 +36,6 @@ ApplicationWindow {
 
     Component.onCompleted: {
         CornrowModel.startDiscovering()
-
     }
 
     Connections {
@@ -50,7 +49,7 @@ ApplicationWindow {
         id: model
         active: CornrowModel.status != CornrowModel.Connected
         radius: (CornrowModel.status == CornrowModel.Discovering ||
-                CornrowModel.status == CornrowModel.Connecting) ? 48 : 36
+                 CornrowModel.status == CornrowModel.Connecting) ? 48 : 36
         numPoints: 11
         Behavior on radius { SmoothedAnimation { velocity: 1000 }}
     }
@@ -228,41 +227,46 @@ ApplicationWindow {
             anchors.bottom: bandBar.top
         }
 
-        ToolBar {
+        TabBar {
             id: bandBar
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: typeBar.top
             background: background
 
-            Row {
-                id: bandRow
-                Repeater {
-                    model: CornrowModel.peqFilterCount
-                    FilterBandButton {
-                        text: index+1
-                        indicatorColor: Material.primary
-                        indicatorVisible: CornrowModel.activeFilters[index]
-                        checked: CornrowModel.currentBand == index
-                        onPressed: CornrowModel.setCurrentBand(index)
-                    }
-                } // Repeater
+            Repeater {
+                model: CornrowModel.peqFilterCount
                 FilterBandButton {
-                    text: "XO"
+                    text: index+1
                     indicatorColor: Material.primary
-                    indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount]
-                    visible: CornrowConfiguration.xoAvailable
-                    checked: CornrowModel.currentBand == CornrowModel.peqFilterCount
-                    onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount)
+                    indicatorVisible: CornrowModel.activeFilters[index]
+                    checked: CornrowModel.currentBand == index
+                    onPressed: CornrowModel.setCurrentBand(index)
                 }
-                FilterBandButton {
-                    text: "SW"
-                    indicatorColor: Material.primary
-                    indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+1]
-                    visible: CornrowConfiguration.swAvailable
-                    checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
-                    onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+1)
-                }
+            } // Repeater
+            FilterBandButton {
+                text: "LN"
+                indicatorColor: Material.primary
+                indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount]
+                visible: CornrowConfiguration.loudnessAvailable
+                checked: CornrowModel.currentBand == CornrowModel.peqFilterCount
+                onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount)
+            }
+            FilterBandButton {
+                text: "XO"
+                indicatorColor: Material.primary
+                indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+1]
+                visible: CornrowConfiguration.xoAvailable
+                checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
+                onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+1)
+            }
+            FilterBandButton {
+                text: "SW"
+                indicatorColor: Material.primary
+                indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+2]
+                visible: CornrowConfiguration.swAvailable
+                checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+2
+                onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+2)
             }
         }
 
@@ -297,7 +301,9 @@ ApplicationWindow {
 
             FilterParameter {
                 label: "Frequency"
-                enabled: CornrowModel.filterType > 0
+                opacity: CornrowModel.currentBand != CornrowModel.peqFilterCount
+                enabled: CornrowModel.currentBand != CornrowModel.peqFilterCount &&
+                         CornrowModel.filterType > 0
                 readout: CornrowModel.freqReadout
                 onStep: CornrowModel.stepFreq(i)
                 value: CornrowModel.freqSlider
@@ -315,16 +321,13 @@ ApplicationWindow {
             }
             FilterParameter {
                 label: "Gain"
-                opacity: CornrowModel.currentBand < CornrowModel.peqFilterCount
-                enabled: CornrowModel.currentBand < CornrowModel.peqFilterCount &&
+                opacity: CornrowModel.currentBand <= CornrowModel.peqFilterCount
+                enabled: CornrowModel.currentBand <= CornrowModel.peqFilterCount &&
                          CornrowModel.filterType === 1
-                readout: CornrowConfiguration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
+                readout: CornrowModel.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
                 onStep: CornrowModel.stepGain(i)
-                stepSize: CornrowConfiguration.gainStep
-                from: CornrowConfiguration.gainMin
-                to: CornrowConfiguration.gainMax
-                value: CornrowModel.gain
-                onValueChanged: CornrowModel.gain = value
+                value: CornrowModel.gainSlider
+                onValueChanged: CornrowModel.gainSlider = value
             }
         }
     } // Item

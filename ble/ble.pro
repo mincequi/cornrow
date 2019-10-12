@@ -13,6 +13,7 @@ SOURCES += \
 
 HEADERS += \
     include/ble/Client.h \
+    include/ble/Converter.h \
     include/ble/Server.h \
     #include/ble/ServerAdapter.h \
     src/ClientSession.h

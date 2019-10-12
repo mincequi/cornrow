@@ -5,9 +5,6 @@ Item {
     id: parameter
     property alias label: label.text
     property alias readout: readout.text
-    property alias from: slider.from
-    property alias to: slider.to
-    property alias stepSize: slider.stepSize
     property alias value: slider.value
     signal step(int i)
     width: parent.width

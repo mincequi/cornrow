@@ -21,7 +21,7 @@ class Model : public QObject
     Q_PROPERTY(QString statusLabel READ statusLabel NOTIFY statusChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusChanged)
 
-    Q_PROPERTY(int peqFilterCount READ peqFilterCount)
+    Q_PROPERTY(int peqFilterCount READ peqFilterCount CONSTANT)
     Q_PROPERTY(int currentBand READ currentBand WRITE setCurrentBand NOTIFY currentBandChanged)
     Q_PROPERTY(std::vector<bool> activeFilters READ activeFilters NOTIFY filterTypeChanged)
 
@@ -31,7 +31,9 @@ class Model : public QObject
     Q_PROPERTY(double freqSlider READ freqSlider WRITE setFreqSlider NOTIFY freqSliderChanged)
     Q_PROPERTY(QString freqReadout READ freqReadout NOTIFY freqChanged)
 
-    Q_PROPERTY(double gain READ gain WRITE setGain NOTIFY gainChanged)
+    Q_PROPERTY(double gainSlider READ gainSlider WRITE setGainSlider NOTIFY gainSliderChanged)
+    Q_PROPERTY(double gain READ gain NOTIFY gainChanged)
+    Q_PROPERTY(double gainStep READ gainStep NOTIFY currentBandChanged)
 
     Q_PROPERTY(double qSlider READ qSlider WRITE setQSlider NOTIFY qSliderChanged)
     Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
@@ -79,7 +81,11 @@ public:
 
     double      gain() const;
     Q_INVOKABLE void stepGain(int i);
-    void        setGain(double g);
+    double      gainSlider() const;
+    void        setGainSlider(double g);
+    double      gainMin() const;
+    double      gainMax() const;
+    double      gainStep() const;
 
     QString     qReadout() const;
     Q_INVOKABLE void stepQ(int i);
@@ -94,6 +100,7 @@ signals:
     void freqChanged();
     void freqSliderChanged();
     void gainChanged();
+    void gainSliderChanged();
     void qChanged();
     void qSliderChanged();
 
@@ -124,6 +131,7 @@ private:
     QList<Filter>   m_filters;
     Filter*         m_currentFilter = nullptr;
     int             m_currentBand = 0;
+    const int       m_loudnessBand;
     const int       m_xoBand;
     const int       m_swBand;
     double          m_freqSlider;

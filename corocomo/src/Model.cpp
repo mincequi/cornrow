@@ -28,10 +28,12 @@ Model* Model::init(const Config& configuration)
 Model::Model(const Config& config, QObject *parent) :
     QObject(parent),
     m_config(config),
-    m_xoBand(config.peqFilterCount),
-    m_swBand(config.peqFilterCount+1)
+    m_loudnessBand(config.peqFilterCount),
+    m_xoBand(config.peqFilterCount+1),
+    m_swBand(config.peqFilterCount+2)
 {
     auto filterCount = m_config.peqFilterCount;
+    if (m_config.loudnessAvailable) ++filterCount;
     if (m_config.xoAvailable) ++filterCount;
     if (m_config.swAvailable) ++filterCount;
     resizeFilters(filterCount);
@@ -113,6 +115,7 @@ void Model::setCurrentBand(int i)
     emit freqChanged();
     emit freqSliderChanged();
     emit gainChanged();
+    emit gainSliderChanged();
     emit qChanged();
     emit qSliderChanged();
 }
@@ -143,6 +146,8 @@ int Model::filterType() const
 {
     if (m_currentBand < m_config.peqFilterCount) {
         return static_cast<int>(m_currentFilter->t);
+    } else if (m_currentBand == m_loudnessBand) {
+        return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : 1;
     } else if (m_currentBand == m_xoBand) {
         return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : static_cast<int>(m_currentFilter->g);
     } else if (m_currentBand == m_swBand) {
@@ -158,6 +163,8 @@ void Model::setFilterType(int type)
 
     if (m_currentBand < m_config.peqFilterCount) {
         t = static_cast<common::FilterType>(type);
+    } else if (m_currentBand == m_loudnessBand) {
+        t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Loudness;
     } else if (m_currentBand == m_xoBand) {
         t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Crossover;
         m_currentFilter->q = type == 1 ? 28 : 34;
@@ -168,7 +175,8 @@ void Model::setFilterType(int type)
         m_currentFilter->g = type == 1 ? 1.0 : 2.0;
     }
 
-    //if (m_currentFilter->t == t) return;
+    // @TODO(mawe): this might be tweaked a little bit
+    // if (m_currentFilter->t == t) return;
 
     m_currentFilter->t = t;
     emit filterTypeChanged();
@@ -178,6 +186,8 @@ QStringList Model::filterTypeNames() const
 {
     if (m_currentBand < m_config.peqFilterCount) {
         return { "Off", "Peaking", "LowPass", "HighPass" };
+    } else if (m_currentBand == m_loudnessBand) {
+        return { "Off", "On" };
     } else {
         return { "Off", "LR2", "LR4" };
     }
@@ -218,6 +228,20 @@ void Model::setFreqSlider(double f)
     emit freqChanged();
 }
 
+double Model::gainSlider() const
+{
+    return (gain()-gainMin())/(gainMax()-gainMin());
+}
+
+void Model::setGainSlider(double g)
+{
+    double gain = static_cast<int>((gainMax()-gainMin())*g/gainStep())*gainStep()+gainMin();
+    if (m_currentFilter->g == gain) return;
+
+    m_currentFilter->g = gain;
+    emit gainChanged();
+}
+
 double Model::gain() const
 {
     return m_currentFilter->g;
@@ -225,23 +249,32 @@ double Model::gain() const
 
 void Model::stepGain(int i)
 {
-    double g = m_currentFilter->g+i*m_config.gainStep;
-    if (g > m_config.gainMax || g < m_config.gainMin) {
+    double g = m_currentFilter->g+i*gainStep();
+    if (g > gainMax() || g < gainMin()) {
         return;
     }
 
     m_currentFilter->g = g;
     emit gainChanged();
+    emit gainSliderChanged();
 }
 
-void Model::setGain(double g)
+double Model::gainMin() const
 {
-    if (g > m_config.gainMax || g < m_config.gainMin) {
-        return;
-    }
+    if (m_currentBand == m_loudnessBand) return 0.0;
+    else return m_config.gainMin;
+}
 
-    m_currentFilter->g = g;
-    emit gainChanged();
+double Model::gainMax() const
+{
+    if (m_currentBand == m_loudnessBand) return 40.0;
+    else return m_config.gainMax;
+}
+
+double Model::gainStep() const
+{
+    if (m_currentBand == m_loudnessBand) return 1.0;
+    else return m_config.gainStep;
 }
 
 QString Model::qReadout() const
