@@ -34,6 +34,7 @@ class Model : public QObject
     Q_PROPERTY(double gainSlider READ gainSlider WRITE setGainSlider NOTIFY gainSliderChanged)
     Q_PROPERTY(double gain READ gain NOTIFY gainChanged)
     Q_PROPERTY(double gainStep READ gainStep NOTIFY currentBandChanged)
+    Q_PROPERTY(QString gainUnit READ gainUnit NOTIFY currentBandChanged)
 
     Q_PROPERTY(double qSlider READ qSlider WRITE setQSlider NOTIFY qSliderChanged)
     Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
@@ -86,6 +87,7 @@ public:
     double      gainMin() const;
     double      gainMax() const;
     double      gainStep() const;
+    QString     gainUnit() const;
 
     QString     qReadout() const;
     Q_INVOKABLE void stepQ(int i);

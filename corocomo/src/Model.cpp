@@ -185,7 +185,7 @@ void Model::setFilterType(int type)
 QStringList Model::filterTypeNames() const
 {
     if (m_currentBand < m_config.peqFilterCount) {
-        return { "Off", "Peaking", "LowPass", "HighPass" };
+        return { "Off", "PK", "LP", "HP", "LS", "HS" };
     } else if (m_currentBand == m_loudnessBand) {
         return { "Off", "On" };
     } else {
@@ -275,6 +275,11 @@ double Model::gainStep() const
 {
     if (m_currentBand == m_loudnessBand) return 1.0;
     else return m_config.gainStep;
+}
+
+QString Model::gainUnit() const
+{
+    return (m_currentBand == m_loudnessBand) ? "phon" : "dB";
 }
 
 QString Model::qReadout() const

@@ -52,7 +52,7 @@ bool Client::startDiscovering()
         return false;
     }*/
 
-    setStatus(Status::Discovering, "Searching for Cornrow devices");
+    setStatus(Status::Discovering, "Searching for cornrow devices");
     m_clientSession = new ClientSession(this);
     return true;
 }

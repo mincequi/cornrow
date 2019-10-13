@@ -6,6 +6,7 @@ Item {
     property alias label: label.text
     property alias readout: readout.text
     property alias value: slider.value
+    property alias unit: unit.text
     signal step(int i)
     width: parent.width
     height: label.height + slider.height
@@ -18,6 +19,11 @@ Item {
     Label {
         id: readout
         anchors.horizontalCenter: slider.horizontalCenter
+        anchors.bottom: slider.top
+    }
+    Label {
+        id: unit
+        anchors.right: slider.right
         anchors.bottom: slider.top
     }
     ToolButton {

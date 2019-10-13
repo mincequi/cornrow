@@ -226,6 +226,15 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.bottom: bandBar.top
         }
+        /*
+        ToolButton {
+            id: help
+            text: "?"
+            enabled: CornrowModel.status == CornrowModel.Connected
+            anchors.right: parent.right
+            anchors.top: parent.top
+        }
+        */
 
         TabBar {
             id: bandBar
@@ -301,6 +310,7 @@ ApplicationWindow {
 
             FilterParameter {
                 label: "Frequency"
+                unit: "Hz"
                 opacity: CornrowModel.currentBand != CornrowModel.peqFilterCount
                 enabled: CornrowModel.currentBand != CornrowModel.peqFilterCount &&
                          CornrowModel.filterType > 0
@@ -321,9 +331,12 @@ ApplicationWindow {
             }
             FilterParameter {
                 label: "Gain"
+                unit: CornrowModel.gainUnit
                 opacity: CornrowModel.currentBand <= CornrowModel.peqFilterCount
                 enabled: CornrowModel.currentBand <= CornrowModel.peqFilterCount &&
-                         CornrowModel.filterType === 1
+                         (CornrowModel.filterType === 1 ||
+                          CornrowModel.filterType === 4 ||
+                          CornrowModel.filterType === 5)
                 readout: CornrowModel.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
                 onStep: CornrowModel.stepGain(i)
                 value: CornrowModel.gainSlider
