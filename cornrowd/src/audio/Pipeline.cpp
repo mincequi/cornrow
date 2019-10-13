@@ -92,7 +92,7 @@ void Pipeline::setTransport(int fd, uint blocksize, int rate)
 
 void Pipeline::setVolume(float volume)
 {
-    m_peq->setVolume(volume);
+    m_loudness->setVolume(volume);
 }
 
 void Pipeline::setPeq(const std::vector<common::Filter>& filters)
