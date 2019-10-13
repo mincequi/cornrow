@@ -22,7 +22,10 @@
 namespace config
 {
 
-std::vector<common::Filter> readPeq();
-void writeConfig(const std::vector<common::Filter>& filters);
+void readConfig(std::vector<common::Filter>* peqFilters,
+                std::vector<common::Filter>* auxFilters);
+
+void writeConfig(const std::vector<common::Filter>& peqFilters,
+                 const std::vector<common::Filter>& auxFilters);
 
 } // namespace config
