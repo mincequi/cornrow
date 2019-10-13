@@ -83,6 +83,7 @@ bool computeBiQuad(int r, const Filter& f, BiQuad* biquad)
     case FilterType::Invalid:
     case FilterType::Crossover:
     case FilterType::Subwoofer:
+    case FilterType::Loudness:
     //case FilterType::Max:
         return false;
     }

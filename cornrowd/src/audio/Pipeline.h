@@ -61,10 +61,11 @@ public:
     void setVolume(float volume);
 
     void setPeq(const std::vector<common::Filter>& filters);
-    std::vector<common::Filter> peq() const;
 
     void setCrossover(const common::Filter& crossover);
     common::Filter crossover() const;
+
+    void setLoudness(uint8_t phon);
 
 private:
     bool constructPipeline(Type type, bool force = false);

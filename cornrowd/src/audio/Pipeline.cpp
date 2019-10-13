@@ -43,8 +43,9 @@ Pipeline::Pipeline(Type type)
     auto decoder = Gst::ElementFactory::create_element("sbcdec");
     auto bluetoothConverter = Gst::AudioConvert::create();
     m_peq = Glib::RefPtr<GstDsp::Peq>::cast_static(Gst::ElementFactory::create_element("peq"));
-    m_pipeline->add(m_bluetoothSource)->add(depay)->add(parse)->add(decoder)->add(bluetoothConverter)->add(m_peq);
-    m_bluetoothSource->link(depay)->link(parse)->link(decoder)->link(bluetoothConverter)->link(m_peq);
+    m_loudness = Glib::RefPtr<GstDsp::Loudness>::cast_static(Gst::ElementFactory::create_element("loudness"));
+    m_pipeline->add(m_bluetoothSource)->add(depay)->add(parse)->add(decoder)->add(bluetoothConverter)->add(m_peq)->add(m_loudness);
+    m_bluetoothSource->link(depay)->link(parse)->link(decoder)->link(bluetoothConverter)->link(m_peq)->link(m_loudness);
 
     // Normal output
     auto alsaConverter = Gst::AudioConvert::create();
@@ -99,14 +100,14 @@ void Pipeline::setPeq(const std::vector<common::Filter>& filters)
     m_peq->setFilters(toGstDsp(filters));
 }
 
-std::vector<common::Filter> Pipeline::peq() const
-{
-    return fromGstDsp(m_peq->filters());
-}
-
 void Pipeline::setCrossover(const common::Filter& crossover)
 {
     m_crossover->setFrequency(crossover.f);
+}
+
+void Pipeline::setLoudness(uint8_t phon)
+{
+    m_loudness->setLevel(phon);
 }
 
 common::Filter Pipeline::crossover() const
@@ -140,7 +141,7 @@ bool Pipeline::constructPipeline(Type type, bool force)
     for (auto it = m_elements.at(type).begin(); it != m_elements.at(type).end(); ++it) {
         m_pipeline->add(*it);
         if (it == m_elements.at(type).begin()) {
-            m_peq->link(*it);
+            m_loudness->link(*it);
         } else {
             (*(std::prev(it)))->link(*it);
         }

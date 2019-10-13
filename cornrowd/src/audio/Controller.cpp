@@ -79,6 +79,11 @@ void Controller::setFilters(common::FilterGroup group, const std::vector<common:
             return f.type == common::FilterType::Crossover;
         });
         it != filters.end() ? m_currentPipeline->setCrossover(*it) : m_currentPipeline->setCrossover(common::Filter());
+        // Check if loudness was provided
+        it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
+            return f.type == common::FilterType::Loudness;
+        });
+        it != filters.end() ? m_currentPipeline->setLoudness(static_cast<uint8_t>(it->g)) : m_currentPipeline->setLoudness(0);
         break;
     }
     case common::FilterGroup::Invalid:
