@@ -30,7 +30,7 @@ sudo systemctl enable cornrowd.service              # start-up service on each r
 ### Arbitrary distro
 Get the dependencies. Basically, these are gstreamermm and qt5bluetooth.
 ```
-git clone --branch v0.1.0 --recursive https://github.com/mincequi/cornrow
+git clone --recursive https://github.com/mincequi/cornrow
 cd cornrow
 mkdir build
 cd build
