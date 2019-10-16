@@ -4,5 +4,6 @@
         <file>qtquickcontrols2.conf</file>
         <file>FilterParameter.qml</file>
         <file>FilterBandButton.qml</file>
+        <file>CornrowBusyIndicator.qml</file>
     </qresource>
 </RCC>
