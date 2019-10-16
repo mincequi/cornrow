@@ -55,7 +55,7 @@ enum class FilterType : uint8_t {
     HighPass,
     LowShelf,
     HighShelf,
-    //AllPass,
+    AllPass,
 
     // Crossover filters
     Crossover   = 16,   // Q indicates characteristics, while gain indicates cascading. (Base) order is always 2.

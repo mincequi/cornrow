@@ -16,18 +16,22 @@ include(../cornrow.pri)
 
 SOURCES += \
     src/BleCentralAdapter.cpp \
+    src/BodePlotModel.cpp \
     src/BusyIndicatorModel.cpp \
     src/EqChart.cpp \
-    src/EqGraph.cpp \
     src/Model.cpp \
+    src/PhaseChart.cpp \
+    src/Plot.cpp \
     src/main.cpp \
     src/Config.cpp
 
 HEADERS += \
     src/BleCentralAdapter.h \
+    src/BodePlotModel.h \
     src/BusyIndicatorModel.h \
     src/EqChart.h \
     src/Model.h \
+    src/PhaseChart.h \
     src/Config.h
 
 RESOURCES += src/qml.qrc

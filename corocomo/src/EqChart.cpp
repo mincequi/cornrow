@@ -6,24 +6,11 @@
 
 #include <common/Util.h>
 
+#include "BodePlotModel.h"
+
 EqChart::EqChart(QQuickItem *parent) :
     QQuickPaintedItem(parent)
 {
-}
-
-void EqChart::setFilter(int idx, uchar t, double f, double g, double q)
-{
-    // Dynamically append graphs
-    int diff = idx-m_graphs.size()+1;
-    while (diff-- > 0) {
-        EqGraph graph(m_frequencyTable);
-        m_graphs.append(graph);
-    }
-
-    // Apply filter parameters
-    m_graphs[idx].setFilter({static_cast<common::FilterType>(t), f, g, q});
-
-    update();
 }
 
 QColor EqChart::plotColor() const
@@ -87,6 +74,8 @@ void EqChart::setCurrentFilter(int i)
 
 void EqChart::paint(QPainter *painter)
 {
+    if (!m_bodePlot) return;
+
     QTransform trans;
     trans.scale(width()/(m_frequencyTable.size()-1.0), height()/-33);
     trans.translate(0.0, -7.5);
@@ -107,9 +96,9 @@ void EqChart::paint(QPainter *painter)
     for (size_t i = 0; i < m_frequencyTable.size(); ++i) {
         sumPlot1[i].rx() = i;
     }
-    for (auto& graph : m_graphs) {
-        for (int i = 0; i < graph.sum().size(); ++i) {
-            sumPlot1[i].ry() += graph.sum().at(i).y();
+    for (auto& graph : m_bodePlot->plots()) {
+        for (int i = 0; i < graph.magSum().size(); ++i) {
+            sumPlot1[i].ry() += graph.magSum().at(i).y();
         }
     }
     sumPlot1 << QPointF(sumPlot1.back().rx()+1.0, sumPlot1.back().ry());
@@ -174,8 +163,8 @@ void EqChart::paint(QPainter *painter)
 
     // Paint current plot
     painter->setPen(QPen(m_plotColor, 1.0));
-    if (m_currentFilter >= 0 && m_currentFilter < m_graphs.size()) {
-        for (const auto& graph : m_graphs.at(m_currentFilter).graphs()) {
+    if (m_currentFilter >= 0 && m_currentFilter < m_bodePlot->plots().size()) {
+        for (const auto& graph : m_bodePlot->plots().at(m_currentFilter).mags()) {
             painter->drawPolyline(trans.map(graph));
         }
     }

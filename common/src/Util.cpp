@@ -79,6 +79,19 @@ bool computeBiQuad(int r, const Filter& f, BiQuad* biquad)
         biquad->a2 =  (      (A+1) - (A-1)*cos_w0 - alpha2  )/a0;
         break;
     }
+    case FilterType::AllPass: {
+        double w0 = 2*M_PI*f.f/r;
+        double cos_w0 = cos(w0);
+        double alpha = sin(w0)*0.5/f.q;
+        double a0 = 1 + alpha;
+
+        biquad->b0 = (1 - alpha)/a0;
+        biquad->b1 = (-2*cos_w0)/a0;
+        biquad->b2 = 1.0;
+        biquad->a1 = biquad->b1;
+        biquad->a2 = biquad->b0;
+        break;
+    }
 
     case FilterType::Invalid:
     case FilterType::Crossover:

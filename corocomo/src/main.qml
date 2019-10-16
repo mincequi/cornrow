@@ -5,10 +5,12 @@ import QtQuick.Controls.Material 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Shapes 1.11
 
+import Cornrow.BodePlotModel 1.0
 import Cornrow.BusyIndicatorModel 1.0
 import Cornrow.Configuration 1.0
 import Cornrow.EqChart 1.0
 import Cornrow.Model 1.0
+import Cornrow.PhaseChart 1.0
 
 ApplicationWindow {
     id: appWindow
@@ -41,7 +43,9 @@ ApplicationWindow {
     Connections {
         target: CornrowModel
         onFilterChanged: {
-            eqChart.setFilter(i, t, f, g, q); // @TODO(mawe): make struct
+            CornrowBodePlotModel.setFilter(i, t, f, g, q)
+            eqChart.update()
+            phaseChart.update()
         }
     }
 
@@ -204,27 +208,39 @@ ApplicationWindow {
 
     Item {
         id: peq
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.fill: parent
         enabled: CornrowModel.status == CornrowModel.Connected
         opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.1
         Behavior on opacity { SmoothedAnimation { velocity: 2.0 }}
 
-        CornrowEqChart {
-            id: eqChart
-            frequencyTable: CornrowConfiguration.freqTable
-            currentFilter: CornrowModel.currentBand
-            currentPlotColor: Material.accent
-            plotColor: Material.foreground
-            sumPlotColor: Material.primary
-            warningColor: "orange" // unused
-            criticalColor: Material.color(Material.Pink)
+        SwipeView {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: bandBar.top
+
+            CornrowEqChart {
+                id: eqChart
+                frequencyTable: CornrowConfiguration.freqTable
+                bodePlot: CornrowBodePlotModel
+                currentFilter: CornrowModel.currentBand
+                currentPlotColor: Material.accent
+                plotColor: Material.foreground
+                sumPlotColor: Material.accent
+                warningColor: "orange" // unused
+                criticalColor: Material.color(Material.Pink)
+            }
+
+            CornrowPhaseChart {
+                id: phaseChart
+                frequencyTable: CornrowConfiguration.freqTable
+                bodePlot: CornrowBodePlotModel
+                currentFilter: CornrowModel.currentBand
+                currentPlotColor: Material.accent
+                plotColor: Material.foreground
+                sumPlotColor: Material.accent
+                criticalColor: Material.color(Material.Pink)
+            }
         }
         /*
         ToolButton {
@@ -291,7 +307,7 @@ ApplicationWindow {
                 id: typeRow
                 Repeater {
                     model: CornrowModel.filterTypeNames
-                    ToolButton {
+                    TabButton {
                         text: CornrowModel.filterTypeNames[index]
                         autoExclusive: true
                         checked: CornrowModel.filterType === index

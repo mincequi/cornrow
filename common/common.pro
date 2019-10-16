@@ -2,6 +2,8 @@ TEMPLATE = lib
 CONFIG -= qt
 CONFIG += staticlib c++11 create_prl
 
+QMAKE_CXXFLAGS += -Werror
+
 SOURCES += \
     src/Util.cpp \
     src/Types.cpp

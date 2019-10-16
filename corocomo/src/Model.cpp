@@ -185,7 +185,7 @@ void Model::setFilterType(int type)
 QStringList Model::filterTypeNames() const
 {
     if (m_currentBand < m_config.peqFilterCount) {
-        return { "Off", "PK", "LP", "HP", "LS", "HS" };
+        return { "Off", "PK", "LP", "HP", "LS", "HS"/*, "AP"*/ };
     } else if (m_currentBand == m_loudnessBand) {
         return { "Off", "On" };
     } else {
@@ -327,7 +327,7 @@ void Model::setFilters(common::FilterGroup task, const std::vector<Filter>& filt
         m_filters[i].g = filters.at(i).g;
         m_filters[i].q = filters.at(i).q;
         // @TODO(mawe): range check filter parameters (e.g. Q from server might be out of local range).
-        emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_config.freqTable.at(m_filters[i].f), m_filters[i].g, m_config.qTable.at(m_filters[i].q));
+        emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_filters[i].f, m_filters[i].g, m_config.qTable.at(m_filters[i].q));
     }
 
     setCurrentBand(0);
@@ -336,9 +336,9 @@ void Model::setFilters(common::FilterGroup task, const std::vector<Filter>& filt
 void Model::onParameterChanged()
 {
     if (m_currentFilter) {
-        emit filterChanged(m_currentBand, static_cast<uchar>(m_currentFilter->t), m_config.freqTable.at(m_currentFilter->f), m_currentFilter->g, m_config.qTable.at(m_currentFilter->q));
+        emit filterChanged(m_currentBand, static_cast<uchar>(m_currentFilter->t), m_currentFilter->f, m_currentFilter->g, m_config.qTable.at(m_currentFilter->q));
     } else {
-        emit filterChanged(m_currentBand, 0, 0.0, 0.0, 0.0);
+        emit filterChanged(m_currentBand, 0, 0, 0.0, 0.0);
     }
 
     if (!m_demoMode) {

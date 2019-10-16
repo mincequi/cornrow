@@ -5,7 +5,7 @@
 
 #include <common/Types.h>
 
-#include "EqGraph.h"
+class BodePlotModel;
 
 class EqChart : public QQuickPaintedItem
 {
@@ -19,10 +19,10 @@ class EqChart : public QQuickPaintedItem
 
     Q_PROPERTY(int currentFilter READ currentFilter WRITE setCurrentFilter)
 
+    Q_PROPERTY(BodePlotModel* bodePlot MEMBER m_bodePlot)
+
 public:
     EqChart(QQuickItem *parent = nullptr);
-
-    Q_INVOKABLE void setFilter(int i, uchar t, double f, double g, double q);
 
     QColor plotColor() const;
     void setPlotColor(const QColor &color);
@@ -40,7 +40,7 @@ public:
 
     void paint(QPainter *painter) override;
 
-private:
+protected:
     std::vector<double>  m_frequencyTable;
     QColor m_plotColor;         // background plots
     QColor m_currentPlotColor;  // current plot
@@ -50,7 +50,7 @@ private:
 
     int    m_currentFilter = -1;
 
-    QList<EqGraph>  m_graphs;
+    BodePlotModel* m_bodePlot = nullptr;
 };
 // QVector<qreal> is Qt 5.9 compatible. Qt 5.11 also accepts std::vector<double>.
 Q_DECLARE_METATYPE(std::vector<double>)
