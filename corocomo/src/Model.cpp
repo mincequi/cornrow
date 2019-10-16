@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#include <algorithm>
+
 #include <QPen>
 
 #include <ble/Client.h>
@@ -323,10 +325,9 @@ void Model::setFilters(common::FilterGroup task, const std::vector<Filter>& filt
     uint i = (task == common::FilterGroup::Peq) ? 0 : m_config.peqFilterCount;
     for (; i < filters.size(); ++i) {
         m_filters[i].t = filters.at(i).t;
-        m_filters[i].f = filters.at(i).f;
+        m_filters[i].f = std::min(filters.at(i).f, static_cast<uint8_t>(m_config.freqTable.size()-1));
         m_filters[i].g = filters.at(i).g;
-        m_filters[i].q = filters.at(i).q;
-        // @TODO(mawe): range check filter parameters (e.g. Q from server might be out of local range).
+        m_filters[i].q = std::min(filters.at(i).q, static_cast<uint8_t>(m_config.qTable.size()-1));
         emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_filters[i].f, m_filters[i].g, m_config.qTable.at(m_filters[i].q));
     }
 
