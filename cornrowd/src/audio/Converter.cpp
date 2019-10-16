@@ -43,6 +43,7 @@ GstDsp::FilterType toGstDsp(common::FilterType in)
     case common::FilterType::HighPass: return GstDsp::FilterType::HighPass;
     case common::FilterType::LowShelf: return GstDsp::FilterType::LowShelf;
     case common::FilterType::HighShelf: return GstDsp::FilterType::HighShelf;
+    case common::FilterType::AllPass: return GstDsp::FilterType::Invalid;
     case common::FilterType::Crossover: return GstDsp::FilterType::Invalid;
     case common::FilterType::Subwoofer: return GstDsp::FilterType::Invalid;
     case common::FilterType::Loudness: return GstDsp::FilterType::Invalid;
