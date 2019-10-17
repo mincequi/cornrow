@@ -115,6 +115,16 @@ ApplicationWindow {
         }
         */
 
+        ToolSeparator {
+            orientation: Qt.Horizontal
+            anchors.top: bandBar.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            horizontalPadding: 0
+            verticalPadding: 0
+        }
+
         TabBar {
             id: bandBar
             anchors.left: parent.left

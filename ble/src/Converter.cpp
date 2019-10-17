@@ -35,6 +35,8 @@ QBluetoothUuid Converter::toBle(common::FilterGroup group)
         return common::peqCharacteristicUuid;
     case common::FilterGroup::Aux:
         return common::auxCharacteristicUuid;
+    case common::FilterGroup::Caps:
+        return common::capsCharacteristicUuid;
     case common::FilterGroup::Invalid:
         return QBluetoothUuid();
     }

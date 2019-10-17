@@ -107,6 +107,20 @@ void BleCentralAdapter::onCharacteristicRead(common::FilterGroup task, const QBy
 
         break;
     }
+    case common::FilterGroup::Caps: {
+        std::vector<common::Interface> inputs;
+        std::vector<common::Interface> outputs;
+        for (const auto& c : value) {
+            const common::Interface* i = reinterpret_cast<const common::Interface*>(&c);
+            if (i->isOutput) {
+                outputs.push_back(*i);
+            } else {
+                inputs.push_back(*i);
+            }
+        }
+        emit capsReceived(inputs, outputs);
+        break;
+    }
 
     case common::FilterGroup::Invalid:
         break;

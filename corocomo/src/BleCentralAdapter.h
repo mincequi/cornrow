@@ -22,8 +22,7 @@ public:
 signals:
     void status(Model::Status status, const QString& errorString = QString());
     void filtersReceived(common::FilterGroup task, const std::vector<Model::Filter>& filters);
-    void initXo(const QByteArray& value);
-    void initLoudness(const QByteArray& value);
+    void capsReceived(const std::vector<common::Interface>& inputs, const std::vector<common::Interface>& ouputs);
 
 private:
     void doWriteCharc();

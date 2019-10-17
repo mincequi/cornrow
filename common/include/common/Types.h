@@ -10,20 +10,16 @@ namespace common
 
 extern const std::set<int> validSampleRates;
 
-enum class Source : uint8_t {
+enum class InterfaceType : uint8_t {
     Invalid     = 0,
 
     Default     = 0x01, // platform specific (alsa on linux)
-    Bluetooth   = 0x02,
-    Airplay     = 0x04
-};
 
-enum class SinkType : uint8_t {
-    Invalid     = 0,
-
-    Analog      = 0x01,
-    Spdif       = 0x02,
-    Hdmi        = 0x03
+    Analog      = 0x02,
+    Spdif       = 0x04,
+    Hdmi        = 0x08,
+    Bluetooth   = 0x10,
+    Airplay     = 0x20
 };
 
 enum class SampleFormat : uint8_t {
@@ -43,7 +39,8 @@ enum class FilterGroup : uint8_t {
     Invalid     = 0x0,
 
     Peq         = 0x1,
-    Aux         = 0x2
+    Aux         = 0x2,
+    Caps        = 0x4
 };
 
 enum class FilterType : uint8_t {
@@ -110,6 +107,19 @@ struct BiQuad
 
 extern const std::vector<double> frequencyTable;
 extern const std::vector<double> qTable;
+
+struct Interface
+{
+    InterfaceType   type: 4;
+    bool            isOutput: 1;
+    uint8_t         number: 3;
+};
+
+struct Caps
+{
+    std::vector<Interface>  inputs;
+    std::vector<Interface>  outputs;
+};
 
 namespace ble
 {
