@@ -85,7 +85,7 @@ void Client::setStatus(Status _error, const QString& errorString)
 
 void Client::onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value)
 {
-    qDebug() << __func__;
+    qDebug() << __func__ << "> " << characteristic.uuid();
     emit status(Status::Connected);
     emit characteristicRead(m_clientSession->m_converter.fromBle(characteristic.uuid()), value);
 }

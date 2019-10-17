@@ -322,13 +322,16 @@ void Model::setQSlider(double q)
 
 void Model::setFilters(common::FilterGroup task, const std::vector<Filter>& filters)
 {
-    uint i = (task == common::FilterGroup::Peq) ? 0 : m_config.peqFilterCount;
-    for (; i < filters.size(); ++i) {
-        m_filters[i].t = filters.at(i).t;
-        m_filters[i].f = std::min(filters.at(i).f, static_cast<uint8_t>(m_config.freqTable.size()-1));
-        m_filters[i].g = filters.at(i).g;
-        m_filters[i].q = std::min(filters.at(i).q, static_cast<uint8_t>(m_config.qTable.size()-1));
+    int i = (task == common::FilterGroup::Peq) ? 0 : m_config.peqFilterCount;
+
+    for (const auto& filter : filters) {
+        if (i >= m_filters.size()) break;
+        m_filters[i].t = filter.t;
+        m_filters[i].f = std::min(filter.f, static_cast<uint8_t>(m_config.freqTable.size()-1));
+        m_filters[i].g = filter.g;
+        m_filters[i].q = std::min(filter.q, static_cast<uint8_t>(m_config.qTable.size()-1));
         emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_filters[i].f, m_filters[i].g, m_config.qTable.at(m_filters[i].q));
+        ++i;
     }
 
     setCurrentBand(0);
