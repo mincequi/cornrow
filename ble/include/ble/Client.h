@@ -48,12 +48,14 @@ public:
     void disconnect();
 
     void writeCharacteristic(common::FilterGroup task, const QByteArray& value);
+    void writeCharacteristic(const std::string& uuid, const QByteArray& value);
 
 signals:
     void status(Status status, const QString& errorString = QString());
 
     // Emits initial values
     void characteristicRead(common::FilterGroup task, const QByteArray& value);
+    void characteristicRead(const std::string& uuid, const QByteArray& value);
 
 private:
     void setStatus(Status status, const QString& errorString = QString());

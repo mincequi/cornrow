@@ -94,7 +94,17 @@ Controller::~Controller()
 
 void Controller::setReadFiltersCallback(ReadFiltersCallback callback)
 {
-    m_readCallback = callback;
+    m_readFiltersCallback = callback;
+}
+
+void Controller::setReadIoCapsCallback(ReadIoCapsCallback callback)
+{
+    m_readIoCapsCallback = callback;
+}
+
+void Controller::setReadIoConfCallback(ReadIoConfCallback callback)
+{
+    m_readIoConfCallback = callback;
 }
 
 void Controller::initBle()
@@ -114,6 +124,12 @@ void Controller::initBle()
     auxCharc->setReadCallback(std::bind(&Controller::onReadFilters, this, common::FilterGroup::Aux));
     connect(auxCharc, &GattCharacteristic::valueWritten, std::bind(&Controller::onWriteFilters, this, common::FilterGroup::Aux, _1));
     m_charcs[common::FilterGroup::Aux] = auxCharc;
+
+    auto ioCapsCharc = new GattCharacteristic(QString::fromStdString(common::ble::ioCapsCharacteristicUuid), service);
+    ioCapsCharc->setReadCallback(std::bind(&Controller::onReadIoCaps, this));
+
+    auto ioConfCharc = new GattCharacteristic(QString::fromStdString(common::ble::ioConfCharacteristicUuid), service);
+    ioConfCharc->setReadCallback(std::bind(&Controller::onReadIoConf, this));
 
     m_manager->usableAdapter()->gattManager()->registerApplication(m_application);
 }
@@ -179,7 +195,17 @@ void Controller::onTransportVolumeChanged(uint16_t volume)
 
 QByteArray Controller::onReadFilters(common::FilterGroup group)
 {
-    return m_converter.filtersToBle(m_readCallback(group));
+    return m_converter.filtersToBle(m_readFiltersCallback(group));
+}
+
+QByteArray Controller::onReadIoCaps()
+{
+    return m_converter.toBle(m_readIoCapsCallback());
+}
+
+QByteArray Controller::onReadIoConf()
+{
+    return m_converter.toBle(m_readIoConfCallback());
 }
 
 void Controller::onWriteFilters(common::FilterGroup group, const QByteArray& value)

@@ -48,6 +48,12 @@ public:
     using ReadFiltersCallback = std::function<std::vector<common::Filter>(common::FilterGroup group)>;
     void setReadFiltersCallback(ReadFiltersCallback callback);
 
+    using ReadIoCapsCallback = std::function<std::vector<common::IoInterface>()>;
+    void setReadIoCapsCallback(ReadIoCapsCallback callback);
+
+    using ReadIoConfCallback = std::function<std::vector<common::IoInterface>()>;
+    void setReadIoConfCallback(ReadIoConfCallback callback);
+
 signals:
     void transportChanged(int fd, uint16_t blockSize);
     void volumeChanged(float volume);
@@ -61,6 +67,8 @@ private:
     void onTransportStateChanged(BluezQt::MediaTransport::State state);
     void onTransportVolumeChanged(uint16_t volume);
     QByteArray onReadFilters(common::FilterGroup group);
+    QByteArray onReadIoCaps();
+    QByteArray onReadIoConf();
     void onWriteFilters(common::FilterGroup group, const QByteArray& value);
 
     BluezQt::Manager* m_manager = nullptr;
@@ -68,7 +76,9 @@ private:
     BluezQt::GattApplication* m_application = nullptr;
     BluezQt::LEAdvertisement* m_advertisement = nullptr;
     BluezQt::MediaTransportPtr m_transport = nullptr;
-    ReadFiltersCallback m_readCallback = nullptr;
+    ReadFiltersCallback m_readFiltersCallback = nullptr;
+    ReadIoCapsCallback  m_readIoCapsCallback = nullptr;
+    ReadIoConfCallback  m_readIoConfCallback = nullptr;
     ble::Converter m_converter;
 };
 

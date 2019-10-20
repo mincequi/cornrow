@@ -10,16 +10,17 @@ namespace common
 
 extern const std::set<int> validSampleRates;
 
-enum class InterfaceType : uint8_t {
+//enum class IoInterfaceType : uint8_t {
+enum IoInterfaceType {
     Invalid     = 0,
 
-    Default     = 0x01, // platform specific (alsa on linux)
+    Default     = 1, // platform specific (alsa on linux)
 
-    Analog      = 0x02,
-    Spdif       = 0x04,
-    Hdmi        = 0x08,
-    Bluetooth   = 0x10,
-    Airplay     = 0x20
+    Analog      = 2,
+    Spdif       = 3,
+    Hdmi        = 4,
+    Bluetooth   = 5,
+    Airplay     = 6
 };
 
 enum class SampleFormat : uint8_t {
@@ -39,8 +40,7 @@ enum class FilterGroup : uint8_t {
     Invalid     = 0x0,
 
     Peq         = 0x1,
-    Aux         = 0x2,
-    Caps        = 0x4
+    Aux         = 0x2
 };
 
 enum class FilterType : uint8_t {
@@ -108,17 +108,18 @@ struct BiQuad
 extern const std::vector<double> frequencyTable;
 extern const std::vector<double> qTable;
 
-struct Interface
+struct IoInterface
 {
-    InterfaceType   type: 4;
+    //IoInterfaceType type: 4;
+    uint8_t         type: 4;
     bool            isOutput: 1;
     uint8_t         number: 3;
 };
 
 struct Caps
 {
-    std::vector<Interface>  inputs;
-    std::vector<Interface>  outputs;
+    std::vector<IoInterface>  inputs;
+    std::vector<IoInterface>  outputs;
 };
 
 namespace ble
@@ -127,7 +128,8 @@ namespace ble
 static const std::string cornrowServiceUuid    ("ad100000-d901-11e8-9f8b-f2801f1b9fd1");
 static const std::string peqCharacteristicUuid ("ad10e100-d901-11e8-9f8b-f2801f1b9fd1");
 static const std::string auxCharacteristicUuid ("ad10a100-d901-11e8-9f8b-f2801f1b9fd1");
-static const std::string capsCharacteristicUuid("ad10c100-d901-11e8-9f8b-f2801f1b9fd1");
+static const std::string ioCapsCharacteristicUuid("ad101a00-d901-11e8-9f8b-f2801f1b9fd1");
+static const std::string ioConfCharacteristicUuid("ad101f00-d901-11e8-9f8b-f2801f1b9fd1");
 
 }
 

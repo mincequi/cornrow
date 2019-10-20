@@ -35,13 +35,23 @@ QBluetoothUuid Converter::toBle(common::FilterGroup group)
         return common::peqCharacteristicUuid;
     case common::FilterGroup::Aux:
         return common::auxCharacteristicUuid;
-    case common::FilterGroup::Caps:
-        return common::capsCharacteristicUuid;
     case common::FilterGroup::Invalid:
         return QBluetoothUuid();
     }
 
     return QBluetoothUuid();
+}
+
+QByteArray Converter::toBle(const std::vector<common::IoInterface>& interfaces)
+{
+    QByteArray value;
+    value.reserve(interfaces.size());
+
+    for (const auto& interface : interfaces) {
+        value.append(*reinterpret_cast<const char*>(&interface));
+    }
+
+    return value;
 }
 
 QByteArray Converter::filtersToBle(const std::vector<common::Filter>& filters)

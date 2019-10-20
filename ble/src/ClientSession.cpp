@@ -153,6 +153,22 @@ void ClientSession::onServiceStateChanged(QLowEnergyService::ServiceState s)
         }
         m_service->readCharacteristic(m_service->characteristic(common::auxCharacteristicUuid));
 
+        const QLowEnergyCharacteristic caps = m_service->characteristic(QBluetoothUuid(QString::fromStdString(common::ble::ioCapsCharacteristicUuid)));
+        if (!caps.isValid()) {
+            q->disconnect();
+            q->setStatus(Client::Status::Error, "Invalid IoCaps characteristic");
+            return;
+        }
+        m_service->readCharacteristic(m_service->characteristic(QBluetoothUuid(QString::fromStdString(common::ble::ioCapsCharacteristicUuid))));
+
+        const QLowEnergyCharacteristic conf = m_service->characteristic(QBluetoothUuid(QString::fromStdString(common::ble::ioConfCharacteristicUuid)));
+        if (!caps.isValid()) {
+            q->disconnect();
+            q->setStatus(Client::Status::Error, "Invalid IoConf characteristic");
+            return;
+        }
+        m_service->readCharacteristic(m_service->characteristic(QBluetoothUuid(QString::fromStdString(common::ble::ioConfCharacteristicUuid))));
+
         break;
     }
     case QLowEnergyService::InvalidService:

@@ -91,6 +91,25 @@ void Controller::setFilters(common::FilterGroup group, const std::vector<common:
     }
 }
 
+std::vector<common::IoInterface> Controller::ioCaps()
+{
+    return {
+        { common::IoInterfaceType::Bluetooth, false, 0 },
+        { common::IoInterfaceType::Airplay, false, 0},
+        { common::IoInterfaceType::Default, false, 0},
+        { common::IoInterfaceType::Spdif, false, 2},
+        { common::IoInterfaceType::Hdmi, false, 2}
+    };
+}
+
+std::vector<common::IoInterface> Controller::ioConf()
+{
+    return {
+        { common::IoInterfaceType::Bluetooth, false, 0 },
+        { common::IoInterfaceType::Spdif, false, 1}
+    };
+}
+
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 {
     //::close(m_fd);

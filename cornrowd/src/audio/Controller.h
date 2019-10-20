@@ -41,6 +41,9 @@ public:
     std::vector<common::Filter> filters(common::FilterGroup group);
     void setFilters(common::FilterGroup group, const std::vector<common::Filter>& filters);
 
+    std::vector<common::IoInterface> ioCaps();
+    std::vector<common::IoInterface> ioConf();
+
 private:
     void updatePipeline();
 

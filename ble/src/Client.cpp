@@ -28,7 +28,7 @@
 namespace ble
 {
 
-Client::Client(QObject *parent)
+Client::Client(QObject* parent)
     : QObject(parent)
 {
 }
@@ -77,6 +77,20 @@ void Client::writeCharacteristic(common::FilterGroup group, const QByteArray& va
     m_clientSession->m_service->writeCharacteristic(characteristic, value);
 }
 
+void Client::writeCharacteristic(const std::string& uuid, const QByteArray& value)
+{
+    if (!m_clientSession) {
+        return;
+    }
+
+    const auto characteristic = m_clientSession->m_service->characteristic(QBluetoothUuid(QString::fromStdString(uuid)));
+    if (!characteristic.isValid()) {
+        qDebug() << __func__ << "Characteristic invalid:" << characteristic.uuid();
+        return;
+    }
+    m_clientSession->m_service->writeCharacteristic(characteristic, value);
+}
+
 void Client::setStatus(Status _error, const QString& errorString)
 {
     qDebug() << "Status:" << static_cast<int32_t>(_error) << "error:" << errorString;
@@ -87,7 +101,13 @@ void Client::onCharacteristicRead(const QLowEnergyCharacteristic& characteristic
 {
     qDebug() << __func__ << "> " << characteristic.uuid();
     emit status(Status::Connected);
-    emit characteristicRead(m_clientSession->m_converter.fromBle(characteristic.uuid()), value);
+
+    auto filterGroup = m_clientSession->m_converter.fromBle(characteristic.uuid());
+    if (filterGroup != common::FilterGroup::Invalid) {
+        emit characteristicRead(filterGroup, value);
+    } else {
+        emit characteristicRead(characteristic.uuid().toString(QUuid::StringFormat::WithoutBraces).toStdString(), value);
+    }
 }
 
 } // namespace ble
