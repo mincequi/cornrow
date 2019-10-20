@@ -6,7 +6,6 @@
         <file>FilterBandButton.qml</file>
         <file>CornrowBusyIndicator.qml</file>
         <file>Chip.qml</file>
-        <file>TitleLabel.qml</file>
         <file>Io.qml</file>
     </qresource>
 </RCC>

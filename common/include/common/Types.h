@@ -114,6 +114,8 @@ struct IoInterface
     uint8_t         type: 4;
     bool            isOutput: 1;
     uint8_t         number: 3;
+
+    bool operator==(const IoInterface& other) const;
 };
 
 struct Caps

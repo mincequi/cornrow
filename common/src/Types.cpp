@@ -82,4 +82,11 @@ const std::vector<double> qTable {
     50.0
 };
 
+bool IoInterface::operator==(const IoInterface& other) const
+{
+    return (type == other.type &&
+            isOutput == other.isOutput &&
+            number == other.number);
+}
+
 } // namespace common

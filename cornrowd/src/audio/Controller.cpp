@@ -96,9 +96,9 @@ std::vector<common::IoInterface> Controller::ioCaps()
     return {
         { common::IoInterfaceType::Bluetooth, false, 0 },
         { common::IoInterfaceType::Airplay, false, 0},
-        { common::IoInterfaceType::Default, false, 0},
-        { common::IoInterfaceType::Spdif, false, 2},
-        { common::IoInterfaceType::Hdmi, false, 2}
+        { common::IoInterfaceType::Default, true, 0},
+        { common::IoInterfaceType::Spdif, true, 2},
+        { common::IoInterfaceType::Hdmi, true, 2}
     };
 }
 
@@ -106,7 +106,7 @@ std::vector<common::IoInterface> Controller::ioConf()
 {
     return {
         { common::IoInterfaceType::Bluetooth, false, 0 },
-        { common::IoInterfaceType::Spdif, false, 1}
+        { common::IoInterfaceType::Spdif, true, 1}
     };
 }
 

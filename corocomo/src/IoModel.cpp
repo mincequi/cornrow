@@ -24,6 +24,7 @@ IoModel::IoModel(BleCentralAdapter* adapter, QObject *parent) :
     m_adapter(adapter)
 {
     connect(m_adapter, &BleCentralAdapter::ioCapsReceived, this, &IoModel::onIoCapsReceived);
+    connect(m_adapter, &BleCentralAdapter::ioConfReceived, this, &IoModel::onIoConfReceived);
 }
 
 QStringList IoModel::inputNames() const
@@ -126,4 +127,19 @@ void IoModel::onIoCapsReceived(const std::vector<common::IoInterface>& inputs, c
     m_outputs = ouputs;
 
     emit iosChanged();
+}
+
+void IoModel::onIoConfReceived(const common::IoInterface& input, const common::IoInterface& output)
+{
+    for (uint i = 0; i < m_inputs.size(); ++i) {
+        if (m_inputs.at(i) == input) {
+            setActiveInput(i);
+        }
+    }
+
+    for (uint i = 0; i < m_outputs.size(); ++i) {
+        if (m_outputs.at(i) == output) {
+            setActiveOutput(i);
+        }
+    }
 }
