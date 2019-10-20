@@ -88,7 +88,7 @@ int IoModel::activeInput() const
 void IoModel::setActiveInput(int i)
 {
     m_activeInput = i;
-    m_adapter->setDirty(common::FilterGroup::IoCaps);
+    emit activeInputChanged();
 }
 
 int IoModel::activeOutput() const
@@ -99,6 +99,7 @@ int IoModel::activeOutput() const
 void IoModel::setActiveOutput(int i)
 {
     m_activeOutput = i;
+    emit activeOutputChanged();
 }
 
 common::IoInterface IoModel::input()

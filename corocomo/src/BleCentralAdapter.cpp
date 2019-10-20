@@ -2,14 +2,19 @@
 
 #include <ble/Client.h>
 
+#include "IoModel.h"
 #include "Model.h"
 
-BleCentralAdapter::BleCentralAdapter(ble::Client* central, Model* model)
+BleCentralAdapter::BleCentralAdapter(ble::Client* central, Model* model, IoModel* ioModel)
     : QObject(central),
       m_central(central),
-      m_model(model)
+      m_model(model),
+      m_ioModel(ioModel)
 {
-    connect(m_central, &ble::Client::characteristicRead, this, &BleCentralAdapter::onCharacteristicRead);
+    connect(m_central, qOverload<common::FilterGroup, const QByteArray&>(&ble::Client::characteristicRead),
+            this, qOverload<common::FilterGroup, const QByteArray&>(&BleCentralAdapter::onCharacteristicRead));
+    connect(m_central, qOverload<const std::string&, const QByteArray&>(&ble::Client::characteristicRead),
+            this, qOverload<const std::string&, const QByteArray&>(&BleCentralAdapter::onCharacteristicRead));
     connect(m_central, &ble::Client::status, this, &BleCentralAdapter::onStatus);
 
     m_timer.setInterval(200);
@@ -23,7 +28,17 @@ BleCentralAdapter::~BleCentralAdapter()
 
 void BleCentralAdapter::setDirty(common::FilterGroup group)
 {
+    // @TODO(mawe): remove FilterGroup type
     m_dirtyFilterGroups.setFlag(group);
+
+    if (!m_timer.isActive()) {
+        m_timer.start();
+    }
+}
+
+void BleCentralAdapter::setDirty(const std::string& uuid)
+{
+    m_dirtyCharcs.insert(uuid);
 
     if (!m_timer.isActive()) {
         m_timer.start();
@@ -45,7 +60,9 @@ void BleCentralAdapter::doWriteCharc()
         }
         m_central->writeCharacteristic(common::FilterGroup::Peq, value);
         m_dirtyFilterGroups.setFlag(common::FilterGroup::Peq, false);
-    } else if (m_dirtyFilterGroups.testFlag(common::FilterGroup::Aux)) {
+    }
+
+    if (m_dirtyFilterGroups.testFlag(common::FilterGroup::Aux)) {
         QByteArray value((filters.count() - config.peqFilterCount)*4, 0);
         for (int i = 0; i < (filters.count()-config.peqFilterCount); ++i) {
             value[i*4]   = static_cast<char>(filters.at(i+config.peqFilterCount).t);
@@ -55,6 +72,15 @@ void BleCentralAdapter::doWriteCharc()
         }
         m_central->writeCharacteristic(common::FilterGroup::Aux, value);
         m_dirtyFilterGroups.setFlag(common::FilterGroup::Aux, false);
+    }
+
+    if (m_dirtyCharcs.count(common::ble::ioConfCharacteristicUuid)) {
+        QByteArray value(2, 0);
+        auto i = m_ioModel->input();
+        auto o = m_ioModel->output();
+        value[0] = *reinterpret_cast<char*>(&i);
+        value[1] = *reinterpret_cast<char*>(&o);
+        m_central->writeCharacteristic(common::ble::ioConfCharacteristicUuid, value);
     }
 }
 
@@ -107,22 +133,38 @@ void BleCentralAdapter::onCharacteristicRead(common::FilterGroup task, const QBy
 
         break;
     }
-    case common::FilterGroup::Caps: {
-        std::vector<common::Interface> inputs;
-        std::vector<common::Interface> outputs;
+
+    case common::FilterGroup::Invalid:
+        break;
+    }
+}
+
+
+void BleCentralAdapter::onCharacteristicRead(const std::string& uuid, const QByteArray& value)
+{
+    if (uuid == common::ble::ioCapsCharacteristicUuid) {
+        std::vector<common::IoInterface> inputs;
+        std::vector<common::IoInterface> outputs;
         for (const auto& c : value) {
-            const common::Interface* i = reinterpret_cast<const common::Interface*>(&c);
+            const common::IoInterface* i = reinterpret_cast<const common::IoInterface*>(&c);
             if (i->isOutput) {
                 outputs.push_back(*i);
             } else {
                 inputs.push_back(*i);
             }
         }
-        emit capsReceived(inputs, outputs);
-        break;
+        emit ioCapsReceived(inputs, outputs);
     }
+    else if (uuid == common::ble::ioConfCharacteristicUuid) {
+        common::IoInterface i;
+        common::IoInterface o;
 
-    case common::FilterGroup::Invalid:
-        break;
+        for (const auto c : value) {
+            common::IoInterface interface = *reinterpret_cast<const common::IoInterface*>(&c);
+            if (!interface.isOutput) i = interface;
+            else o = interface;
+        }
+
+        emit ioConfReceived(i, o);
     }
 }

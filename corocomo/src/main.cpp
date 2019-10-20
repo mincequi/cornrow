@@ -6,6 +6,7 @@
 #include "BusyIndicatorModel.h"
 #include "Config.h"
 #include "EqChart.h"
+#include "IoModel.h"
 #include "Model.h"
 #include "PhaseChart.h"
 
@@ -36,6 +37,9 @@ int main(int argc, char *argv[])
     });
     qmlRegisterSingletonType<BodePlotModel>("Cornrow.BodePlotModel", 1, 0, "CornrowBodePlotModel", [](QQmlEngine*, QJSEngine*) -> QObject* {
         return BodePlotModel::instance();
+    });
+    qmlRegisterSingletonType<IoModel>("Cornrow.IoModel", 1, 0, "CornrowIoModel", [](QQmlEngine*, QJSEngine*) -> QObject* {
+        return IoModel::instance();
     });
 
     QQmlApplicationEngine engine;

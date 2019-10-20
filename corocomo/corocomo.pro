@@ -1,5 +1,5 @@
 QT += bluetooth quick
-CONFIG += c++11
+CONFIG += c++14
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -19,6 +19,7 @@ SOURCES += \
     src/BodePlotModel.cpp \
     src/BusyIndicatorModel.cpp \
     src/EqChart.cpp \
+    src/IoModel.cpp \
     src/Model.cpp \
     src/PhaseChart.cpp \
     src/Plot.cpp \
@@ -30,6 +31,7 @@ HEADERS += \
     src/BodePlotModel.h \
     src/BusyIndicatorModel.h \
     src/EqChart.h \
+    src/IoModel.h \
     src/Model.h \
     src/PhaseChart.h \
     src/Config.h

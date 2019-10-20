@@ -8,6 +8,7 @@
 #include "Config.h"
 
 class BleCentralAdapter;
+class IoModel;
 namespace ble
 {
 class Client;
@@ -143,6 +144,9 @@ private:
     ble::Client* m_central = nullptr;
     BleCentralAdapter* m_adapter = nullptr;
     friend class BleCentralAdapter;
+
+    // Sub model
+    IoModel* m_ioModel = nullptr;
 };
 
 #endif // MODEL_H

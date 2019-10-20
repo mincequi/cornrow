@@ -235,6 +235,12 @@ ApplicationWindow {
             }
         } // Column
 
+        Io {
+            anchors.top: filterParameters.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+        }
+
         FilterParameter {
             anchors.top: filterParameters.top
             anchors.left: parent.left

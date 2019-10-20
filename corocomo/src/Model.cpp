@@ -9,6 +9,7 @@
 #include <ble/Client.h>
 
 #include "BleCentralAdapter.h"
+#include "IoModel.h"
 
 Model* Model::s_instance = nullptr;
 
@@ -47,7 +48,8 @@ Model::Model(const Config& config, QObject *parent) :
     connect(this, &Model::qChanged, this, &Model::onParameterChanged);
 
     m_central = new ble::Client(this);
-    m_adapter = new BleCentralAdapter(m_central, this);
+    m_adapter = new BleCentralAdapter(m_central, this, m_ioModel);
+    m_ioModel = IoModel::init(m_adapter);
 
     connect(m_adapter, &BleCentralAdapter::filtersReceived, this, &Model::setFilters);
     connect(m_adapter, &BleCentralAdapter::status, this, &Model::onBleStatus);

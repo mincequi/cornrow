@@ -1,87 +1,68 @@
 import QtQuick 2.10
 import QtQuick.Controls 2.3
-import QtQuick.Controls.Material 2.3
 
-Column {
-    anchors.centerIn: parent
-    spacing: 16
+import Cornrow.IoModel 1.0
 
-    Column {
-        spacing: 16
+Item {
+    anchors.leftMargin: 12
+    anchors.rightMargin: 12
 
-        TitleLabel {
-            text: qsTr("Color Chips")
-        }
+    Label {
+        id: inputLabel
+        text: qsTr("Inputs")
+        x: 16
+        anchors.bottomMargin: 12
+    }
 
-        ButtonGroup {
-            id: colorChipsGroup
-        }
+    ButtonGroup {
+        id: inputsGroup
+    }
 
-        Row {
-            spacing: 8
+    Flow {
+        id: inputs
+        spacing: 8
+        anchors.top: inputLabel.bottom
+        anchors.topMargin: 12
+        anchors.left: parent.left
+        anchors.right: parent.right
 
+        Repeater {
+            model: CornrowIoModel.inputNames
             Chip {
-                id: colorChip1
-                text: qsTr("Blue 500")
                 checkable: true
-                ButtonGroup.group: colorChipsGroup
-            }
-
-            Chip {
-                id: colorChip2
-                text: qsTr("Green 500")
-                checkable: true
-                ButtonGroup.group: colorChipsGroup
-            }
-
-            Chip {
-                id: colorChip3
-                text: qsTr("Red 500")
-                checkable: true
-                ButtonGroup.group: colorChipsGroup
+                text: CornrowIoModel.inputNames[index]
+                ButtonGroup.group: inputsGroup
             }
         }
     }
 
-    Column {
-        spacing: 16
+    Label {
+        id: outputLabel
+        text: qsTr("Outputs")
+        x: 16
+        anchors.topMargin: 12
+        anchors.top: inputs.bottom
+    }
 
-        TitleLabel {
-            text: qsTr("Choice Chips")
-        }
+    ButtonGroup {
+        id: outputsGroup
+    }
 
-        ButtonGroup {
-            id: choiceChipsGroup
-        }
+    Flow {
+        id: outputs
+        spacing: 8
+        anchors.top: outputLabel.bottom
+        anchors.topMargin: 12
+        anchors.left: parent.left
+        anchors.right: parent.right
 
-        Row {
-            id: choiceChips
-            spacing: 8
-
+        Repeater {
+            model: CornrowIoModel.outputNames
             Chip {
                 checkable: true
-                checked: true
-                text: qsTr("Extra Soft")
-                ButtonGroup.group: choiceChipsGroup
-            }
-
-            Chip {
-                checkable: true
-                text: qsTr("Soft")
-                ButtonGroup.group: choiceChipsGroup
-            }
-
-            Chip {
-                checkable: true
-                text: qsTr("Medium")
-                ButtonGroup.group: choiceChipsGroup
-            }
-
-            Chip {
-                checkable: true
-                text: qsTr("Hard")
-                ButtonGroup.group: choiceChipsGroup
+                text: CornrowIoModel.outputNames[index]
+                ButtonGroup.group: outputsGroup
             }
         }
     }
-}
+} // Item

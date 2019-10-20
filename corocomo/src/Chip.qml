@@ -21,12 +21,11 @@ AbstractButton {
     hoverEnabled: true
 
     Material.elevation: control.pressed ? 2 : 0
-    Material.background: Material.color(Material.Grey, control.checked || control.hovered ? Material.Shade700 : Material.Shade300)
 
     background: Rectangle {
-        implicitHeight: 32
+        implicitHeight: 24
         radius: 16
-        color: control.Material.backgroundColor
+        color: control.checked || control.hovered ? Material.accent : Material.color(Material.Grey)
 
         layer.enabled: control.Material.elevation > 0
     }
@@ -44,7 +43,7 @@ AbstractButton {
             text: control.text
             font: control.font
             color: control.checked || control.hovered ? Material.primaryHighlightedTextColor : Material.primaryTextColor
-            opacity: 0.87
+            //opacity: 0.87
         }
     }
 }
