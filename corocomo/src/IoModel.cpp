@@ -69,11 +69,9 @@ QStringList IoModel::outputNames() const
         default:
             continue;
         }
-        if (o.number > 1) {
-            for (auto i = 1; i <= o.number; ++i) {
-                outputs << (output + " " + QString::number(i));
-            }
-        } else if (o.number == 1) {
+        if (o.number > 0) {
+            outputs << (output + " " + QString::number(o.number));
+        } else {
             outputs << output;
         }
     }

@@ -30,6 +30,7 @@ Item {
             model: CornrowIoModel.inputNames
             Chip {
                 checkable: true
+                checked: CornrowIoModel.activeInput == index
                 text: CornrowIoModel.inputNames[index]
                 ButtonGroup.group: inputsGroup
             }
@@ -60,6 +61,7 @@ Item {
             model: CornrowIoModel.outputNames
             Chip {
                 checkable: true
+                checked: CornrowIoModel.activeOutput == index
                 text: CornrowIoModel.outputNames[index]
                 ButtonGroup.group: outputsGroup
             }

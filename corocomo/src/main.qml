@@ -236,6 +236,7 @@ ApplicationWindow {
         } // Column
 
         Io {
+            visible: false
             anchors.top: filterParameters.top
             anchors.left: parent.left
             anchors.right: parent.right
