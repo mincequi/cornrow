@@ -25,58 +25,36 @@ IoModel::IoModel(BleCentralAdapter* adapter, QObject *parent) :
 {
     connect(m_adapter, &BleCentralAdapter::ioCapsReceived, this, &IoModel::onIoCapsReceived);
     connect(m_adapter, &BleCentralAdapter::ioConfReceived, this, &IoModel::onIoConfReceived);
+
+    m_inputs = {
+        { common::IoInterfaceType::Invalid, false, 0 }
+    };
+
+    m_outputs = {
+        { common::IoInterfaceType::Invalid, true, 0 }
+    };
 }
 
 QStringList IoModel::inputNames() const
 {
-    QStringList inputs;
+    QStringList names;
 
     for (const auto& i : m_inputs) {
-        switch (i.type) {
-        case common::IoInterfaceType::Bluetooth:
-            inputs << "Bluetooth";
-            break;
-        case common::IoInterfaceType::Airplay:
-            inputs << "Airplay";
-            break;
-        default:
-            break;
-        }
+        names << toString(i);
     }
 
-    return inputs;
+    return names;
 }
 
 QStringList IoModel::outputNames() const
 {
-    QStringList outputs;
-    QString output;
+    QStringList names;
 
-    for (const auto& o : m_outputs) {
-        switch (o.type) {
-        case common::IoInterfaceType::Default:
-            output = "Default";
-            break;
-        case common::IoInterfaceType::Analog:
-            output = "Analog";
-            break;
-        case common::IoInterfaceType::Spdif:
-            output = "SPDIF";
-            break;
-        case common::IoInterfaceType::Hdmi:
-            output = "HDMI";
-            break;
-        default:
-            continue;
-        }
-        if (o.number > 0) {
-            outputs << (output + " " + QString::number(o.number));
-        } else {
-            outputs << output;
-        }
+    for (const auto& i : m_outputs) {
+        names << toString(i);
     }
 
-    return outputs;
+    return names;
 }
 
 int IoModel::activeInput() const
@@ -117,6 +95,40 @@ common::IoInterface IoModel::output()
     }
 
     return m_outputs.at(m_activeOutput);
+}
+
+QString IoModel::toString(common::IoInterface interface)
+{
+    QString string;
+
+    switch (interface.type) {
+    case common::IoInterfaceType::Invalid:
+        string = "<unknown>";
+        break;
+    case common::IoInterfaceType::Default:
+        string = "Default";
+        break;
+    case common::IoInterfaceType::Analog:
+        string = "Analog";
+        break;
+    case common::IoInterfaceType::Spdif:
+        string = "SPDIF";
+        break;
+    case common::IoInterfaceType::Hdmi:
+        string = "HDMI";
+        break;
+    case common::IoInterfaceType::Bluetooth:
+        string = "Bluetooth";
+        break;
+    case common::IoInterfaceType::Airplay:
+        string = "Airplay";
+        break;
+    }
+    if (interface.number > 0) {
+        string += (" " + QString::number(interface.number));
+    }
+
+    return string;
 }
 
 void IoModel::onIoCapsReceived(const std::vector<common::IoInterface>& inputs, const std::vector<common::IoInterface>& ouputs)

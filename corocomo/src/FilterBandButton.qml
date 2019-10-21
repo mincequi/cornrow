@@ -1,13 +1,14 @@
 import QtQuick 2.2
 import QtQuick.Controls 2.0
+import QtQuick.Controls.Material 2.2
 
 TabButton {
     autoExclusive: true
-    property alias indicatorColor: indicator.color
     property alias indicatorVisible: indicator.visible
     width: implicitWidth
     indicator: Rectangle {
         id: indicator
+        color: Material.primary
         width: parent.height*0.15
         height: width
         anchors.right: parent.right

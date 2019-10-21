@@ -59,6 +59,7 @@ Config::Config(Type type, QObject *parent)
         qMin = 0;
         qMax = qTable.size()-1;
         qStep = 1;
+        ioAvailable = true;
         loudnessAvailable = true;
         xoAvailable = true;
         swAvailable = true;

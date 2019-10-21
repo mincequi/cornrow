@@ -132,10 +132,22 @@ ApplicationWindow {
             anchors.bottom: typeBar.top
 
             Repeater {
+                model: CornrowConfiguration.ioAvailable ? 1 : 0
+                FilterBandButton {
+                    text: "I/O"
+                    indicatorVisible: false
+                    checked: CornrowModel.currentBand == -1
+                    onPressed: {
+                        CornrowModel.setCurrentBand(-1)
+                        eqChart.update()
+                        phaseChart.update()
+                    }
+                }
+            }
+            Repeater {
                 model: CornrowModel.peqFilterCount
                 FilterBandButton {
                     text: index+1
-                    indicatorColor: Material.primary
                     indicatorVisible: CornrowModel.activeFilters[index]
                     checked: CornrowModel.currentBand == index
                     onPressed: CornrowModel.setCurrentBand(index)
@@ -143,7 +155,6 @@ ApplicationWindow {
             } // Repeater
             FilterBandButton {
                 text: "LN"
-                indicatorColor: Material.primary
                 indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount]
                 visible: CornrowConfiguration.loudnessAvailable
                 checked: CornrowModel.currentBand == CornrowModel.peqFilterCount
@@ -151,7 +162,6 @@ ApplicationWindow {
             }
             FilterBandButton {
                 text: "XO"
-                indicatorColor: Material.primary
                 indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+1]
                 visible: CornrowConfiguration.xoAvailable
                 checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
@@ -159,7 +169,6 @@ ApplicationWindow {
             }
             FilterBandButton {
                 text: "SW"
-                indicatorColor: Material.primary
                 indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+2]
                 visible: CornrowConfiguration.swAvailable
                 checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+2
@@ -176,6 +185,7 @@ ApplicationWindow {
             background: background
             enabled: CornrowModel.currentBand != CornrowModel.peqFilterCount
             opacity: CornrowModel.currentBand != CornrowModel.peqFilterCount
+            visible: CornrowModel.currentBand != -1
 
             Row {
                 id: typeRow
@@ -197,7 +207,8 @@ ApplicationWindow {
             anchors.bottomMargin: 16
             anchors.left: parent.left
             anchors.right: parent.right
-            opacity: CornrowModel.currentBand != CornrowModel.peqFilterCount
+            opacity: CornrowModel.currentBand != CornrowModel.peqFilterCount &&
+                     CornrowModel.currentBand != -1
 
             FilterParameter {
                 label: "Frequency"
@@ -222,13 +233,13 @@ ApplicationWindow {
             }
             FilterParameter {
                 label: "Gain"
-                unit: CornrowModel.gainUnit
+                unit: "dB"
                 opacity: CornrowModel.currentBand <= CornrowModel.peqFilterCount
                 enabled: CornrowModel.currentBand <= CornrowModel.peqFilterCount &&
                          (CornrowModel.filterType === 1 ||
                           CornrowModel.filterType === 4 ||
                           CornrowModel.filterType === 5)
-                readout: CornrowModel.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
+                readout: CornrowConfiguration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
                 onStep: CornrowModel.stepGain(i)
                 value: CornrowModel.gainSlider
                 onValueChanged: CornrowModel.gainSlider = value
@@ -236,7 +247,7 @@ ApplicationWindow {
         } // Column
 
         Io {
-            visible: false
+            visible: CornrowModel.currentBand == -1
             anchors.top: filterParameters.top
             anchors.left: parent.left
             anchors.right: parent.right

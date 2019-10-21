@@ -40,6 +40,9 @@ signals:
 
 private:
     IoModel(BleCentralAdapter* adapter, QObject* parent = nullptr);
+
+    static QString toString(common::IoInterface interface);
+
     void onIoCapsReceived(const std::vector<common::IoInterface>& inputs, const std::vector<common::IoInterface>& ouputs);
     void onIoConfReceived(const common::IoInterface& input, const common::IoInterface& ouput);
 

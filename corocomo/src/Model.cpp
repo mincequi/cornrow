@@ -103,18 +103,19 @@ void Model::resizeFilters(int diff)
 
 void Model::setCurrentBand(int i)
 {
-    if (m_filters.empty()) {
-        m_currentFilter = nullptr;
-        if (m_currentBand == -1) return;
-        m_currentBand = -1;
-
-        emit currentBandChanged();
+    m_currentBand = i;
+    if (i >= 0) {
+        m_currentFilter = &(m_filters[m_currentBand]);
+    } else {
+        m_currentFilter  = nullptr;
     }
 
-    m_currentBand = i;
-    m_currentFilter = &(m_filters[m_currentBand]);
-
     emit currentBandChanged();
+
+    if (!m_currentFilter) {
+        return;
+    }
+
     emit filterTypeChanged();
     emit freqChanged();
     emit freqSliderChanged();
@@ -148,7 +149,9 @@ int Model::currentBand() const
 
 int Model::filterType() const
 {
-    if (m_currentBand < m_config.peqFilterCount) {
+    if (m_currentBand < 0) {
+        return 0;
+    } else if (m_currentBand < m_config.peqFilterCount) {
         return static_cast<int>(m_currentFilter->t);
     } else if (m_currentBand == m_loudnessBand) {
         return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : 1;
@@ -279,11 +282,6 @@ double Model::gainStep() const
 {
     if (m_currentBand == m_loudnessBand) return 1.0;
     else return m_config.gainStep;
-}
-
-QString Model::gainUnit() const
-{
-    return (m_currentBand == m_loudnessBand) ? "phon" : "dB";
 }
 
 QString Model::qReadout() const

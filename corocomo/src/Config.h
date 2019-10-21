@@ -11,6 +11,7 @@ class Config : public QObject
     Q_PROPERTY(double gainMin MEMBER gainMin CONSTANT)
     Q_PROPERTY(double gainMax MEMBER gainMax CONSTANT)
     Q_PROPERTY(double gainStep MEMBER gainStep CONSTANT)
+    Q_PROPERTY(bool ioAvailable MEMBER ioAvailable CONSTANT)
     Q_PROPERTY(bool loudnessAvailable MEMBER loudnessAvailable CONSTANT)
     Q_PROPERTY(bool xoAvailable MEMBER xoAvailable CONSTANT)
     Q_PROPERTY(bool swAvailable MEMBER swAvailable CONSTANT)
@@ -43,6 +44,7 @@ public:
     double gainMax = 6.0;
     double gainStep = 1.0;
 
+    bool ioAvailable = false;
     bool loudnessAvailable = false;
     bool xoAvailable = false;
     bool swAvailable = false;
