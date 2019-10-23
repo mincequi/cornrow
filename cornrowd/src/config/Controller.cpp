@@ -36,7 +36,7 @@ Controller::Controller(audio::Controller* audio,
 {
     // On start-up we read config from disk
     std::vector<common::Filter> peqFilters, auxFilters;
-    readConfig(&peqFilters, &auxFilters);
+    m_persistence.readConfig(&peqFilters, &auxFilters);
     m_audio->setFilters(common::FilterGroup::Peq, peqFilters);
     m_audio->setFilters(common::FilterGroup::Aux, auxFilters);
 
@@ -54,8 +54,8 @@ Controller::~Controller()
 void Controller::writeConfig()
 {
     // If connection is closed, we write config to disk
-    config::writeConfig(m_audio->filters(common::FilterGroup::Peq),
-                        m_audio->filters(common::FilterGroup::Aux));
+    m_persistence.writeConfig(m_audio->filters(common::FilterGroup::Peq),
+                              m_audio->filters(common::FilterGroup::Aux));
 }
 
 } // namespace config

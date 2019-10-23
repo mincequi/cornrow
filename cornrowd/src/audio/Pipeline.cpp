@@ -110,6 +110,12 @@ void Pipeline::setLoudness(uint8_t phon)
     m_loudness->setLevel(phon);
 }
 
+void Pipeline::setOutputDevice(const std::string& device)
+{
+    m_alsaPassthroughSink->set_property("device", Glib::ustring(device));
+    m_alsaSink->set_property("device", Glib::ustring(device));
+}
+
 common::Filter Pipeline::crossover() const
 {
     common::Filter crossover;

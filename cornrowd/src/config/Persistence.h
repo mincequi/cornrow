@@ -22,10 +22,18 @@
 namespace config
 {
 
-void readConfig(std::vector<common::Filter>* peqFilters,
-                std::vector<common::Filter>* auxFilters);
+class Persistence
+{
+public:
+    Persistence();
+    ~Persistence();
 
-void writeConfig(const std::vector<common::Filter>& peqFilters,
-                 const std::vector<common::Filter>& auxFilters);
+    void readConfig(std::vector<common::Filter>* peqFilters,
+                    std::vector<common::Filter>* auxFilters);
+
+    void writeConfig(const std::vector<common::Filter>& peqFilters,
+                     const std::vector<common::Filter>& auxFilters);
+
+}; // Persistence
 
 } // namespace config

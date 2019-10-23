@@ -67,6 +67,8 @@ public:
 
     void setLoudness(uint8_t phon);
 
+    void setOutputDevice(const std::string& device);
+
 private:
     bool constructPipeline(Type type, bool force = false);
 

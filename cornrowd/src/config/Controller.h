@@ -19,6 +19,8 @@
 
 #include <QObject>
 
+#include "Persistence.h"
+
 namespace audio
 {
 class Controller;
@@ -47,6 +49,8 @@ public:
 private:
     audio::Controller* m_audio = nullptr;
     bluetooth::Controller* m_bluetooth = nullptr;
+
+    Persistence m_persistence;
 };
 
 } // namespace config

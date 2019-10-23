@@ -26,8 +26,16 @@ namespace pt = boost::property_tree;
 
 static const std::string audioPath("/var/lib/cornrowd/audio.conf");
 
-void readConfig(std::vector<common::Filter>* peqFilters,
-                std::vector<common::Filter>* auxFilters)
+Persistence::Persistence()
+{
+}
+
+Persistence::~Persistence()
+{
+}
+
+void Persistence::readConfig(std::vector<common::Filter>* peqFilters,
+                             std::vector<common::Filter>* auxFilters)
 {
     pt::ptree tree;
 
@@ -56,8 +64,8 @@ void readConfig(std::vector<common::Filter>* peqFilters,
     }
 }
 
-void writeConfig(const std::vector<common::Filter>& peqFilters,
-                 const std::vector<common::Filter>& auxFilters)
+void Persistence::writeConfig(const std::vector<common::Filter>& peqFilters,
+                              const std::vector<common::Filter>& auxFilters)
 {
     pt::ptree tree;
     pt::ptree peq;

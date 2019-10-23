@@ -20,6 +20,7 @@
 #include "Pipeline.h"
 
 #include <common/Types.h>
+#include <gstdsp/AlsaUtil.h>
 
 #include <QObject>
 
@@ -43,6 +44,8 @@ public:
 
     std::vector<common::IoInterface> ioCaps();
     std::vector<common::IoInterface> ioConf();
+    void setInput(const common::IoInterface& interface);
+    void setOutput(const common::IoInterface& interface);
 
 private:
     void updatePipeline();
@@ -56,6 +59,12 @@ private:
     uint16_t m_blockSize = 0;
     int m_rate = 44100;
     std::map<common::FilterGroup, std::vector<common::Filter>> m_filters;
+
+    GstDsp::AlsaUtil m_alsaUtil;
+    std::map<common::IoInterface, std::string> m_outputDeviceMap;
+
+    common::IoInterface m_input;
+    common::IoInterface m_output;
 };
 
 } // namespace audio

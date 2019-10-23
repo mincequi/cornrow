@@ -93,23 +93,49 @@ void Controller::setFilters(common::FilterGroup group, const std::vector<common:
 
 std::vector<common::IoInterface> Controller::ioCaps()
 {
-    return {
-        { common::IoInterfaceType::Bluetooth, false, 0 },
-        { common::IoInterfaceType::Airplay, false, 0 },
-        { common::IoInterfaceType::Default, true, 0 },
-        { common::IoInterfaceType::Spdif, true, 1 },
-        { common::IoInterfaceType::Spdif, true, 2 },
-        { common::IoInterfaceType::Hdmi, true, 1 },
-        { common::IoInterfaceType::Hdmi, true, 2 }
+    m_outputDeviceMap.clear();
+
+    // Populate output device map (IoInterface struct to string).
+    auto devices = m_alsaUtil.outputDevices();
+    int spdifCount = 0;
+    for (const auto& d : devices) {
+        switch (d.type) {
+        case GstDsp::AudioDeviceType::Default:
+            m_outputDeviceMap.insert( { { common::IoInterfaceType::Default, true, 1 }, d.name } );
+            break;
+        case GstDsp::AudioDeviceType::Spdif:
+            m_outputDeviceMap.insert( { { common::IoInterfaceType::Spdif, true, ++spdifCount }, d.name } );
+            break;
+        default:
+            break;
+        }
+    }
+
+    std::vector<common::IoInterface> ioCaps = {
+        { common::IoInterfaceType::Bluetooth, false, 1 }
     };
+
+    for (const auto& kv : m_outputDeviceMap) {
+        ioCaps.push_back(kv.first);
+    }
+
+    return ioCaps;
 }
 
 std::vector<common::IoInterface> Controller::ioConf()
 {
-    return {
-        { common::IoInterfaceType::Airplay, false, 0 },
-        { common::IoInterfaceType::Hdmi, true, 2}
-    };
+    return { m_input, m_output };
+}
+
+void Controller::setInput(const common::IoInterface& interface)
+{
+    m_input = interface;
+}
+
+void Controller::setOutput(const common::IoInterface& interface)
+{
+    m_output = interface;
+    m_currentPipeline->setOutputDevice(m_outputDeviceMap[interface]);
 }
 
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
