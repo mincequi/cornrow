@@ -105,6 +105,9 @@ std::vector<common::IoInterface> Controller::ioCaps()
         case GstDsp::AudioDeviceType::Spdif:
             m_outputDeviceMap.insert( { common::IoInterfaceType::Spdif, d.name } );
             break;
+        // case GstDsp::AudioDeviceType::Hdmi:
+        //     m_outputDeviceMap.insert( { common::IoInterfaceType::Hdmi, d.name } );
+        //     break;
         default:
             break;
         }
@@ -114,9 +117,8 @@ std::vector<common::IoInterface> Controller::ioCaps()
         { common::IoInterfaceType::Bluetooth, false, 1 }
     };
 
-    for (auto it = m_outputDeviceMap.begin(); it != m_outputDeviceMap.end(); ++it) {
+    for (auto it = m_outputDeviceMap.begin(); it != m_outputDeviceMap.end(); it = m_outputDeviceMap.upper_bound(it->first)) {
         ioCaps.push_back( { it->first, true, m_outputDeviceMap.count(it->first) });
-        it == m_outputDeviceMap.upper_bound(it->first);
     }
 
     return ioCaps;
