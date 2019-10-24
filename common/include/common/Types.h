@@ -98,10 +98,10 @@ struct IoInterface
 {
     //IoInterface();
 
-    //IoInterfaceType type: 4;
-    uint8_t         type: 4;
+    IoInterfaceType type: 4;
+    //uint8_t         type: 4;
     bool            isOutput: 1;
-    uint8_t         number: 3;
+    uint8_t         index: 3;
 
     bool operator==(const IoInterface& other) const;
     bool operator<(const IoInterface& other) const;

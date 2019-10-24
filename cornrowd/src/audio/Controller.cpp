@@ -97,14 +97,13 @@ std::vector<common::IoInterface> Controller::ioCaps()
 
     // Populate output device map (IoInterface struct to string).
     auto devices = m_alsaUtil.outputDevices();
-    int spdifCount = 0;
     for (const auto& d : devices) {
         switch (d.type) {
         case GstDsp::AudioDeviceType::Default:
-            m_outputDeviceMap.insert( { { common::IoInterfaceType::Default, true, 1 }, d.name } );
+            m_outputDeviceMap.insert( { common::IoInterfaceType::Default, d.name } );
             break;
         case GstDsp::AudioDeviceType::Spdif:
-            m_outputDeviceMap.insert( { { common::IoInterfaceType::Spdif, true, ++spdifCount }, d.name } );
+            m_outputDeviceMap.insert( { common::IoInterfaceType::Spdif, d.name } );
             break;
         default:
             break;
@@ -115,8 +114,9 @@ std::vector<common::IoInterface> Controller::ioCaps()
         { common::IoInterfaceType::Bluetooth, false, 1 }
     };
 
-    for (const auto& kv : m_outputDeviceMap) {
-        ioCaps.push_back(kv.first);
+    for (auto it = m_outputDeviceMap.begin(); it != m_outputDeviceMap.end(); ++it) {
+        ioCaps.push_back( { it->first, true, m_outputDeviceMap.count(it->first) });
+        it == m_outputDeviceMap.upper_bound(it->first);
     }
 
     return ioCaps;
@@ -135,7 +135,19 @@ void Controller::setInput(const common::IoInterface& interface)
 void Controller::setOutput(const common::IoInterface& interface)
 {
     m_output = interface;
-    m_currentPipeline->setOutputDevice(m_outputDeviceMap[interface]);
+    // Find all devices of interface type
+    auto range = m_outputDeviceMap.equal_range(interface.type);
+    // Check if index is in valid range
+    auto count = std::distance(range.first, range.second);
+    if (count <= interface.index) {
+        qDebug() << "invalid output interface> type:" << static_cast<int>(interface.type) << ", index:" << static_cast<int>(interface.index);
+        return;
+    }
+
+    // Advance iterator to selected device and set device name accordingly
+    auto it = range.first;
+    std::advance(it, interface.index);
+    m_currentPipeline->setOutputDevice(it->second);
 }
 
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)

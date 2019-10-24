@@ -95,7 +95,7 @@ bool IoInterface::operator==(const IoInterface& other) const
 {
     return (type == other.type &&
             isOutput == other.isOutput &&
-            number == other.number);
+            index == other.index);
 }
 
 bool IoInterface::operator<(const IoInterface& other) const
