@@ -28,6 +28,7 @@ Depends:
     gstreamer1.0-plugins-base,
     gstreamer1.0-plugins-good,
     gstreamer1.0-plugins-bad,
+    gstreamer1.0-libav,
 Description: Bluetooth audio player
  This is a bluetooth audio daemon which accepts and plays audio from any
  bluetooth source and turns your computer into a bluetooth speaker.
