@@ -29,20 +29,6 @@ enum class SampleFormat : uint8_t {
     I16         = 0x1
 };
 
-enum class Version : uint8_t {
-    Invalid     = 0,
-
-    Version1    = 1,
-    Version2    = 2
-};
-
-enum class FilterGroup : uint8_t {
-    Invalid     = 0x0,
-
-    Peq         = 0x1,
-    Aux         = 0x2
-};
-
 enum class FilterType : uint8_t {
     Invalid     = 0,
 
@@ -126,16 +112,5 @@ struct Caps
     std::vector<IoInterface>  inputs;
     std::vector<IoInterface>  outputs;
 };
-
-namespace ble
-{
-
-static const std::string cornrowServiceUuid    ("ad100000-d901-11e8-9f8b-f2801f1b9fd1");
-static const std::string peqCharacteristicUuid ("ad10e100-d901-11e8-9f8b-f2801f1b9fd1");
-static const std::string auxCharacteristicUuid ("ad10a100-d901-11e8-9f8b-f2801f1b9fd1");
-static const std::string ioCapsCharacteristicUuid("ad101a00-d901-11e8-9f8b-f2801f1b9fd1");
-static const std::string ioConfCharacteristicUuid("ad101f00-d901-11e8-9f8b-f2801f1b9fd1");
-
-}
 
 } // namespace common

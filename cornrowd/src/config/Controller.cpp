@@ -36,9 +36,10 @@ Controller::Controller(audio::Controller* audio,
 {
     // On start-up we read config from disk
     std::vector<common::Filter> peqFilters, auxFilters;
+
     m_persistence.readConfig(&peqFilters, &auxFilters);
-    m_audio->setFilters(common::FilterGroup::Peq, peqFilters);
-    m_audio->setFilters(common::FilterGroup::Aux, auxFilters);
+    m_audio->setFilters(common::ble::CharacteristicType::Peq, peqFilters);
+    m_audio->setFilters(common::ble::CharacteristicType::Aux, auxFilters);
 
     m_bluetooth->setReadFiltersCallback(std::bind(&audio::Controller::filters, m_audio, _1));
     connect(m_bluetooth, &bluetooth::Controller::filtersWritten, m_audio, &audio::Controller::setFilters);
@@ -54,8 +55,8 @@ Controller::~Controller()
 void Controller::writeConfig()
 {
     // If connection is closed, we write config to disk
-    m_persistence.writeConfig(m_audio->filters(common::FilterGroup::Peq),
-                              m_audio->filters(common::FilterGroup::Aux));
+    m_persistence.writeConfig(m_audio->filters(common::ble::CharacteristicType::Peq),
+                              m_audio->filters(common::ble::CharacteristicType::Aux));
 }
 
 } // namespace config

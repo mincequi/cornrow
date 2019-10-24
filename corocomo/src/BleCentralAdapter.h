@@ -18,19 +18,18 @@ public:
                                IoModel* ioModel);
     ~BleCentralAdapter();
 
-    void setDirty(common::FilterGroup group);
+    void setDirty(common::ble::CharacteristicType group);
     void setDirty(const std::string& uuid);
 
 signals:
     void status(Model::Status status, const QString& errorString = QString());
-    void filtersReceived(common::FilterGroup task, const std::vector<Model::Filter>& filters);
+    void filtersReceived(common::ble::CharacteristicType task, const std::vector<Model::Filter>& filters);
     void ioCapsReceived(const std::vector<common::IoInterface>& inputs, const std::vector<common::IoInterface>& ouputs);
     void ioConfReceived(common::IoInterface input, common::IoInterface ouput);
 
 private:
     void doWriteCharc();
     void onStatus(ble::Client::Status status, const QString& errorString);
-    void onCharacteristicRead(common::FilterGroup task, const QByteArray& value);
     void onCharacteristicRead(const std::string& uuid, const QByteArray& value);
 
     ble::Client*    m_central;
@@ -39,7 +38,7 @@ private:
 
     QTimer          m_timer;
 
-    Q_DECLARE_FLAGS(FilterGroups, common::FilterGroup)
+    Q_DECLARE_FLAGS(FilterGroups, common::ble::CharacteristicType)
     FilterGroups m_dirtyFilterGroups;
     std::set<std::string> m_dirtyCharcs;
 };

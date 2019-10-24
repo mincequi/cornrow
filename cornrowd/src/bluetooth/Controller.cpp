@@ -116,14 +116,14 @@ void Controller::initBle()
     auto service = new GattService(QStringLiteral("ad100000-d901-11e8-9f8b-f2801f1b9fd1"), true, m_application);
 
     auto peqCharc = new GattCharacteristic(QStringLiteral("ad10e100-d901-11e8-9f8b-f2801f1b9fd1"), service);
-    peqCharc->setReadCallback(std::bind(&Controller::onReadFilters, this, common::FilterGroup::Peq));
-    connect(peqCharc, &GattCharacteristic::valueWritten, std::bind(&Controller::onWriteFilters, this, common::FilterGroup::Peq, _1));
-    m_charcs[common::FilterGroup::Peq] = peqCharc;
+    peqCharc->setReadCallback(std::bind(&Controller::onReadFilters, this, common::ble::CharacteristicType::Peq));
+    connect(peqCharc, &GattCharacteristic::valueWritten, std::bind(&Controller::onWriteFilters, this, common::ble::CharacteristicType::Peq, _1));
+    m_charcs[common::ble::CharacteristicType::Peq] = peqCharc;
 
     auto auxCharc = new GattCharacteristic(QStringLiteral("ad10a100-d901-11e8-9f8b-f2801f1b9fd1"), service);
-    auxCharc->setReadCallback(std::bind(&Controller::onReadFilters, this, common::FilterGroup::Aux));
-    connect(auxCharc, &GattCharacteristic::valueWritten, std::bind(&Controller::onWriteFilters, this, common::FilterGroup::Aux, _1));
-    m_charcs[common::FilterGroup::Aux] = auxCharc;
+    auxCharc->setReadCallback(std::bind(&Controller::onReadFilters, this, common::ble::CharacteristicType::Aux));
+    connect(auxCharc, &GattCharacteristic::valueWritten, std::bind(&Controller::onWriteFilters, this, common::ble::CharacteristicType::Aux, _1));
+    m_charcs[common::ble::CharacteristicType::Aux] = auxCharc;
 
     auto ioCapsCharc = new GattCharacteristic(QString::fromStdString(common::ble::ioCapsCharacteristicUuid), service);
     ioCapsCharc->setReadCallback(std::bind(&Controller::onReadIoCaps, this));
@@ -193,7 +193,7 @@ void Controller::onTransportVolumeChanged(uint16_t volume)
     emit volumeChanged(pow(10.0f, (volume-127)/(factor*20.0f)));
 }
 
-QByteArray Controller::onReadFilters(common::FilterGroup group)
+QByteArray Controller::onReadFilters(common::ble::CharacteristicType group)
 {
     return m_converter.filtersToBle(m_readFiltersCallback(group));
 }
@@ -208,7 +208,7 @@ QByteArray Controller::onReadIoConf()
     return m_converter.toBle(m_readIoConfCallback());
 }
 
-void Controller::onWriteFilters(common::FilterGroup group, const QByteArray& value)
+void Controller::onWriteFilters(common::ble::CharacteristicType group, const QByteArray& value)
 {
     emit filtersWritten(group, m_converter.filtersFromBle(value));
 }

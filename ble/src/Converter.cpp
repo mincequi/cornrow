@@ -17,31 +17,6 @@ Converter::~Converter()
 {
 }
 
-common::FilterGroup Converter::fromBle(const QBluetoothUuid& uuid)
-{
-    if (uuid == common::peqCharacteristicUuid) {
-        return common::FilterGroup::Peq;
-    } else if (uuid == common::auxCharacteristicUuid) {
-        return common::FilterGroup::Aux;
-    }
-
-    return common::FilterGroup::Invalid;
-}
-
-QBluetoothUuid Converter::toBle(common::FilterGroup group)
-{
-    switch (group) {
-    case common::FilterGroup::Peq:
-        return common::peqCharacteristicUuid;
-    case common::FilterGroup::Aux:
-        return common::auxCharacteristicUuid;
-    case common::FilterGroup::Invalid:
-        return QBluetoothUuid();
-    }
-
-    return QBluetoothUuid();
-}
-
 QByteArray Converter::toBle(const std::vector<common::IoInterface>& interfaces)
 {
     QByteArray value;

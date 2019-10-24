@@ -49,12 +49,12 @@ Controller::~Controller()
     delete m_currentPipeline;
 }
 
-std::vector<common::Filter> Controller::filters(common::FilterGroup group)
+std::vector<common::Filter> Controller::filters(common::ble::CharacteristicType group)
 {
     return m_filters[group];
 }
 
-void Controller::setFilters(common::FilterGroup group, const std::vector<common::Filter>& filters)
+void Controller::setFilters(common::ble::CharacteristicType group, const std::vector<common::Filter>& filters)
 {
     for (const auto& filter : filters) {
         qDebug() << "group:" << static_cast<uint>(group) <<
@@ -69,10 +69,10 @@ void Controller::setFilters(common::FilterGroup group, const std::vector<common:
     m_filters[group] = filters;
 
     switch (group) {
-    case common::FilterGroup::Peq:
+    case common::ble::CharacteristicType::Peq:
         m_currentPipeline->setPeq(filters);
         break;
-    case common::FilterGroup::Aux: {
+    case common::ble::CharacteristicType::Aux: {
         updatePipeline();
         // Check if crossover was provided, if not, we disable crossover
         auto it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
@@ -86,7 +86,7 @@ void Controller::setFilters(common::FilterGroup group, const std::vector<common:
         it != filters.end() ? m_currentPipeline->setLoudness(static_cast<uint8_t>(it->g)) : m_currentPipeline->setLoudness(0);
         break;
     }
-    case common::FilterGroup::Invalid:
+    default:
         break;
     }
 }
@@ -155,14 +155,14 @@ void Controller::setVolume(float volume)
 void Controller::updatePipeline()
 {
     // Check if a crossover is set
-    auto it = std::find_if(m_filters[common::FilterGroup::Aux].begin(),
-            m_filters[common::FilterGroup::Aux].end(),
+    auto it = std::find_if(m_filters[common::ble::CharacteristicType::Aux].begin(),
+            m_filters[common::ble::CharacteristicType::Aux].end(),
             [](const common::Filter& f) {
         return f.type == common::FilterType::Crossover;
     });
 
     // Check if current pipeline is desired type
-    Pipeline::Type type = (it != m_filters[common::FilterGroup::Aux].end()) ? Pipeline::Type::Crossover : Pipeline::Type::Normal;
+    Pipeline::Type type = (it != m_filters[common::ble::CharacteristicType::Aux].end()) ? Pipeline::Type::Crossover : Pipeline::Type::Normal;
     if (type == m_currentPipeline->type()) {
         return;
     }
@@ -180,8 +180,8 @@ void Controller::updatePipeline()
         break;
     }
 
-    m_currentPipeline->setCrossover((it != m_filters[common::FilterGroup::Aux].end()) ? *it : common::Filter());
-    m_currentPipeline->setPeq(m_filters[common::FilterGroup::Peq]);
+    m_currentPipeline->setCrossover((it != m_filters[common::ble::CharacteristicType::Aux].end()) ? *it : common::Filter());
+    m_currentPipeline->setPeq(m_filters[common::ble::CharacteristicType::Peq]);
     //m_currentPipeline->setTransport(m_transport);
     m_currentPipeline->setTransport(m_fd, m_blockSize, m_rate);
 }

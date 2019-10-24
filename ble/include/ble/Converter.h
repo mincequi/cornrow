@@ -1,8 +1,8 @@
 #pragma once
 
 #include <common/Types.h>
+#include <common/ble/Types.h>
 
-class QBluetoothUuid;
 class QByteArray;
 
 namespace ble
@@ -13,9 +13,6 @@ class Converter
 public:
     Converter();
     virtual ~Converter();
-
-    virtual common::FilterGroup fromBle(const QBluetoothUuid& uuid);
-    virtual QBluetoothUuid toBle(common::FilterGroup task);
 
     virtual QByteArray toBle(const std::vector<common::IoInterface>& interfaces);
 

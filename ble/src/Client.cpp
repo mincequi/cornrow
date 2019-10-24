@@ -63,20 +63,6 @@ void Client::disconnect()
     m_clientSession = nullptr;
 }
 
-void Client::writeCharacteristic(common::FilterGroup group, const QByteArray& value)
-{
-    if (!m_clientSession) {
-        return;
-    }
-
-    const auto characteristic = m_clientSession->m_service->characteristic(m_clientSession->m_converter.toBle(group));
-    if (!characteristic.isValid()) {
-        qDebug() << __func__ << "Characteristic invalid:" << characteristic.uuid();
-        return;
-    }
-    m_clientSession->m_service->writeCharacteristic(characteristic, value);
-}
-
 void Client::writeCharacteristic(const std::string& uuid, const QByteArray& value)
 {
     if (!m_clientSession) {
@@ -101,13 +87,7 @@ void Client::onCharacteristicRead(const QLowEnergyCharacteristic& characteristic
 {
     qDebug() << __func__ << "> " << characteristic.uuid();
     emit status(Status::Connected);
-
-    auto filterGroup = m_clientSession->m_converter.fromBle(characteristic.uuid());
-    if (filterGroup != common::FilterGroup::Invalid) {
-        emit characteristicRead(filterGroup, value);
-    } else {
-        emit characteristicRead(characteristic.uuid().toString(QUuid::StringFormat::WithoutBraces).toStdString(), value);
-    }
+    emit characteristicRead(characteristic.uuid().toString(QUuid::StringFormat::WithoutBraces).toStdString(), value);
 }
 
 } // namespace ble

@@ -320,9 +320,9 @@ void Model::setQSlider(double q)
     emit qChanged();
 }
 
-void Model::setFilters(common::FilterGroup task, const std::vector<Filter>& filters)
+void Model::setFilters(common::ble::CharacteristicType task, const std::vector<Filter>& filters)
 {
-    int i = (task == common::FilterGroup::Peq) ? 0 : m_config.peqFilterCount;
+    int i = (task == common::ble::CharacteristicType::Peq) ? 0 : m_config.peqFilterCount;
 
     for (const auto& filter : filters) {
         if (i >= m_filters.size()) break;
@@ -346,7 +346,7 @@ void Model::onParameterChanged()
     }
 
     if (!m_demoMode) {
-        m_adapter->setDirty(m_currentBand < m_config.peqFilterCount ? common::FilterGroup::Peq : common::FilterGroup::Aux);
+        m_adapter->setDirty(m_currentBand < m_config.peqFilterCount ? common::ble::peqCharacteristicUuid : common::ble::auxCharacteristicUuid);
     }
 }
 

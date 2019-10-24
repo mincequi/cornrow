@@ -9,4 +9,5 @@ PUBLIC
     $<INSTALL_INTERFACE:include>
 PRIVATE
     include/common
+    include/common/ble
 )

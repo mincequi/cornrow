@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <common/Types.h>
+#include <common/ble/Types.h>
 
 #include "Config.h"
 
@@ -116,7 +117,7 @@ private:
         uint8_t q;
     };
 
-    void setFilters(common::FilterGroup group, const std::vector<Filter>& filters);
+    void setFilters(common::ble::CharacteristicType group, const std::vector<Filter>& filters);
 
     void onParameterChanged();
     void onBleStatus(Status status, const QString& errorString);

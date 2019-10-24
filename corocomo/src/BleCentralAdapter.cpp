@@ -11,10 +11,7 @@ BleCentralAdapter::BleCentralAdapter(ble::Client* central, Model* model, IoModel
       m_model(model),
       m_ioModel(ioModel)
 {
-    connect(m_central, qOverload<common::FilterGroup, const QByteArray&>(&ble::Client::characteristicRead),
-            this, qOverload<common::FilterGroup, const QByteArray&>(&BleCentralAdapter::onCharacteristicRead));
-    connect(m_central, qOverload<const std::string&, const QByteArray&>(&ble::Client::characteristicRead),
-            this, qOverload<const std::string&, const QByteArray&>(&BleCentralAdapter::onCharacteristicRead));
+    connect(m_central, &ble::Client::characteristicRead, this, &BleCentralAdapter::onCharacteristicRead);
     connect(m_central, &ble::Client::status, this, &BleCentralAdapter::onStatus);
 
     m_timer.setInterval(200);
@@ -26,7 +23,7 @@ BleCentralAdapter::~BleCentralAdapter()
 {
 }
 
-void BleCentralAdapter::setDirty(common::FilterGroup group)
+void BleCentralAdapter::setDirty(common::ble::CharacteristicType group)
 {
     // @TODO(mawe): remove FilterGroup type
     m_dirtyFilterGroups.setFlag(group);
@@ -50,7 +47,7 @@ void BleCentralAdapter::doWriteCharc()
     const auto& filters = m_model->m_filters;
     const auto& config = m_model->m_config;
 
-    if (m_dirtyFilterGroups.testFlag(common::FilterGroup::Peq)) {
+    if (m_dirtyCharcs.count(common::ble::peqCharacteristicUuid)) {
         QByteArray value(config.peqFilterCount*4, 0);
         for (int i = 0; i < config.peqFilterCount; ++i) {
             value[i*4]   = static_cast<char>(filters.at(i).t);
@@ -58,11 +55,11 @@ void BleCentralAdapter::doWriteCharc()
             value[i*4+2] = static_cast<int8_t>(filters.at(i).g*2.0);
             value[i*4+3] = filters.at(i).q*config.qStep+config.qMin;
         }
-        m_central->writeCharacteristic(common::FilterGroup::Peq, value);
-        m_dirtyFilterGroups.setFlag(common::FilterGroup::Peq, false);
+        m_central->writeCharacteristic(common::ble::peqCharacteristicUuid, value);
+        m_dirtyCharcs.erase(common::ble::peqCharacteristicUuid);
     }
 
-    if (m_dirtyFilterGroups.testFlag(common::FilterGroup::Aux)) {
+    if (m_dirtyCharcs.count(common::ble::auxCharacteristicUuid)) {
         QByteArray value((filters.count() - config.peqFilterCount)*4, 0);
         for (int i = 0; i < (filters.count()-config.peqFilterCount); ++i) {
             value[i*4]   = static_cast<char>(filters.at(i+config.peqFilterCount).t);
@@ -70,8 +67,8 @@ void BleCentralAdapter::doWriteCharc()
             value[i*4+2] = static_cast<int8_t>(filters.at(i+config.peqFilterCount).g*2.0);
             value[i*4+3] = filters.at(i+config.peqFilterCount).q*config.qStep+config.qMin;
         }
-        m_central->writeCharacteristic(common::FilterGroup::Aux, value);
-        m_dirtyFilterGroups.setFlag(common::FilterGroup::Aux, false);
+        m_central->writeCharacteristic(common::ble::auxCharacteristicUuid, value);
+        m_dirtyCharcs.erase(common::ble::auxCharacteristicUuid);
     }
 
     if (m_dirtyCharcs.count(common::ble::ioConfCharacteristicUuid)) {
@@ -81,6 +78,7 @@ void BleCentralAdapter::doWriteCharc()
         value[0] = *reinterpret_cast<char*>(&i);
         value[1] = *reinterpret_cast<char*>(&o);
         m_central->writeCharacteristic(common::ble::ioConfCharacteristicUuid, value);
+        m_dirtyCharcs.erase(common::ble::ioConfCharacteristicUuid);
     }
 }
 
@@ -111,16 +109,16 @@ void BleCentralAdapter::onStatus(ble::Client::Status _status, const QString& sta
     }
 }
 
-void BleCentralAdapter::onCharacteristicRead(common::FilterGroup task, const QByteArray& value)
+void BleCentralAdapter::onCharacteristicRead(const std::string& uuid, const QByteArray& value)
 {
     const auto& config = m_model->m_config;
 
-    switch (task) {
-    case common::FilterGroup::Peq:
-    case common::FilterGroup::Aux: {
+    if (uuid == common::ble::peqCharacteristicUuid ||
+        uuid == common::ble::auxCharacteristicUuid) {
         if (value.size()%4 != 0) {
             return;
         }
+
         std::vector<Model::Filter> filters;
         filters.reserve(value.size()/4);
         for (int i = 0; i < value.size(); i += 4) {
@@ -129,20 +127,13 @@ void BleCentralAdapter::onCharacteristicRead(common::FilterGroup task, const QBy
                                             value.at(i+2)*0.5,
                                             (static_cast<uint8_t>(value.at(i+3)-config.qMin)/config.qStep)));
         }
-        emit filtersReceived(task, filters);
 
-        break;
-    }
-
-    case common::FilterGroup::Invalid:
-        break;
-    }
-}
-
-
-void BleCentralAdapter::onCharacteristicRead(const std::string& uuid, const QByteArray& value)
-{
-    if (uuid == common::ble::ioCapsCharacteristicUuid) {
+        if (uuid == common::ble::peqCharacteristicUuid) {
+            emit filtersReceived(common::ble::CharacteristicType::Peq, filters);
+        } else if (uuid == common::ble::auxCharacteristicUuid) {
+            emit filtersReceived(common::ble::CharacteristicType::Aux, filters);
+        }
+    } else if (uuid == common::ble::ioCapsCharacteristicUuid) {
         std::vector<common::IoInterface> inputs;
         std::vector<common::IoInterface> outputs;
         for (const auto& c : value) {
@@ -153,12 +144,11 @@ void BleCentralAdapter::onCharacteristicRead(const std::string& uuid, const QByt
                 inputs.push_back(*i);
             }
         }
+
         emit ioCapsReceived(inputs, outputs);
-    }
-    else if (uuid == common::ble::ioConfCharacteristicUuid) {
+    } else if (uuid == common::ble::ioConfCharacteristicUuid) {
         common::IoInterface i;
         common::IoInterface o;
-
         for (const auto c : value) {
             common::IoInterface interface = *reinterpret_cast<const common::IoInterface*>(&c);
             if (!interface.isOutput) i = interface;

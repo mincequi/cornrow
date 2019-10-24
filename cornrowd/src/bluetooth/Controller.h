@@ -45,7 +45,7 @@ public:
     explicit Controller(QObject *parent = nullptr);
     ~Controller();
 
-    using ReadFiltersCallback = std::function<std::vector<common::Filter>(common::FilterGroup group)>;
+    using ReadFiltersCallback = std::function<std::vector<common::Filter>(common::ble::CharacteristicType group)>;
     void setReadFiltersCallback(ReadFiltersCallback callback);
 
     using ReadIoCapsCallback = std::function<std::vector<common::IoInterface>()>;
@@ -58,7 +58,7 @@ signals:
     void transportChanged(int fd, uint16_t blockSize);
     void volumeChanged(float volume);
 
-    void filtersWritten(common::FilterGroup group, const std::vector<common::Filter>& filters);
+    void filtersWritten(common::ble::CharacteristicType group, const std::vector<common::Filter>& filters);
 
 private:
     void initBle();
@@ -66,13 +66,13 @@ private:
     void onTransportChanged(BluezQt::MediaTransportPtr transport);
     void onTransportStateChanged(BluezQt::MediaTransport::State state);
     void onTransportVolumeChanged(uint16_t volume);
-    QByteArray onReadFilters(common::FilterGroup group);
+    QByteArray onReadFilters(common::ble::CharacteristicType group);
     QByteArray onReadIoCaps();
     QByteArray onReadIoConf();
-    void onWriteFilters(common::FilterGroup group, const QByteArray& value);
+    void onWriteFilters(common::ble::CharacteristicType group, const QByteArray& value);
 
     BluezQt::Manager* m_manager = nullptr;
-    std::map<common::FilterGroup, BluezQt::GattCharacteristic*> m_charcs;
+    std::map<common::ble::CharacteristicType, BluezQt::GattCharacteristic*> m_charcs;
     BluezQt::GattApplication* m_application = nullptr;
     BluezQt::LEAdvertisement* m_advertisement = nullptr;
     BluezQt::MediaTransportPtr m_transport = nullptr;

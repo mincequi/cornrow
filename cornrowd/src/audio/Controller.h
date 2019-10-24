@@ -19,7 +19,7 @@
 
 #include "Pipeline.h"
 
-#include <common/Types.h>
+#include <common/ble/Types.h>
 #include <gstdsp/AlsaUtil.h>
 
 #include <QObject>
@@ -39,8 +39,9 @@ public:
 
     void setVolume(float volume);
 
-    std::vector<common::Filter> filters(common::FilterGroup group);
-    void setFilters(common::FilterGroup group, const std::vector<common::Filter>& filters);
+    // @TODO(mawe): remove CharacteristicType from here
+    std::vector<common::Filter> filters(common::ble::CharacteristicType group);
+    void setFilters(common::ble::CharacteristicType group, const std::vector<common::Filter>& filters);
 
     std::vector<common::IoInterface> ioCaps();
     std::vector<common::IoInterface> ioConf();
@@ -58,7 +59,8 @@ private:
     int m_fd = -1;
     uint16_t m_blockSize = 0;
     int m_rate = 44100;
-    std::map<common::FilterGroup, std::vector<common::Filter>> m_filters;
+
+    std::map<common::ble::CharacteristicType, std::vector<common::Filter>> m_filters;
 
     GstDsp::AlsaUtil m_alsaUtil;
     std::map<common::IoInterface, std::string> m_outputDeviceMap;

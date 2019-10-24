@@ -19,7 +19,7 @@
 
 #include <QObject>
 
-#include <common/Types.h>
+#include <common/ble/Types.h>
 
 class QLowEnergyCharacteristic;
 
@@ -47,14 +47,12 @@ public:
     bool startDiscovering();
     void disconnect();
 
-    void writeCharacteristic(common::FilterGroup task, const QByteArray& value);
     void writeCharacteristic(const std::string& uuid, const QByteArray& value);
 
 signals:
     void status(Status status, const QString& errorString = QString());
 
     // Emits initial values
-    void characteristicRead(common::FilterGroup task, const QByteArray& value);
     void characteristicRead(const std::string& uuid, const QByteArray& value);
 
 private:
