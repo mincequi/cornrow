@@ -46,6 +46,8 @@ Controller::Controller(audio::Controller* audio,
 
     m_bluetooth->setReadIoCapsCallback(std::bind(&audio::Controller::ioCaps, m_audio));
     m_bluetooth->setReadIoConfCallback(std::bind(&audio::Controller::ioConf, m_audio));
+    connect(m_bluetooth, &bluetooth::Controller::inputSet, m_audio, &audio::Controller::setInput);
+    connect(m_bluetooth, &bluetooth::Controller::outputSet, m_audio, &audio::Controller::setOutput);
 }
 
 Controller::~Controller()

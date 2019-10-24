@@ -24,10 +24,10 @@ public:
     QStringList outputNames() const;
 
     int     activeInput() const;
-    void    setActiveInput(int i);
+    Q_INVOKABLE void setActiveInput(int i);
 
     int     activeOutput() const;
-    void    setActiveOutput(int i);
+    Q_INVOKABLE void setActiveOutput(int i);
 
     common::IoInterface input();
     common::IoInterface output();

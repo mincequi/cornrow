@@ -15,6 +15,7 @@ public:
     virtual ~Converter();
 
     virtual QByteArray toBle(const std::vector<common::IoInterface>& interfaces);
+    virtual std::vector<common::IoInterface> fromBle(const QByteArray& bytes);
 
     virtual QByteArray filtersToBle(const std::vector<common::Filter>& filters);
     virtual std::vector<common::Filter> filtersFromBle(const QByteArray& array);

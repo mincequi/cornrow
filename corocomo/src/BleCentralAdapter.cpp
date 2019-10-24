@@ -5,11 +5,10 @@
 #include "IoModel.h"
 #include "Model.h"
 
-BleCentralAdapter::BleCentralAdapter(ble::Client* central, Model* model, IoModel* ioModel)
+BleCentralAdapter::BleCentralAdapter(ble::Client* central, Model* model)
     : QObject(central),
       m_central(central),
-      m_model(model),
-      m_ioModel(ioModel)
+      m_model(model)
 {
     connect(m_central, &ble::Client::characteristicRead, this, &BleCentralAdapter::onCharacteristicRead);
     connect(m_central, &ble::Client::status, this, &BleCentralAdapter::onStatus);
@@ -40,6 +39,11 @@ void BleCentralAdapter::setDirty(const std::string& uuid)
     if (!m_timer.isActive()) {
         m_timer.start();
     }
+}
+
+void BleCentralAdapter::setIoModel(IoModel* ioModel)
+{
+    m_ioModel = ioModel;
 }
 
 void BleCentralAdapter::doWriteCharc()

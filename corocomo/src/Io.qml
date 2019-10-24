@@ -33,6 +33,7 @@ Item {
                 checked: CornrowIoModel.activeInput == index
                 text: CornrowIoModel.inputNames[index]
                 ButtonGroup.group: inputsGroup
+                onPressed: CornrowIoModel.setActiveInput(index)
             }
         }
     }
@@ -64,6 +65,7 @@ Item {
                 checked: CornrowIoModel.activeOutput == index
                 text: CornrowIoModel.outputNames[index]
                 ButtonGroup.group: outputsGroup
+                onPressed: CornrowIoModel.setActiveOutput(index)
             }
         }
     }

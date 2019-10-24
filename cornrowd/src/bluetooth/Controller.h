@@ -59,6 +59,8 @@ signals:
     void volumeChanged(float volume);
 
     void filtersWritten(common::ble::CharacteristicType group, const std::vector<common::Filter>& filters);
+    void inputSet(common::IoInterface input);
+    void outputSet(common::IoInterface output);
 
 private:
     void initBle();
@@ -70,6 +72,7 @@ private:
     QByteArray onReadIoCaps();
     QByteArray onReadIoConf();
     void onWriteFilters(common::ble::CharacteristicType group, const QByteArray& value);
+    void onWriteIoConf(const QByteArray& value);
 
     BluezQt::Manager* m_manager = nullptr;
     std::map<common::ble::CharacteristicType, BluezQt::GattCharacteristic*> m_charcs;

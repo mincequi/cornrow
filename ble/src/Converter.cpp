@@ -29,6 +29,18 @@ QByteArray Converter::toBle(const std::vector<common::IoInterface>& interfaces)
     return value;
 }
 
+std::vector<common::IoInterface> Converter::fromBle(const QByteArray& bytes)
+{
+    std::vector<common::IoInterface> interfaces;
+    interfaces.reserve(bytes.size());
+
+    for (int i = 0; i < bytes.size(); ++i) {
+        interfaces.push_back(*reinterpret_cast<common::IoInterface*>(bytes.constData()[i]));
+    }
+
+    return interfaces;
+}
+
 QByteArray Converter::filtersToBle(const std::vector<common::Filter>& filters)
 {
     QByteArray value;

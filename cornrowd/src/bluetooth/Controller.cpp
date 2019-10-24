@@ -130,6 +130,7 @@ void Controller::initBle()
 
     auto ioConfCharc = new GattCharacteristic(QString::fromStdString(common::ble::ioConfCharacteristicUuid), service);
     ioConfCharc->setReadCallback(std::bind(&Controller::onReadIoConf, this));
+    connect(ioConfCharc, &GattCharacteristic::valueWritten, this, &Controller::onWriteIoConf);
 
     m_manager->usableAdapter()->gattManager()->registerApplication(m_application);
 }
@@ -211,6 +212,25 @@ QByteArray Controller::onReadIoConf()
 void Controller::onWriteFilters(common::ble::CharacteristicType group, const QByteArray& value)
 {
     emit filtersWritten(group, m_converter.filtersFromBle(value));
+}
+
+void Controller::onWriteIoConf(const QByteArray& value)
+{
+    auto interfaces = m_converter.fromBle(value);
+
+    common::IoInterface input;
+    common::IoInterface output;
+
+    for (const auto& interface : interfaces) {
+        if (interface.isOutput) {
+            output = interface;
+        } else {
+            input = interface;
+        }
+    }
+
+    emit inputSet(input);
+    emit outputSet(output);
 }
 
 } // namespace bluetooth

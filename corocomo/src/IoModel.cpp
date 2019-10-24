@@ -26,13 +26,7 @@ IoModel::IoModel(BleCentralAdapter* adapter, QObject *parent) :
     connect(m_adapter, &BleCentralAdapter::ioCapsReceived, this, &IoModel::onIoCapsReceived);
     connect(m_adapter, &BleCentralAdapter::ioConfReceived, this, &IoModel::onIoConfReceived);
 
-    m_inputs = {
-        { common::IoInterfaceType::Invalid, false, 0 }
-    };
-
-    m_outputs = {
-        { common::IoInterfaceType::Invalid, true, 0 }
-    };
+    onIoCapsReceived({}, {});
 }
 
 QStringList IoModel::inputNames() const
@@ -65,6 +59,7 @@ int IoModel::activeInput() const
 void IoModel::setActiveInput(int i)
 {
     m_activeInput = i;
+    m_adapter->setDirty(common::ble::ioConfCharacteristicUuid);
     emit activeInputChanged();
 }
 
@@ -76,6 +71,7 @@ int IoModel::activeOutput() const
 void IoModel::setActiveOutput(int i)
 {
     m_activeOutput = i;
+    m_adapter->setDirty(common::ble::ioConfCharacteristicUuid);
     emit activeOutputChanged();
 }
 
@@ -133,6 +129,9 @@ QString IoModel::toString(common::IoInterface interface)
 
 void IoModel::onIoCapsReceived(const std::vector<common::IoInterface>& inputs, const std::vector<common::IoInterface>& outputs)
 {
+    m_inputs.clear();
+    m_outputs.clear();
+
     for (const auto& in : inputs) {
         if (in.index > 1) {
             for (uint8_t i = 0; i < in.index; ++i) {
@@ -151,6 +150,17 @@ void IoModel::onIoCapsReceived(const std::vector<common::IoInterface>& inputs, c
         } else {
             m_outputs.push_back( { out.type, true, 0 } );
         }
+    }
+
+    if (m_inputs.empty()) {
+        m_inputs = {
+            { common::IoInterfaceType::Invalid, false, 0 }
+        };
+    }
+    if (m_outputs.empty()) {
+        m_outputs = {
+            { common::IoInterfaceType::Invalid, true, 0 }
+        };
     }
 
     emit iosChanged();

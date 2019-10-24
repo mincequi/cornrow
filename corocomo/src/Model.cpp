@@ -47,9 +47,11 @@ Model::Model(const Config& config, QObject *parent) :
     connect(this, &Model::gainChanged, this, &Model::onParameterChanged);
     connect(this, &Model::qChanged, this, &Model::onParameterChanged);
 
+    // @TODO(mawe): break up circular dependency
     m_central = new ble::Client(this);
-    m_adapter = new BleCentralAdapter(m_central, this, m_ioModel);
+    m_adapter = new BleCentralAdapter(m_central, this);
     m_ioModel = IoModel::init(m_adapter);
+    m_adapter->setIoModel(m_ioModel);
 
     connect(m_adapter, &BleCentralAdapter::filtersReceived, this, &Model::setFilters);
     connect(m_adapter, &BleCentralAdapter::status, this, &Model::onBleStatus);

@@ -14,12 +14,13 @@ class BleCentralAdapter : public QObject
 
 public:
     explicit BleCentralAdapter(ble::Client* central,
-                               Model* model,
-                               IoModel* ioModel);
+                               Model* model);
     ~BleCentralAdapter();
 
     void setDirty(common::ble::CharacteristicType group);
     void setDirty(const std::string& uuid);
+
+    void setIoModel(IoModel* ioModel);
 
 signals:
     void status(Model::Status status, const QString& errorString = QString());
