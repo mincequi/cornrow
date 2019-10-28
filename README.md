@@ -10,7 +10,10 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 [corocomo](https://play.google.com/store/apps/details?id=org.cornrow.corocomo)
 ![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
-## Installation
+## Installation (binary)
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.2.0/cornrowd_0.2.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.2.0/cornrowd_0.2.0_amd64.deb).
+
+## Installation (from source)
 ### For Debian users
 ```
 sudo apt install \
