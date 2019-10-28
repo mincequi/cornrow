@@ -120,8 +120,8 @@ QString IoModel::toString(common::IoInterface interface)
         string = "Airplay";
         break;
     }
-    if (interface.index > 0) {
-        string += (" " + QString::number(interface.index));
+    if (interface.number > 0) {
+        string += (" " + QString::number(interface.number));
     }
 
     return string;
@@ -133,8 +133,8 @@ void IoModel::onIoCapsReceived(const std::vector<common::IoInterface>& inputs, c
     m_outputs.clear();
 
     for (const auto& in : inputs) {
-        if (in.index > 1) {
-            for (uint8_t i = 0; i < in.index; ++i) {
+        if (in.number > 1) {
+            for (uint8_t i = 0; i < in.number; ++i) {
                 m_inputs.push_back( { in.type, false, uint8_t(i+1) } );
             }
         } else {
@@ -143,8 +143,8 @@ void IoModel::onIoCapsReceived(const std::vector<common::IoInterface>& inputs, c
     }
 
     for (const auto& out : outputs) {
-        if (out.index > 1) {
-            for (uint8_t i = 0; i < out.index; ++i) {
+        if (out.number > 1) {
+            for (uint8_t i = 0; i < out.number; ++i) {
                 m_outputs.push_back( { out.type, true, uint8_t(i+1) } );
             }
         } else {

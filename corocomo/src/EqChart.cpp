@@ -168,4 +168,25 @@ void EqChart::paint(QPainter *painter)
             painter->drawPolyline(trans.map(graph));
         }
     }
+
+    // Prepare font
+    auto font = painter->font();
+    font.setPointSize(font.pointSize()-4);
+    painter->setFont(font);
+    painter->setOpacity(0.5);
+
+    auto pos = trans.map(QPoint(0, 0));
+    pos.rx() -= 4;
+    pos.ry() -= font.pointSize()/2;
+    painter->drawText(pos.x(), pos.y(), width(), 50, Qt::AlignRight, "0");
+
+    pos = trans.map(QPoint(0, -24));
+    pos.rx() -= 4;
+    pos.ry() -= font.pointSize()/2;
+    painter->drawText(pos.x(), pos.y(), width(), 50, Qt::AlignRight, "-24");
+
+    pos = trans.map(QPoint(0, 6));
+    pos.rx() -= 4;
+    pos.ry() -= font.pointSize()/2;
+    painter->drawText(pos.x(), pos.y(), width(), 50, Qt::AlignRight, "6");
 }

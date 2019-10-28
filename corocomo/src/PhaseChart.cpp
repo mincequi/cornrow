@@ -44,4 +44,30 @@ void PhaseChart::paint(QPainter *painter)
             painter->drawPolyline(trans.map(graph));
         }
     }
+
+    // Prepare font
+    auto font = painter->font();
+    font.setPointSize(font.pointSize()-4);
+    painter->setFont(font);
+    painter->setOpacity(0.5);
+
+    auto pos = trans.map(QPointF(0, M_PI));
+    pos.rx() -= 4.0;
+    pos.ry() -= font.pointSize()/2.0;
+    painter->drawText(QRectF(pos.x(), pos.y(), width(), 50.0), Qt::AlignRight, "-180");
+
+    pos = trans.map(QPointF(0, 2.0*M_PI));
+    pos.rx() -= 4;
+    pos.ry() -= font.pointSize()/2;
+    painter->drawText(QRectF(pos.x(), pos.y(), width(), 50.0), Qt::AlignRight, "-360");
+
+    pos = trans.map(QPointF(0, -M_PI));
+    pos.rx() -= 4;
+    pos.ry() -= font.pointSize()/2;
+    painter->drawText(QRectF(pos.x(), pos.y(), width(), 50.0), Qt::AlignRight, "180");
+
+    pos = trans.map(QPointF(0, -2.0*M_PI));
+    pos.rx() -= 4;
+    pos.ry() -= font.pointSize()/2;
+    painter->drawText(QRectF(pos.x(), pos.y(), width(), 50.0), Qt::AlignRight, "360");
 }

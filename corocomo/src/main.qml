@@ -81,6 +81,20 @@ ApplicationWindow {
                 sumPlotColor: Material.accent
                 warningColor: "orange" // unused
                 criticalColor: Material.color(Material.Pink)
+                Item {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: eqChart.verticalCenter
+                    anchors.rightMargin: axisLabel.height/2 + 4
+                    Label {
+                        id: axisLabel
+                        text: "Magnitude (dB)"
+                        font.pointSize: font.pointSize-4
+                        opacity: 0.5
+                        rotation: -90
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
             }
 
             CornrowPhaseChart {
@@ -92,6 +106,20 @@ ApplicationWindow {
                 plotColor: Material.foreground
                 sumPlotColor: Material.accent
                 criticalColor: Material.color(Material.Pink)
+                Item {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: phaseChart.verticalCenter
+                    anchors.rightMargin: phaseAxisLabel.height/2 + 4
+                    Label {
+                        id: phaseAxisLabel
+                        text: "Phase (degrees)"
+                        font.pointSize: font.pointSize-4
+                        opacity: 0.5
+                        rotation: -90
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
             }
         }
 

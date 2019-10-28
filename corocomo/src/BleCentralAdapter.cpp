@@ -78,7 +78,9 @@ void BleCentralAdapter::doWriteCharc()
     if (m_dirtyCharcs.count(common::ble::ioConfCharacteristicUuid)) {
         QByteArray value(2, 0);
         auto i = m_ioModel->input();
+        if (i.number > 0) i.number -= 1; // Correct number to index
         auto o = m_ioModel->output();
+        if (o.number > 0) o.number -= 1; // Correct number to index
         value[0] = *reinterpret_cast<char*>(&i);
         value[1] = *reinterpret_cast<char*>(&o);
         m_central->writeCharacteristic(common::ble::ioConfCharacteristicUuid, value);
