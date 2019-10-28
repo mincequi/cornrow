@@ -34,8 +34,9 @@ std::vector<common::IoInterface> Converter::fromBle(const QByteArray& bytes)
     std::vector<common::IoInterface> interfaces;
     interfaces.reserve(bytes.size());
 
-    for (int i = 0; i < bytes.size(); ++i) {
-        interfaces.push_back(*reinterpret_cast<common::IoInterface*>(bytes.constData()[i]));
+    for (const auto& c : bytes) {
+        auto interface = *reinterpret_cast<const common::IoInterface*>(&c);
+        interfaces.push_back(interface);
     }
 
     return interfaces;

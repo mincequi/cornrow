@@ -149,6 +149,7 @@ void Controller::setOutput(const common::IoInterface& interface)
     // Advance iterator to selected device and set device name accordingly
     auto it = range.first;
     std::advance(it, interface.index);
+    qDebug() << "output device:" << QString::fromStdString(it->second);
     m_currentPipeline->setOutputDevice(it->second);
 }
 
