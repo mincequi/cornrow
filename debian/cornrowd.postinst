@@ -12,6 +12,7 @@ case "$1" in
     fi
     chown cornrowd:cornrowd /var/lib/cornrowd
     setcap CAP_NET_RAW+ep /usr/bin/cornrowd
+    rm -rf /var/lib/cornrowd/* > /dev/null 2>&1 || true
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

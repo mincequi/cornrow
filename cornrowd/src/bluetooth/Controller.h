@@ -68,14 +68,14 @@ private:
     void onTransportChanged(BluezQt::MediaTransportPtr transport);
     void onTransportStateChanged(BluezQt::MediaTransport::State state);
     void onTransportVolumeChanged(uint16_t volume);
-    QByteArray onReadFilters(common::ble::CharacteristicType group);
+    QByteArray onReadPeqFilters();
+    QByteArray onReadAuxFilters();
     QByteArray onReadIoCaps();
     QByteArray onReadIoConf();
     void onWriteFilters(common::ble::CharacteristicType group, const QByteArray& value);
     void onWriteIoConf(const QByteArray& value);
 
     BluezQt::Manager* m_manager = nullptr;
-    std::map<common::ble::CharacteristicType, BluezQt::GattCharacteristic*> m_charcs;
     BluezQt::GattApplication* m_application = nullptr;
     BluezQt::LEAdvertisement* m_advertisement = nullptr;
     BluezQt::MediaTransportPtr m_transport = nullptr;

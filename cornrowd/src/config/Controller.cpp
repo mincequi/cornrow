@@ -35,9 +35,16 @@ Controller::Controller(audio::Controller* audio,
       m_bluetooth(bluetooth)
 {
     // On start-up we read config from disk
+    std::vector<common::Filter> filters = m_persistence.readConfig();
     std::vector<common::Filter> peqFilters, auxFilters;
+    for (const auto& filter : filters) {
+        if (filter.type >= common::FilterType::Peak && filter.type <= common::FilterType::AllPass) {
+            peqFilters.push_back(filter);
+        } else if (filter.type >= common::FilterType::Crossover && filter.type <= common::FilterType::Loudness){
+            auxFilters.push_back(filter);
+        }
+    }
 
-    m_persistence.readConfig(&peqFilters, &auxFilters);
     m_audio->setFilters(common::ble::CharacteristicType::Peq, peqFilters);
     m_audio->setFilters(common::ble::CharacteristicType::Aux, auxFilters);
 
@@ -57,8 +64,18 @@ Controller::~Controller()
 void Controller::writeConfig()
 {
     // If connection is closed, we write config to disk
-    m_persistence.writeConfig(m_audio->filters(common::ble::CharacteristicType::Peq),
-                              m_audio->filters(common::ble::CharacteristicType::Aux));
+    auto peqFilters = m_audio->filters(common::ble::CharacteristicType::Peq);
+    auto auxFilters = m_audio->filters(common::ble::CharacteristicType::Aux);
+
+    std::vector<common::Filter> filters;
+    filters.insert(filters.end(),
+                   peqFilters.begin(),
+                   peqFilters.end());
+    filters.insert(filters.end(),
+                   auxFilters.begin(),
+                   auxFilters.end());
+
+    m_persistence.writeConfig(filters);
 }
 
 } // namespace config

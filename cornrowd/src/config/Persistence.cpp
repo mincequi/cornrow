@@ -34,67 +34,47 @@ Persistence::~Persistence()
 {
 }
 
-void Persistence::readConfig(std::vector<common::Filter>* peqFilters,
-                             std::vector<common::Filter>* auxFilters)
+std::vector<common::Filter> Persistence::readConfig()
 {
     pt::ptree tree;
+    std::vector<common::Filter> filters;
 
     try {
         pt::read_json(audioPath, tree);
     } catch (...) {
-        return;
+        return {};
     }
 
-    for (const auto& filterNode : tree.get_child("peq", {})) {
+    for (const auto& filterNode : tree.get_child("filters", {})) {
         common::Filter filter;
         filter.type = static_cast<common::FilterType>(filterNode.second.get<uint>("t"));
         filter.f = filterNode.second.get<float>("f");
         filter.g = filterNode.second.get<float>("g");
         filter.q = filterNode.second.get<float>("q");
-        peqFilters->push_back(filter);
+        filters.push_back(filter);
     }
 
-    for (const auto& filterNode : tree.get_child("aux", {})) {
-        common::Filter filter;
-        filter.type = static_cast<common::FilterType>(filterNode.second.get<uint>("t"));
-        filter.f = filterNode.second.get<float>("f");
-        filter.g = filterNode.second.get<float>("g");
-        filter.q = filterNode.second.get<float>("q");
-        auxFilters->push_back(filter);
-    }
+    return filters;
 }
 
-void Persistence::writeConfig(const std::vector<common::Filter>& peqFilters,
-                              const std::vector<common::Filter>& auxFilters)
+void Persistence::writeConfig(const std::vector<common::Filter>& filters)
 {
+    pt::ptree root;
     pt::ptree tree;
-    pt::ptree peq;
-    pt::ptree aux;
 
-    for (const auto& filter : peqFilters) {
+    for (const auto& filter : filters) {
         pt::ptree child;
         child.put("t", static_cast<uint>(filter.type));
         child.put("f", filter.f);
         child.put("g", filter.g);
         child.put("q", filter.q);
 
-        peq.push_back(std::make_pair("", child));
+        tree.push_back(std::make_pair("", child));
     }
-    tree.add_child("peq", peq);
-
-    for (const auto& filter : auxFilters) {
-        pt::ptree child;
-        child.put("t", static_cast<uint>(filter.type));
-        child.put("f", filter.f);
-        child.put("g", filter.g);
-        child.put("q", filter.q);
-
-        aux.push_back(std::make_pair("", child));
-    }
-    tree.add_child("aux", aux);
+    root.add_child("filters", tree);
 
     try {
-        pt::write_json(audioPath, tree);
+        pt::write_json(audioPath, root);
     } catch (...) {
         return;
     }
