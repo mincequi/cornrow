@@ -22,7 +22,6 @@
 #include <QDebug>
 #include <QLoggingCategory>
 
-#include "daemon.h"
 #include "Controller.h"
 
 struct SignalHandler
@@ -46,19 +45,12 @@ int main(int argc, char **argv)
     parser.setApplicationDescription("cornrowd is a software DSP service with Bluetooth audio sink and Bluetooth LE control capabilities.");
     parser.addVersionOption();
     parser.addHelpOption();
-    QCommandLineOption daemonOption(QStringList() << "d" << "daemon", "Start as daemon.");
-    parser.addOption(daemonOption);
     parser.process(a);
 
     // suppress some qt bluetooth warnings
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth.bluez.warning=false"));
 
     SignalHandler signalHandler;
-
-    // daemonize
-    if (parser.isSet(daemonOption)) {
-        daemonize();
-    }
 
     new Controller(&a);
 
