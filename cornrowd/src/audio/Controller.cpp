@@ -141,14 +141,14 @@ void Controller::setOutput(const common::IoInterface& interface)
     auto range = m_outputDeviceMap.equal_range(interface.type);
     // Check if index is in valid range
     auto count = std::distance(range.first, range.second);
-    if (count <= interface.index) {
-        qDebug() << "invalid output interface> type:" << static_cast<int>(interface.type) << ", index:" << static_cast<int>(interface.index);
+    if (count <= interface.number) {
+        qDebug() << "invalid output interface> type:" << static_cast<int>(interface.type) << ", index:" << static_cast<int>(interface.number);
         return;
     }
 
     // Advance iterator to selected device and set device name accordingly
     auto it = range.first;
-    std::advance(it, interface.index);
+    std::advance(it, interface.number);
     qDebug() << "output device:" << QString::fromStdString(it->second);
     m_currentPipeline->setOutputDevice(it->second);
 }
