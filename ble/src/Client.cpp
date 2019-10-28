@@ -18,7 +18,6 @@
 #include "Client.h"
 
 #include "ClientSession.h"
-#include "Converter.h"
 #include "Defines.h"
 
 #include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>

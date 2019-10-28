@@ -1,9 +1,8 @@
-#ifndef CLIENTSESSION_H
-#define CLIENTSESSION_H
+#pragma once
 
 #include <QObject>
 
-#include "Converter.h"
+#include <common/ble/Converter.h>
 
 #include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/QLowEnergyAdvertisingParameters>
@@ -41,12 +40,10 @@ public:
     QLowEnergyController*   m_control = nullptr;
     QLowEnergyService*      m_service = nullptr;
 
-    Converter m_converter;
+    common::ble::Converter m_converter;
 
 private:
     std::list<QBluetoothDeviceInfo> m_devices;
 };
 
 } // namespace ble
-
-#endif // CLIENTSESSION_H

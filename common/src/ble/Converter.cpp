@@ -4,8 +4,8 @@
 
 #include <QByteArray>
 
-#include "Defines.h"
-
+namespace common
+{
 namespace ble
 {
 
@@ -120,4 +120,5 @@ float Converter::qFromBle(uint8_t i)
     return common::qTable[i];
 }
 
-} // namespace v1
+} // namespace ble
+} // namespace common

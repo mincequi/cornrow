@@ -12,7 +12,6 @@ set(CMAKE_CXX_STANDARD 14)
 
 find_package(Qt5Core REQUIRED)
 
-add_subdirectory(ble)
 add_subdirectory(common)
 add_subdirectory(cornrowd)
 #add_subdirectory(corocomo)

@@ -5,7 +5,7 @@ CONFIG += staticlib c++11 create_prl
 include(../cornrow.pri)
 
 SOURCES += \
-    src/Converter.cpp \
+    #src/Converter.cpp \
     src/Client.cpp \
     src/Server.cpp \
     #src/ServerAdapter.cpp \
@@ -13,7 +13,7 @@ SOURCES += \
 
 HEADERS += \
     include/ble/Client.h \
-    include/ble/Converter.h \
+    #include/ble/Converter.h \
     include/ble/Server.h \
     #include/ble/ServerAdapter.h \
     src/ClientSession.h

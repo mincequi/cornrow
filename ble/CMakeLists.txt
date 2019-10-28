@@ -2,13 +2,13 @@ find_package(Qt5Bluetooth REQUIRED)
 
 add_library(ble STATIC
     include/ble/Client.h
-    include/ble/Converter.h
+    #include/ble/Converter.h
     #include/ble/Server.h
     #include/ble/ServerAdapter.h
     src/Client.cpp
     src/ClientSession.cpp
     src/ClientSession.h
-    src/Converter.cpp
+    #src/Converter.cpp
     #src/Server.cpp
     #src/ServerAdapter.cpp
     #src/ServerSession.cpp

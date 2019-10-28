@@ -6,6 +6,6 @@ add_library(config STATIC
 target_link_libraries(config
     audio
     bluetooth
-    ble
+    common
     Qt5::Core
 )

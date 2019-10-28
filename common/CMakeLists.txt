@@ -1,6 +1,7 @@
 add_library(common STATIC
     src/Types.cpp
     src/Util.cpp
+    src/ble/Converter.cpp
 )
 
 target_include_directories(common
@@ -10,4 +11,9 @@ PUBLIC
 PRIVATE
     include/common
     include/common/ble
+)
+
+# @TODO(mawe): remove qt dependency
+target_link_libraries(common
+    Qt5::Core
 )

@@ -21,7 +21,7 @@
 
 #include <QObject>
 
-#include <ble/Converter.h>
+#include <common/ble/Converter.h>
 
 #include <BluezQt/MediaTransport>
 #include <BluezQt/Types>
@@ -82,7 +82,7 @@ private:
     ReadFiltersCallback m_readFiltersCallback = nullptr;
     ReadIoCapsCallback  m_readIoCapsCallback = nullptr;
     ReadIoConfCallback  m_readIoConfCallback = nullptr;
-    ble::Converter m_converter;
+    common::ble::Converter m_converter;
 };
 
 } // namespace bluetooth

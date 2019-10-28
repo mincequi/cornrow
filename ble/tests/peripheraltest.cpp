@@ -11,7 +11,7 @@
 #include <BluezQt/LEAdvertisingManager>
 #include <BluezQt/Manager>
 
-#include <ble/Converter.h>
+#include <common/ble/Converter.h>
 
 using namespace BluezQt;
 using namespace std::placeholders;
@@ -86,7 +86,7 @@ private:
     std::map<common::ble::CharacteristicType, BluezQt::GattCharacteristic*> m_charcs;
     BluezQt::GattApplication* m_application = nullptr;
     BluezQt::LEAdvertisement* m_advertisement = nullptr;
-    ble::Converter m_converter;
+    common::ble::Converter m_converter;
 };
 
 

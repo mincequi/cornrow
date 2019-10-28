@@ -5,6 +5,8 @@
 
 class QByteArray;
 
+namespace common
+{
 namespace ble
 {
 
@@ -32,3 +34,4 @@ protected:
 };
 
 } // namespace ble
+} // namespace common
