@@ -88,7 +88,7 @@ ApplicationWindow {
                     Label {
                         id: axisLabel
                         text: "Magnitude (dB)"
-                        font.pointSize: font.pointSize-4
+                        font.pointSize: font.pointSize-2
                         opacity: 0.5
                         rotation: -90
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -112,8 +112,8 @@ ApplicationWindow {
                     anchors.rightMargin: phaseAxisLabel.height/2 + 4
                     Label {
                         id: phaseAxisLabel
-                        text: "Phase (degrees)"
-                        font.pointSize: font.pointSize-4
+                        text: "Phase (rad)"
+                        font.pointSize: font.pointSize-2
                         opacity: 0.5
                         rotation: -90
                         anchors.horizontalCenter: parent.horizontalCenter
