@@ -123,7 +123,7 @@ void Controller::onTransportStateChanged(BluezQt::MediaTransport::State state)
         auto *call = m_transport->tryAcquire();
         connect(call, &PendingCall::finished, [this, call]() {
             m_fd = call->valueAt<0>();
-            qDebug() << __func__ << "fd: " << m_fd.fileDescriptor() << "mtu read:" << call->valueAt<1>() << "mtu write:" << call->valueAt<2>();
+            qDebug() << "onTransportStateChanged>" << "fd: " << m_fd.fileDescriptor() << "mtu read:" << call->valueAt<1>() << "mtu write:" << call->valueAt<2>();
             emit transportChanged(m_fd.fileDescriptor(), call->valueAt<1>());
         });
         break;

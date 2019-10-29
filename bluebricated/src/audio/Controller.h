@@ -39,17 +39,10 @@ public:
 
     void setVolume(float volume);
 
-    std::vector<common::IoInterface> ioCaps();
-    std::vector<common::IoInterface> ioConf();
-    void setInput(const common::IoInterface& interface);
-    void setOutput(const common::IoInterface& interface);
-
 private:
     void updatePipeline();
 
-    Pipeline* m_normalPipeline = nullptr;
-    Pipeline* m_crossoverPipeline = nullptr;
-    Pipeline* m_currentPipeline = nullptr;
+    Pipeline* m_pipeline = nullptr;
 
     std::string m_transport;
     int m_fd = -1;

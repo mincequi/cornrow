@@ -37,124 +37,29 @@ Controller::Controller(QObject *parent)
     // Init gstreamermm-dsp
     GstDsp::init();
 
-    //m_normalPipeline = new Pipeline(Pipeline::Type::Normal);
-    //m_crossoverPipeline = new Pipeline(Pipeline::Type::Crossover);
-    m_currentPipeline = new Pipeline(Pipeline::Type::Normal);;
+    m_pipeline = new Pipeline(Pipeline::Type::Normal);;
 }
 
 Controller::~Controller()
 {
-    //delete m_normalPipeline;
-    //delete m_crossoverPipeline;
-    delete m_currentPipeline;
-}
-
-std::vector<common::IoInterface> Controller::ioCaps()
-{
-    m_outputDeviceMap.clear();
-
-    // Populate output device map (IoInterface struct to string).
-    auto devices = m_alsaUtil.outputDevices();
-    for (const auto& d : devices) {
-        switch (d.type) {
-        case GstDsp::AudioDeviceType::Default:
-            m_outputDeviceMap.insert( { common::IoInterfaceType::Default, d.name } );
-            break;
-        case GstDsp::AudioDeviceType::Spdif:
-            m_outputDeviceMap.insert( { common::IoInterfaceType::Spdif, d.name } );
-            break;
-        // case GstDsp::AudioDeviceType::Hdmi:
-        //     m_outputDeviceMap.insert( { common::IoInterfaceType::Hdmi, d.name } );
-        //     break;
-        default:
-            break;
-        }
-    }
-
-    std::vector<common::IoInterface> ioCaps = {
-        { common::IoInterfaceType::Bluetooth, false, 1 }
-    };
-
-    for (auto it = m_outputDeviceMap.begin(); it != m_outputDeviceMap.end(); it = m_outputDeviceMap.upper_bound(it->first)) {
-        ioCaps.push_back( { it->first, true, m_outputDeviceMap.count(it->first) });
-    }
-
-    return ioCaps;
-}
-
-std::vector<common::IoInterface> Controller::ioConf()
-{
-    return { m_input, m_output };
-}
-
-void Controller::setInput(const common::IoInterface& interface)
-{
-    m_input = interface;
-}
-
-void Controller::setOutput(const common::IoInterface& interface)
-{
-    m_output = interface;
-    // Find all devices of interface type
-    auto range = m_outputDeviceMap.equal_range(interface.type);
-    // Check if index is in valid range
-    auto count = std::distance(range.first, range.second);
-    if (count <= interface.number) {
-        qDebug() << "invalid output interface> type:" << static_cast<int>(interface.type) << ", index:" << static_cast<int>(interface.number);
-        return;
-    }
-
-    // Advance iterator to selected device and set device name accordingly
-    auto it = range.first;
-    std::advance(it, interface.number);
-    qDebug() << "output device:" << QString::fromStdString(it->second);
-    m_currentPipeline->setOutputDevice(it->second);
+    delete m_pipeline;
 }
 
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 {
-    //::close(m_fd);
+    // Stop pipeline
+    m_pipeline->setTransport(-1, 0, 0);
+
     m_fd = fd;
     m_blockSize = blockSize;
     m_rate = rate;
-    m_currentPipeline->setTransport(m_fd, m_blockSize, m_rate);
+
+    m_pipeline->setTransport(m_fd, m_blockSize, m_rate);
 }
 
 void Controller::setVolume(float volume)
 {
-    m_currentPipeline->setVolume(volume);
-}
-
-void Controller::updatePipeline()
-{
-    // Check if a crossover is set
-    auto it = std::find_if(m_filters[common::ble::CharacteristicType::Aux].begin(),
-            m_filters[common::ble::CharacteristicType::Aux].end(),
-            [](const common::Filter& f) {
-        return f.type == common::FilterType::Crossover;
-    });
-
-    // Check if current pipeline is desired type
-    Pipeline::Type type = (it != m_filters[common::ble::CharacteristicType::Aux].end()) ? Pipeline::Type::Crossover : Pipeline::Type::Normal;
-    if (type == m_currentPipeline->type()) {
-        return;
-    }
-
-    // We want another pipeline, stop current one
-    m_currentPipeline->setTransport(-1, 0, 0);
-    delete m_currentPipeline;
-
-    switch (type) {
-    case Pipeline::Type::Normal:
-        m_currentPipeline = new Pipeline(Pipeline::Type::Normal);
-        break;
-    case Pipeline::Type::Crossover:
-        m_currentPipeline = new Pipeline(Pipeline::Type::Crossover);
-        break;
-    }
-
-    m_currentPipeline->setCrossover((it != m_filters[common::ble::CharacteristicType::Aux].end()) ? *it : common::Filter());
-    m_currentPipeline->setTransport(m_fd, m_blockSize, m_rate);
+    m_pipeline->setVolume(volume);
 }
 
 } // namespace audio
