@@ -82,15 +82,6 @@ const std::vector<double> qTable {
     50.0
 };
 
-/*
-IoInterface::IoInterface()
-{
-    type = 0;
-    isOutput = false;
-    number = 0;
-}
-*/
-
 bool IoInterface::operator==(const IoInterface& other) const
 {
     return (type == other.type &&
