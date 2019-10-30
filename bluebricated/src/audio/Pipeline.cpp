@@ -17,7 +17,9 @@
 
 #include "Pipeline.h"
 
+#include <gstreamermm/appsrc.h>
 #include <gstreamermm/fdsrc.h>
+#include <gstreamermm/mapinfo.h>
 #include <gstreamermm/pipeline.h>
 
 #include <Crossover.h>
@@ -34,6 +36,7 @@ Pipeline::Pipeline(Type type)
     m_pipeline = Gst::Pipeline::create();
 
     // Common elements
+    m_appSource = Gst::AppSrc::create();
     m_bluetoothSource = Gst::ElementFactory::create_element("avdtpsrc2");
     //m_bluetoothSource = Gst::ElementFactory::create_element("fdsrc2");
     auto depay = Gst::ElementFactory::create_element("rtpsbcdepay");
@@ -116,6 +119,24 @@ common::Filter Pipeline::crossover() const
     crossover.f = m_crossover->frequency();
 
     return crossover;
+}
+
+void* Pipeline::obtainBuffer(int maxSize)
+{
+    m_memory = Gst::Allocator::get_default_allocator()->alloc(maxSize);
+    m_memory->map(m_mapInfo, Gst::MAP_WRITE);
+    return m_mapInfo.get_data();
+}
+
+void Pipeline::commitBuffer(int size)
+{
+    m_memory->unmap(m_mapInfo);
+    m_memory->resize(0, size);
+
+    auto buffer = Gst::Buffer::create();
+    buffer->append_memory(std::move(m_memory));
+
+    m_appSource->push_buffer(buffer);
 }
 
 bool Pipeline::constructPipeline(Type type, bool force)

@@ -19,6 +19,7 @@
 
 #include "Pipeline.h"
 
+#include <common/Types.h>
 #include <common/ble/Types.h>
 #include <gstdsp/AlsaUtil.h>
 
@@ -26,6 +27,7 @@
 
 namespace audio
 {
+class Pipeline;
 
 class Controller : public QObject
 {

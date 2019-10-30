@@ -8,6 +8,7 @@ add_executable(${PROJECT_NAME}
     src/Controller.cpp
     src/main.cpp
     src/audio/Controller.cpp
+    src/audio/Buffer.cpp
     src/audio/Pipeline.cpp
     src/bluetooth/AudioSinkAgent.cpp
     src/bluetooth/Controller.cpp

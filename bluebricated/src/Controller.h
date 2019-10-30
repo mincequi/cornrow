@@ -1,9 +1,9 @@
 #pragma once
 
-#include <QObject>
-
 #include "audio/Controller.h"
 #include "bluetooth/Controller.h"
+
+#include <QObject>
 
 class Controller : public QObject
 {

@@ -15,14 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Controller.h"
+
 #include <csignal>
 
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QLoggingCategory>
-
-#include "Controller.h"
 
 int main(int argc, char **argv)
 {

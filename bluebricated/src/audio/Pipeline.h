@@ -17,16 +17,19 @@
 
 #pragma once
 
-#include <map>
-
-#include <glibmm/refptr.h>
+#include <gstreamermm.h>
 
 #include <common/Types.h>
 
+#include <map>
+
 namespace Gst
 {
+class AppSrc;
+class Buffer;
 class Element;
 class FdSrc;
+class Memory;
 class OutputSelector;
 class Pad;
 class Pipeline;
@@ -67,11 +70,15 @@ public:
 
     void setOutputDevice(const std::string& device);
 
+    void* obtainBuffer(int maxSize);
+    void commitBuffer(int size);
+
 private:
     bool constructPipeline(Type type, bool force = false);
 
     Type m_currentType = Type::Normal;
 
+    Glib::RefPtr<Gst::AppSrc>       m_appSource;
     Glib::RefPtr<Gst::Element>      m_bluetoothSource;
     //Glib::RefPtr<Gst::FdSrc>        m_bluetoothSource;
     Glib::RefPtr<Gst::Element>      m_alsaSink;
@@ -82,6 +89,11 @@ private:
     Glib::RefPtr<Gst::Pipeline>     m_pipeline;
 
     std::map<Type, std::vector<Glib::RefPtr<Gst::Element>>> m_elements;
+
+    // AppSrc related members
+    Glib::RefPtr<Gst::Memory>   m_memory;   // we need memory to have fine grained control (max size vs valid size).
+    Glib::RefPtr<Gst::Buffer>   m_buffer;
+    Gst::MapInfo    m_mapInfo;
 };
 
 } // namespace audio

@@ -24,8 +24,6 @@
 #include <gstreamermm-dsp.h>
 #include <common/Types.h>
 
-#include "Pipeline.h"
-
 #include <unistd.h>
 
 namespace audio
