@@ -17,23 +17,17 @@
 
 #pragma once
 
-#include <gstreamermm.h>
+#include <glibmm/refptr.h>
 
 #include <common/Types.h>
 
+#include <fstream>
 #include <map>
 
 namespace Gst
 {
-class AppSrc;
-class Buffer;
 class Element;
-class FdSrc;
-class Memory;
-class OutputSelector;
-class Pad;
 class Pipeline;
-class Volume;
 }
 
 namespace GstDsp
@@ -57,9 +51,10 @@ public:
     explicit Pipeline(Type type);
     ~Pipeline();
 
-    Type type() const;
+    void start();
+    void stop();
 
-    void setTransport(int fd, uint blocksize, int rate);
+    Type type() const;
 
     void setVolume(float volume);
 
@@ -78,22 +73,13 @@ private:
 
     Type m_currentType = Type::Normal;
 
-    Glib::RefPtr<Gst::AppSrc>       m_appSource;
-    Glib::RefPtr<Gst::Element>      m_bluetoothSource;
-    //Glib::RefPtr<Gst::FdSrc>        m_bluetoothSource;
+    Glib::RefPtr<Gst::Element>      m_crAppSource;
     Glib::RefPtr<Gst::Element>      m_alsaSink;
     Glib::RefPtr<Gst::Element>      m_alsaPassthroughSink;
     Glib::RefPtr<GstDsp::Crossover> m_crossover;
     Glib::RefPtr<GstDsp::Loudness>  m_loudness;
     Glib::RefPtr<GstDsp::Peq>       m_peq;
     Glib::RefPtr<Gst::Pipeline>     m_pipeline;
-
-    std::map<Type, std::vector<Glib::RefPtr<Gst::Element>>> m_elements;
-
-    // AppSrc related members
-    Glib::RefPtr<Gst::Memory>   m_memory;   // we need memory to have fine grained control (max size vs valid size).
-    Glib::RefPtr<Gst::Buffer>   m_buffer;
-    Gst::MapInfo    m_mapInfo;
 };
 
 } // namespace audio

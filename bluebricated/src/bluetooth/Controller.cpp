@@ -72,6 +72,7 @@ Controller::Controller(QObject *parent)
     MediaEndpoint* sbcSink = new MediaEndpoint({MediaEndpoint::Role::AudioSink, MediaEndpoint::Codec::Sbc}, m_manager);
     m_manager->usableAdapter()->media()->registerEndpoint(sbcSink);
     connect(m_manager, &Manager::deviceChanged, [this](DevicePtr device) {
+        qDebug() << "Bluetooth device changed>" << device;
         connect(device.data(), &Device::mediaTransportChanged, this, &Controller::onTransportChanged);
     });
 
@@ -89,6 +90,8 @@ Controller::~Controller()
 
 void Controller::onTransportChanged(MediaTransportPtr transport)
 {
+    qDebug() << __func__ << ">" << transport.data();
+
     if (m_transport == transport) {
         return;
     }
@@ -100,8 +103,7 @@ void Controller::onTransportChanged(MediaTransportPtr transport)
 
     m_transport = transport;
     if (!m_transport) {
-        m_fd = {};
-        emit transportChanged(m_fd.fileDescriptor(), 0);
+        emit transportChanged(-1, 0);
         return;
     }
 
@@ -117,14 +119,13 @@ void Controller::onTransportStateChanged(BluezQt::MediaTransport::State state)
     case MediaTransport::State::Idle:
         // Bluez already releases transport. No need to do manually.
         //m_transport->release();
+        emit transportChanged(-1, 0);
         break;
     case MediaTransport::State::Pending: {
         //QCoreApplication::processEvents();
         auto *call = m_transport->tryAcquire();
         connect(call, &PendingCall::finished, [this, call]() {
-            m_fd = call->valueAt<0>();
-            qDebug() << "onTransportStateChanged>" << "fd: " << m_fd.fileDescriptor() << "mtu read:" << call->valueAt<1>() << "mtu write:" << call->valueAt<2>();
-            emit transportChanged(m_fd.fileDescriptor(), call->valueAt<1>());
+            emit transportChanged(::dup(call->valueAt<0>().fileDescriptor()), call->valueAt<1>());
         });
         break;
     }

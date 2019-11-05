@@ -1,6 +1,9 @@
 #include "Controller.h"
 
-#include <QDBusObjectPath>
+#include <QDebug>
+
+#include "audio/Controller.h"
+#include "bluetooth/Controller.h"
 
 Controller::Controller(QObject *parent)
     : QObject(parent)
@@ -19,6 +22,7 @@ Controller::~Controller()
 
 void Controller::onTransportChanged(int fd, uint16_t blockSize)
 {
+    qDebug() << __func__ << "> fd:" << fd << ", blockSize: " << blockSize;
     m_audio->setTransport(fd, blockSize, 44100);
 }
 

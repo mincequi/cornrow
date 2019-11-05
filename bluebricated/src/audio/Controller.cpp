@@ -17,14 +17,10 @@
 
 #include "Controller.h"
 
-#include <QDebug>
-#include <QThread>
-#include <QtDBus/QDBusObjectPath>
-
 #include <gstreamermm-dsp.h>
-#include <common/Types.h>
 
-#include <unistd.h>
+#include "FileDescriptorSource.h"
+#include "Pipeline.h"
 
 namespace audio
 {
@@ -45,14 +41,23 @@ Controller::~Controller()
 
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 {
-    // Stop pipeline
-    m_pipeline->setTransport(-1, 0, 0);
+    // Stop pipeline (in any case).
+    m_pipeline->stop();
+    if (m_fdSource) {
+        delete m_fdSource;
+        m_fdSource = nullptr;
+    }
+
+    if (fd < 0) {
+        return;
+    }
 
     m_fd = fd;
     m_blockSize = blockSize;
     m_rate = rate;
 
-    m_pipeline->setTransport(m_fd, m_blockSize, m_rate);
+    m_fdSource = new FileDescriptorSource(fd, blockSize, m_pipeline);
+    m_pipeline->start();
 }
 
 void Controller::setVolume(float volume)

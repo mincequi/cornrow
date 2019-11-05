@@ -17,13 +17,9 @@
 
 #pragma once
 
-#include "Pipeline.h"
-
-#include <common/Types.h>
-#include <common/ble/Types.h>
-#include <gstdsp/AlsaUtil.h>
-
 #include <QObject>
+
+class FileDescriptorSource;
 
 namespace audio
 {
@@ -51,13 +47,7 @@ private:
     uint16_t m_blockSize = 0;
     int m_rate = 44100;
 
-    std::map<common::ble::CharacteristicType, std::vector<common::Filter>> m_filters;
-
-    GstDsp::AlsaUtil m_alsaUtil;
-    std::multimap<common::IoInterfaceType, std::string> m_outputDeviceMap;
-
-    common::IoInterface m_input;
-    common::IoInterface m_output;
+    FileDescriptorSource* m_fdSource = nullptr;
 };
 
 } // namespace audio

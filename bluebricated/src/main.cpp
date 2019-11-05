@@ -17,12 +17,8 @@
 
 #include "Controller.h"
 
-#include <csignal>
-
-#include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QDebug>
-#include <QLoggingCategory>
 
 int main(int argc, char **argv)
 {

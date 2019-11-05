@@ -3,8 +3,6 @@
 #include "audio/Controller.h"
 #include "bluetooth/Controller.h"
 
-#include <QObject>
-
 class Controller : public QObject
 {
     Q_OBJECT
