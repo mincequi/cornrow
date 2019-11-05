@@ -23,10 +23,13 @@ FileDescriptorSource::FileDescriptorSource(int fd,
 
     m_notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(m_notifier, &QSocketNotifier::activated, [this](int fd) {
-
+        static int blockSize = -1;
         auto buffer = m_pipeline->obtainBuffer(m_blockSize);
         auto size = m_file->read((char*)buffer, m_blockSize);
         m_pipeline->commitBuffer(size);
-        //qDebug() << "read size:" << size;
+        if (blockSize != size) {
+            qDebug() << "current block size:" << size;
+            blockSize = size;
+        }
     });
 }
