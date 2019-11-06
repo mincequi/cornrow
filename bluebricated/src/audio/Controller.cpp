@@ -19,7 +19,7 @@
 
 #include <gstreamermm-dsp.h>
 
-#include "FileDescriptorSource.h"
+#include "../../cornrowd/src/audio/FileDescriptorSource.h"
 #include "Pipeline.h"
 
 namespace audio

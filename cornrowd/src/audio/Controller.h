@@ -24,6 +24,8 @@
 
 #include <QObject>
 
+class FileDescriptorSource;
+
 namespace audio
 {
 
@@ -49,16 +51,13 @@ public:
     void setOutput(const common::IoInterface& interface);
 
 private:
-    void updatePipeline();
-
-    Pipeline* m_normalPipeline = nullptr;
-    Pipeline* m_crossoverPipeline = nullptr;
-    Pipeline* m_currentPipeline = nullptr;
+    Pipeline* m_pipeline = nullptr;
 
     std::string m_transport;
     int m_fd = -1;
     uint16_t m_blockSize = 0;
     int m_rate = 44100;
+    FileDescriptorSource* m_fdSource = nullptr;
 
     std::map<common::ble::CharacteristicType, std::vector<common::Filter>> m_filters;
 

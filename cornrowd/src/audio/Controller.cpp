@@ -24,6 +24,7 @@
 #include <gstreamermm-dsp.h>
 #include <common/Types.h>
 
+#include "FileDescriptorSource.h"
 #include "Pipeline.h"
 
 #include <unistd.h>
@@ -37,16 +38,12 @@ Controller::Controller(QObject *parent)
     // Init gstreamermm-dsp
     GstDsp::init();
 
-    //m_normalPipeline = new Pipeline(Pipeline::Type::Normal);
-    //m_crossoverPipeline = new Pipeline(Pipeline::Type::Crossover);
-    m_currentPipeline = new Pipeline(Pipeline::Type::Normal);;
+    m_pipeline = new Pipeline(Pipeline::Type::Normal);;
 }
 
 Controller::~Controller()
 {
-    //delete m_normalPipeline;
-    //delete m_crossoverPipeline;
-    delete m_currentPipeline;
+    delete m_pipeline;
 }
 
 std::vector<common::Filter> Controller::filters(common::ble::CharacteristicType group)
@@ -70,20 +67,20 @@ void Controller::setFilters(common::ble::CharacteristicType group, const std::ve
 
     switch (group) {
     case common::ble::CharacteristicType::Peq:
-        m_currentPipeline->setPeq(filters);
+        m_pipeline->setPeq(filters);
         break;
     case common::ble::CharacteristicType::Aux: {
-        updatePipeline();
+        //updatePipeline();
         // Check if crossover was provided, if not, we disable crossover
         auto it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
             return f.type == common::FilterType::Crossover;
         });
-        it != filters.end() ? m_currentPipeline->setCrossover(*it) : m_currentPipeline->setCrossover(common::Filter());
+        it != filters.end() ? m_pipeline->setCrossover(*it) : m_pipeline->setCrossover(common::Filter());
         // Check if loudness was provided
         it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
             return f.type == common::FilterType::Loudness;
         });
-        it != filters.end() ? m_currentPipeline->setLoudness(static_cast<uint8_t>(it->g)) : m_currentPipeline->setLoudness(0);
+        it != filters.end() ? m_pipeline->setLoudness(static_cast<uint8_t>(it->g)) : m_pipeline->setLoudness(0);
         break;
     }
     default:
@@ -150,55 +147,33 @@ void Controller::setOutput(const common::IoInterface& interface)
     auto it = range.first;
     std::advance(it, interface.number);
     qDebug() << "output device:" << QString::fromStdString(it->second);
-    m_currentPipeline->setOutputDevice(it->second);
+    m_pipeline->setOutputDevice(it->second);
 }
 
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 {
-    //::close(m_fd);
+    // Stop pipeline (in any case).
+    m_pipeline->stop();
+    if (m_fdSource) {
+        delete m_fdSource;
+        m_fdSource = nullptr;
+    }
+
+    if (fd < 0) {
+        return;
+    }
+
     m_fd = fd;
     m_blockSize = blockSize;
     m_rate = rate;
-    m_currentPipeline->setTransport(m_fd, m_blockSize, m_rate);
+
+    m_fdSource = new FileDescriptorSource(fd, blockSize, m_pipeline);
+    m_pipeline->start();
 }
 
 void Controller::setVolume(float volume)
 {
-    m_currentPipeline->setVolume(volume);
-}
-
-void Controller::updatePipeline()
-{
-    // Check if a crossover is set
-    auto it = std::find_if(m_filters[common::ble::CharacteristicType::Aux].begin(),
-            m_filters[common::ble::CharacteristicType::Aux].end(),
-            [](const common::Filter& f) {
-        return f.type == common::FilterType::Crossover;
-    });
-
-    // Check if current pipeline is desired type
-    Pipeline::Type type = (it != m_filters[common::ble::CharacteristicType::Aux].end()) ? Pipeline::Type::Crossover : Pipeline::Type::Normal;
-    if (type == m_currentPipeline->type()) {
-        return;
-    }
-
-    // We want another pipeline, stop current one
-    m_currentPipeline->setTransport(-1, 0, 0);
-    delete m_currentPipeline;
-
-    switch (type) {
-    case Pipeline::Type::Normal:
-        m_currentPipeline = new Pipeline(Pipeline::Type::Normal);
-        break;
-    case Pipeline::Type::Crossover:
-        m_currentPipeline = new Pipeline(Pipeline::Type::Crossover);
-        break;
-    }
-
-    m_currentPipeline->setCrossover((it != m_filters[common::ble::CharacteristicType::Aux].end()) ? *it : common::Filter());
-    m_currentPipeline->setPeq(m_filters[common::ble::CharacteristicType::Peq]);
-    //m_currentPipeline->setTransport(m_transport);
-    m_currentPipeline->setTransport(m_fd, m_blockSize, m_rate);
+    m_pipeline->setVolume(volume);
 }
 
 } // namespace audio

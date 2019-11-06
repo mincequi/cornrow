@@ -54,9 +54,10 @@ public:
     explicit Pipeline(Type type);
     ~Pipeline();
 
-    Type type() const;
+    void start();
+    void stop();
 
-    void setTransport(int fd, uint blocksize, int rate);
+    Type type() const;
 
     void setVolume(float volume);
 
@@ -69,21 +70,19 @@ public:
 
     void setOutputDevice(const std::string& device);
 
-private:
-    bool constructPipeline(Type type, bool force = false);
+    void* obtainBuffer(int maxSize);
+    void commitBuffer(int size);
 
+private:
     Type m_currentType = Type::Normal;
 
-    Glib::RefPtr<Gst::Element>      m_bluetoothSource;
-    //Glib::RefPtr<Gst::FdSrc>        m_bluetoothSource;
+    Glib::RefPtr<Gst::Element>      m_crAppSource;
     Glib::RefPtr<Gst::Element>      m_alsaSink;
     Glib::RefPtr<Gst::Element>      m_alsaPassthroughSink;
     Glib::RefPtr<GstDsp::Crossover> m_crossover;
     Glib::RefPtr<GstDsp::Loudness>  m_loudness;
     Glib::RefPtr<GstDsp::Peq>       m_peq;
     Glib::RefPtr<Gst::Pipeline>     m_pipeline;
-
-    std::map<Type, std::vector<Glib::RefPtr<Gst::Element>>> m_elements;
 };
 
 } // namespace audio
