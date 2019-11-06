@@ -36,9 +36,10 @@ Pipeline::Pipeline(Type type)
 
     // Common elements
     m_crAppSource = Gst::ElementFactory::create_element("cr_appsrc");
-    auto queue = Gst::Queue::create();
-    queue->property_max_size_time().set_value(2000000000);
-    queue->property_max_size_buffers().set_value(2000);
+    //auto queue = Gst::Queue::create();
+    //queue->property_max_size_time().set_value     (2000000000);
+    //queue->property_min_threshold_time().set_value(1000000000);
+    //queue->property_max_size_buffers().set_value(2000);
     auto depay = Gst::ElementFactory::create_element("rtpsbcdepay");
     auto parse = Gst::ElementFactory::create_element("sbcparse");
     auto decoder = Gst::ElementFactory::create_element("sbcdec");
@@ -48,9 +49,10 @@ Pipeline::Pipeline(Type type)
     auto alsaConverter = Gst::AudioConvert::create();
     m_alsaSink = Gst::AlsaSink::create("alsasink");
     m_alsaSink->set_property("sync", false);    // Avoid resync since it causes ugly glitches
+    //m_alsaSink->set_property<Glib::ustring>("device", "null");
 
-    m_pipeline->add(m_crAppSource)->add(queue)->add(depay)->add(parse)->add(decoder)->add(bluetoothConverter)->add(m_peq)->add(m_loudness)->add(alsaConverter)->add(m_alsaSink);
-    m_crAppSource->link(queue)->link(depay)->link(parse)->link(decoder)->link(bluetoothConverter)->/*link(m_peq)->link(m_loudness)->link(alsaConverter)->*/link(m_alsaSink);
+    m_pipeline->add(m_crAppSource)->add(depay)->add(parse)->add(decoder)->add(bluetoothConverter)->add(m_peq)->add(m_loudness)->add(alsaConverter)->add(m_alsaSink);
+    m_crAppSource->link(depay)->link(parse)->link(decoder)->link(bluetoothConverter)->link(m_peq)->link(m_loudness)->link(alsaConverter)->link(m_alsaSink);
 }
 
 Pipeline::~Pipeline()
