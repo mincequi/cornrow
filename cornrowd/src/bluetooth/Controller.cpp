@@ -109,6 +109,11 @@ void Controller::setReadIoConfCallback(ReadIoConfCallback callback)
 
 void Controller::initBle()
 {
+    if (!m_manager->usableAdapter() || !m_manager->usableAdapter()->leAdvertisingManager()) {
+        qWarning() << "No BLE adapter present";
+        return;
+    }
+
     m_advertisement = new LEAdvertisement({QStringLiteral("ad100000-d901-11e8-9f8b-f2801f1b9fd1")}, this);
     m_manager->usableAdapter()->leAdvertisingManager()->registerAdvertisement(m_advertisement);
 

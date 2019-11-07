@@ -38,7 +38,7 @@ Pipeline::Pipeline(Type type)
 
     // Common elements
     m_crAppSource = Gst::ElementFactory::create_element("cr_appsrc");
-    auto depay = Gst::ElementFactory::create_element("rtpsbcdepay");
+    auto depay = Gst::ElementFactory::create_element("cr_rtpsbcdepay");
     auto parse = Gst::ElementFactory::create_element("sbcparse");
     auto decoder = Gst::ElementFactory::create_element("sbcdec");
     auto bluetoothConverter = Gst::AudioConvert::create();

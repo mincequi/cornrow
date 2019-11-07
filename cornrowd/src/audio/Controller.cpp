@@ -36,7 +36,7 @@ Controller::Controller(QObject *parent)
     : QObject(parent)
 {
     // Init gstreamermm-dsp
-    GstDsp::init();
+    assert(GstDsp::init());
 
     m_pipeline = new Pipeline(Pipeline::Type::Normal);;
 }
