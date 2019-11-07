@@ -23,7 +23,7 @@ FileDescriptorSource::FileDescriptorSource(int fd,
 
     m_notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(m_notifier, &QSocketNotifier::activated, [this](int fd) {
-        static int blockSize = -1;
+        qDebug() << "bytes available:" << m_file->bytesAvailable();
 
         // The allocFactor multiplies the space that is actually needed for a single block (since
         // there might be multiple blocks waiting on the file descriptor).
@@ -42,6 +42,7 @@ FileDescriptorSource::FileDescriptorSource(int fd,
             m_pipeline->pushBuffer(buffer, m_blockSize*allocFactor, size, slices);
         }
 
+        static int blockSize = -1;
         if (blockSize != size) {
             qDebug() << "current block size:" << size;
             blockSize = size;

@@ -121,7 +121,7 @@ void Pipeline::pushBuffer(char* data, int maxSize, int size, int slices)
 
     std::vector<GstBuffer*> subBuffers;
     for (int i = 1; i < slices; ++i) {
-        subBuffers.push_back(gst_buffer_copy_region(buffer, GST_BUFFER_COPY_MEMORY, i*(size/slices), size/slices));
+        subBuffers.push_back(gst_buffer_copy_region(buffer, GST_BUFFER_COPY_ALL, i*(size/slices), size/slices));
     }
 
     gst_buffer_resize(buffer, 0, size/slices);
