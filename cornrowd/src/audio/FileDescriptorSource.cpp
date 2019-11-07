@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QSocketNotifier>
+#include <QThread>
 
 FileDescriptorSource::FileDescriptorSource(int fd,
                                            uint16_t blockSize,
@@ -23,6 +24,7 @@ FileDescriptorSource::FileDescriptorSource(int fd,
 
     m_notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(m_notifier, &QSocketNotifier::activated, [this](int fd) {
+        QThread::msleep(10);
         qDebug() << "bytes available:" << m_file->bytesAvailable();
 
         // The allocFactor multiplies the space that is actually needed for a single block (since
