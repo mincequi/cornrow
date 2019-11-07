@@ -70,8 +70,7 @@ public:
 
     void setOutputDevice(const std::string& device);
 
-    void* obtainBuffer(int maxSize);
-    void commitBuffer(int size);
+    void pushBuffer(char* data, int maxSize, int size, int slices = 1);
 
 private:
     Type m_currentType = Type::Normal;

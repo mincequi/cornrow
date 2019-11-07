@@ -115,18 +115,20 @@ common::Filter Pipeline::crossover() const
     return crossover;
 }
 
-void* Pipeline::obtainBuffer(int maxSize)
+void Pipeline::pushBuffer(char* data, int maxSize, int size, int slices)
 {
-    _buffer = gst_buffer_new_and_alloc(maxSize);
-    gst_buffer_map(_buffer, &_mapInfo, GST_MAP_WRITE);
-    return _mapInfo.data;
-}
+    auto buffer = gst_buffer_new_wrapped(data, maxSize);
 
-void Pipeline::commitBuffer(int size)
-{
-    gst_buffer_unmap(_buffer, &_mapInfo);
-    gst_buffer_resize(_buffer, 0, size);
-    cr_app_source_push_buffer((CrAppSource*)m_crAppSource->gobj(), _buffer);
+    std::vector<GstBuffer*> subBuffers;
+    for (int i = 1; i < slices; ++i) {
+        subBuffers.push_back(gst_buffer_copy_region(buffer, GST_BUFFER_COPY_MEMORY, i*(size/slices), size/slices));
+    }
+
+    gst_buffer_resize(buffer, 0, size/slices);
+    cr_app_source_push_buffer((CrAppSource*)m_crAppSource->gobj(), buffer);
+    for (auto& subBuffer : subBuffers) {
+        cr_app_source_push_buffer((CrAppSource*)m_crAppSource->gobj(), subBuffer);
+    }
 }
 
 } // namespace audio
