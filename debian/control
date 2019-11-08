@@ -8,6 +8,7 @@ Build-Depends:
     libboost-dev,
     libgstreamermm-1.0-dev,
     libtool,
+    libxxhash0,
     pkg-config,
 #bluezqt deps
     extra-cmake-modules,
