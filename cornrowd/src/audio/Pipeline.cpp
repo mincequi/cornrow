@@ -50,8 +50,8 @@ Pipeline::Pipeline(Type type)
     m_alsaSink = Gst::AlsaSink::create("alsasink");
     m_alsaSink->set_property("sync", false);    // Avoid resync since it causes ugly glitches
 
-    m_pipeline->add(m_crFdSource)->add(depay)->add(parse)->add(decoder)->add(bluetoothConverter)->add(m_peq)->add(m_loudness)->add(alsaConverter)->add(m_alsaSink);
-    m_crFdSource->link(depay)->link(parse)->link(decoder)->link(bluetoothConverter)->link(m_peq)->link(m_loudness)->link(alsaConverter)->link(m_alsaSink);
+    m_pipeline->add(m_crFdSource)->add(depay)/*->add(parse)*/->add(decoder)->add(bluetoothConverter)->add(m_peq)->add(m_loudness)->add(alsaConverter)->add(m_alsaSink);
+    m_crFdSource->link(depay)/*->link(parse)*/->link(decoder)->link(bluetoothConverter)->link(m_peq)->link(m_loudness)->link(alsaConverter)->link(m_alsaSink);
 
     // Crossover output
     m_crossover = Glib::RefPtr<GstDsp::Crossover>::cast_static(Gst::ElementFactory::create_element("crossover"));
