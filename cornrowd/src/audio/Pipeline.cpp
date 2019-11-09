@@ -135,7 +135,7 @@ void Pipeline::pushBuffer(char* data, int maxSize, int size, int slices)
 
 void Pipeline::setFileDescriptor(int fd, uint32_t blockSize)
 {
-    CR_FD_SOURCE(m_crFdSource->gobj())->init(fd, blockSize);
+    CR_FD_SOURCE(m_crFdSource->gobj())->init(fd, blockSize, 7);
 }
 
 } // namespace audio
