@@ -72,10 +72,13 @@ public:
 
     void pushBuffer(char* data, int maxSize, int size, int slices = 1);
 
+    void setFileDescriptor(int fd, uint32_t blockSize);
+
 private:
     Type m_currentType = Type::Normal;
 
     Glib::RefPtr<Gst::Element>      m_crAppSource;
+    Glib::RefPtr<Gst::Element>      m_crFdSource;
     Glib::RefPtr<Gst::Element>      m_alsaSink;
     Glib::RefPtr<Gst::Element>      m_alsaPassthroughSink;
     Glib::RefPtr<GstDsp::Crossover> m_crossover;

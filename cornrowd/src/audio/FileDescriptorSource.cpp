@@ -24,9 +24,6 @@ FileDescriptorSource::FileDescriptorSource(int fd,
 
     m_notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(m_notifier, &QSocketNotifier::activated, [this](int fd) {
-        QThread::msleep(10);
-        qDebug() << "bytes available:" << m_file->bytesAvailable();
-
         // The allocFactor multiplies the space that is actually needed for a single block (since
         // there might be multiple blocks waiting on the file descriptor).
         //   * 4 seems to be enough for most cases.
