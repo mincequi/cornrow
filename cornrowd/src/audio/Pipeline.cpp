@@ -41,7 +41,7 @@ Pipeline::Pipeline(Type type)
     m_crAppSource = Gst::ElementFactory::create_element("cr_appsrc");
     m_crFdSource = Gst::ElementFactory::create_element("cr_fdsrc");
     auto depay = Gst::ElementFactory::create_element("cr_rtpsbcdepay");
-    auto parse = Gst::ElementFactory::create_element("sbcparse");
+    auto parse = Gst::ElementFactory::create_element("cr_sbcparse");
     auto decoder = Gst::ElementFactory::create_element("sbcdec");
     auto bluetoothConverter = Gst::AudioConvert::create();
     m_peq = Glib::RefPtr<GstDsp::Peq>::cast_static(Gst::ElementFactory::create_element("peq"));
