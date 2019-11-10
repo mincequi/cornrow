@@ -1,3 +1,11 @@
+cornrowd (0.3.0) bionic; urgency=medium
+
+  * Add loudness filter.
+  * Add volume control.
+  * Set discovery timeout to forever.
+
+ -- Manuel Weichselbaumer <mincequi@web.de>  Sun, 10 Nov 2019 20:05:00 +0100
+
 cornrowd (0.2.0) bionic; urgency=medium
 
   * Add loudness filter.
