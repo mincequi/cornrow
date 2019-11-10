@@ -1,5 +1,5 @@
 # Cornrow
-*the most sophisticated bluetooth audio receiver for linux*
+--- *the most sophisticated bluetooth audio receiver for linux*
 
 Cornrow is a bluetooth audio daemon designed for embedded devices or low-powered boards like the Raspberry Pi. It accepts bluetooth audio sources and transforms your computer into a bluetooth speaker.
 
