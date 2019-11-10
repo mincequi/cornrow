@@ -1,8 +1,9 @@
 # Cornrow
+*the most sophisticated bluetooth audio receiver for linux*
 
 Cornrow is a bluetooth audio daemon designed for embedded devices or low-powered boards like the Raspberry Pi. It accepts bluetooth audio sources and transforms your computer into a bluetooth speaker.
 
-Currently, it is compatible with Ubuntu 18.04 Bionic and Debian Stretch (and later) and offers full integration into Debian based environments. This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
+It is made for Debian based environments and compatible with Ubuntu 18.04 Bionic and Debian Stretch (and later). This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
 
 All this is in an early stage. However, i am willing to provide an easy out-of-the-box solution for anyone. So, your experience with this little daemon is very appreciated. Please leave your comments and issues using it. Thanks a lot.
 
@@ -11,7 +12,7 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 ![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.2.0/cornrowd_0.2.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.2.0/cornrowd_0.2.0_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.3.0/cornrowd_0.3.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.3.0/cornrowd_0.3.0_amd64.deb).
 
 ## Installation (from source)
 ### For Debian users
@@ -45,6 +46,7 @@ make
 
 ## Known issues
 ### Raspberry Pi 3 Model B (BCM43143)
+#### Firmware issues
 Apparently, there are issues with on-board Bluetooth. Depending on the installed firmware i get stuttering Bluetooth audio playback. Additionally, there seem to be issues when operating in classic Bluetooth and Low Energy simultaneously.
 Here is an incomplete list of working/non-working firmware versions (https://github.com/Hexxeh/rpi-firmware/commits/master). Use the rpi-update to flash your Raspberry Pi to the according version:
 ```shell
@@ -56,6 +58,10 @@ Commit | Date | Working
 883750d | 2019-02-05 | OK
 29952e8 | 2019-03-08 | NOK
 
+#### UART issues
+A lot of Bluetooth packets seem to be dropped when CPU usage is **low**. As soon as the system is put under load, bluetooth packet reception is a **lot** better. This seems to be related to core frequency scaling (https://www.raspberrypi.org/documentation/configuration/uart.md).
+
 ## To Do
+* Add sophisticated logging
 * ~~Implement volume control~~
 * ~~Set discoverable/pairable timeout to forever~~
