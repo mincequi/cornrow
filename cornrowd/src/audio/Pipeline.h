@@ -33,7 +33,7 @@ class Pipeline;
 class Volume;
 }
 
-namespace GstDsp
+namespace coro
 {
 class Crossover;
 class Loudness;
@@ -72,7 +72,7 @@ public:
 
     void pushBuffer(char* data, int maxSize, int size, int slices = 1);
 
-    void setFileDescriptor(int fd, uint32_t blockSize);
+    void setFileDescriptor(uint32_t sampleRate, int fd, uint32_t blockSize);
 
 private:
     Type m_currentType = Type::Normal;
@@ -81,9 +81,9 @@ private:
     Glib::RefPtr<Gst::Element>      m_crFdSource;
     Glib::RefPtr<Gst::Element>      m_alsaSink;
     Glib::RefPtr<Gst::Element>      m_alsaPassthroughSink;
-    Glib::RefPtr<GstDsp::Crossover> m_crossover;
-    Glib::RefPtr<GstDsp::Loudness>  m_loudness;
-    Glib::RefPtr<GstDsp::Peq>       m_peq;
+    Glib::RefPtr<coro::Crossover> m_crossover;
+    Glib::RefPtr<coro::Loudness>  m_loudness;
+    Glib::RefPtr<coro::Peq>       m_peq;
     Glib::RefPtr<Gst::Pipeline>     m_pipeline;
 };
 

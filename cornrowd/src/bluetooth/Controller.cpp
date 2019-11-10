@@ -151,7 +151,7 @@ void Controller::onTransportChanged(MediaTransportPtr transport)
 
     m_transport = transport;
     if (!m_transport) {
-        emit transportChanged(-1, 0);
+        emit transportChanged(-1, 0, 44100);
         return;
     }
 
@@ -174,7 +174,10 @@ void Controller::onTransportStateChanged(BluezQt::MediaTransport::State state)
         connect(call, &PendingCall::finished, [this, call]() {
             qDebug() << __func__ << "fd: " << call->valueAt<0>().fileDescriptor() << "mtu read:" << call->valueAt<1>() << "mtu write:" << call->valueAt<2>();
             // We have to dup() the file descriptor as long as QDBusUnixFileDescriptor object is valid
-            emit transportChanged(::dup(call->valueAt<0>().fileDescriptor()), call->valueAt<1>());
+            emit transportChanged(
+                        ::dup(call->valueAt<0>().fileDescriptor()),
+                        call->valueAt<1>(),
+                        m_transport->audioConfiguration().sampleRate == BluezQt::AudioSampleRate::Rate44100 ? 44100 : 48000);
         });
         break;
     }

@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 {
     QCoreApplication a(argc, argv);
 
-    assert(GstDsp::init());
+    assert(coro::init());
 
     Buffer buffer;
 

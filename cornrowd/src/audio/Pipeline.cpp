@@ -44,8 +44,8 @@ Pipeline::Pipeline(Type type)
     auto parse = Gst::ElementFactory::create_element("cr_sbcparse");
     auto decoder = Gst::ElementFactory::create_element("sbcdec");
     auto bluetoothConverter = Gst::AudioConvert::create();
-    m_peq = Glib::RefPtr<GstDsp::Peq>::cast_static(Gst::ElementFactory::create_element("peq"));
-    m_loudness = Glib::RefPtr<GstDsp::Loudness>::cast_static(Gst::ElementFactory::create_element("loudness"));
+    m_peq = Glib::RefPtr<coro::Peq>::cast_static(Gst::ElementFactory::create_element("peq"));
+    m_loudness = Glib::RefPtr<coro::Loudness>::cast_static(Gst::ElementFactory::create_element("loudness"));
     auto alsaConverter = Gst::AudioConvert::create();
     m_alsaSink = Gst::AlsaSink::create("alsasink");
     m_alsaSink->set_property("sync", false);    // Avoid resync since it causes ugly glitches
@@ -54,7 +54,7 @@ Pipeline::Pipeline(Type type)
     m_crFdSource->link(depay)/*->link(parse)*/->link(decoder)->link(bluetoothConverter)->link(m_peq)->link(m_loudness)->link(alsaConverter)->link(m_alsaSink);
 
     // Crossover output
-    m_crossover = Glib::RefPtr<GstDsp::Crossover>::cast_static(Gst::ElementFactory::create_element("crossover"));
+    m_crossover = Glib::RefPtr<coro::Crossover>::cast_static(Gst::ElementFactory::create_element("crossover"));
     //auto ac3Encoder = Gst::ElementFactory::create_element("avenc_ac3");
     //ac3Encoder->set_property("bitrate", 640000);
     m_alsaPassthroughSink = Gst::ElementFactory::create_element("alsapassthroughsink");
@@ -89,7 +89,7 @@ void Pipeline::setVolume(float volume)
 
 void Pipeline::setPeq(const std::vector<common::Filter>& filters)
 {
-    m_peq->setFilters(toGstDsp(filters));
+    m_peq->setFilters(toCoro(filters));
 }
 
 void Pipeline::setCrossover(const common::Filter& crossover)
@@ -133,9 +133,9 @@ void Pipeline::pushBuffer(char* data, int maxSize, int size, int slices)
     }
 }
 
-void Pipeline::setFileDescriptor(int fd, uint32_t blockSize)
+void Pipeline::setFileDescriptor(uint32_t sampleRate, int fd, uint32_t blockSize)
 {
-    CR_FD_SOURCE(m_crFdSource->gobj())->init(fd, blockSize, 7);
+    CR_FD_SOURCE(m_crFdSource->gobj())->init(sampleRate, fd, blockSize, 7);
 }
 
 } // namespace audio

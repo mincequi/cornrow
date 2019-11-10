@@ -20,57 +20,57 @@
 namespace audio
 {
 
-common::FilterType fromGstDsp(GstDsp::FilterType in)
+common::FilterType fromCoro(coro::FilterType in)
 {
     switch (in) {
-    case GstDsp::FilterType::Invalid:   return common::FilterType::Invalid;
-    case GstDsp::FilterType::Peak:      return common::FilterType::Peak;
-    case GstDsp::FilterType::LowPass:   return common::FilterType::LowPass;
-    case GstDsp::FilterType::HighPass:  return common::FilterType::HighPass;
-    case GstDsp::FilterType::LowShelf:  return common::FilterType::LowShelf;
-    case GstDsp::FilterType::HighShelf: return common::FilterType::HighShelf;
+    case coro::FilterType::Invalid:   return common::FilterType::Invalid;
+    case coro::FilterType::Peak:      return common::FilterType::Peak;
+    case coro::FilterType::LowPass:   return common::FilterType::LowPass;
+    case coro::FilterType::HighPass:  return common::FilterType::HighPass;
+    case coro::FilterType::LowShelf:  return common::FilterType::LowShelf;
+    case coro::FilterType::HighShelf: return common::FilterType::HighShelf;
     }
 
     return common::FilterType::Invalid;
 }
 
-GstDsp::FilterType toGstDsp(common::FilterType in)
+coro::FilterType toCoro(common::FilterType in)
 {
     switch (in) {
-    case common::FilterType::Invalid: return GstDsp::FilterType::Invalid;
-    case common::FilterType::Peak: return GstDsp::FilterType::Peak;
-    case common::FilterType::LowPass: return GstDsp::FilterType::LowPass;
-    case common::FilterType::HighPass: return GstDsp::FilterType::HighPass;
-    case common::FilterType::LowShelf: return GstDsp::FilterType::LowShelf;
-    case common::FilterType::HighShelf: return GstDsp::FilterType::HighShelf;
-    case common::FilterType::AllPass: return GstDsp::FilterType::Invalid;
-    case common::FilterType::Crossover: return GstDsp::FilterType::Invalid;
-    case common::FilterType::Subwoofer: return GstDsp::FilterType::Invalid;
-    case common::FilterType::Loudness: return GstDsp::FilterType::Invalid;
+    case common::FilterType::Invalid: return coro::FilterType::Invalid;
+    case common::FilterType::Peak: return coro::FilterType::Peak;
+    case common::FilterType::LowPass: return coro::FilterType::LowPass;
+    case common::FilterType::HighPass: return coro::FilterType::HighPass;
+    case common::FilterType::LowShelf: return coro::FilterType::LowShelf;
+    case common::FilterType::HighShelf: return coro::FilterType::HighShelf;
+    case common::FilterType::AllPass: return coro::FilterType::Invalid;
+    case common::FilterType::Crossover: return coro::FilterType::Invalid;
+    case common::FilterType::Subwoofer: return coro::FilterType::Invalid;
+    case common::FilterType::Loudness: return coro::FilterType::Invalid;
     }
 
-    return GstDsp::FilterType::Invalid;
+    return coro::FilterType::Invalid;
 }
 
-std::vector<common::Filter> fromGstDsp(const std::vector<GstDsp::Filter>& in)
+std::vector<common::Filter> fromCoro(const std::vector<coro::Filter>& in)
 {
     std::vector<common::Filter> out;
     out.reserve(in.size());
 
     for (const auto& f : in) {
-        out.push_back({fromGstDsp(f.type), f.f, f.g, f.q });
+        out.push_back({fromCoro(f.type), f.f, f.g, f.q });
     }
 
     return out;
 }
 
-std::vector<GstDsp::Filter> toGstDsp(const std::vector<common::Filter>& in)
+std::vector<coro::Filter> toCoro(const std::vector<common::Filter>& in)
 {
-    std::vector<GstDsp::Filter> out;
+    std::vector<coro::Filter> out;
     out.reserve(in.size());
 
     for (const auto& f : in) {
-        out.push_back({toGstDsp(f.type), f.f, f.g, f.q });
+        out.push_back({toCoro(f.type), f.f, f.g, f.q });
     }
 
     return out;

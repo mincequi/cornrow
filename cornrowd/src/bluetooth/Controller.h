@@ -55,7 +55,7 @@ public:
     void setReadIoConfCallback(ReadIoConfCallback callback);
 
 signals:
-    void transportChanged(int fd, uint16_t blockSize);
+    void transportChanged(int fd, uint16_t blockSize, uint32_t sampleRate);
     void volumeChanged(float volume);
 
     void filtersWritten(common::ble::CharacteristicType group, const std::vector<common::Filter>& filters);

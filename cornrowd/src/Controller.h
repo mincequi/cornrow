@@ -15,7 +15,7 @@ public:
     ~Controller();
 
 private:
-    void onTransportChanged(int fd, uint16_t blockSize);
+    void onTransportChanged(int fd, uint16_t blockSize, uint32_t sampleRate);
     void onVolumeChanged(float volume);
 
     audio::Controller*      m_audio;

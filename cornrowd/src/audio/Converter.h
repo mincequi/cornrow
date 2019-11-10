@@ -23,7 +23,7 @@
 namespace audio
 {
 
-std::vector<common::Filter> fromGstDsp(const std::vector<GstDsp::Filter>& in);
-std::vector<GstDsp::Filter> toGstDsp(const std::vector<common::Filter>& in);
+std::vector<common::Filter> fromCoro(const std::vector<coro::Filter>& in);
+std::vector<coro::Filter> toCoro(const std::vector<common::Filter>& in);
 
 } // namespace audio

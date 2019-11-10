@@ -61,7 +61,7 @@ private:
 
     std::map<common::ble::CharacteristicType, std::vector<common::Filter>> m_filters;
 
-    GstDsp::AlsaUtil m_alsaUtil;
+    coro::AlsaUtil m_alsaUtil;
     std::multimap<common::IoInterfaceType, std::string> m_outputDeviceMap;
 
     common::IoInterface m_input;

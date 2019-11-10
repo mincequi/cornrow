@@ -36,7 +36,7 @@ Controller::Controller(QObject *parent)
     : QObject(parent)
 {
     // Init gstreamermm-dsp
-    assert(GstDsp::init());
+    assert(coro::init());
 
     m_pipeline = new Pipeline(Pipeline::Type::Normal);;
 }
@@ -96,10 +96,10 @@ std::vector<common::IoInterface> Controller::ioCaps()
     auto devices = m_alsaUtil.outputDevices();
     for (const auto& d : devices) {
         switch (d.type) {
-        case GstDsp::AudioDeviceType::Default:
+        case coro::AudioDeviceType::Default:
             m_outputDeviceMap.insert( { common::IoInterfaceType::Default, d.name } );
             break;
-        case GstDsp::AudioDeviceType::Spdif:
+        case coro::AudioDeviceType::Spdif:
             m_outputDeviceMap.insert( { common::IoInterfaceType::Spdif, d.name } );
             break;
         // case GstDsp::AudioDeviceType::Hdmi:
@@ -168,7 +168,7 @@ void Controller::setTransport(int fd, uint16_t blockSize, int rate)
     m_rate = rate;
 
     //m_fdSource = new FileDescriptorSource(fd, blockSize, m_pipeline);
-    m_pipeline->setFileDescriptor(fd, blockSize);
+    m_pipeline->setFileDescriptor(m_rate, fd, blockSize);
     m_pipeline->start();
 }
 
