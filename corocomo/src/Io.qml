@@ -4,8 +4,7 @@ import QtQuick.Controls 2.3
 import Cornrow.IoModel 1.0
 
 Item {
-    anchors.leftMargin: 12
-    anchors.rightMargin: 12
+    height: inputLabel.height + inputs.height + outputLabel.height + outputs.height + 32
 
     Label {
         id: inputLabel

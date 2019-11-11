@@ -93,6 +93,11 @@ common::IoInterface IoModel::output()
     return m_outputs.at(m_activeOutput);
 }
 
+bool IoModel::multiChannelAvailable() const
+{
+    return m_outputs.at(m_activeOutput).type == common::Spdif;
+}
+
 QString IoModel::toString(common::IoInterface interface)
 {
     QString string;

@@ -48,7 +48,7 @@ Config::Config(Type type, QObject *parent)
         gainStep = 0.5; // 2x
         qMin = 12;       // +14
         qMax = 80;
-        qStep = 1;
+        qStep = 2;
         loudnessAvailable = true;
         break;
     case Type::High:

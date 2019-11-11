@@ -1,4 +1,4 @@
-QT += bluetooth quick
+QT += bluetooth quick svg
 CONFIG += c++14
 
 # The following define makes your compiler emit warnings if you use
@@ -36,7 +36,7 @@ HEADERS += \
     src/PhaseChart.h \
     src/Config.h
 
-RESOURCES += src/qml.qrc
+RESOURCES += qml.qrc
 
 LIBS += -L$$OUT_PWD/../ble/ -lble
 

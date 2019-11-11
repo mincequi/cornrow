@@ -1,11 +1,12 @@
 import QtQuick 2.9
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.2
 import QtQuick.Layouts 1.3
 
 import Cornrow.BodePlotModel 1.0
 import Cornrow.Configuration 1.0
 import Cornrow.EqChart 1.0
+import Cornrow.IoModel 1.0
 import Cornrow.Model 1.0
 import Cornrow.PhaseChart 1.0
 
@@ -54,6 +55,39 @@ ApplicationWindow {
 
     CornrowBusyIndicator {
         anchors.fill: parent
+        z: 10
+    }
+
+    ToolButton {
+        id: menuButton
+        visible: CornrowConfiguration.ioAvailable
+        transform: Translate {
+           y: drawer.position * menu.height
+        }
+        icon.source: drawer.opened ? "qrc:/icons/expand_less.svg" : "qrc:/icons/menu.svg"
+        enabled: CornrowModel.status == CornrowModel.Connected
+        z: 9
+        onPressed: {
+            drawer.visible = !drawer.visible
+        }
+    }
+
+    Drawer {
+        id: drawer
+        width: parent.width
+        height: menu.height
+        edge: Qt.TopEdge
+        interactive: false
+        modal: false
+
+        Presets {
+            id: menu
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.margins: 12
+            z: 1
+        }
     }
 
     Item {
@@ -62,6 +96,10 @@ ApplicationWindow {
         enabled: CornrowModel.status == CornrowModel.Connected
         opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.1
         Behavior on opacity { SmoothedAnimation { velocity: 2.0 }}
+
+        transform: Translate {
+           y: drawer.position * menu.height
+        }
 
         SwipeView {
             id: bodeView
@@ -160,19 +198,6 @@ ApplicationWindow {
             anchors.bottom: typeBar.top
 
             Repeater {
-                model: CornrowConfiguration.ioAvailable ? 1 : 0
-                FilterBandButton {
-                    text: "I/O"
-                    indicatorVisible: false
-                    checked: CornrowModel.currentBand == -1
-                    onPressed: {
-                        CornrowModel.setCurrentBand(-1)
-                        eqChart.update()
-                        phaseChart.update()
-                    }
-                }
-            }
-            Repeater {
                 model: CornrowModel.peqFilterCount
                 FilterBandButton {
                     text: index+1
@@ -192,6 +217,7 @@ ApplicationWindow {
                 text: "XO"
                 indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+1]
                 visible: CornrowConfiguration.xoAvailable
+                enabled: CornrowIoModel.multiChannelAvailable
                 checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
                 onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+1)
             }
@@ -199,6 +225,7 @@ ApplicationWindow {
                 text: "SW"
                 indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+2]
                 visible: CornrowConfiguration.swAvailable
+                enabled: CornrowIoModel.multiChannelAvailable
                 checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+2
                 onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+2)
             }
@@ -279,6 +306,8 @@ ApplicationWindow {
             anchors.top: filterParameters.top
             anchors.left: parent.left
             anchors.right: parent.right
+            anchors.leftMargin: 12
+            anchors.rightMargin: 12
         }
 
         FilterParameter {

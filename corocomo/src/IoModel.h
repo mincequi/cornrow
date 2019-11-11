@@ -15,6 +15,7 @@ class IoModel : public QObject
     Q_PROPERTY(QStringList outputNames READ outputNames NOTIFY iosChanged)
     Q_PROPERTY(int activeInput READ activeInput WRITE setActiveInput NOTIFY activeInputChanged)
     Q_PROPERTY(int activeOutput READ activeOutput WRITE setActiveOutput NOTIFY activeOutputChanged)
+    Q_PROPERTY(bool multiChannelAvailable READ multiChannelAvailable NOTIFY activeOutputChanged)
 
 public:
     static IoModel* init(BleCentralAdapter* adapter);
@@ -31,6 +32,8 @@ public:
 
     common::IoInterface input();
     common::IoInterface output();
+
+    bool multiChannelAvailable() const;
 
 signals:
     void iosChanged();
