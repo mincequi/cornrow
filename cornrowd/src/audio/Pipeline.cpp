@@ -22,6 +22,7 @@
 #include <Crossover.h>
 #include <Loudness.h>
 #include <Peq.h>
+#include <loguru/loguru.hpp>
 
 #include "Converter.h"
 
@@ -35,30 +36,29 @@ GstMapInfo  _mapInfo;
 
 Pipeline::Pipeline(Type type)
 {
-    m_pipeline = Gst::Pipeline::create();
-
     // Common elements
     m_crAppSource = Gst::ElementFactory::create_element("cr_appsrc");
     m_crFdSource = Gst::ElementFactory::create_element("cr_fdsrc");
-    auto depay = Gst::ElementFactory::create_element("cr_rtpsbcdepay");
-    auto decoder = Gst::ElementFactory::create_element("sbcdec");
-    auto bluetoothConverter = Gst::AudioConvert::create();
+    m_sbcDepay = Gst::ElementFactory::create_element("cr_rtpsbcdepay");
+    m_sbcDecoder = Gst::ElementFactory::create_element("sbcdec");
+    m_bluetoothConverter = Gst::AudioConvert::create();
     m_peq = Glib::RefPtr<coro::Peq>::cast_static(Gst::ElementFactory::create_element("peq"));
     m_loudness = Glib::RefPtr<coro::Loudness>::cast_static(Gst::ElementFactory::create_element("loudness"));
-    auto alsaConverter = Gst::AudioConvert::create();
+
+    // Normal elements
+    m_alsaConverter = Gst::AudioConvert::create();
     m_alsaSink = Gst::AlsaSink::create("alsasink");
     m_alsaSink->set_property("sync", false);    // Avoid resync since it causes ugly glitches
 
-    m_pipeline->add(m_crAppSource)->add(depay)->add(decoder)->add(bluetoothConverter)->add(m_peq)->add(m_loudness)->add(alsaConverter)->add(m_alsaSink);
-    m_crAppSource->link(depay)->link(decoder)->link(bluetoothConverter)->link(m_peq)->link(m_loudness)->link(alsaConverter)->link(m_alsaSink);
-
-    // Crossover output
+    // Crossover elements
     m_crossover = Glib::RefPtr<coro::Crossover>::cast_static(Gst::ElementFactory::create_element("crossover"));
-    //auto ac3Encoder = Gst::ElementFactory::create_element("avenc_ac3");
-    //ac3Encoder->set_property("bitrate", 640000);
+    m_ac3Encoder = Gst::ElementFactory::create_element("avenc_ac3");
+    m_ac3Encoder->set_property("bitrate", 640000);
     m_alsaPassthroughSink = Gst::ElementFactory::create_element("alsapassthroughsink");
     m_alsaPassthroughSink->set_property("sync", false); // Avoid resync since it causes ugly glitches.
     m_alsaPassthroughSink->set_property("device", Glib::ustring("iec958:CARD=sndrpihifiberry,DEV=0"));
+
+    constructPipeline(type);
 }
 
 Pipeline::~Pipeline()
@@ -74,6 +74,7 @@ void Pipeline::start()
 void Pipeline::stop()
 {
     m_pipeline->set_state(Gst::STATE_NULL);
+    LOG_F(INFO, "Pipeline stoppped");
 }
 
 Pipeline::Type Pipeline::type() const
@@ -94,6 +95,12 @@ void Pipeline::setPeq(const std::vector<common::Filter>& filters)
 void Pipeline::setCrossover(const common::Filter& crossover)
 {
     m_crossover->setFrequency(crossover.f);
+
+    if (crossover.f == 0.0) {
+        constructPipeline(Type::Normal);
+    } else {
+        constructPipeline(Type::Crossover);
+    }
 }
 
 void Pipeline::setLoudness(uint8_t phon)
@@ -130,11 +137,44 @@ void Pipeline::pushBuffer(char* data, int maxSize, int size, int slices)
     for (auto& subBuffer : subBuffers) {
         cr_app_source_push_buffer((CrAppSource*)m_crAppSource->gobj(), subBuffer);
     }
+
+    start();
 }
 
 void Pipeline::setFileDescriptor(uint32_t sampleRate, int fd, uint32_t blockSize)
 {
     CR_FD_SOURCE(m_crFdSource->gobj())->init(sampleRate, fd, blockSize, 7);
+}
+
+void Pipeline::constructPipeline(Type type)
+{
+    // No change in pipeline, do nothing
+    if (type == m_currentType && m_pipeline) {
+        return;
+    }
+
+    // Deconstruct existing one
+    if (m_pipeline) {
+        stop();
+        m_pipeline.clear();
+    }
+
+    LOG_F(INFO, "Creating pipeline...");
+    m_pipeline = Gst::Pipeline::create();
+
+    switch (type) {
+    case Type::Normal:
+        m_pipeline->add(m_crAppSource)->add(m_sbcDepay)->add(m_sbcDecoder)->add(m_bluetoothConverter)->add(m_peq)->add(m_loudness)->add(m_alsaConverter)->add(m_alsaSink);
+        m_crAppSource->link(m_sbcDepay)->link(m_sbcDecoder)->link(m_bluetoothConverter)->link(m_peq)->link(m_loudness)->link(m_alsaConverter)->link(m_alsaSink);
+        break;
+    case Type::Crossover:
+        m_pipeline->add(m_crAppSource)->add(m_sbcDepay)->add(m_sbcDecoder)->add(m_bluetoothConverter)->add(m_peq)->add(m_loudness)->add(m_crossover)->add(m_ac3Encoder)->add(m_alsaPassthroughSink);
+        m_crAppSource->link(m_sbcDepay)->link(m_sbcDecoder)->link(m_bluetoothConverter)->link(m_peq)->link(m_loudness)->link(m_crossover)->link(m_ac3Encoder)->link(m_alsaPassthroughSink);
+        break;
+    }
+
+    m_currentType = type;
+    LOG_F(INFO, "Pipeline created");
 }
 
 } // namespace audio

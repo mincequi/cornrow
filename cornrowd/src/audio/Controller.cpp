@@ -169,7 +169,6 @@ void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 
     m_fdSource = new FileDescriptorSource(fd, blockSize, m_pipeline);
     //m_pipeline->setFileDescriptor(m_rate, fd, blockSize);
-    m_pipeline->start();
 }
 
 void Controller::setVolume(float volume)

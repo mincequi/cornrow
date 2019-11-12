@@ -75,16 +75,28 @@ public:
     void setFileDescriptor(uint32_t sampleRate, int fd, uint32_t blockSize);
 
 private:
+    void constructPipeline(Type type);
+
     Type m_currentType = Type::Normal;
 
+    // Common elements
+    Glib::RefPtr<Gst::Pipeline>     m_pipeline;
     Glib::RefPtr<Gst::Element>      m_crAppSource;
     Glib::RefPtr<Gst::Element>      m_crFdSource;
+    Glib::RefPtr<Gst::Element>      m_sbcDepay;
+    Glib::RefPtr<Gst::Element>      m_sbcDecoder;
+    Glib::RefPtr<Gst::Element>      m_bluetoothConverter;
+    Glib::RefPtr<coro::Loudness>    m_loudness;
+    Glib::RefPtr<coro::Peq>         m_peq;
+
+    // Normal elements
+    Glib::RefPtr<Gst::Element>      m_alsaConverter;
     Glib::RefPtr<Gst::Element>      m_alsaSink;
+
+    // Crossover elements
+    Glib::RefPtr<coro::Crossover>   m_crossover;
+    Glib::RefPtr<Gst::Element>      m_ac3Encoder;
     Glib::RefPtr<Gst::Element>      m_alsaPassthroughSink;
-    Glib::RefPtr<coro::Crossover> m_crossover;
-    Glib::RefPtr<coro::Loudness>  m_loudness;
-    Glib::RefPtr<coro::Peq>       m_peq;
-    Glib::RefPtr<Gst::Pipeline>     m_pipeline;
 };
 
 } // namespace audio

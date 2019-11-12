@@ -167,6 +167,7 @@ void Controller::onTransportStateChanged(BluezQt::MediaTransport::State state)
     case MediaTransport::State::Idle:
         // Bluez already releases transport. No need to do manually.
         //m_transport->release();
+        emit transportChanged(-1, 0, 44100);
         break;
     case MediaTransport::State::Pending: {
         //QCoreApplication::processEvents();
