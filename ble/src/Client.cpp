@@ -64,7 +64,7 @@ void Client::disconnect()
 
 void Client::writeCharacteristic(const std::string& uuid, const QByteArray& value)
 {
-    if (!m_clientSession) {
+    if (!m_clientSession || !m_clientSession->m_service) {
         return;
     }
 

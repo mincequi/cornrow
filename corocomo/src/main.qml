@@ -3,6 +3,8 @@ import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.2
 import QtQuick.Layouts 1.3
 
+import QtGraphicalEffects 1.0
+
 import Cornrow.BodePlotModel 1.0
 import Cornrow.Configuration 1.0
 import Cornrow.EqChart 1.0
@@ -54,6 +56,9 @@ ApplicationWindow {
     }
 
     CornrowBusyIndicator {
+        enabled: CornrowModel.status != CornrowModel.Connected
+        opacity: CornrowModel.status != CornrowModel.Connected ? 1.0 : 0.0
+        Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
         anchors.fill: parent
         z: 10
     }
@@ -94,12 +99,9 @@ ApplicationWindow {
         id: peq
         anchors.fill: parent
         enabled: CornrowModel.status == CornrowModel.Connected
-        opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.1
+        //opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.0
+        opacity: 0.0
         Behavior on opacity { SmoothedAnimation { velocity: 2.0 }}
-
-        transform: Translate {
-           y: drawer.position * menu.height
-        }
 
         SwipeView {
             id: bodeView
@@ -323,5 +325,16 @@ ApplicationWindow {
             value: CornrowModel.gainSlider
             onValueChanged: CornrowModel.gainSlider = value
         }
-    } // Item
+    } // Item peq
+
+    FastBlur {
+        transform: Translate {
+           y: drawer.position * menu.height
+        }
+        anchors.fill: parent
+        source: peq
+        radius: ((1.0/opacity)-1.0)*4
+        opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.125
+        Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
+    }
 }

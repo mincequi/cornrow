@@ -23,9 +23,6 @@ Item {
     Item {
         id: statusScreen
         anchors.centerIn: parent
-        enabled: CornrowModel.status != CornrowModel.Connected
-        opacity: CornrowModel.status != CornrowModel.Connected ? 1.0 : 0.0
-        Behavior on opacity { SmoothedAnimation { velocity: 2.0 }}
         Canvas {
             id: busyIndicator
             width: 120; height: 120

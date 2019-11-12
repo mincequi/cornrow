@@ -15,8 +15,8 @@ AbstractButton {
     rightPadding: 12
     spacing: 8
 
-    icon.width: 24
-    icon.height: 24
+    icon.width: 18
+    icon.height: 18
 
     hoverEnabled: true
 
@@ -24,7 +24,7 @@ AbstractButton {
 
     background: Rectangle {
         implicitHeight: 24
-        radius: 16
+        radius: 12
         color: control.checked || control.hovered ? Material.accent : Material.color(Material.Grey)
 
         layer.enabled: control.Material.elevation > 0

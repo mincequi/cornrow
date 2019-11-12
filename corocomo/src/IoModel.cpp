@@ -26,6 +26,13 @@ IoModel::IoModel(BleCentralAdapter* adapter, QObject *parent) :
     connect(m_adapter, &BleCentralAdapter::ioCapsReceived, this, &IoModel::onIoCapsReceived);
     connect(m_adapter, &BleCentralAdapter::ioConfReceived, this, &IoModel::onIoConfReceived);
 
+    /*
+    onIoCapsReceived({ { common::IoInterfaceType::Bluetooth, false, 1 },
+                       { common::IoInterfaceType::Airplay, false, 1 } },
+                     { { common::IoInterfaceType::Hdmi, true, 2 },
+                       { common::IoInterfaceType::Spdif, true, 3 } });
+    */
+
     onIoCapsReceived({}, {});
 }
 
@@ -158,14 +165,10 @@ void IoModel::onIoCapsReceived(const std::vector<common::IoInterface>& inputs, c
     }
 
     if (m_inputs.empty()) {
-        m_inputs = {
-            { common::IoInterfaceType::Invalid, false, 0 }
-        };
+        m_inputs = { { common::IoInterfaceType::Invalid, false, 0 } };
     }
     if (m_outputs.empty()) {
-        m_outputs = {
-            { common::IoInterfaceType::Invalid, true, 0 }
-        };
+        m_outputs = { { common::IoInterfaceType::Invalid, true, 0 } };
     }
 
     emit iosChanged();
