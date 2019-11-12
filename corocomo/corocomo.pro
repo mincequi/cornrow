@@ -23,6 +23,7 @@ SOURCES += \
     src/Model.cpp \
     src/PhaseChart.cpp \
     src/Plot.cpp \
+    src/PresetModel.cpp \
     src/main.cpp \
     src/Config.cpp
 
@@ -34,6 +35,7 @@ HEADERS += \
     src/IoModel.h \
     src/Model.h \
     src/PhaseChart.h \
+    src/PresetModel.h \
     src/Config.h
 
 RESOURCES += qml.qrc

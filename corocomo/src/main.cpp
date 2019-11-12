@@ -9,6 +9,7 @@
 #include "IoModel.h"
 #include "Model.h"
 #include "PhaseChart.h"
+#include "PresetModel.h"
 
 int main(int argc, char *argv[])
 {
@@ -40,6 +41,9 @@ int main(int argc, char *argv[])
     });
     qmlRegisterSingletonType<IoModel>("Cornrow.IoModel", 1, 0, "CornrowIoModel", [](QQmlEngine*, QJSEngine*) -> QObject* {
         return IoModel::instance();
+    });
+    qmlRegisterSingletonType<PresetModel>("Cornrow.PresetModel", 1, 0, "CornrowPresetModel", [](QQmlEngine*, QJSEngine*) -> QObject* {
+        return PresetModel::instance();
     });
 
     QQmlApplicationEngine engine;

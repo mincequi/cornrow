@@ -27,6 +27,7 @@ signals:
     void filtersReceived(common::ble::CharacteristicType task, const std::vector<Model::Filter>& filters);
     void ioCapsReceived(const std::vector<common::IoInterface>& inputs, const std::vector<common::IoInterface>& ouputs);
     void ioConfReceived(common::IoInterface input, common::IoInterface ouput);
+    void presetReceived(uint8_t index, uint8_t total, uint8_t active, const QString& name);
 
 private:
     void doWriteCharc();

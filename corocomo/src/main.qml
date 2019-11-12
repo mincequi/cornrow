@@ -102,6 +102,9 @@ ApplicationWindow {
         //opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.0
         opacity: 0.0
         Behavior on opacity { SmoothedAnimation { velocity: 2.0 }}
+        transform: Translate {
+           y: drawer.position * menu.height
+        }
 
         SwipeView {
             id: bodeView
@@ -328,13 +331,13 @@ ApplicationWindow {
     } // Item peq
 
     FastBlur {
-        transform: Translate {
-           y: drawer.position * menu.height
-        }
         anchors.fill: parent
         source: peq
         radius: ((1.0/opacity)-1.0)*4
         opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.125
         Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
+        transform: Translate {
+           y: drawer.position * menu.height
+        }
     }
 }

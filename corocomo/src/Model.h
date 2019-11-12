@@ -10,6 +10,7 @@
 
 class BleCentralAdapter;
 class IoModel;
+class PresetModel;
 namespace ble
 {
 class Client;
@@ -143,8 +144,9 @@ private:
     BleCentralAdapter* m_adapter = nullptr;
     friend class BleCentralAdapter;
 
-    // Sub model
+    // Sub models
     IoModel* m_ioModel = nullptr;
+    PresetModel* m_presetModel = nullptr;
 };
 
 #endif // MODEL_H

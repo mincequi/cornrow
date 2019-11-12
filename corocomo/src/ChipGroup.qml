@@ -4,7 +4,7 @@ import QtQuick.Controls 2.3
 Item {
     property alias name: label.text
     property alias model: repeater.model
-    height: label.height + inputs.height
+    height: label.height + inputs.height + 12
 
     Label {
         id: label

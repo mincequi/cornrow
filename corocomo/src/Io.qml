@@ -10,7 +10,6 @@ Item {
         id: inputLabel
         text: qsTr("Inputs")
         x: 16
-        anchors.bottomMargin: 12
     }
 
     ButtonGroup {

@@ -10,6 +10,7 @@
 
 #include "BleCentralAdapter.h"
 #include "IoModel.h"
+#include "PresetModel.h"
 
 Model* Model::s_instance = nullptr;
 
@@ -51,6 +52,7 @@ Model::Model(const Config& config, QObject *parent) :
     m_central = new ble::Client(this);
     m_adapter = new BleCentralAdapter(m_central, this);
     m_ioModel = IoModel::init(m_adapter);
+    m_presetModel = PresetModel::init(m_adapter);
     m_adapter->setIoModel(m_ioModel);
 
     connect(m_adapter, &BleCentralAdapter::filtersReceived, this, &Model::setFilters);
@@ -75,6 +77,7 @@ void Model::startDemoMode()
 {
     m_demoMode = true;
     onBleStatus(Status::Connected, QString());
+    m_presetModel->startDemo();
 }
 
 Model::Status Model::status() const
