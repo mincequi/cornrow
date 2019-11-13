@@ -26,13 +26,6 @@ IoModel::IoModel(BleCentralAdapter* adapter, QObject *parent) :
     connect(m_adapter, &BleCentralAdapter::ioCapsReceived, this, &IoModel::onIoCapsReceived);
     connect(m_adapter, &BleCentralAdapter::ioConfReceived, this, &IoModel::onIoConfReceived);
 
-    /*
-    onIoCapsReceived({ { common::IoInterfaceType::Bluetooth, false, 1 },
-                       { common::IoInterfaceType::Airplay, false, 1 } },
-                     { { common::IoInterfaceType::Hdmi, true, 2 },
-                       { common::IoInterfaceType::Spdif, true, 3 } });
-    */
-
     onIoCapsReceived({}, {});
 }
 
@@ -103,6 +96,14 @@ common::IoInterface IoModel::output()
 bool IoModel::multiChannelAvailable() const
 {
     return m_outputs.at(m_activeOutput).type == common::Spdif;
+}
+
+void IoModel::startDemo()
+{
+    onIoCapsReceived({ { common::IoInterfaceType::Bluetooth, false, 1 },
+                       { common::IoInterfaceType::Airplay, false, 1 } },
+                     { { common::IoInterfaceType::Hdmi, true, 2 },
+                       { common::IoInterfaceType::Spdif, true, 3 } });
 }
 
 QString IoModel::toString(common::IoInterface interface)

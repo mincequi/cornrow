@@ -94,6 +94,14 @@ public:
     double      qSlider() const;
     void        setQSlider(double);
 
+    // Crossover related members
+    int         crossoverType() const;
+    void        setCrossoverType(int filterType);
+    QStringList crossoverTypeNames() const;
+
+    int         subwooferType() const;
+    void        setSubwooferType(int filterType);
+
 signals:
     void statusChanged();
     void currentBandChanged();

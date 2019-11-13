@@ -47,6 +47,11 @@ ApplicationWindow {
             eqChart.update()
             phaseChart.update()
         }
+        onCrossoverChanged: {
+            CornrowBodePlotModel.setFilter(i, t, f, g, q)
+            eqChart.update()
+            phaseChart.update()
+        }
         onGainChanged: {
             if (CornrowModel.currentBand == CornrowModel.peqFilterCount) {
                 var t = CornrowModel.gain < 1.0 ? 0 : 1
@@ -226,6 +231,7 @@ ApplicationWindow {
                 checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
                 onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+1)
             }
+            /*
             FilterBandButton {
                 text: "SW"
                 indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+2]
@@ -234,6 +240,7 @@ ApplicationWindow {
                 checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+2
                 onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+2)
             }
+            */
         }
 
         // Type
@@ -271,10 +278,10 @@ ApplicationWindow {
                      CornrowModel.currentBand != -1
 
             FilterParameter {
-                label: "Frequency"
+                label: "Frequency (Hz)"
                 unit: "Hz"
-                opacity: CornrowModel.currentBand != CornrowModel.peqFilterCount
-                enabled: CornrowModel.currentBand != CornrowModel.peqFilterCount &&
+                opacity: CornrowModel.currentBand < CornrowModel.peqFilterCount
+                enabled: CornrowModel.currentBand < CornrowModel.peqFilterCount &&
                          CornrowModel.filterType > 0
                 readout: CornrowModel.freqReadout
                 onStep: CornrowModel.stepFreq(i)
@@ -292,9 +299,9 @@ ApplicationWindow {
                 onValueChanged: CornrowModel.qSlider = value
             }
             FilterParameter {
-                label: "Gain"
+                label: "Gain (dB)"
                 unit: "dB"
-                opacity: CornrowModel.currentBand <= CornrowModel.peqFilterCount
+                opacity: CornrowModel.currentBand < CornrowModel.peqFilterCount
                 enabled: CornrowModel.currentBand <= CornrowModel.peqFilterCount &&
                          (CornrowModel.filterType === 1 ||
                           CornrowModel.filterType === 4 ||
@@ -306,20 +313,11 @@ ApplicationWindow {
             }
         } // Column
 
-        Io {
-            visible: CornrowModel.currentBand == -1
-            anchors.top: filterParameters.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.leftMargin: 12
-            anchors.rightMargin: 12
-        }
-
         FilterParameter {
             anchors.top: filterParameters.top
             anchors.left: parent.left
             anchors.right: parent.right
-            label: "Loudness"
+            label: "Loudness (phon)"
             unit: "phon"
             opacity: CornrowModel.currentBand == CornrowModel.peqFilterCount
             enabled: CornrowModel.currentBand == CornrowModel.peqFilterCount
@@ -327,6 +325,57 @@ ApplicationWindow {
             onStep: CornrowModel.stepGain(i)
             value: CornrowModel.gainSlider
             onValueChanged: CornrowModel.gainSlider = value
+        }
+
+        Column {
+            id: crossover
+            anchors.top: filterParameters.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            visible: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
+
+            FilterParameter {
+                label: "Frequency (Hz)"
+                unit: "Hz"
+                enabled: CornrowModel.filterType > 0
+                readout: CornrowModel.freqReadout
+                onStep: CornrowModel.stepFreq(i)
+                value: CornrowModel.freqSlider
+                onValueChanged: CornrowModel.freqSlider = value
+            }
+
+            /*
+            // Subwoofer Type
+            ToolBar {
+                id: swTypeBar
+                anchors.left: parent.left
+                anchors.right: parent.right
+                background: background
+
+                Row {
+                    id: swTypeRow
+                    Repeater {
+                        model: CornrowModel.filterTypeNames
+                        TabButton {
+                            text: CornrowModel.filterTypeNames[index]
+                            autoExclusive: true
+                            //checked: CornrowModel.filterType === index
+                            //onPressed: CornrowModel.filterType = index
+                        }
+                    }
+                }
+            }
+
+            FilterParameter {
+                label: "LFE Frequency (Hz)"
+                unit: "Hz"
+                visible: false
+                //readout: CornrowModel.qReadout
+                //onStep: CornrowModel.stepQ(i)
+                //value: CornrowModel.qSlider
+                //onValueChanged: CornrowModel.qSlider = value
+            }
+            */
         }
     } // Item peq
 

@@ -77,6 +77,7 @@ void Model::startDemoMode()
 {
     m_demoMode = true;
     onBleStatus(Status::Connected, QString());
+    m_ioModel->startDemo();
     m_presetModel->startDemo();
 }
 
@@ -323,6 +324,35 @@ void Model::setQSlider(double q)
 
     m_currentFilter->q = idx;
     emit qChanged();
+}
+
+int Model::crossoverType() const
+{
+    return (m_filters.at(m_xoBand).t == common::FilterType::Invalid) ? 0 : static_cast<int>(m_filters.at(m_xoBand).g);
+}
+
+void Model::setCrossoverType(int filterType)
+{
+    m_filters[m_xoBand].t = (filterType == 0)  ? common::FilterType::Invalid : common::FilterType::Crossover;
+    m_filters[m_xoBand].q = filterType == 1 ? 28 : 34;
+    m_filters[m_xoBand].g = filterType == 1 ? 1.0 : 2.0;
+}
+
+QStringList Model::crossoverTypeNames() const
+{
+    return { "Off", "LR2", "LR4" };
+}
+
+int Model::subwooferType() const
+{
+    return (m_filters.at(m_swBand).t == common::FilterType::Invalid) ? 0 : static_cast<int>(m_filters.at(m_swBand).g);
+}
+
+void Model::setSubwooferType(int filterType)
+{
+    m_filters[m_swBand].t = (filterType == 0)  ? common::FilterType::Invalid : common::FilterType::Subwoofer;
+    m_filters[m_swBand].q = filterType == 1 ? 28 : 34;
+    m_filters[m_swBand].g = filterType == 1 ? 1.0 : 2.0;
 }
 
 void Model::setFilters(common::ble::CharacteristicType task, const std::vector<Filter>& filters)

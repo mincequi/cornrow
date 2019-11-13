@@ -3,29 +3,37 @@ import QtQuick.Controls 2.2
 
 Item {
     id: parameter
-    property alias label: label.text
+    //property alias param: param.text
+    //property alias unit: unit.text
+    property string label
+    property string unit
     property alias readout: readout.text
     property alias value: slider.value
-    property alias unit: unit.text
     signal step(int i)
     width: parent.width
-    height: label.height + slider.height
+    height: param.height + slider.height
 
     Label {
-        id: label
+        id: param
+        text: label
         anchors.left: dec.horizontalCenter
         anchors.bottom: slider.top
     }
     Label {
         id: readout
-        anchors.horizontalCenter: slider.horizontalCenter
         anchors.bottom: slider.top
+        anchors.right: slider.right
     }
+
+    /*
     Label {
         id: unit
+        font.pointSize: font.pointSize-2
         anchors.right: slider.right
         anchors.bottom: slider.top
     }
+    */
+
     ToolButton {
         id: dec
         text: "-"

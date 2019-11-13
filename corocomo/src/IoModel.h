@@ -35,6 +35,8 @@ public:
 
     bool multiChannelAvailable() const;
 
+    Q_INVOKABLE void startDemo();
+
 signals:
     void iosChanged();
 
