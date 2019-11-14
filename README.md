@@ -12,7 +12,20 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 ![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.3.0/cornrowd_0.3.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.3.0/cornrowd_0.3.0_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.3.1/cornrowd_0.3.1_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.3.1/cornrowd_0.3.1_amd64.deb).
+
+Get dependencies first
+```
+sudo apt update
+sudo apt install \
+  gstreamer1.0-libav \
+  gstreamer1.0-plugins-bad \
+  libgstreamermm-1.0 \
+  libqt5bluetooth5 \
+  libqt5network5 \
+  libxxhash0
+dpkg -i cornrowd__<version>_<your_arch>.deb
+```
 
 ## Installation (from source)
 ### For Debian users
@@ -62,6 +75,7 @@ Commit | Date | Working
 A lot of Bluetooth packets seem to be dropped when CPU usage is **low**. As soon as the system is put under load, bluetooth packet reception is a **lot** better. This seems to be related to core frequency scaling (https://www.raspberrypi.org/documentation/configuration/uart.md).
 
 ## To Do
-* Add sophisticated logging
+* Remove dependencies
+* ~~Add sophisticated logging~~
 * ~~Implement volume control~~
 * ~~Set discoverable/pairable timeout to forever~~
