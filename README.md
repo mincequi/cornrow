@@ -12,7 +12,7 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 ![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.3.1/cornrowd_0.3.1_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.3.1/cornrowd_0.3.1_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.4.0/cornrowd_0.4.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.4.0/cornrowd_0.4.0_amd64.deb).
 
 Get dependencies first
 ```
@@ -20,6 +20,7 @@ sudo apt update
 sudo apt install \
   gstreamer1.0-libav \
   gstreamer1.0-plugins-bad \
+  gstreamer1.0-plugins-good \
   libgstreamermm-1.0 \
   libqt5bluetooth5 \
   libqt5network5 \
