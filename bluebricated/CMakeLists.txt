@@ -8,10 +8,11 @@ add_executable(${PROJECT_NAME}
     src/Controller.cpp
     src/main.cpp
     src/audio/Controller.cpp
-    src/audio/Pipeline.cpp
     src/bluetooth/AudioSinkAgent.cpp
     src/bluetooth/Controller.cpp
+    ../cornrowd/src/audio/Converter.cpp
     ../cornrowd/src/audio/FileDescriptorSource.cpp
+    ../cornrowd/src/audio/Pipeline.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

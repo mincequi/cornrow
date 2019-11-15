@@ -20,7 +20,7 @@
 #include <gstreamermm-dsp.h>
 
 #include "../../cornrowd/src/audio/FileDescriptorSource.h"
-#include "Pipeline.h"
+#include "../../cornrowd/src/audio/Pipeline.h"
 
 namespace audio
 {
@@ -29,7 +29,7 @@ Controller::Controller(QObject *parent)
     : QObject(parent)
 {
     // Init gstreamermm-dsp
-    GstDsp::init();
+    coro::init();
 
     m_pipeline = new Pipeline(Pipeline::Type::Normal);;
 }

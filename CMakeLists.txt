@@ -15,7 +15,7 @@ find_package(Qt5Core REQUIRED)
 add_subdirectory(common)
 add_subdirectory(cornrowd)
 #add_subdirectory(corocomo)
-#add_subdirectory(bluebricated)
+add_subdirectory(bluebricated)
 
 # Replace install() to do-nothing macro.
 macro(install)
