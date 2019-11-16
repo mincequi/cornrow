@@ -35,8 +35,10 @@ Consider downloading the release tarballs. Master might be broken from time to t
 ```
 sudo apt install \
   cmake extra-cmake-modules \
+  libasound2-dev \
   libboost-dev \
   libgstreamermm-1.0-dev \
+  libsbc-dev \
   libspdlog-dev \
   libxxhash-dev \
   gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
