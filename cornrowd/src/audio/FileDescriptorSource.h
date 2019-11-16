@@ -2,6 +2,7 @@
 
 #include <QObject>
 
+class CoroPipeline;
 class QFile;
 class QSocketNotifier;
 
@@ -24,9 +25,13 @@ signals:
 public slots:
 
 private:
+    void processOld();
+    void processNew();
+
     QFile* m_file;
     QSocketNotifier* m_notifier;
 
-    audio::Pipeline* m_pipeline;
     uint16_t         m_blockSize = 0;
+    audio::Pipeline* m_pipeline;
+    CoroPipeline*    m_coroPipeline;
 };

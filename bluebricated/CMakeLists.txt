@@ -13,10 +13,11 @@ add_executable(${PROJECT_NAME}
     ../cornrowd/src/audio/Converter.cpp
     ../cornrowd/src/audio/FileDescriptorSource.cpp
     ../cornrowd/src/audio/Pipeline.cpp
+    ../cornrowd/src/audio/CoroPipeline.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
-    common
+    audio
     gstreamermm-dsp
     KF5BluezQt
     Qt5::Bluetooth

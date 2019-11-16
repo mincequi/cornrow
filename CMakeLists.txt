@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Werror \
     -Wno-deprecated-declarations \
     -Wno-zero-as-null-pointer-constant")
 #-Wno-psabi
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 find_package(Qt5Core REQUIRED)
 

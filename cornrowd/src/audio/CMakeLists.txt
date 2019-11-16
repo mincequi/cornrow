@@ -3,6 +3,7 @@ add_library(audio STATIC
     Converter.cpp
     FileDescriptorSource.cpp
     Pipeline.cpp
+    CoroPipeline.cpp
 )
 
 target_link_libraries(audio
