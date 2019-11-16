@@ -29,6 +29,8 @@ dpkg -i cornrowd__<version>_<your_arch>.deb
 ```
 
 ## Installation (from source)
+Consider downloading the release tarballs. Master might be broken from time to time.
+
 ### For Debian users
 ```
 sudo apt install \
@@ -39,8 +41,8 @@ sudo apt install \
   libxxhash-dev \
   gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
   qtconnectivity5-dev # get dependecies
-git clone --recursive https://github.com/mincequi/cornrow # clone repo including third-party libs
-cd cornrow
+wget https://github.com/mincequi/cornrow/archive/v0.4.0.tar.gz
+tar xfvz cornrow-0.4.0.tar.gz
 dpkg-buildpackage -us -uc                           # build unsigned debian package
 sudo dpkg -i ../cornrowd_<version>_<your_arch>.deb  # install package
 sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
