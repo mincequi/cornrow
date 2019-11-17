@@ -68,7 +68,7 @@ void FileDescriptorSource::processNew()
     //   * 7 might be reasonable, so we can decode SBC frames in-place (but we need to allocate it for each slice).
     //   * 10 seems to be the max (for maxSize 672 and real size 608).
 
-    int allocFactor = 7;
+    int allocFactor = 10;
     coro::audio::AudioBuffer coroBuffer;
     auto buffer = coroBuffer.acquire(m_blockSize*allocFactor);
     auto size = m_file->read((char*)buffer, m_blockSize*allocFactor);
@@ -85,7 +85,7 @@ void FileDescriptorSource::processNew()
     conf.isRtpPayloaded = true;
 
     if (slices > 1) {
-        auto buffers = coroBuffer.split<coro::audio::AudioBuffer>(size/slices);
+        auto buffers = coroBuffer.split(size/slices);
         for (auto& _buffer : buffers) {
             m_coroPipeline->pushBuffer(conf, _buffer);
         }
