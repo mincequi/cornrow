@@ -10,6 +10,7 @@
 
 #include <coro/audio/AudioBuffer.h>
 #include <coro/audio/AudioConf.h>
+#include <loguru/loguru.hpp>
 
 FileDescriptorSource::FileDescriptorSource(int fd,
                                            uint16_t blockSize,
@@ -75,17 +76,26 @@ void FileDescriptorSource::processNew()
     // The number of slices to cut the buffer into.
     int slices = 1+(size/m_blockSize); // 608 -> 1, 1216 -> 2, 1824 -> 3, 2432 -> 4, 4864 -> 8
     if (size%slices != 0) {
-        qWarning() << "cannot estimate number of slices";
+        LOG_F(WARNING, "cannot estimate number of slices");
+        slices = 1;
+    }
+
+    coro::audio::AudioConf conf;
+    conf.codec = coro::audio::Codec::Sbc;
+    conf.isRtpPayloaded = true;
+
+    if (slices > 1) {
+        auto buffers = coroBuffer.split<coro::audio::AudioBuffer>(size/slices);
+        for (auto& _buffer : buffers) {
+            m_coroPipeline->pushBuffer(conf, _buffer);
+        }
     } else {
-        coro::audio::AudioConf conf;
-        conf.codec = coro::audio::Codec::Sbc;
-        conf.isRtpPayloaded = true;
         m_coroPipeline->pushBuffer(conf, coroBuffer);
     }
 
     static int blockSize = -1;
     if (blockSize != size) {
-        qDebug() << "current block size:" << size;
+        LOG_F(INFO, "Current block size: %i", size);
         blockSize = size;
     }
 }
