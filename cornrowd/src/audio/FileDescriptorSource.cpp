@@ -3,6 +3,8 @@
 #include "CoroPipeline.h"
 #include "Pipeline.h"
 
+#include <xxhash.h>
+
 #include <QDebug>
 #include <QFile>
 #include <QSocketNotifier>
@@ -69,7 +71,7 @@ void FileDescriptorSource::processNew()
     //   * 10 seems to be the max (for maxSize 672 and real size 608).
 
     int allocFactor = 10;
-    coro::audio::AudioBuffer coroBuffer;
+    coro::audio::AudioBuffer coroBuffer(m_blockSize*allocFactor);
     auto buffer = coroBuffer.acquire(m_blockSize*allocFactor);
     auto size = m_file->read((char*)buffer, m_blockSize*allocFactor);
     coroBuffer.commit(size);
@@ -85,7 +87,9 @@ void FileDescriptorSource::processNew()
     conf.isRtpPayloaded = true;
 
     if (slices > 1) {
-        auto buffers = coroBuffer.split(size/slices);
+        //LOG_F(INFO, "buffer hash before: %i", XXH32(coroBuffer.data(), coroBuffer.size(), 0));
+        auto buffers = coroBuffer.split(size/slices, m_blockSize*allocFactor);
+        //LOG_F(INFO, "buffer hash after: %i", XXH32(coroBuffer.data(), coroBuffer.size(), 0));
         for (auto& _buffer : buffers) {
             m_coroPipeline->pushBuffer(conf, _buffer);
         }
