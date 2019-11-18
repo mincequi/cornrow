@@ -99,7 +99,7 @@ void FileDescriptorSource::processNew()
 
     static int blockSize = -1;
     if (blockSize != size) {
-        LOG_F(INFO, "Current block size: %i", size);
+        LOG_F(INFO, "Current block size: %i", (int)size);
         blockSize = size;
     }
 }

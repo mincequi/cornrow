@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <coro/audio/AlsaSink.h>
 #include <coro/audio/AppSource.h>
 #include <coro/audio/SbcDecoder.h>
 #include <coro/core/AppSink.h>
@@ -32,5 +33,6 @@ public:
 private:
     coro::audio::AppSource m_appSource;
     coro::audio::SbcDecoder m_sbcDecoder;
+    coro::audio::AlsaSink   m_alsaSink;
     coro::core::AppSink     m_appSink;
 };

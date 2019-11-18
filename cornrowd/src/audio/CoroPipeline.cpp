@@ -24,7 +24,8 @@ using namespace coro::audio;
 CoroPipeline::CoroPipeline()
 {
     coro::core::Node::link(m_appSource, m_sbcDecoder);
-    coro::core::Node::link(m_sbcDecoder, m_appSink);
+    coro::core::Node::link(m_sbcDecoder, m_alsaSink);
+    m_alsaSink.start();
 }
 
 CoroPipeline::~CoroPipeline()
@@ -33,5 +34,5 @@ CoroPipeline::~CoroPipeline()
 
 void CoroPipeline::pushBuffer(const coro::audio::AudioConf& conf, coro::audio::AudioBuffer& buffer)
 {
-    m_appSource.pushBuffer(conf, buffer);
+    m_appSource.process(conf, buffer);
 }
