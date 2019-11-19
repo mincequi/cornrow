@@ -19,8 +19,14 @@
 
 #include <coro/audio/AlsaSink.h>
 #include <coro/audio/AppSource.h>
+#include <coro/audio/AudioConverter.h>
 #include <coro/audio/SbcDecoder.h>
 #include <coro/core/AppSink.h>
+
+namespace coro
+{
+class Peq;
+}
 
 class CoroPipeline
 {
@@ -33,6 +39,9 @@ public:
 private:
     coro::audio::AppSource m_appSource;
     coro::audio::SbcDecoder m_sbcDecoder;
+    coro::audio::AudioConverter m_intToFloat;
+    coro::audio::AudioConverter m_floatToInt;
     coro::audio::AlsaSink   m_alsaSink;
     coro::core::AppSink     m_appSink;
+    coro::Peq*               m_peq;
 };

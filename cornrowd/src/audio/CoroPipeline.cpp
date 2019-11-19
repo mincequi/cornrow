@@ -17,19 +17,25 @@
 
 #include "CoroPipeline.h"
 
-//#include <coro/core/Node.h>
+#include <Peq.h>
 
-using namespace coro::audio;
+using namespace coro::core;
 
 CoroPipeline::CoroPipeline()
 {
-    coro::core::Node::link(m_appSource, m_sbcDecoder);
-    coro::core::Node::link(m_sbcDecoder, m_alsaSink);
+    m_peq = new coro::Peq();
+
+    Node::link(m_appSource, m_sbcDecoder);
+    Node::link(m_sbcDecoder, m_intToFloat);
+    Node::link(m_intToFloat, *m_peq);
+    Node::link(*m_peq, m_intToFloat);
+    Node::link(m_intToFloat, m_alsaSink);
     m_alsaSink.start();
 }
 
 CoroPipeline::~CoroPipeline()
 {
+    delete m_peq;
 }
 
 void CoroPipeline::pushBuffer(const coro::audio::AudioConf& conf, coro::audio::AudioBuffer& buffer)
