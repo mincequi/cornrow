@@ -19,6 +19,7 @@
 
 #include <QObject>
 
+class CoroPipeline;
 class FileDescriptorSource;
 
 namespace audio
@@ -41,6 +42,7 @@ private:
     void updatePipeline();
 
     Pipeline* m_pipeline = nullptr;
+    CoroPipeline* m_coroPipeline = nullptr;
 
     std::string m_transport;
     int m_fd = -1;

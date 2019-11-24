@@ -19,6 +19,8 @@
 
 #include <Peq.h>
 
+#include "Converter.h"
+
 using namespace coro::core;
 
 CoroPipeline::CoroPipeline()
@@ -46,3 +48,45 @@ void CoroPipeline::pushBuffer(const coro::audio::AudioConf& conf, coro::audio::A
 {
     m_appSource.process(conf, buffer);
 }
+/*
+void CoroPipeline::setVolume(float volume)
+{
+    m_loudness->setVolume(volume);
+}
+
+void CoroPipeline::setLoudness(uint8_t phon)
+{
+    m_loudness->setLevel(phon);
+}
+*/
+void CoroPipeline::setPeq(const std::vector<common::Filter>& filters)
+{
+    m_peq->setFilters(audio::toCoro(filters));
+}
+/*
+void CoroPipeline::setCrossover(const common::Filter& crossover)
+{
+    m_crossover->setFrequency(crossover.f);
+
+    if (crossover.f == 0.0) {
+        constructPipeline(Type::Normal);
+    } else {
+        constructPipeline(Type::Crossover);
+    }
+}
+
+void Pipeline::setOutputDevice(const std::string& device)
+{
+    m_alsaPassthroughSink->set_property("device", Glib::ustring(device));
+    m_alsaSink->set_property("device", Glib::ustring(device));
+}
+
+common::Filter CoroPipeline::crossover() const
+{
+    common::Filter crossover;
+    crossover.type = m_crossover->frequency() == 0.0f ? common::FilterType::Invalid : common::FilterType::Crossover;
+    crossover.f = m_crossover->frequency();
+
+    return crossover;
+}
+*/

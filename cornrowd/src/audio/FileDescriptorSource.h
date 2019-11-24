@@ -18,6 +18,7 @@ public:
     explicit FileDescriptorSource(int fd,
                                   uint16_t blockSize,
                                   audio::Pipeline* pipeline,
+                                  CoroPipeline* coroPipeline,
                                   QObject *parent = nullptr);
 
 signals:

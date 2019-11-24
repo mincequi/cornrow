@@ -22,6 +22,7 @@
 #include <coro/audio/AudioConverter.h>
 #include <coro/audio/SbcDecoder.h>
 #include <coro/core/AppSink.h>
+#include <common/Types.h>
 
 namespace coro
 {
@@ -35,6 +36,14 @@ public:
     ~CoroPipeline();
 
     void pushBuffer(const coro::audio::AudioConf& conf, coro::audio::AudioBuffer& buffer);
+
+    //void setVolume(float volume);
+    //void setLoudness(uint8_t phon);
+
+    void setPeq(const std::vector<common::Filter>& filters);
+
+    //void setCrossover(const common::Filter& crossover);
+    //common::Filter crossover() const;
 
 private:
     coro::audio::AppSource m_appSource;

@@ -19,6 +19,7 @@
 
 #include <gstreamermm-dsp.h>
 
+#include "../../cornrowd/src/audio/CoroPipeline.h"
 #include "../../cornrowd/src/audio/FileDescriptorSource.h"
 #include "../../cornrowd/src/audio/Pipeline.h"
 
@@ -32,11 +33,13 @@ Controller::Controller(QObject *parent)
     coro::init();
 
     m_pipeline = new Pipeline(Pipeline::Type::Normal);;
+    m_coroPipeline = new CoroPipeline();
 }
 
 Controller::~Controller()
 {
     delete m_pipeline;
+    delete m_coroPipeline;
 }
 
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
@@ -56,7 +59,7 @@ void Controller::setTransport(int fd, uint16_t blockSize, int rate)
     m_blockSize = blockSize;
     m_rate = rate;
 
-    m_fdSource = new FileDescriptorSource(fd, blockSize, m_pipeline);
+    m_fdSource = new FileDescriptorSource(fd, blockSize, m_pipeline, m_coroPipeline);
     m_pipeline->start();
 }
 

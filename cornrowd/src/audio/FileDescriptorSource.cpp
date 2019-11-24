@@ -17,12 +17,13 @@
 FileDescriptorSource::FileDescriptorSource(int fd,
                                            uint16_t blockSize,
                                            audio::Pipeline* pipeline,
+                                           CoroPipeline* coroPipeline,
                                            QObject *parent) :
     QObject(parent),
     m_file(new QFile(this)),
     m_blockSize(blockSize),
     m_pipeline(pipeline),
-    m_coroPipeline(new CoroPipeline())
+    m_coroPipeline(coroPipeline)
 {
     qDebug() << __func__ << "> fd:" << fd;
     if (!m_file->open(fd, QIODevice::ReadOnly, QFile::AutoCloseHandle)) {

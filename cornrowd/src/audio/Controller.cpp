@@ -24,6 +24,7 @@
 #include <gstreamermm-dsp.h>
 #include <common/Types.h>
 
+#include "CoroPipeline.h"
 #include "FileDescriptorSource.h"
 #include "Pipeline.h"
 
@@ -38,12 +39,14 @@ Controller::Controller(QObject *parent)
     // Init gstreamermm-dsp
     assert(coro::init());
 
-    m_pipeline = new Pipeline(Pipeline::Type::Normal);;
+    m_pipeline = new Pipeline(Pipeline::Type::Normal);
+    m_coroPipeline = new CoroPipeline();
 }
 
 Controller::~Controller()
 {
     delete m_pipeline;
+    delete m_coroPipeline;
 }
 
 std::vector<common::Filter> Controller::filters(common::ble::CharacteristicType group)
@@ -68,6 +71,7 @@ void Controller::setFilters(common::ble::CharacteristicType group, const std::ve
     switch (group) {
     case common::ble::CharacteristicType::Peq:
         m_pipeline->setPeq(filters);
+        m_coroPipeline->setPeq(filters);
         break;
     case common::ble::CharacteristicType::Aux: {
         //updatePipeline();
@@ -167,7 +171,7 @@ void Controller::setTransport(int fd, uint16_t blockSize, int rate)
     m_blockSize = blockSize;
     m_rate = rate;
 
-    m_fdSource = new FileDescriptorSource(fd, blockSize, m_pipeline);
+    m_fdSource = new FileDescriptorSource(fd, blockSize, m_pipeline, m_coroPipeline);
     //m_pipeline->setFileDescriptor(m_rate, fd, blockSize);
 }
 
