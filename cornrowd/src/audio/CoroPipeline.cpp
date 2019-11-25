@@ -28,13 +28,11 @@ CoroPipeline::CoroPipeline()
     m_peq = new coro::Peq();
 
     Node::link(m_appSource, m_sbcDecoder);
-    Node::link(m_sbcDecoder, *m_peq);
-    Node::link(*m_peq, m_alsaSink);
-    /*
+    Node::link(m_sbcDecoder, m_intToFloat);
     Node::link(m_intToFloat, *m_peq);
-    Node::link(*m_peq, m_intToFloat);
-    Node::link(m_intToFloat, m_alsaSink);
-    */
+    Node::link(*m_peq, m_floatToInt);
+    Node::link(m_floatToInt, m_alsaSink);
+
     m_alsaSink.start();
 }
 

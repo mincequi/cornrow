@@ -48,8 +48,8 @@ public:
 private:
     coro::audio::AppSource m_appSource;
     coro::audio::SbcDecoder m_sbcDecoder;
-    coro::audio::AudioConverter m_intToFloat;
-    coro::audio::AudioConverter m_floatToInt;
+    coro::audio::AudioConverter<int16_t, float> m_intToFloat;
+    coro::audio::AudioConverter<float, int16_t> m_floatToInt;
     coro::audio::AlsaSink   m_alsaSink;
     coro::core::AppSink     m_appSink;
     coro::Peq*               m_peq;
