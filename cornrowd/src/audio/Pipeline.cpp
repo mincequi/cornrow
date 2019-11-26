@@ -17,11 +17,11 @@
 
 #include "Pipeline.h"
 
+#include <coro/audio/Loudness.h>
+#include <coro/audio/Peq.h>
 #include <coro/core/AppSource.h>
 #include <coro/core/FdSource.h>
 #include <Crossover.h>
-#include <Loudness.h>
-#include <Peq.h>
 #include <loguru/loguru.hpp>
 
 #include "Converter.h"
@@ -42,8 +42,8 @@ Pipeline::Pipeline(Type type)
     m_sbcDepay = Gst::ElementFactory::create_element("cr_rtpsbcdepay");
     m_sbcDecoder = Gst::ElementFactory::create_element("sbcdec");
     m_bluetoothConverter = Gst::AudioConvert::create();
-    m_peq = Glib::RefPtr<coro::Peq>::cast_static(Gst::ElementFactory::create_element("peq"));
-    m_loudness = Glib::RefPtr<coro::Loudness>::cast_static(Gst::ElementFactory::create_element("loudness"));
+    m_peq = Glib::RefPtr<coro::audio::Peq>::cast_static(Gst::ElementFactory::create_element("peq"));
+    m_loudness = Glib::RefPtr<coro::audio::Loudness>::cast_static(Gst::ElementFactory::create_element("loudness"));
 
     // Normal elements
     m_alsaConverter = Gst::AudioConvert::create();

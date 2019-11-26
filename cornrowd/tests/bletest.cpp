@@ -6,7 +6,7 @@
 #include <glibmm/main.h>
 
 #include <Crossover.h>
-#include <Peq.h>
+#include <coro/audio/Peq.h>
 
 int main(int argc, char** argv)
 {
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     src->property_wave().set_value(Gst::AudioTestSrcWave::AUDIO_TEST_SRC_WAVE_WHITE_NOISE);
 
     // Create equalizer
-    Glib::RefPtr<coro::Peq> peq = Glib::RefPtr<coro::Peq>::cast_dynamic(Gst::ElementFactory::create_element("peq"));
+    Glib::RefPtr<coro::audio::Peq> peq = Glib::RefPtr<coro::audio::Peq>::cast_dynamic(Gst::ElementFactory::create_element("peq"));
     assert(peq);
     peq->biquad(0).setFilter( { coro::FilterType::Peak, 1000.0, -12.0, 0.707 } );
 

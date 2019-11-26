@@ -17,7 +17,7 @@
 
 #include "CoroPipeline.h"
 
-#include <Peq.h>
+#include <coro/audio/Peq.h>
 
 #include "Converter.h"
 
@@ -25,7 +25,7 @@ using namespace coro::core;
 
 CoroPipeline::CoroPipeline()
 {
-    m_peq = new coro::Peq();
+    m_peq = new coro::audio::Peq();
 
     Node::link(m_appSource, m_sbcDecoder);
     Node::link(m_sbcDecoder, m_intToFloat);

@@ -26,7 +26,10 @@
 
 namespace coro
 {
+namespace audio
+{
 class Peq;
+}
 }
 
 class CoroPipeline
@@ -52,5 +55,5 @@ private:
     coro::audio::AudioConverter<float, int16_t> m_floatToInt;
     coro::audio::AlsaSink   m_alsaSink;
     coro::core::AppSink     m_appSink;
-    coro::Peq*               m_peq;
+    coro::audio::Peq*               m_peq;
 };

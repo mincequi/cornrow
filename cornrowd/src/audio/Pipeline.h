@@ -36,8 +36,11 @@ class Volume;
 namespace coro
 {
 class Crossover;
+namespace audio
+{
 class Loudness;
 class Peq;
+}
 }
 
 namespace audio
@@ -86,8 +89,8 @@ private:
     Glib::RefPtr<Gst::Element>      m_sbcDepay;
     Glib::RefPtr<Gst::Element>      m_sbcDecoder;
     Glib::RefPtr<Gst::Element>      m_bluetoothConverter;
-    Glib::RefPtr<coro::Loudness>    m_loudness;
-    Glib::RefPtr<coro::Peq>         m_peq;
+    Glib::RefPtr<coro::audio::Loudness>    m_loudness;
+    Glib::RefPtr<coro::audio::Peq>         m_peq;
 
     // Normal elements
     Glib::RefPtr<Gst::Element>      m_alsaConverter;
