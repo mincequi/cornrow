@@ -23,7 +23,8 @@ FileDescriptorSource::FileDescriptorSource(int fd,
     m_file(new QFile(this)),
     m_blockSize(blockSize),
     m_pipeline(pipeline),
-    m_coroPipeline(coroPipeline)
+    m_coroPipeline(coroPipeline),
+    m_coroBuffer(m_blockSize*10)
 {
     qDebug() << __func__ << "> fd:" << fd;
     if (!m_file->open(fd, QIODevice::ReadOnly, QFile::AutoCloseHandle)) {
@@ -72,10 +73,9 @@ void FileDescriptorSource::processNew()
     //   * 10 seems to be the max (for maxSize 672 and real size 608).
 
     int allocFactor = 10;
-    coro::audio::AudioBuffer coroBuffer(m_blockSize*allocFactor);
-    auto buffer = coroBuffer.acquire(m_blockSize*allocFactor);
+    auto buffer = m_coroBuffer.acquire(m_blockSize*allocFactor);
     auto size = m_file->read((char*)buffer, m_blockSize*allocFactor);
-    coroBuffer.commit(size);
+    m_coroBuffer.commit(size);
     // The number of slices to cut the buffer into.
     int slices = 1+(size/m_blockSize); // 608 -> 1, 1216 -> 2, 1824 -> 3, 2432 -> 4, 4864 -> 8
     if (size%slices != 0) {
@@ -88,14 +88,16 @@ void FileDescriptorSource::processNew()
     conf.isRtpPayloaded = true;
 
     if (slices > 1) {
-        //LOG_F(INFO, "buffer hash before: %i", XXH32(coroBuffer.data(), coroBuffer.size(), 0));
-        auto buffers = coroBuffer.split(size/slices, m_blockSize*allocFactor);
+        // @TODO(mawe): we split buffers here, but allocate more memory to avoid reallocation.
+        //              actually, original buffer is smaller, but will be reused, so reallocation
+        //              takes place only once.
+        auto buffers = m_coroBuffer.split(size/slices, m_blockSize*allocFactor*2);
         //LOG_F(INFO, "buffer hash after: %i", XXH32(coroBuffer.data(), coroBuffer.size(), 0));
         for (auto& _buffer : buffers) {
             m_coroPipeline->pushBuffer(conf, _buffer);
         }
     } else {
-        m_coroPipeline->pushBuffer(conf, coroBuffer);
+        m_coroPipeline->pushBuffer(conf, m_coroBuffer);
     }
 
     static int blockSize = -1;

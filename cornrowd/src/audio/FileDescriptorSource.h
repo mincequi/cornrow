@@ -2,6 +2,8 @@
 
 #include <QObject>
 
+#include <coro/audio/AudioBuffer.h>
+
 class CoroPipeline;
 class QFile;
 class QSocketNotifier;
@@ -35,4 +37,5 @@ private:
     uint16_t         m_blockSize = 0;
     audio::Pipeline* m_pipeline;
     CoroPipeline*    m_coroPipeline;
+    coro::audio::AudioBuffer m_coroBuffer;
 };
