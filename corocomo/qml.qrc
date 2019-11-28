@@ -11,5 +11,6 @@
         <file>src/Presets.qml</file>
         <file>src/ChipGroup.qml</file>
         <file>icons/expand_less.svg</file>
+        <file>icons/expand_more.svg</file>
     </qresource>
 </RCC>

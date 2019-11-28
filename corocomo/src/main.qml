@@ -74,7 +74,7 @@ ApplicationWindow {
         transform: Translate {
            y: drawer.position * menu.height
         }
-        icon.source: drawer.opened ? "qrc:/icons/expand_less.svg" : "qrc:/icons/menu.svg"
+        icon.source: drawer.opened ? "qrc:/icons/expand_less.svg" : "qrc:/icons/expand_more.svg"
         enabled: CornrowModel.status == CornrowModel.Connected
         z: 9
         onPressed: {

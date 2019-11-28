@@ -36,9 +36,6 @@ namespace audio
 Controller::Controller(QObject *parent)
     : QObject(parent)
 {
-    // Init gstreamermm-dsp
-    assert(coro::init());
-
     m_coroPipeline = new CoroPipeline();
 }
 
