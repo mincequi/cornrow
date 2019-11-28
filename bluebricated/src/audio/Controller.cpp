@@ -32,20 +32,18 @@ Controller::Controller(QObject *parent)
     // Init gstreamermm-dsp
     coro::init();
 
-    m_pipeline = new Pipeline(Pipeline::Type::Normal);;
     m_coroPipeline = new CoroPipeline();
 }
 
 Controller::~Controller()
 {
-    delete m_pipeline;
     delete m_coroPipeline;
 }
 
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 {
     // Stop pipeline (in any case).
-    m_pipeline->stop();
+    //m_pipeline->stop();
     if (m_fdSource) {
         delete m_fdSource;
         m_fdSource = nullptr;
@@ -59,13 +57,13 @@ void Controller::setTransport(int fd, uint16_t blockSize, int rate)
     m_blockSize = blockSize;
     m_rate = rate;
 
-    m_fdSource = new FileDescriptorSource(fd, blockSize, m_pipeline, m_coroPipeline);
-    m_pipeline->start();
+    m_fdSource = new FileDescriptorSource(fd, blockSize, m_coroPipeline);
 }
 
 void Controller::setVolume(float volume)
 {
-    m_pipeline->setVolume(volume);
+    // @TODO(mawe): enable volume on CoroPipeline
+    //m_coroPipeline->setVolume(volume);
 }
 
 } // namespace audio

@@ -17,8 +17,7 @@
 
 #pragma once
 
-#include "Pipeline.h"
-
+#include <common/Types.h>
 #include <common/ble/Types.h>
 #include <gstdsp/AlsaUtil.h>
 
@@ -52,7 +51,6 @@ public:
     void setOutput(const common::IoInterface& interface);
 
 private:
-    Pipeline* m_pipeline = nullptr;
     CoroPipeline* m_coroPipeline = nullptr;
 
     std::string m_transport;

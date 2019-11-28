@@ -28,6 +28,7 @@ namespace coro
 {
 namespace audio
 {
+class Loudness;
 class Peq;
 }
 }
@@ -40,8 +41,8 @@ public:
 
     void pushBuffer(const coro::audio::AudioConf& conf, coro::audio::AudioBuffer& buffer);
 
-    //void setVolume(float volume);
-    //void setLoudness(uint8_t phon);
+    void setVolume(float volume);
+    void setLoudness(uint8_t phon);
 
     void setPeq(const std::vector<common::Filter>& filters);
 
@@ -55,5 +56,6 @@ private:
     coro::audio::AudioConverter<float, int16_t> m_floatToInt;
     coro::audio::AlsaSink   m_alsaSink;
     coro::core::AppSink     m_appSink;
-    coro::audio::Peq*               m_peq;
+    coro::audio::Peq*       m_peq;
+    coro::audio::Loudness*  m_loudness;
 };

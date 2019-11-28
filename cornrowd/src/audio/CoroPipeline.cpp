@@ -17,6 +17,7 @@
 
 #include "CoroPipeline.h"
 
+#include <coro/audio/Loudness.h>
 #include <coro/audio/Peq.h>
 
 #include "Converter.h"
@@ -25,12 +26,14 @@ using namespace coro::core;
 
 CoroPipeline::CoroPipeline()
 {
+    m_loudness = new coro::audio::Loudness();
     m_peq = new coro::audio::Peq();
 
     Node::link(m_appSource, m_sbcDecoder);
     Node::link(m_sbcDecoder, m_intToFloat);
     Node::link(m_intToFloat, *m_peq);
-    Node::link(*m_peq, m_floatToInt);
+    Node::link(*m_peq, *m_loudness);
+    Node::link(*m_loudness, m_floatToInt);
     Node::link(m_floatToInt, m_alsaSink);
 
     m_alsaSink.start();
@@ -46,7 +49,7 @@ void CoroPipeline::pushBuffer(const coro::audio::AudioConf& conf, coro::audio::A
 {
     m_appSource.process(conf, buffer);
 }
-/*
+
 void CoroPipeline::setVolume(float volume)
 {
     m_loudness->setVolume(volume);
@@ -56,7 +59,7 @@ void CoroPipeline::setLoudness(uint8_t phon)
 {
     m_loudness->setLevel(phon);
 }
-*/
+
 void CoroPipeline::setPeq(const std::vector<common::Filter>& filters)
 {
     m_peq->setFilters(audio::toCoro(filters));

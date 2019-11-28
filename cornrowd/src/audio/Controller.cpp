@@ -39,13 +39,11 @@ Controller::Controller(QObject *parent)
     // Init gstreamermm-dsp
     assert(coro::init());
 
-    m_pipeline = new Pipeline(Pipeline::Type::Normal);
     m_coroPipeline = new CoroPipeline();
 }
 
 Controller::~Controller()
 {
-    delete m_pipeline;
     delete m_coroPipeline;
 }
 
@@ -70,7 +68,7 @@ void Controller::setFilters(common::ble::CharacteristicType group, const std::ve
 
     switch (group) {
     case common::ble::CharacteristicType::Peq:
-        m_pipeline->setPeq(filters);
+        //m_pipeline->setPeq(filters);
         m_coroPipeline->setPeq(filters);
         break;
     case common::ble::CharacteristicType::Aux: {
@@ -79,12 +77,13 @@ void Controller::setFilters(common::ble::CharacteristicType group, const std::ve
         auto it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
             return f.type == common::FilterType::Crossover;
         });
-        it != filters.end() ? m_pipeline->setCrossover(*it) : m_pipeline->setCrossover(common::Filter());
+        // @TODO(mawe): enable crossover on coropipeline
+        //it != filters.end() ? m_coroPipeline->setCrossover(*it) : m_coroPipeline->setCrossover(common::Filter());
         // Check if loudness was provided
         it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
             return f.type == common::FilterType::Loudness;
         });
-        it != filters.end() ? m_pipeline->setLoudness(static_cast<uint8_t>(it->g)) : m_pipeline->setLoudness(0);
+        it != filters.end() ? m_coroPipeline->setLoudness(static_cast<uint8_t>(it->g)) : m_coroPipeline->setLoudness(0);
         break;
     }
     default:
@@ -151,13 +150,13 @@ void Controller::setOutput(const common::IoInterface& interface)
     auto it = range.first;
     std::advance(it, interface.number);
     qDebug() << "output device:" << QString::fromStdString(it->second);
-    m_pipeline->setOutputDevice(it->second);
+    //m_pipeline->setOutputDevice(it->second);
 }
 
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 {
     // Stop pipeline (in any case).
-    m_pipeline->stop();
+    //m_pipeline->stop();
     if (m_fdSource) {
         delete m_fdSource;
         m_fdSource = nullptr;
@@ -171,13 +170,13 @@ void Controller::setTransport(int fd, uint16_t blockSize, int rate)
     m_blockSize = blockSize;
     m_rate = rate;
 
-    m_fdSource = new FileDescriptorSource(fd, blockSize, m_pipeline, m_coroPipeline);
+    m_fdSource = new FileDescriptorSource(fd, blockSize, m_coroPipeline);
     //m_pipeline->setFileDescriptor(m_rate, fd, blockSize);
 }
 
 void Controller::setVolume(float volume)
 {
-    m_pipeline->setVolume(volume);
+    m_coroPipeline->setVolume(volume);
 }
 
 } // namespace audio
