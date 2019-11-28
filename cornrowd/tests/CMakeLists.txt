@@ -7,14 +7,3 @@ target_link_libraries(fdtest
     pthread
     Qt5::Core
 )
-
-macro(coro_tests)
-    foreach(_testname ${ARGN})
-        add_executable(${_testname} ${_testname}.cpp)
-        target_link_libraries(${_testname} gstreamermm-dsp)
-    endforeach(_testname)
-endmacro()
-
-coro_tests(
-    bletest
-)

@@ -24,7 +24,7 @@ sudo apt install \
   libgstreamermm-1.0 \
   libqt5bluetooth5 \
   libqt5network5 \
-  libxxhash0
+  libasound2
 dpkg -i cornrowd__<version>_<your_arch>.deb
 ```
 
@@ -39,8 +39,7 @@ sudo apt install \
   libboost-dev \
   libgstreamermm-1.0-dev \
   libsbc-dev \
-  libspdlog-dev \
-  libxxhash-dev \
+  libasound2-dev \
   gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
   qtconnectivity5-dev # get dependecies
 wget https://github.com/mincequi/cornrow/archive/v0.4.0.tar.gz
