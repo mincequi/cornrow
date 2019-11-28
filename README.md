@@ -1,18 +1,18 @@
 # Cornrow
---- *the most sophisticated bluetooth audio receiver for linux*
+-- *the most sophisticated bluetooth audio receiver for linux*
 
-Cornrow is a bluetooth audio daemon designed for embedded devices or low-powered boards like the Raspberry Pi. It accepts bluetooth audio sources and transforms your computer into a bluetooth speaker.
+Cornrow is a bluetooth audio daemon designed for low-powered boards like the Raspberry Pi. It accepts bluetooth audio sources and transforms your computer into a bluetooth speaker.
 
 It is made for Debian based environments and compatible with Ubuntu 18.04 Bionic and Debian Stretch (and later). This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
 
-All this is in an early stage. However, i am willing to provide an easy out-of-the-box solution for anyone. So, your experience with this little daemon is very appreciated. Please leave your comments and issues using it. Thanks a lot.
+I am willing to provide an easy out-of-the-box solution for anyone. So, your experience with this little daemon is very appreciated. Please leave your comments and issues using it. Thanks a lot.
 
 The daemon has a built-in equalizer which can be remote controlled via this app:
 [corocomo](https://play.google.com/store/apps/details?id=org.cornrow.corocomo)
 ![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.4.0/cornrowd_0.4.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.4.0/cornrowd_0.4.0_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.4.0/cornrowd_0.4.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.5.0/cornrowd_0.5.0_amd64.deb).
 
 Get dependencies first
 ```
@@ -75,7 +75,9 @@ Commit | Date | Working
 A lot of Bluetooth packets seem to be dropped when CPU usage is **low**. As soon as the system is put under load, bluetooth packet reception is a **lot** better. This seems to be related to core frequency scaling (https://www.raspberrypi.org/documentation/configuration/uart.md).
 
 ## To Do
-* Remove dependencies
+* Add crossover again
+* Completely remove gstreamer as dependency
+* ~~Remove dependencies~~
 * ~~Add sophisticated logging~~
 * ~~Implement volume control~~
 * ~~Set discoverable/pairable timeout to forever~~
