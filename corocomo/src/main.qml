@@ -104,9 +104,9 @@ ApplicationWindow {
         id: peq
         anchors.fill: parent
         enabled: CornrowModel.status == CornrowModel.Connected
-        //opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.0
-        opacity: 0.0
-        Behavior on opacity { SmoothedAnimation { velocity: 2.0 }}
+        opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.0
+        //opacity: 0.0
+        Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
         transform: Translate {
            y: drawer.position * menu.height
         }
@@ -382,9 +382,9 @@ ApplicationWindow {
     FastBlur {
         anchors.fill: parent
         source: peq
-        radius: ((1.0/opacity)-1.0)*4
-        opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.125
-        Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
+        radius: 32
+        opacity: CornrowModel.status == CornrowModel.Connected ? 0.0 : 0.125
+        Behavior on opacity { SmoothedAnimation { velocity: 0.5 }}
         transform: Translate {
            y: drawer.position * menu.height
         }

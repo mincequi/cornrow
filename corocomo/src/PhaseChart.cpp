@@ -47,27 +47,27 @@ void PhaseChart::paint(QPainter *painter)
 
     // Prepare font
     auto font = painter->font();
-    font.setPointSize(font.pointSize()-2);
+    font.setPointSize(12);
     painter->setFont(font);
     painter->setOpacity(0.5);
 
     auto pos = trans.map(QPointF(0, M_PI));
     pos.rx() -= 4.0;
-    pos.ry() -= font.pointSize()/2.0;
+    pos.ry() -= 6.0; //font.pointSize()/2.0;
     painter->drawText(QRectF(pos.x(), pos.y(), width(), 50.0), Qt::AlignRight, "-π");
 
     pos = trans.map(QPointF(0, 2.0*M_PI));
     pos.rx() -= 4.0;
-    pos.ry() -= font.pointSize()/2.0;
+    pos.ry() -= 6.0; //font.pointSize()/2.0;
     painter->drawText(QRectF(pos.x(), pos.y(), width(), 50.0), Qt::AlignRight, "-2π");
 
     pos = trans.map(QPointF(0, -M_PI));
     pos.rx() -= 4.0;
-    pos.ry() -= font.pointSize()/2.0;
+    pos.ry() -= 6.0; //font.pointSize()/2.0;
     painter->drawText(QRectF(pos.x(), pos.y(), width(), 50.0), Qt::AlignRight, "π");
 
     pos = trans.map(QPointF(0, -2.0*M_PI));
     pos.rx() -= 4.0;
-    pos.ry() -= font.pointSize()/2.0;
+    pos.ry() -= 6.0; //font.pointSize()/2.0;
     painter->drawText(QRectF(pos.x(), pos.y(), width(), 50.0), Qt::AlignRight, "2π");
 }

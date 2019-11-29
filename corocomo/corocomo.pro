@@ -1,3 +1,20 @@
+defineReplace(droidVersionCode) {
+        segments = $$split(1, ".")
+
+        for (segment, segments): vCode = "$$first(vCode)$$format_number($$segment, width=1 zeropad)"
+        contains(ANDROID_TARGET_ARCH, arm64-v8a): \
+            suffix = 1
+
+        else:contains(ANDROID_TARGET_ARCH, armeabi-v7a): \
+            suffix = 0
+
+        return($$first(vCode)$$first(suffix))
+}
+
+VERSION = 0.5.0
+ANDROID_VERSION_NAME = $$VERSION
+ANDROID_VERSION_CODE = $$droidVersionCode($$ANDROID_VERSION_NAME)
+
 QT += bluetooth quick svg
 CONFIG += c++14
 
