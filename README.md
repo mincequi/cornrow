@@ -22,6 +22,7 @@ sudo apt install \
   libqt5bluetooth5 \
   libqt5network5 \
   libasound2 \
+  libao4 \
   libsbc1
 dpkg -i cornrowd__<version>_<your_arch>.deb
 ```
@@ -33,6 +34,7 @@ Consider downloading the release tarballs. Master might be broken from time to t
 ```
 sudo apt install \
   cmake extra-cmake-modules \
+  libao-dev \
   libasound2-dev \
   libboost-dev \
   libgstreamermm-1.0-dev \
