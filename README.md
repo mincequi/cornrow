@@ -12,7 +12,7 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 ![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.5.0/cornrowd_0.5.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.5.0/cornrowd_0.5.0_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.5.1/cornrowd_0.5.1_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.5.1/cornrowd_0.5.1_amd64.deb).
 
 Get dependencies first
 ```
