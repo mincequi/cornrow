@@ -171,22 +171,22 @@ void EqChart::paint(QPainter *painter)
 
     // Prepare font
     auto font = painter->font();
-    font.setPointSize(font.pointSize()-2);
+    font.setPointSize(12);
     painter->setFont(font);
     painter->setOpacity(0.5);
 
     auto pos = trans.map(QPointF(0, 0));
     pos.rx() -= 4.0;
-    pos.ry() -= font.pointSizeF()/2.0;
+    pos.ry() -= 6.0; //font.pointSize();
     painter->drawText(pos.x(), pos.y(), width(), 50, Qt::AlignRight, "0");
 
     pos = trans.map(QPointF(0, -24));
     pos.rx() -= 4.0;
-    pos.ry() -= font.pointSizeF()/2.0;
+    pos.ry() -= 6.0; //font.pointSize();
     painter->drawText(pos.x(), pos.y(), width(), 50, Qt::AlignRight, "-24");
 
     pos = trans.map(QPointF(0, 6));
     pos.rx() -= 4.0;
-    pos.ry() -= font.pointSizeF()/2.0;
+    pos.ry() -= 6.0; //font.pointSize();
     painter->drawText(pos.x(), pos.y(), width(), 50, Qt::AlignRight, "6");
 }

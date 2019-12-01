@@ -1,18 +1,18 @@
 # Cornrow
---- *the most sophisticated bluetooth audio receiver for linux*
+-- *the most sophisticated bluetooth audio receiver for linux*
 
-Cornrow is a bluetooth audio daemon designed for embedded devices or low-powered boards like the Raspberry Pi. It accepts bluetooth audio sources and transforms your computer into a bluetooth speaker.
+Cornrow is a bluetooth audio daemon designed for low-powered boards like the Raspberry Pi. It accepts bluetooth audio sources and transforms your computer into a bluetooth speaker.
 
 It is made for Debian based environments and compatible with Ubuntu 18.04 Bionic and Debian Stretch (and later). This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
 
-All this is in an early stage. However, i am willing to provide an easy out-of-the-box solution for anyone. So, your experience with this little daemon is very appreciated. Please leave your comments and issues using it. Thanks a lot.
+I am willing to provide an easy out-of-the-box solution for anyone. So, your experience with this little daemon is very appreciated. Please leave your comments and issues using it. Thanks a lot.
 
 The daemon has a built-in equalizer which can be remote controlled via this app:
 [corocomo](https://play.google.com/store/apps/details?id=org.cornrow.corocomo)
 ![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.4.0/cornrowd_0.4.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.4.0/cornrowd_0.4.0_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.5.0/cornrowd_0.5.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.5.0/cornrowd_0.5.0_amd64.deb).
 
 Get dependencies first
 ```
@@ -22,6 +22,7 @@ sudo apt install \
   libqt5bluetooth5 \
   libqt5network5 \
   libasound2 \
+  libao4 \
   libsbc1
 dpkg -i cornrowd__<version>_<your_arch>.deb
 ```
@@ -33,15 +34,17 @@ Consider downloading the release tarballs. Master might be broken from time to t
 ```
 sudo apt install \
   cmake extra-cmake-modules \
+  libao-dev \
   libasound2-dev \
   libboost-dev \
   libgstreamermm-1.0-dev \
   libsbc-dev \
   qtconnectivity5-dev # get dependecies
-wget https://github.com/mincequi/cornrow/archive/v0.4.0.tar.gz
-tar xfvz cornrow-0.4.0.tar.gz
+wget https://github.com/mincequi/cornrow/archive/v0.5.0.tar.gz
+tar xfvz v0.5.0.tar.gz
 dpkg-buildpackage -us -uc                           # build unsigned debian package
 sudo dpkg -i ../cornrowd_<version>_<your_arch>.deb  # install package
+sudo systemctl unmask cornrowd.service              # unmask service
 sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
 sudo systemctl enable cornrowd.service              # start-up service on each reboot.
 ```
@@ -75,7 +78,9 @@ Commit | Date | Working
 A lot of Bluetooth packets seem to be dropped when CPU usage is **low**. As soon as the system is put under load, bluetooth packet reception is a **lot** better. This seems to be related to core frequency scaling (https://www.raspberrypi.org/documentation/configuration/uart.md).
 
 ## To Do
-* Remove dependencies
+* Add crossover again
+* Completely remove gstreamer as dependency
+* ~~Remove dependencies~~
 * ~~Add sophisticated logging~~
 * ~~Implement volume control~~
 * ~~Set discoverable/pairable timeout to forever~~
