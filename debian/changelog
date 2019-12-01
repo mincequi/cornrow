@@ -1,3 +1,9 @@
+cornrowd (0.5.1) buster; urgency=medium
+
+  * Fix alignment issue
+
+ -- Manuel Weichselbaumer <mincequi@web.de>  Sun, 01 Dez 2019 20:05:00 +0100
+
 cornrowd (0.5.0) buster; urgency=medium
 
   * Remove gstreamer as dependency
