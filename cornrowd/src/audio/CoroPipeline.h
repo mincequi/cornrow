@@ -39,12 +39,17 @@ public:
     explicit CoroPipeline();
     ~CoroPipeline();
 
+    void start(const coro::audio::AudioConf& conf);
+    void stop();
+
     void pushBuffer(const coro::audio::AudioConf& conf, coro::audio::AudioBuffer& buffer);
 
     void setVolume(float volume);
     void setLoudness(uint8_t phon);
 
     void setPeq(const std::vector<common::Filter>& filters);
+
+    //void setRate(coro::audio::SampleRate rate);
 
     //void setCrossover(const common::Filter& crossover);
     //common::Filter crossover() const;

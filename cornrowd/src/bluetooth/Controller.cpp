@@ -140,6 +140,19 @@ void Controller::initBle()
 
 void Controller::onTransportChanged(MediaTransportPtr transport)
 {
+    int rate = 44100;
+    switch (transport->audioConfiguration().sampleRate) {
+    case AudioSampleRate::Rate44100:
+        rate = 44100;
+        break;
+    case AudioSampleRate::Rate48000:
+        rate = 48000;
+        break;
+    default:
+        rate = 0;
+    }
+    qDebug() << "sampleRate: " << rate;
+
     if (m_transport == transport) {
         return;
     }
@@ -151,7 +164,7 @@ void Controller::onTransportChanged(MediaTransportPtr transport)
 
     m_transport = transport;
     if (!m_transport) {
-        emit transportChanged(-1, 0, 44100);
+        emit transportChanged(-1, 0, rate);
         return;
     }
 

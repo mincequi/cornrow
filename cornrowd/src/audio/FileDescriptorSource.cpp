@@ -16,11 +16,13 @@
 
 FileDescriptorSource::FileDescriptorSource(int fd,
                                            uint16_t blockSize,
+                                           int rate,
                                            CoroPipeline* coroPipeline,
                                            QObject *parent) :
     QObject(parent),
     m_file(new QFile(this)),
     m_blockSize(blockSize),
+    m_rate(rate),
     m_coroPipeline(coroPipeline),
     m_coroBuffer(m_blockSize*10)
 {
@@ -57,6 +59,7 @@ void FileDescriptorSource::processNew()
 
     coro::audio::AudioConf conf;
     conf.codec = coro::audio::Codec::Sbc;
+    conf.rate = m_rate == 48000 ? coro::audio::SampleRate::Rate48000 : coro::audio::SampleRate::Rate44100;
     conf.isRtpPayloaded = true;
 
     if (slices > 1) {

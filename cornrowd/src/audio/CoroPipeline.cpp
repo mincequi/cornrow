@@ -35,14 +35,22 @@ CoroPipeline::CoroPipeline()
     Node::link(*m_peq, *m_loudness);
     Node::link(*m_loudness, m_floatToInt);
     Node::link(m_floatToInt, m_alsaSink);
-
-    m_alsaSink.start();
 }
 
 CoroPipeline::~CoroPipeline()
 {
     m_alsaSink.stop();
     delete m_peq;
+}
+
+void CoroPipeline::start(const coro::audio::AudioConf& conf)
+{
+    m_alsaSink.start(conf);
+}
+
+void CoroPipeline::stop()
+{
+    m_alsaSink.stop();
 }
 
 void CoroPipeline::pushBuffer(const coro::audio::AudioConf& conf, coro::audio::AudioBuffer& buffer)
@@ -64,6 +72,7 @@ void CoroPipeline::setPeq(const std::vector<common::Filter>& filters)
 {
     m_peq->setFilters(audio::toCoro(filters));
 }
+
 /*
 void CoroPipeline::setCrossover(const common::Filter& crossover)
 {

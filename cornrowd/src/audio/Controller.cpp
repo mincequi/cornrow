@@ -153,7 +153,7 @@ void Controller::setOutput(const common::IoInterface& interface)
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 {
     // Stop pipeline (in any case).
-    //m_pipeline->stop();
+    m_coroPipeline->stop();
     if (m_fdSource) {
         delete m_fdSource;
         m_fdSource = nullptr;
@@ -167,7 +167,10 @@ void Controller::setTransport(int fd, uint16_t blockSize, int rate)
     m_blockSize = blockSize;
     m_rate = rate;
 
-    m_fdSource = new FileDescriptorSource(fd, blockSize, m_coroPipeline);
+    m_fdSource = new FileDescriptorSource(fd, blockSize, m_rate, m_coroPipeline);
+    auto coroRate = m_rate == 48000 ? coro::audio::SampleRate::Rate48000 : coro::audio::SampleRate::Rate44100;
+    m_coroPipeline->start( { coro::audio::Codec::RawInt16, coroRate } );
+    //m_coroPipeline->setRate(m_rate == 48000 ? coro::audio::SampleRate::Rate48000 : coro::audio::SampleRate::Rate44100);
     //m_pipeline->setFileDescriptor(m_rate, fd, blockSize);
 }
 
