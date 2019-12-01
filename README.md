@@ -41,7 +41,7 @@ sudo apt install \
   libsbc-dev \
   qtconnectivity5-dev # get dependecies
 wget https://github.com/mincequi/cornrow/archive/v0.5.0.tar.gz
-tar xfvz cornrow-0.5.0.tar.gz
+tar xfvz v0.5.0.tar.gz
 dpkg-buildpackage -us -uc                           # build unsigned debian package
 sudo dpkg -i ../cornrowd_<version>_<your_arch>.deb  # install package
 sudo systemctl unmask cornrowd.service              # unmask service
