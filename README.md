@@ -23,6 +23,7 @@ sudo apt install \
   libqt5network5 \
   libasound2 \
   libao4 \
+  libavcodec58 \
   libsbc1
 dpkg -i cornrowd__<version>_<your_arch>.deb
 ```
@@ -36,6 +37,7 @@ sudo apt install \
   cmake extra-cmake-modules \
   libao-dev \
   libasound2-dev \
+  libavcodec-dev \
   libboost-dev \
   libgstreamermm-1.0-dev \
   libsbc-dev \
