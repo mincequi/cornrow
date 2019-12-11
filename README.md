@@ -12,7 +12,7 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 ![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.5.0/cornrowd_0.5.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.5.0/cornrowd_0.5.0_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.5.1/cornrowd_0.5.1_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.5.1/cornrowd_0.5.1_amd64.deb).
 
 Get dependencies first
 ```
@@ -23,6 +23,7 @@ sudo apt install \
   libqt5network5 \
   libasound2 \
   libao4 \
+  libavcodec58 \
   libsbc1
 dpkg -i cornrowd__<version>_<your_arch>.deb
 ```
@@ -36,6 +37,7 @@ sudo apt install \
   cmake extra-cmake-modules \
   libao-dev \
   libasound2-dev \
+  libavcodec-dev \
   libboost-dev \
   libgstreamermm-1.0-dev \
   libsbc-dev \
