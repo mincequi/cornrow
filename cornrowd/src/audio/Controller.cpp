@@ -17,16 +17,14 @@
 
 #include "Controller.h"
 
+#include "CoroPipeline.h"
+#include "FileDescriptorSource.h"
+
+#include <common/Types.h>
+
 #include <QDebug>
 #include <QThread>
 #include <QtDBus/QDBusObjectPath>
-
-#include <gstreamermm-dsp.h>
-#include <common/Types.h>
-
-#include "CoroPipeline.h"
-#include "FileDescriptorSource.h"
-#include "Pipeline.h"
 
 #include <unistd.h>
 
@@ -65,17 +63,16 @@ void Controller::setFilters(common::ble::CharacteristicType group, const std::ve
 
     switch (group) {
     case common::ble::CharacteristicType::Peq:
-        //m_pipeline->setPeq(filters);
         m_coroPipeline->setPeq(filters);
         break;
     case common::ble::CharacteristicType::Aux: {
-        //updatePipeline();
         // Check if crossover was provided, if not, we disable crossover
         auto it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
-            return f.type == common::FilterType::Crossover;
+            return f.type == common::FilterType::CrossoverLr2 ||
+                    f.type == common::FilterType::CrossoverLr4;
         });
-        // @TODO(mawe): enable crossover on coropipeline
-        //it != filters.end() ? m_coroPipeline->setCrossover(*it) : m_coroPipeline->setCrossover(common::Filter());
+        it != filters.end() ? m_coroPipeline->setCrossover(*it) : m_coroPipeline->setCrossover(common::Filter());
+
         // Check if loudness was provided
         it = std::find_if(filters.begin(), filters.end(), [](const common::Filter& f) {
             return f.type == common::FilterType::Loudness;

@@ -79,18 +79,12 @@ void CoroPipeline::setPeq(const std::vector<common::Filter>& filters)
     m_peq->setFilters(::audio::toCoro(filters));
 }
 
-/*
 void CoroPipeline::setCrossover(const common::Filter& crossover)
 {
-    m_crossover.setFrequency(crossover.f);
-
-    if (crossover.f == 0.0) {
-        constructPipeline(Type::Normal);
-    } else {
-        constructPipeline(Type::Crossover);
-    }
+    m_crossover.setFilter(::audio::toCoro({crossover}).front());
 }
 
+/*
 void Pipeline::setOutputDevice(const std::string& device)
 {
     m_alsaPassthroughSink->set_property("device", Glib::ustring(device));

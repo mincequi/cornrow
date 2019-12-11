@@ -58,20 +58,30 @@ void Plot::setFilter(const common::Filter& filter)
         m_phases = {m_phaseSum};
         break;
     }
-    case common::FilterType::Crossover:
+    case common::FilterType::CrossoverLr4:
+    case common::FilterType::CrossoverLr2:
     case common::FilterType::Subwoofer:
         resizePolys(2, m_mags);
         resizePolys(2, m_phases);
-        computeResponse({common::FilterType::LowPass, filter.f, filter.g, filter.q}, m_mags[0], m_phases[0]);
-        for (double g = 1.0; g < filter.g; g += 1.0) {
+
+        double lowGain = filter.g > 0.0 ? -filter.g : 0.0;
+        computeResponse({common::FilterType::LowPass, filter.f, lowGain, filter.q}, m_mags[0], m_phases[0]);
+        if (filter.type == common::FilterType::CrossoverLr4) {
             for (auto& p : m_mags[0]) { p.ry() += p.ry(); }
             for (auto& p : m_phases[0]) { p.ry() += p.ry(); }
         } // multi pass for cascading
-        computeResponse({common::FilterType::HighPass, filter.f, filter.g, filter.q}, m_mags[1], m_phases[1]);
-        for (double g = 1.0; g < filter.g; g += 1.0) {
+        // Apply gain
+        if (lowGain < 0.0) for (auto& p : m_mags[0]) { p.ry() += lowGain; }
+
+        double highGain = filter.g < 0.0 ? filter.g : 0.0;
+        computeResponse({common::FilterType::HighPass, filter.f, highGain, filter.q}, m_mags[1], m_phases[1]);
+        if (filter.type == common::FilterType::CrossoverLr4) {
             for (auto& p : m_mags[1]) { p.ry() += p.ry(); }
             for (auto& p : m_phases[1]) { p.ry() += p.ry(); }
         } // multi pass for cascading
+        // Apply gain
+        if (highGain < 0.0) for (auto& p : m_mags[1]) { p.ry() += highGain; }
+
         sumMags(m_mags, m_magSum);
         sumPhases(m_phases, m_phaseSum);
         break;

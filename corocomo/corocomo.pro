@@ -1,15 +1,16 @@
-VERSION = 0.5.0
+VERSION = 0.6.0
 ANDROID_VERSION_NAME = $$VERSION
 
 equals(ANDROID_TARGET_ARCH, armeabi-v7a) {
-    ANDROID_VERSION_CODE = 530
+    ANDROID_VERSION_CODE = 600
 }
 else:equals(ANDROID_TARGET_ARCH, arm64-v8a) {
-    ANDROID_VERSION_CODE = 531
+    ANDROID_VERSION_CODE = 601
 }
 
 QT += bluetooth quick svg
 CONFIG += c++14
+QMAKE_CXXFLAGS += -Wimplicit-fallthrough=0
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings

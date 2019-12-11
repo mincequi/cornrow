@@ -279,7 +279,7 @@ ApplicationWindow {
 
             FilterParameter {
                 label: "Frequency (Hz)"
-                unit: "Hz"
+                // prefix: "Hz"
                 opacity: CornrowModel.currentBand < CornrowModel.peqFilterCount
                 enabled: CornrowModel.currentBand < CornrowModel.peqFilterCount &&
                          CornrowModel.filterType > 0
@@ -300,7 +300,7 @@ ApplicationWindow {
             }
             FilterParameter {
                 label: "Gain (dB)"
-                unit: "dB"
+                // prefix: "dB"
                 opacity: CornrowModel.currentBand < CornrowModel.peqFilterCount
                 enabled: CornrowModel.currentBand <= CornrowModel.peqFilterCount &&
                          (CornrowModel.filterType === 1 ||
@@ -318,7 +318,7 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.right: parent.right
             label: "Loudness (phon)"
-            unit: "phon"
+            // prefix: "phon"
             opacity: CornrowModel.currentBand == CornrowModel.peqFilterCount
             enabled: CornrowModel.currentBand == CornrowModel.peqFilterCount
             readout: CornrowModel.gain.toFixed(0)
@@ -336,12 +336,22 @@ ApplicationWindow {
 
             FilterParameter {
                 label: "Frequency (Hz)"
-                unit: "Hz"
+                // prefix: "Hz"
                 enabled: CornrowModel.filterType > 0
                 readout: CornrowModel.freqReadout
                 onStep: CornrowModel.stepFreq(i)
                 value: CornrowModel.freqSlider
                 onValueChanged: CornrowModel.freqSlider = value
+            }
+
+            FilterParameter {
+                label: "Gain (dB)"
+                prefix: CornrowModel.gain < 0 ? "High:" : CornrowModel.gain == 0 ? "" : "Low:"
+                enabled: CornrowModel.filterType > 0
+                readout: (-1*Math.abs(CornrowModel.gain)).toFixed(1)
+                onStep: CornrowModel.stepGain(i)
+                value: CornrowModel.gainSlider
+                onValueChanged: CornrowModel.gainSlider = value
             }
 
             /*

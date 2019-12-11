@@ -117,7 +117,7 @@ void Pipeline::setOutputDevice(const std::string& device)
 common::Filter Pipeline::crossover() const
 {
     common::Filter crossover;
-    crossover.type = m_crossover->frequency() == 0.0f ? common::FilterType::Invalid : common::FilterType::Crossover;
+    crossover.type = m_crossover->frequency() == 0.0f ? common::FilterType::Invalid : common::FilterType::CrossoverLr2;
     crossover.f = m_crossover->frequency();
 
     return crossover;

@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    auto config = Config::init(Config::Type::Mid);
+    auto config = Config::init(Config::Type::High);
     auto model = Model::init(*config);
     auto bodePlot = BodePlotModel::init(*config);
     Q_UNUSED(model)

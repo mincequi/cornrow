@@ -6,7 +6,7 @@ Item {
     //property alias param: param.text
     //property alias unit: unit.text
     property string label
-    property string unit
+    property alias prefix: prefix.text
     property alias readout: readout.text
     property alias value: slider.value
     signal step(int i)
@@ -25,14 +25,12 @@ Item {
         anchors.right: slider.right
     }
 
-    /*
     Label {
-        id: unit
-        font.pointSize: font.pointSize-2
+        id: prefix
         anchors.right: slider.right
+        anchors.rightMargin: 40
         anchors.bottom: slider.top
     }
-    */
 
     ToolButton {
         id: dec

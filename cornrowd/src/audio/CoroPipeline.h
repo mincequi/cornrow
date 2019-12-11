@@ -51,9 +51,10 @@ public:
 
     void setPeq(const std::vector<common::Filter>& filters);
 
+    void setCrossover(const common::Filter& crossover);
+
     //void setRate(coro::audio::SampleRate rate);
 
-    //void setCrossover(const common::Filter& crossover);
     //common::Filter crossover() const;
 
 private:

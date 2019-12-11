@@ -95,8 +95,8 @@ public:
     void        setQSlider(double);
 
     // Crossover related members
-    int         crossoverType() const;
-    void        setCrossoverType(int filterType);
+    // int         crossoverType() const;
+    // void        setCrossoverType(int filterType);
     QStringList crossoverTypeNames() const;
 
     int         subwooferType() const;

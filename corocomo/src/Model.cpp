@@ -162,9 +162,11 @@ int Model::filterType() const
     } else if (m_currentBand == m_loudnessBand) {
         return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : 1;
     } else if (m_currentBand == m_xoBand) {
-        return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : static_cast<int>(m_currentFilter->g);
+        if (m_currentFilter->t == common::FilterType::CrossoverLr2) return 1;
+        else if (m_currentFilter->t == common::FilterType::CrossoverLr4) return 2;
+        else return 0;
     } else if (m_currentBand == m_swBand) {
-        return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : static_cast<int>(m_currentFilter->g);
+        return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : 1;
     }
 
     return 0;
@@ -179,13 +181,14 @@ void Model::setFilterType(int type)
     } else if (m_currentBand == m_loudnessBand) {
         t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Loudness;
     } else if (m_currentBand == m_xoBand) {
-        t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Crossover;
+        if (type == 1) t = common::FilterType::CrossoverLr2;
+        else if (type == 2) t = common::FilterType::CrossoverLr4;
         m_currentFilter->q = type == 1 ? 28 : 34;
-        m_currentFilter->g = type == 1 ? 1.0 : 2.0;
+        //m_currentFilter->g = type == 1 ? 1.0 : 2.0;
     } else if (m_currentBand == m_swBand) {
         t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Subwoofer;
         m_currentFilter->q = type == 1 ? 28 : 34;
-        m_currentFilter->g = type == 1 ? 1.0 : 2.0;
+        //m_currentFilter->g = type == 1 ? 1.0 : 2.0;
     }
 
     // @TODO(mawe): this might be tweaked a little bit
@@ -275,12 +278,14 @@ void Model::stepGain(int i)
 double Model::gainMin() const
 {
     if (m_currentBand == m_loudnessBand) return 0.0;
+    else if (m_currentBand == m_xoBand) return -12.0;
     else return m_config.gainMin;
 }
 
 double Model::gainMax() const
 {
     if (m_currentBand == m_loudnessBand) return 40.0;
+    else if (m_currentBand == m_xoBand) return 12.0;
     else return m_config.gainMax;
 }
 
@@ -326,6 +331,7 @@ void Model::setQSlider(double q)
     emit qChanged();
 }
 
+/*
 int Model::crossoverType() const
 {
     return (m_filters.at(m_xoBand).t == common::FilterType::Invalid) ? 0 : static_cast<int>(m_filters.at(m_xoBand).g);
@@ -333,10 +339,11 @@ int Model::crossoverType() const
 
 void Model::setCrossoverType(int filterType)
 {
-    m_filters[m_xoBand].t = (filterType == 0)  ? common::FilterType::Invalid : common::FilterType::Crossover;
+    m_filters[m_xoBand].t = (filterType == 0)  ? common::FilterType::Invalid : common::FilterType::CrossoverLr2;
     m_filters[m_xoBand].q = filterType == 1 ? 28 : 34;
     m_filters[m_xoBand].g = filterType == 1 ? 1.0 : 2.0;
 }
+*/
 
 QStringList Model::crossoverTypeNames() const
 {

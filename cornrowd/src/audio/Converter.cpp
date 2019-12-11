@@ -29,6 +29,8 @@ common::FilterType fromCoro(coro::FilterType in)
     case coro::FilterType::HighPass:  return common::FilterType::HighPass;
     case coro::FilterType::LowShelf:  return common::FilterType::LowShelf;
     case coro::FilterType::HighShelf: return common::FilterType::HighShelf;
+    case coro::FilterType::AllPass:   return common::FilterType::AllPass;
+    default: return common::FilterType::Invalid;
     }
 
     return common::FilterType::Invalid;
@@ -43,10 +45,9 @@ coro::FilterType toCoro(common::FilterType in)
     case common::FilterType::HighPass: return coro::FilterType::HighPass;
     case common::FilterType::LowShelf: return coro::FilterType::LowShelf;
     case common::FilterType::HighShelf: return coro::FilterType::HighShelf;
-    case common::FilterType::AllPass: return coro::FilterType::Invalid;
-    case common::FilterType::Crossover: return coro::FilterType::Invalid;
-    case common::FilterType::Subwoofer: return coro::FilterType::Invalid;
-    case common::FilterType::Loudness: return coro::FilterType::Invalid;
+    case common::FilterType::CrossoverLr2: return coro::FilterType::Crossover;
+    case common::FilterType::CrossoverLr4: return coro::FilterType::Crossover;
+    default: return coro::FilterType::Invalid;
     }
 
     return coro::FilterType::Invalid;

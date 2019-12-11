@@ -40,7 +40,7 @@ Controller::Controller(audio::Controller* audio,
     for (const auto& filter : filters) {
         if (filter.type >= common::FilterType::Peak && filter.type <= common::FilterType::AllPass) {
             peqFilters.push_back(filter);
-        } else if (filter.type >= common::FilterType::Crossover && filter.type <= common::FilterType::Loudness){
+        } else if (filter.type >= common::FilterType::CrossoverLr2 && filter.type <= common::FilterType::Loudness){
             auxFilters.push_back(filter);
         }
     }
