@@ -20,6 +20,8 @@
 #include <coro/audio/AlsaSink.h>
 #include <coro/audio/AppSource.h>
 #include <coro/audio/AudioConverter.h>
+#include <coro/audio/AudioEncoderFfmpeg.h>
+#include <coro/audio/Crossover.h>
 #include <coro/audio/SbcDecoder.h>
 #include <coro/core/AppSink.h>
 #include <common/Types.h>
@@ -55,12 +57,15 @@ public:
     //common::Filter crossover() const;
 
 private:
-    coro::audio::AppSource m_appSource;
+    coro::audio::AppSource  m_appSource;
     coro::audio::SbcDecoder m_sbcDecoder;
     coro::audio::AudioConverter<int16_t, float> m_intToFloat;
     coro::audio::AudioConverter<float, int16_t> m_floatToInt;
     coro::audio::AlsaSink   m_alsaSink;
-    coro::core::AppSink     m_appSink;
+    //coro::core::AppSink     m_appSink;
     coro::audio::Peq*       m_peq;
     coro::audio::Loudness*  m_loudness;
+
+    coro::audio::Crossover  m_crossover;
+    coro::audio::AudioEncoderFfmpeg m_ac3Encoder;
 };

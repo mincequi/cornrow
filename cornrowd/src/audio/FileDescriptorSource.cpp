@@ -3,9 +3,6 @@
 #include "CoroPipeline.h"
 #include "Pipeline.h"
 
-#include <xxhash.h>
-
-#include <QDebug>
 #include <QFile>
 #include <QSocketNotifier>
 #include <QThread>
@@ -26,9 +23,9 @@ FileDescriptorSource::FileDescriptorSource(int fd,
     m_coroPipeline(coroPipeline),
     m_coroBuffer(m_blockSize*10)
 {
-    qDebug() << __func__ << "> fd:" << fd;
+    LOG_F(INFO, "opening file descriptor: %d", fd);
     if (!m_file->open(fd, QIODevice::ReadOnly, QFile::AutoCloseHandle)) {
-        qWarning() << "error opening file descriptor:" << fd;
+        LOG_F(ERROR, "error opening file descriptor: %d", fd);
         return;
     }
 
@@ -48,6 +45,8 @@ void FileDescriptorSource::processNew()
 
     int allocFactor = 10;
     auto buffer = m_coroBuffer.acquire(m_blockSize*allocFactor);
+
+    // Read all data from filedescriptor. We have to cut the data to frames, otherwise, the decoder will get in trouble.
     auto size = m_file->read((char*)buffer, m_blockSize*allocFactor);
     m_coroBuffer.commit(size);
     // The number of slices to cut the buffer into.
@@ -58,7 +57,7 @@ void FileDescriptorSource::processNew()
     }
 
     coro::audio::AudioConf conf;
-    conf.codec = coro::audio::Codec::Sbc;
+    conf.codec = coro::audio::AudioCodec::Sbc;
     conf.rate = m_rate == 48000 ? coro::audio::SampleRate::Rate48000 : coro::audio::SampleRate::Rate44100;
     conf.isRtpPayloaded = true;
 
@@ -77,7 +76,7 @@ void FileDescriptorSource::processNew()
 
     static int blockSize = -1;
     if (blockSize != size) {
-        //LOG_F(INFO, "Current block size: %i", (int)size);
+        LOG_F(INFO, "Current block size: %i", (int)size);
         blockSize = size;
     }
 }

@@ -169,7 +169,7 @@ void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 
     m_fdSource = new FileDescriptorSource(fd, blockSize, m_rate, m_coroPipeline);
     auto coroRate = m_rate == 48000 ? coro::audio::SampleRate::Rate48000 : coro::audio::SampleRate::Rate44100;
-    m_coroPipeline->start( { coro::audio::Codec::RawInt16, coroRate } );
+    m_coroPipeline->start( { coro::audio::AudioCodec::RawInt16, coroRate } );
     //m_coroPipeline->setRate(m_rate == 48000 ? coro::audio::SampleRate::Rate48000 : coro::audio::SampleRate::Rate44100);
     //m_pipeline->setFileDescriptor(m_rate, fd, blockSize);
 }

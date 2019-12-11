@@ -25,14 +25,20 @@
 using namespace coro::core;
 
 CoroPipeline::CoroPipeline()
+    : m_ac3Encoder(coro::audio::AudioCodec::Ac3)
 {
     m_loudness = new coro::audio::Loudness();
     m_peq = new coro::audio::Peq();
+
+    //m_alsaSink.setDevice("iec958:CARD=sndrpihifiberry,DEV=0");
 
     Node::link(m_appSource, m_sbcDecoder);
     Node::link(m_sbcDecoder, m_intToFloat);
     Node::link(m_intToFloat, *m_peq);
     Node::link(*m_peq, *m_loudness);
+    //Node::link(*m_loudness, m_crossover);
+    //Node::link(m_crossover, m_ac3Encoder);
+    //Node::link(m_ac3Encoder, m_alsaSink);
     Node::link(*m_loudness, m_floatToInt);
     Node::link(m_floatToInt, m_alsaSink);
 }
@@ -70,13 +76,13 @@ void CoroPipeline::setLoudness(uint8_t phon)
 
 void CoroPipeline::setPeq(const std::vector<common::Filter>& filters)
 {
-    m_peq->setFilters(audio::toCoro(filters));
+    m_peq->setFilters(::audio::toCoro(filters));
 }
 
 /*
 void CoroPipeline::setCrossover(const common::Filter& crossover)
 {
-    m_crossover->setFrequency(crossover.f);
+    m_crossover.setFrequency(crossover.f);
 
     if (crossover.f == 0.0) {
         constructPipeline(Type::Normal);
