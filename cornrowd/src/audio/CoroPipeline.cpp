@@ -47,6 +47,7 @@ CoroPipeline::~CoroPipeline()
 {
     m_alsaSink.stop();
     delete m_peq;
+    delete m_loudness;
 }
 
 void CoroPipeline::start(const coro::audio::AudioConf& conf)
