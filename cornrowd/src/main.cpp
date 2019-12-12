@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 
     QCoreApplication a(argc, argv);
     QCoreApplication::setApplicationName("cornrowd");
-    QCoreApplication::setApplicationVersion("0.5.1");
+    QCoreApplication::setApplicationVersion("0.6.0");
 
     // command line options
     QCommandLineParser parser;

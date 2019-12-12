@@ -5,10 +5,10 @@ Maintainer: Manuel Weichselbaumer <mincequi@web.de>
 Build-Depends:
     cmake,
     debhelper (>= 10),
+    libavcodec-dev,
+    libavutil-dev,
     libboost-dev,
-    libgstreamermm-1.0-dev,
     libtool,
-    libxxhash0,
     pkg-config,
 #bluezqt deps
     extra-cmake-modules,
@@ -24,12 +24,7 @@ Depends:
     ${misc:Depends},
     ${shlibs:Depends},
     adduser,
-    bluez,
-    gstreamer1.0-alsa,
-    gstreamer1.0-plugins-base,
-    gstreamer1.0-plugins-good,
-    gstreamer1.0-plugins-bad,
-    gstreamer1.0-libav,
+    bluez
 Description: Bluetooth audio player
  This is a bluetooth audio daemon which accepts and plays audio from any
  bluetooth source and turns your computer into a bluetooth speaker.

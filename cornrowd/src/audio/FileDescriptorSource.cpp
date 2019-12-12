@@ -1,7 +1,6 @@
 #include "FileDescriptorSource.h"
 
 #include "CoroPipeline.h"
-#include "Pipeline.h"
 
 #include <QFile>
 #include <QSocketNotifier>
