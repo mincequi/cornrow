@@ -7,6 +7,6 @@ add_library(audio STATIC
 
 target_link_libraries(audio
     common
-    gstreamermm-dsp
+    libcornrow
     Qt5::Core
 )

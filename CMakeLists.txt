@@ -26,7 +26,7 @@ macro(install)
     _install(${ARGN})
 endmacro()
 
-add_subdirectory(thirdparty/gstreamermm-dsp)
+add_subdirectory(thirdparty/libcornrow)
 
 # Mandatory debian variables
 SET(CPACK_GENERATOR "DEB")

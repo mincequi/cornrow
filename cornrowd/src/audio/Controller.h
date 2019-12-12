@@ -19,7 +19,7 @@
 
 #include <common/Types.h>
 #include <common/ble/Types.h>
-#include <gstdsp/AlsaUtil.h>
+#include <coro/audio/AlsaUtil.h>
 
 #include <QObject>
 
