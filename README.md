@@ -12,18 +12,17 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 ![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.5.1/cornrowd_0.5.1_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.5.1/cornrowd_0.5.1_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0_amd64.deb).
 
 Get dependencies first
 ```
 sudo apt update
 sudo apt install \
-  libgstreamermm-1.0 \
   libqt5bluetooth5 \
   libqt5network5 \
   libasound2 \
-  libao4 \
   libavcodec58 \
+  libavutil56 \
   libsbc1
 dpkg -i cornrowd__<version>_<your_arch>.deb
 ```
@@ -35,15 +34,14 @@ Consider downloading the release tarballs. Master might be broken from time to t
 ```
 sudo apt install \
   cmake extra-cmake-modules \
-  libao-dev \
   libasound2-dev \
   libavcodec-dev \
+  libavutil-dev \
   libboost-dev \
-  libgstreamermm-1.0-dev \
   libsbc-dev \
   qtconnectivity5-dev # get dependecies
-wget https://github.com/mincequi/cornrow/archive/v0.5.0.tar.gz
-tar xfvz v0.5.0.tar.gz
+wget https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0.tar.xz
+tar xf cornrowd_0.6.0.tar.xz
 dpkg-buildpackage -us -uc                           # build unsigned debian package
 sudo dpkg -i ../cornrowd_<version>_<your_arch>.deb  # install package
 sudo systemctl unmask cornrowd.service              # unmask service
@@ -52,7 +50,7 @@ sudo systemctl enable cornrowd.service              # start-up service on each r
 ```
 
 ### Arbitrary distro
-Get the dependencies. Basically, these are gstreamermm and qt5bluetooth.
+Get the dependencies. Basically, these are ffmpeg (libav*) and qt5bluetooth.
 ```
 git clone --recursive https://github.com/mincequi/cornrow
 cd cornrow
@@ -80,8 +78,9 @@ Commit | Date | Working
 A lot of Bluetooth packets seem to be dropped when CPU usage is **low**. As soon as the system is put under load, bluetooth packet reception is a **lot** better. This seems to be related to core frequency scaling (https://www.raspberrypi.org/documentation/configuration/uart.md).
 
 ## To Do
-* Add crossover again
-* Completely remove gstreamer as dependency
+* Rename gstreamer-dsp to libcornrow
+* ~~Add crossover again~~
+* ~~Completely remove gstreamer as dependency~~
 * ~~Remove dependencies~~
 * ~~Add sophisticated logging~~
 * ~~Implement volume control~~
