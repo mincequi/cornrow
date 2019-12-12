@@ -25,6 +25,9 @@ sudo apt install \
   libavutil56 \
   libsbc1
 dpkg -i cornrowd__<version>_<your_arch>.deb
+sudo systemctl unmask cornrowd.service              # unmask service
+sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
+sudo systemctl enable cornrowd.service              # start-up service on each reboot.
 ```
 
 ## Installation (from source)
