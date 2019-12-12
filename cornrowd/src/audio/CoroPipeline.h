@@ -53,6 +53,8 @@ public:
 
     void setCrossover(const common::Filter& crossover);
 
+    void setOutputDevice(const std::string& device);
+
     //void setRate(coro::audio::SampleRate rate);
 
     //common::Filter crossover() const;

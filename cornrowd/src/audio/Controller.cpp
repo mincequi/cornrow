@@ -144,7 +144,7 @@ void Controller::setOutput(const common::IoInterface& interface)
     auto it = range.first;
     std::advance(it, interface.number);
     qDebug() << "output device:" << QString::fromStdString(it->second);
-    //m_pipeline->setOutputDevice(it->second);
+    m_coroPipeline->setOutputDevice(it->second);
 }
 
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)

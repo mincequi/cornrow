@@ -36,10 +36,9 @@ CoroPipeline::CoroPipeline()
     Node::link(m_sbcDecoder, m_intToFloat);
     Node::link(m_intToFloat, *m_peq);
     Node::link(*m_peq, *m_loudness);
-    //Node::link(*m_loudness, m_crossover);
-    //Node::link(m_crossover, m_ac3Encoder);
-    //Node::link(m_ac3Encoder, m_alsaSink);
-    Node::link(*m_loudness, m_floatToInt);
+    Node::link(*m_loudness, m_crossover);
+    Node::link(m_crossover, m_ac3Encoder);
+    Node::link(m_ac3Encoder, m_floatToInt);
     Node::link(m_floatToInt, m_alsaSink);
 }
 
@@ -80,18 +79,20 @@ void CoroPipeline::setPeq(const std::vector<common::Filter>& filters)
     m_peq->setFilters(::audio::toCoro(filters));
 }
 
-void CoroPipeline::setCrossover(const common::Filter& crossover)
+void CoroPipeline::setCrossover(const common::Filter& filter)
 {
-    m_crossover.setFilter(::audio::toCoro({crossover}).front());
+    auto crossover = ::audio::toCoro({filter}).front();
+    m_crossover.setFilter(crossover);
+    m_ac3Encoder.setIsBypassed(!crossover.isValid());
+    m_floatToInt.setIsBypassed(crossover.isValid());
+}
+
+void CoroPipeline::setOutputDevice(const std::string& device)
+{
+    m_alsaSink.setDevice(device);
 }
 
 /*
-void Pipeline::setOutputDevice(const std::string& device)
-{
-    m_alsaPassthroughSink->set_property("device", Glib::ustring(device));
-    m_alsaSink->set_property("device", Glib::ustring(device));
-}
-
 common::Filter CoroPipeline::crossover() const
 {
     common::Filter crossover;
