@@ -15,10 +15,6 @@ Copyright: 2014, Alejandro Fiestas Olivares <afiestas@kde.org>
            2010-2011, UFO Coders <info@ufocoders.com>
 License: LGPL-2.1+
 
-Files: thirdparty/gstreamermm-dsp/thirdparty/gstreamermm
-Copyright: 2008-17, The gstreamermm Development Team
-License: LGPL-2.1+
-
 License: GPL-2
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

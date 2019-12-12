@@ -1,6 +1,6 @@
-[submodule "thirdparty/gstreamermm-dsp"]
+[submodule "thirdparty/libcornrow"]
 	path = thirdparty/libcornrow
-	url = https://github.com/mincequi/gstreamermm-dsp
+	url = https://github.com/mincequi/libcornrow
 [submodule "thirdparty/bluez-qt"]
 	path = thirdparty/bluez-qt
 	url = https://github.com/mincequi/bluez-qt.git
