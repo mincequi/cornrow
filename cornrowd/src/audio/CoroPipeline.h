@@ -23,6 +23,7 @@
 #include <coro/audio/AudioEncoderFfmpeg.h>
 #include <coro/audio/Crossover.h>
 #include <coro/audio/SbcDecoder.h>
+#include <coro/audio/ScreamSource.h>
 #include <coro/core/AppSink.h>
 #include <common/Types.h>
 
@@ -60,8 +61,15 @@ public:
     //common::Filter crossover() const;
 
 private:
+    void onSourceWantsToStart(coro::audio::Source* const, bool wantsToStart);
+
+    // Bluetooth nodes
     coro::audio::AppSource  m_appSource;
     coro::audio::SbcDecoder m_sbcDecoder;
+
+    // Scream node
+    coro::audio::ScreamSource m_screamSource;
+
     coro::audio::AudioConverter<int16_t, float> m_intToFloat;
     coro::audio::AudioConverter<float, int16_t> m_floatToInt;
     coro::audio::AlsaSink   m_alsaSink;
@@ -71,4 +79,6 @@ private:
 
     coro::audio::Crossover  m_crossover;
     coro::audio::AudioEncoderFfmpeg m_ac3Encoder;
+
+    std::set<coro::audio::Source*> m_sources;
 };

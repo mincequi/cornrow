@@ -22,6 +22,7 @@
 
 #include "Converter.h"
 
+using namespace std::placeholders;
 using namespace coro::core;
 
 CoroPipeline::CoroPipeline()
@@ -32,14 +33,21 @@ CoroPipeline::CoroPipeline()
 
     //m_alsaSink.setDevice("iec958:CARD=sndrpihifiberry,DEV=0");
 
+    // Bluetooth nodes
     Node::link(m_appSource, m_sbcDecoder);
     Node::link(m_sbcDecoder, m_intToFloat);
+
+    // Scream nodes
+    Node::link(m_screamSource, m_intToFloat);
+
     Node::link(m_intToFloat, *m_peq);
     Node::link(*m_peq, *m_loudness);
     Node::link(*m_loudness, m_crossover);
     Node::link(m_crossover, m_ac3Encoder);
     Node::link(m_ac3Encoder, m_floatToInt);
     Node::link(m_floatToInt, m_alsaSink);
+
+    m_screamSource.setWantsToStartCallback(std::bind(&CoroPipeline::onSourceWantsToStart, this, _1, _2));
 }
 
 CoroPipeline::~CoroPipeline()
@@ -102,3 +110,25 @@ common::Filter CoroPipeline::crossover() const
     return crossover;
 }
 */
+
+void CoroPipeline::onSourceWantsToStart(coro::audio::Source* const source, bool wantsToStart)
+{
+    // If source wants to stop, stop it.
+    if (!wantsToStart) {
+        source->stop();
+    }
+
+    // If another one is running, do nothing.
+    for (auto s : m_sources) {
+        if (s->isStarted()) {
+            return;
+        }
+    }
+
+    // If another one wants to start, start it.
+    for (auto s : m_sources) {
+        if (s->wantsToStart()) {
+            s->start();
+        }
+    }
+}
