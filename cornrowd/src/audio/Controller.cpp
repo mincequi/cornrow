@@ -99,9 +99,9 @@ std::vector<common::IoInterface> Controller::ioCaps()
         case coro::AudioDeviceType::Spdif:
             m_outputDeviceMap.insert( { common::IoInterfaceType::Spdif, d.name } );
             break;
-        // case GstDsp::AudioDeviceType::Hdmi:
-        //     m_outputDeviceMap.insert( { common::IoInterfaceType::Hdmi, d.name } );
-        //     break;
+        case GstDsp::AudioDeviceType::Hdmi:
+            m_outputDeviceMap.insert( { common::IoInterfaceType::Hdmi, d.name } );
+            break;
         default:
             break;
         }
