@@ -40,7 +40,7 @@ sudo apt install \
   libasound2-dev \
   libavcodec-dev \
   libavutil-dev \
-  libboost-dev \
+  libboost-system-dev \
   libsbc-dev \
   qtconnectivity5-dev # get dependecies
 wget https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0.tar.xz
@@ -79,12 +79,3 @@ Commit | Date | Working
 
 #### UART issues
 A lot of Bluetooth packets seem to be dropped when CPU usage is **low**. As soon as the system is put under load, bluetooth packet reception is a **lot** better. This seems to be related to core frequency scaling (https://www.raspberrypi.org/documentation/configuration/uart.md).
-
-## To Do
-* Rename gstreamer-dsp to libcornrow
-* ~~Add crossover again~~
-* ~~Completely remove gstreamer as dependency~~
-* ~~Remove dependencies~~
-* ~~Add sophisticated logging~~
-* ~~Implement volume control~~
-* ~~Set discoverable/pairable timeout to forever~~
