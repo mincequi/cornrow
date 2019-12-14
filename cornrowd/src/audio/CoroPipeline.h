@@ -72,13 +72,12 @@ private:
 
     coro::audio::AudioConverter<int16_t, float> m_intToFloat;
     coro::audio::AudioConverter<float, int16_t> m_floatToInt;
-    coro::audio::AlsaSink   m_alsaSink;
-    //coro::core::AppSink     m_appSink;
     coro::audio::Peq*       m_peq;
     coro::audio::Loudness*  m_loudness;
-
     coro::audio::Crossover  m_crossover;
     coro::audio::AudioEncoderFfmpeg m_ac3Encoder;
+    coro::audio::AlsaSink   m_alsaSink;
 
+    // Sources collection for selection
     std::set<coro::audio::Source*> m_sources;
 };

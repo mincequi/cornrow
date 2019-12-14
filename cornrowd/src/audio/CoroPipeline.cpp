@@ -19,6 +19,7 @@
 
 #include <coro/audio/Loudness.h>
 #include <coro/audio/Peq.h>
+#include <loguru/loguru.hpp>
 
 #include "Converter.h"
 
@@ -48,6 +49,9 @@ CoroPipeline::CoroPipeline()
     Node::link(m_floatToInt, m_alsaSink);
 
     m_screamSource.setWantsToStartCallback(std::bind(&CoroPipeline::onSourceWantsToStart, this, _1, _2));
+
+    m_sources.insert(&m_appSource);
+    m_sources.insert(&m_screamSource);
 }
 
 CoroPipeline::~CoroPipeline()
@@ -59,16 +63,30 @@ CoroPipeline::~CoroPipeline()
 
 void CoroPipeline::start(const coro::audio::AudioConf& conf)
 {
+    LOG_F(INFO, "Start Bluetooth source");
+    m_appSource.setWantsToStart(true);
+    onSourceWantsToStart(&m_appSource, true);
     m_alsaSink.start(conf);
 }
 
 void CoroPipeline::stop()
 {
+    LOG_F(INFO, "Stop Bluetooth source");
+    m_appSource.stop();
+    onSourceWantsToStart(&m_appSource, false);
     m_alsaSink.stop();
 }
 
 void CoroPipeline::pushBuffer(const coro::audio::AudioConf& conf, coro::audio::AudioBuffer& buffer)
 {
+    if (!m_appSource.isStarted()) {
+        m_appSource.setWantsToStart(true);
+        if (!m_appSource.isStarted()) {
+            LOG_F(2, "%s not started. Will drop buffer.", m_appSource.name());
+            return;
+        }
+    }
+
     m_appSource.process(conf, buffer);
 }
 
@@ -115,12 +133,14 @@ void CoroPipeline::onSourceWantsToStart(coro::audio::Source* const source, bool 
 {
     // If source wants to stop, stop it.
     if (!wantsToStart) {
+        LOG_F(INFO, "Stopping %s", source->name().c_str());
         source->stop();
     }
 
     // If another one is running, do nothing.
     for (auto s : m_sources) {
         if (s->isStarted()) {
+            LOG_F(2, "Another source runnig: %s", s->name());
             return;
         }
     }
@@ -128,6 +148,7 @@ void CoroPipeline::onSourceWantsToStart(coro::audio::Source* const source, bool 
     // If another one wants to start, start it.
     for (auto s : m_sources) {
         if (s->wantsToStart()) {
+            LOG_F(INFO, "Starting %s", s->name().c_str());
             s->start();
         }
     }

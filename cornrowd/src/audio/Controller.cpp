@@ -26,6 +26,7 @@
 #include <QThread>
 #include <QtDBus/QDBusObjectPath>
 
+#include <loguru/loguru.hpp>
 #include <unistd.h>
 
 namespace audio
@@ -149,6 +150,7 @@ void Controller::setOutput(const common::IoInterface& interface)
 
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 {
+    LOG_F(INFO, "set transport> fd: %d, blocksize: %d, rate: %d", fd, blockSize, rate);
     // Stop pipeline (in any case).
     m_coroPipeline->stop();
     if (m_fdSource) {

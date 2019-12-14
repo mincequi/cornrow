@@ -1,3 +1,9 @@
+cornrowd (0.7.0) buster; urgency=medium
+
+  * Remove gstreamer as dependency
+
+ -- Manuel Weichselbaumer <mincequi@web.de>  Sun, 14 Dec 2019 17:30:00 +0100
+
 cornrowd (0.6.0) buster; urgency=medium
 
   * Remove gstreamer as dependency

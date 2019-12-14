@@ -65,7 +65,6 @@ void FileDescriptorSource::processNew()
         //              actually, original buffer is smaller, but will be reused, so reallocation
         //              takes place only once.
         auto buffers = m_coroBuffer.split(size/slices, m_blockSize*allocFactor*2);
-        //LOG_F(INFO, "buffer hash after: %i", XXH32(coroBuffer.data(), coroBuffer.size(), 0));
         for (auto& _buffer : buffers) {
             m_coroPipeline->pushBuffer(conf, _buffer);
         }
