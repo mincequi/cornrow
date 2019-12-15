@@ -38,6 +38,8 @@ struct SignalHandler
 
 int main(int argc, char **argv)
 {
+    loguru::init(argc, argv);
+
     loguru::g_preamble_date    = false;
     loguru::g_preamble_time    = true; // The time of the current day
     loguru::g_preamble_uptime  = false; // The time since init call
