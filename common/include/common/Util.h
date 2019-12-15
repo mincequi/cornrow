@@ -1,5 +1,4 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 #include "Types.h"
 
@@ -12,5 +11,3 @@ bool computeResponse(const Filter& filter, const std::vector<float>& freqs, std:
 */
 
 } // namespace common
-
-#endif // UTIL_H

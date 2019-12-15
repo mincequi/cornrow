@@ -20,7 +20,10 @@ enum IoInterfaceType {
     Spdif       = 3,
     Hdmi        = 4,
     Bluetooth   = 5,
-    Airplay     = 6
+    Airplay     = 6,
+    Scream      = 7,
+
+    Max         = 15
 };
 
 enum class SampleFormat : uint8_t {

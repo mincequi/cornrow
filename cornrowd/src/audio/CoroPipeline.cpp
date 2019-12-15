@@ -133,7 +133,7 @@ void CoroPipeline::onSourceWantsToStart(coro::audio::Source* const source, bool 
 {
     // If source wants to stop, stop it.
     if (!wantsToStart) {
-        LOG_F(INFO, "Stopping %s", source->name().c_str());
+        LOG_F(INFO, "Stopping %s", source->name());
         source->stop();
     }
 
@@ -148,7 +148,7 @@ void CoroPipeline::onSourceWantsToStart(coro::audio::Source* const source, bool 
     // If another one wants to start, start it.
     for (auto s : m_sources) {
         if (s->wantsToStart()) {
-            LOG_F(INFO, "Starting %s", s->name().c_str());
+            LOG_F(INFO, "Starting %s", s->name());
             s->start();
         }
     }

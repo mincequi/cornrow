@@ -132,6 +132,11 @@ QString IoModel::toString(common::IoInterface interface)
     case common::IoInterfaceType::Airplay:
         string = "Airplay";
         break;
+    case common::IoInterfaceType::Scream:
+        string = "Scream";
+        break;
+    case common::IoInterfaceType::Max:
+        return QString();
     }
     if (interface.number > 0) {
         string += (" " + QString::number(interface.number));
