@@ -20,6 +20,7 @@ sudo apt update
 sudo apt install \
   libqt5bluetooth5 \
   libqt5network5 \
+  libasio-dev \
   libasound2 \
   libavcodec58 \
   libavutil56 \
