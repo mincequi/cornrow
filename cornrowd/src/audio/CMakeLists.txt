@@ -7,6 +7,6 @@ add_library(audio STATIC
 
 target_link_libraries(audio
     common
-    libcornrow
+    cornrow
     Qt5::Core
 )
