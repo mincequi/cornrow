@@ -20,10 +20,10 @@ sudo apt update
 sudo apt install \
   libqt5bluetooth5 \
   libqt5network5 \
-  libasio-dev \
   libasound2 \
   libavcodec58 \
   libavutil56 \
+  libboost-system1.67.0 \
   libsbc1
 dpkg -i cornrowd__<version>_<your_arch>.deb
 sudo systemctl unmask cornrowd.service              # unmask service
@@ -38,6 +38,7 @@ Consider downloading the release tarballs. Master might be broken from time to t
 ```
 sudo apt install \
   cmake extra-cmake-modules \
+  libasio-dev \
   libasound2-dev \
   libavcodec-dev \
   libavutil-dev \
