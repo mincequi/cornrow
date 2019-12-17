@@ -48,7 +48,7 @@ CoroPipeline::CoroPipeline()
     Node::link(m_ac3Encoder, m_floatToInt);
     Node::link(m_floatToInt, m_alsaSink);
 
-    m_screamSource.setWantsToStartCallback(std::bind(&CoroPipeline::onSourceWantsToStart, this, _1, _2));
+    m_screamSource.setReadyCallback(std::bind(&CoroPipeline::onSourceReady, this, _1, _2));
 
     m_sources.insert(&m_appSource);
     m_sources.insert(&m_screamSource);
@@ -64,8 +64,8 @@ CoroPipeline::~CoroPipeline()
 void CoroPipeline::start(const coro::audio::AudioConf& conf)
 {
     LOG_F(INFO, "Start Bluetooth source");
-    m_appSource.setWantsToStart(true);
-    onSourceWantsToStart(&m_appSource, true);
+    m_appSource.setReady(true);
+    onSourceReady(&m_appSource, true);
     m_alsaSink.start(conf);
 }
 
@@ -73,14 +73,14 @@ void CoroPipeline::stop()
 {
     LOG_F(INFO, "Stop Bluetooth source");
     m_appSource.stop();
-    onSourceWantsToStart(&m_appSource, false);
-    m_alsaSink.stop();
+    onSourceReady(&m_appSource, false);
+    //m_alsaSink.stop();
 }
 
 void CoroPipeline::pushBuffer(const coro::audio::AudioConf& conf, coro::audio::AudioBuffer& buffer)
 {
     if (!m_appSource.isStarted()) {
-        m_appSource.setWantsToStart(true);
+        m_appSource.setReady(true);
         if (!m_appSource.isStarted()) {
             LOG_F(2, "%s not started. Will drop buffer.", m_appSource.name());
             return;
@@ -129,12 +129,11 @@ common::Filter CoroPipeline::crossover() const
 }
 */
 
-void CoroPipeline::onSourceWantsToStart(coro::audio::Source* const source, bool wantsToStart)
+void CoroPipeline::onSourceReady(coro::audio::Source* const source, bool ready)
 {
     // If source wants to stop, stop it.
-    if (!wantsToStart) {
-        LOG_F(INFO, "Stopping %s", source->name());
-        source->stop();
+    if (!ready) {
+        LOG_F(INFO, "%s stopped", source->name());
     }
 
     // If another one is running, do nothing.
@@ -147,7 +146,7 @@ void CoroPipeline::onSourceWantsToStart(coro::audio::Source* const source, bool 
 
     // If another one wants to start, start it.
     for (auto s : m_sources) {
-        if (s->wantsToStart()) {
+        if (s->isReady()) {
             LOG_F(INFO, "Starting %s", s->name());
             s->start();
         }

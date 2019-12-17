@@ -61,7 +61,7 @@ public:
     //common::Filter crossover() const;
 
 private:
-    void onSourceWantsToStart(coro::audio::Source* const, bool wantsToStart);
+    void onSourceReady(coro::audio::Source* const, bool wantsToStart);
 
     // Bluetooth nodes
     coro::audio::AppSource  m_appSource;

@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     loguru::g_preamble_date    = false;
     loguru::g_preamble_time    = true; // The time of the current day
     loguru::g_preamble_uptime  = false; // The time since init call
-    loguru::g_preamble_thread  = false; // The logging thread
+    loguru::g_preamble_thread  = true; // The logging thread
     loguru::g_preamble_file    = true; // The file from which the log originates from
     loguru::g_preamble_verbose = true; // The verbosity field
     loguru::g_preamble_pipe    = true; // The pipe symbol right before the message
