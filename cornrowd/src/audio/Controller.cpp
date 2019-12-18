@@ -109,7 +109,8 @@ std::vector<common::IoInterface> Controller::ioCaps()
     }
 
     std::vector<common::IoInterface> ioCaps = {
-        { common::IoInterfaceType::Bluetooth, false, 1 }
+        { common::IoInterfaceType::Bluetooth, false, 1 },
+        { common::IoInterfaceType::Scream,    false, 1 }
     };
 
     for (auto it = m_outputDeviceMap.begin(); it != m_outputDeviceMap.end(); it = m_outputDeviceMap.upper_bound(it->first)) {
