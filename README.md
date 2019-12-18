@@ -45,7 +45,6 @@ sudo apt install \
   libboost-system-dev \
   libsbc-dev \
   qtconnectivity5-dev # get dependecies
-sudo apt install libraspberrypi-dev #optional for multichannel HDMI
 wget https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0.tar.xz
 tar xf cornrowd_0.6.0.tar.xz
 dpkg-buildpackage -us -uc                           # build unsigned debian package
