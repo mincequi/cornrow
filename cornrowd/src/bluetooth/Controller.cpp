@@ -40,6 +40,8 @@
 #include <BluezQt/Services>
 #include <BluezQt/Types>
 
+#include <loguru/loguru.hpp>
+
 #include <cmath>
 #include <unistd.h>
 
@@ -62,7 +64,7 @@ Controller::Controller(QObject *parent)
     InitManagerJob* initJob = m_manager->init();
     initJob->exec();
     if (initJob->error()) {
-        qWarning() << "Error initializing bluetooth manager:" << initJob->errorText();
+        LOG_F(WARNING, "Error initializing bluetooth manager: %s", initJob->errorText().toStdString().c_str());
         return;
     }
 
@@ -110,7 +112,7 @@ void Controller::setReadIoConfCallback(ReadIoConfCallback callback)
 void Controller::initBle()
 {
     if (!m_manager->usableAdapter() || !m_manager->usableAdapter()->leAdvertisingManager()) {
-        qWarning() << "No BLE adapter present";
+        LOG_F(WARNING, "No BLE adapter present");
         return;
     }
 

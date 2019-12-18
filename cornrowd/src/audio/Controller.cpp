@@ -137,14 +137,14 @@ void Controller::setOutput(const common::IoInterface& interface)
     // Check if index is in valid range
     auto count = std::distance(range.first, range.second);
     if (count <= interface.number) {
-        qDebug() << "invalid output interface> type:" << static_cast<int>(interface.type) << ", index:" << static_cast<int>(interface.number);
+        LOG_F(WARNING, "Output device invalid. type: %d, index: %d", static_cast<int>(interface.type), static_cast<int>(interface.number));
         return;
     }
 
     // Advance iterator to selected device and set device name accordingly
     auto it = range.first;
     std::advance(it, interface.number);
-    qDebug() << "output device:" << QString::fromStdString(it->second);
+    LOG_F(INFO, "Output device set to: %s", it->second.c_str());
     m_coroPipeline->setOutputDevice(it->second);
 }
 

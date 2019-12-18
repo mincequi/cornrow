@@ -7,6 +7,7 @@ add_library(bluetooth STATIC
 
 target_link_libraries(bluetooth
     common
+    cornrow
     KF5BluezQt
     Qt5::Bluetooth
     Qt5::DBus

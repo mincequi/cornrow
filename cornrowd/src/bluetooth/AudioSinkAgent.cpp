@@ -17,10 +17,11 @@
 
 #include "AudioSinkAgent.h"
 
-#include <QDebug>
 #include <QtDBus/QDBusObjectPath>
 
 #include <BluezQt/Device>
+
+#include <loguru/loguru.hpp>
 
 namespace bluetooth
 {
@@ -60,7 +61,7 @@ void AudioSinkAgent::authorizeService(DevicePtr device, const QString &uuid, con
     if (!d->allowedUuids.contains(uuid)) {
         request.reject();
     } else {
-        qDebug() << "Accepted service:" << uuid << "from" << device->friendlyName();
+        LOG_F(INFO, "Service %s accepted from %s", uuid.data(), device->friendlyName().toStdString().c_str());
         request.accept();
     }
 }
