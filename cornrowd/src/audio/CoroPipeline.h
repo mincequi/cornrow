@@ -25,6 +25,7 @@
 #include <coro/audio/SbcDecoder.h>
 #include <coro/audio/ScreamSource.h>
 #include <coro/core/AppSink.h>
+#include <coro/pi/PiHdmiAudioSink.h>
 #include <common/Types.h>
 
 namespace coro
@@ -77,6 +78,7 @@ private:
     coro::audio::Crossover  m_crossover;
     coro::audio::AudioEncoderFfmpeg m_ac3Encoder;
     coro::audio::AlsaSink   m_alsaSink;
+    //coro::pi::PiHdmiAudioSink   m_piHdmiSink;
 
     // Sources collection for selection
     std::set<coro::audio::Source*> m_sources;

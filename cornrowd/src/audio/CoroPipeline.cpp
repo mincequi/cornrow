@@ -47,6 +47,7 @@ CoroPipeline::CoroPipeline()
     Node::link(m_crossover, m_ac3Encoder);
     Node::link(m_ac3Encoder, m_floatToInt);
     Node::link(m_floatToInt, m_alsaSink);
+    //Node::link(m_floatToInt, m_piHdmiSink);
 
     m_screamSource.setReadyCallback(std::bind(&CoroPipeline::onSourceReady, this, _1, _2));
 
