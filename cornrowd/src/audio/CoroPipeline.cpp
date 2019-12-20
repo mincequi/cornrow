@@ -19,6 +19,7 @@
 
 #include <coro/audio/Loudness.h>
 #include <coro/audio/Peq.h>
+#include <coro/pi/PiHdmiAudioSink.h>
 #include <loguru/loguru.hpp>
 
 #include "Converter.h"
@@ -32,6 +33,10 @@ CoroPipeline::CoroPipeline()
     m_loudness = new coro::audio::Loudness();
     m_peq = new coro::audio::Peq();
 
+#ifdef TARGET_PI
+    m_piHdmiSink = new coro::pi::PiHdmiAudioSink();
+#endif
+
     //m_alsaSink.setDevice("iec958:CARD=sndrpihifiberry,DEV=0");
 
     // Bluetooth nodes
@@ -44,10 +49,15 @@ CoroPipeline::CoroPipeline()
     Node::link(m_intToFloat, *m_peq);
     Node::link(*m_peq, *m_loudness);
     Node::link(*m_loudness, m_crossover);
-    Node::link(m_crossover, m_ac3Encoder);
-    Node::link(m_ac3Encoder, m_floatToInt);
-    Node::link(m_floatToInt, m_alsaSink);
-    //Node::link(m_floatToInt, m_piHdmiSink);
+
+    if (m_piHdmiSink) {
+        Node::link(m_crossover, m_floatToInt);
+        Node::link(m_floatToInt, *m_piHdmiSink);
+    } else {
+        Node::link(m_crossover, m_ac3Encoder);
+        Node::link(m_ac3Encoder, m_floatToInt);
+        Node::link(m_floatToInt, m_alsaSink);
+    }
 
     m_screamSource.setReadyCallback(std::bind(&CoroPipeline::onSourceReady, this, _1, _2));
 
@@ -111,12 +121,17 @@ void CoroPipeline::setCrossover(const common::Filter& filter)
     auto crossover = ::audio::toCoro({filter}).front();
     m_crossover.setFilter(crossover);
     m_ac3Encoder.setIsBypassed(!crossover.isValid());
-    m_floatToInt.setIsBypassed(crossover.isValid());
+    m_floatToInt.setIsBypassed(crossover.isValid() && !m_piHdmiSink);
 }
 
 void CoroPipeline::setOutputDevice(const std::string& device)
 {
     m_alsaSink.setDevice(device);
+}
+
+bool CoroPipeline::hasPiHdmiOutput() const
+{
+    return m_piHdmiSink != nullptr;
 }
 
 /*

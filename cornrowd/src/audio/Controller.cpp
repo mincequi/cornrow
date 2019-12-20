@@ -108,6 +108,10 @@ std::vector<common::IoInterface> Controller::ioCaps()
         }
     }
 
+    if (m_coroPipeline->hasPiHdmiOutput()) {
+        m_outputDeviceMap.insert( { common::IoInterfaceType::Hdmi, "Raspberry Pi HDMI" } );
+    }
+
     std::vector<common::IoInterface> ioCaps = {
         { common::IoInterfaceType::Bluetooth, false, 1 },
         { common::IoInterfaceType::Scream,    false, 1 }

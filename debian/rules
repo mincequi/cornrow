@@ -4,5 +4,15 @@
 %:
 	dh $@ --parallel
 
+override_dh_auto_build:
+	dh_auto_configure -- -DENABLE_RPI=ON
+	dh_auto_build
+	dh_auto_install --destdir=$(CURDIR)/debian/tmp-rpi
+#	mv $(CURDIR)/debian/tmp-rpi/usr/bin/cornrowd $(CURDIR)/debian/tmp-rpi/usr/bin/cornrowd-rpi
+	dh_auto_clean
+
+	dh_auto_configure -- -DENABLE_RPI=OFF
+	dh_auto_build
+
 override_dh_installinit:
 	true

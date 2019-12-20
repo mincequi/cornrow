@@ -25,7 +25,6 @@
 #include <coro/audio/SbcDecoder.h>
 #include <coro/audio/ScreamSource.h>
 #include <coro/core/AppSink.h>
-#include <coro/pi/PiHdmiAudioSink.h>
 #include <common/Types.h>
 
 namespace coro
@@ -35,7 +34,11 @@ namespace audio
 class Loudness;
 class Peq;
 }
-}
+namespace pi
+{
+class PiHdmiAudioSink;
+} // namespace audio
+} // namespace coro
 
 class CoroPipeline
 {
@@ -57,6 +60,8 @@ public:
 
     void setOutputDevice(const std::string& device);
 
+    bool hasPiHdmiOutput() const;
+
     //void setRate(coro::audio::SampleRate rate);
 
     //common::Filter crossover() const;
@@ -73,12 +78,12 @@ private:
 
     coro::audio::AudioConverter<int16_t, float> m_intToFloat;
     coro::audio::AudioConverter<float, int16_t> m_floatToInt;
-    coro::audio::Peq*       m_peq;
-    coro::audio::Loudness*  m_loudness;
+    coro::audio::Peq*       m_peq       = nullptr;
+    coro::audio::Loudness*  m_loudness  = nullptr;
     coro::audio::Crossover  m_crossover;
     coro::audio::AudioEncoderFfmpeg m_ac3Encoder;
     coro::audio::AlsaSink   m_alsaSink;
-    //coro::pi::PiHdmiAudioSink   m_piHdmiSink;
+    coro::pi::PiHdmiAudioSink*  m_piHdmiSink = nullptr;
 
     // Sources collection for selection
     std::set<coro::audio::Source*> m_sources;

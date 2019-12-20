@@ -19,7 +19,7 @@ Vcs-Git: https://github.com/mincequi/cornrow.git
 
 Package: cornrowd
 Architecture: any
-Conflicts: pulseaudio
+Conflicts: pulseaudio, cornrowd-rpi
 Depends: 
     ${misc:Depends},
     ${shlibs:Depends},
@@ -28,3 +28,17 @@ Depends:
 Description: Bluetooth audio player
  This is a bluetooth audio daemon which accepts and plays audio from any
  bluetooth source and turns your computer into a bluetooth speaker.
+
+Package: cornrowd-rpi
+Architecture: any
+Conflicts: pulseaudio, cornrowd
+Depends:
+    ${misc:Depends},
+    ${shlibs:Depends},
+    adduser,
+    bluez
+Description: Bluetooth audio player
+ This is a bluetooth audio daemon which accepts and plays audio from any
+ bluetooth source and turns your computer into a bluetooth speaker.
+ This flavor of cornrowd can output multichannel audio via HDMI on
+ Raspberry Pi.
