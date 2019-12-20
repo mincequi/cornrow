@@ -29,25 +29,27 @@ SOURCES += \
     src/BleCentralAdapter.cpp \
     src/BodePlotModel.cpp \
     src/BusyIndicatorModel.cpp \
+    src/Config.cpp \
     src/EqChart.cpp \
     src/IoModel.cpp \
     src/Model.cpp \
     src/PhaseChart.cpp \
     src/Plot.cpp \
     src/PresetModel.cpp \
-    src/main.cpp \
-    src/Config.cpp
+    src/SoftClipChart.cpp \
+    src/main.cpp
 
 HEADERS += \
     src/BleCentralAdapter.h \
     src/BodePlotModel.h \
     src/BusyIndicatorModel.h \
+    src/Config.h \
     src/EqChart.h \
     src/IoModel.h \
     src/Model.h \
     src/PhaseChart.h \
     src/PresetModel.h \
-    src/Config.h
+    src/SoftClipChart.h
 
 RESOURCES += qml.qrc
 

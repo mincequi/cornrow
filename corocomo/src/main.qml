@@ -11,6 +11,7 @@ import Cornrow.EqChart 1.0
 import Cornrow.IoModel 1.0
 import Cornrow.Model 1.0
 import Cornrow.PhaseChart 1.0
+import Cornrow.SoftClipChart 1.0
 
 ApplicationWindow {
     id: appWindow
@@ -169,6 +170,17 @@ ApplicationWindow {
                     }
                 }
             }
+
+            /*
+            CornrowSoftClipChart {
+                id: softClipChart
+                currentFilter: CornrowModel.currentBand
+                currentPlotColor: Material.accent
+                plotColor: Material.foreground
+                sumPlotColor: Material.accent
+                criticalColor: Material.color(Material.Pink)
+            }
+            */
         }
 
         PageIndicator {

@@ -10,6 +10,7 @@
 #include "Model.h"
 #include "PhaseChart.h"
 #include "PresetModel.h"
+#include "SoftClipChart.h"
 
 int main(int argc, char *argv[])
 {
@@ -30,6 +31,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel");
     qmlRegisterType<EqChart>("Cornrow.EqChart", 1, 0, "CornrowEqChart");
     qmlRegisterType<PhaseChart>("Cornrow.PhaseChart", 1, 0, "CornrowPhaseChart");
+    qmlRegisterType<SoftClipChart>("Cornrow.SoftClipChart", 1, 0, "CornrowSoftClipChart");
     qmlRegisterSingletonType<Config>("Cornrow.Configuration", 1, 0, "CornrowConfiguration", [](QQmlEngine*, QJSEngine*) -> QObject* {
         return Config::instance();
     });

@@ -1,6 +1,6 @@
 TEMPLATE = lib
 QT     -= gui
-CONFIG += staticlib c++11 create_prl
+CONFIG += staticlib create_prl
 
 include(../cornrow.pri)
 
