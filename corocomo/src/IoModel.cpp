@@ -95,7 +95,8 @@ common::IoInterface IoModel::output()
 
 bool IoModel::multiChannelAvailable() const
 {
-    return m_outputs.at(m_activeOutput).type == common::Spdif;
+    return m_outputs.at(m_activeOutput).type == common::Spdif ||
+           m_outputs.at(m_activeOutput).type == common::Hdmi;
 }
 
 void IoModel::startDemo()
