@@ -10,7 +10,7 @@ else:equals(ANDROID_TARGET_ARCH, arm64-v8a) {
 
 QT += bluetooth quick svg
 CONFIG += c++14
-QMAKE_CXXFLAGS += -Wimplicit-fallthrough=0
+QMAKE_CXXFLAGS += -Wno-implicit-fallthrough
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings

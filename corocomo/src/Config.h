@@ -34,7 +34,6 @@ public:
     uint8_t freqMax;
     uint8_t freqStep;
 
-    std::vector<double> qTable;
     uint8_t qDefault;
     uint8_t qMin;
     uint8_t qMax;

@@ -32,11 +32,14 @@ Config::Config(Type type, QObject *parent)
     gainMin = -12.0;
     gainMax = 3.0;
     gainStep = 1.0;
-    qTable = common::qTable;
     qDefault = 34;
     qMin = 16;
     qMax = 64;
-    qStep = 3;
+    qStep = 2;
+
+    ioAvailable = true;
+    loudnessAvailable = true;
+    xoAvailable = true;
 
     switch (type) {
     case Type::Low:
@@ -48,8 +51,6 @@ Config::Config(Type type, QObject *parent)
         gainStep = 0.5; // 2x
         qMin = 12;       // +14
         qMax = 80;
-        qStep = 2;
-        loudnessAvailable = true;
         break;
     case Type::High:
         freqStep = 2; // 8x
@@ -57,12 +58,9 @@ Config::Config(Type type, QObject *parent)
         gainMax = 12.0;
         gainStep = 0.5;
         qMin = 0;
-        qMax = qTable.size()-1;
+        qMax = static_cast<uint8_t>(common::qTable.size()-1);
         qStep = 1;
-        ioAvailable = true;
-        loudnessAvailable = true;
-        xoAvailable = true;
-        swAvailable = true;
+        //swAvailable = true;
         break;
     }
 
@@ -72,11 +70,4 @@ Config::Config(Type type, QObject *parent)
         freqTable.push_back(*it);
     }
     freqDefault = (freqDefault-freqMin)/freqStep;
-
-    qTable.resize(0);
-    for (auto it = common::qTable.begin()+qMin;
-         it < common::qTable.begin()+qMax+1; it += qStep) {
-        qTable.push_back(*it);
-    }
-    qDefault = (qDefault-qMin)/qStep;
 }

@@ -7,6 +7,7 @@
 #include <QPen>
 
 #include <ble/Client.h>
+#include <common/Types.h>
 
 #include "BleCentralAdapter.h"
 #include "IoModel.h"
@@ -297,7 +298,7 @@ double Model::gainStep() const
 
 QString Model::qReadout() const
 {
-    double value = m_config.qTable.at(m_currentFilter->q);
+    double value = common::qTable.at(m_currentFilter->q);
 
     if (value < 1.0) return QString::number(value, 'f', 3);
     else if (value < 10.0) return QString::number(value, 'f', 2);
@@ -306,25 +307,30 @@ QString Model::qReadout() const
 
 void Model::stepQ(int i)
 {
-    int idx = m_currentFilter->q + i;
-    if (idx < 0) return;
-    if (idx > static_cast<int>(m_config.qTable.size())-1) return;
+    int idx = m_currentFilter->q + i*m_config.qStep;
+    if (idx < m_config.qMin || idx > m_config.qMax) {
+        return;
+    }
+
     if (m_currentFilter->q == idx) return;
 
     m_currentFilter->q = static_cast<uint8_t>(idx);
-
     emit qChanged();
     emit qSliderChanged();
 }
 
 double Model::qSlider() const
 {
-    return static_cast<double>(m_currentFilter->q)/(m_config.qTable.size()-1);
+    return static_cast<double>(m_currentFilter->q - m_config.qMin) /
+            static_cast<double>(m_config.qMax - m_config.qMin);
 }
 
 void Model::setQSlider(double q)
 {
-    uint8_t idx = static_cast<uint8_t>(qRound(q*(m_config.qTable.size()-1)));
+    uint8_t idx = static_cast<uint8_t>(qRound(q*(m_config.qMax - m_config.qMin)));
+    idx += idx%m_config.qStep;
+    idx += m_config.qMin;
+
     if (m_currentFilter->q == idx) return;
 
     m_currentFilter->q = idx;
@@ -371,8 +377,8 @@ void Model::setFilters(common::ble::CharacteristicType task, const std::vector<F
         m_filters[i].t = filter.t;
         m_filters[i].f = std::min(filter.f, static_cast<uint8_t>(m_config.freqTable.size()-1));
         m_filters[i].g = filter.g;
-        m_filters[i].q = std::min(filter.q, static_cast<uint8_t>(m_config.qTable.size()-1));
-        emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_filters[i].f, m_filters[i].g, m_config.qTable.at(m_filters[i].q));
+        m_filters[i].q = filter.q < m_config.qMin ? m_config.qMin : filter.q > m_config.qMax ? m_config.qMax : filter.q;
+        emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_filters[i].f, m_filters[i].g, common::qTable.at(m_filters[i].q));
         ++i;
     }
 
@@ -382,7 +388,7 @@ void Model::setFilters(common::ble::CharacteristicType task, const std::vector<F
 void Model::onParameterChanged()
 {
     if (m_currentFilter) {
-        emit filterChanged(m_currentBand, static_cast<uchar>(m_currentFilter->t), m_currentFilter->f, m_currentFilter->g, m_config.qTable.at(m_currentFilter->q));
+        emit filterChanged(m_currentBand, static_cast<uchar>(m_currentFilter->t), m_currentFilter->f, m_currentFilter->g, common::qTable.at(m_currentFilter->q));
     } else {
         emit filterChanged(m_currentBand, 0, 0, 0.0, 0.0);
     }

@@ -57,7 +57,7 @@ void BleCentralAdapter::doWriteCharc()
             value[i*4]   = static_cast<char>(filters.at(i).t);
             value[i*4+1] = filters.at(i).f*config.freqStep+config.freqMin;
             value[i*4+2] = static_cast<int8_t>(filters.at(i).g*2.0);
-            value[i*4+3] = filters.at(i).q*config.qStep+config.qMin;
+            value[i*4+3] = filters.at(i).q;
         }
         m_central->writeCharacteristic(common::ble::peqCharacteristicUuid, value);
         m_dirtyCharcs.erase(common::ble::peqCharacteristicUuid);
@@ -69,7 +69,7 @@ void BleCentralAdapter::doWriteCharc()
             value[i*4]   = static_cast<char>(filters.at(i+config.peqFilterCount).t);
             value[i*4+1] = filters.at(i+config.peqFilterCount).f*config.freqStep+config.freqMin;
             value[i*4+2] = static_cast<int8_t>(filters.at(i+config.peqFilterCount).g*2.0);
-            value[i*4+3] = filters.at(i+config.peqFilterCount).q*config.qStep+config.qMin;
+            value[i*4+3] = filters.at(i+config.peqFilterCount).q;
         }
         m_central->writeCharacteristic(common::ble::auxCharacteristicUuid, value);
         m_dirtyCharcs.erase(common::ble::auxCharacteristicUuid);
@@ -131,7 +131,7 @@ void BleCentralAdapter::onCharacteristicRead(const std::string& uuid, const QByt
             filters.push_back(Model::Filter(static_cast<common::FilterType>(value.at(i)),
                                             (static_cast<uint8_t>(value.at(i+1)-config.freqMin)/config.freqStep),
                                             value.at(i+2)*0.5,
-                                            (static_cast<uint8_t>(value.at(i+3)-config.qMin)/config.qStep)));
+                                            static_cast<uint8_t>(value.at(i+3))));
         }
 
         if (uuid == common::ble::peqCharacteristicUuid) {
