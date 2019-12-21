@@ -47,8 +47,8 @@ sudo apt install \
   libboost-system-dev \
   libsbc-dev \
   qtconnectivity5-dev # get dependecies
-wget https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0.tar.xz
-tar xf cornrowd_0.6.0.tar.xz
+wget https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd_0.7.0.tar.gz
+tar xf cornrowd_0.7.0.tar.gz
 dpkg-buildpackage -us -uc                           # build unsigned debian package
 sudo dpkg -i ../cornrowd_<version>_<your_arch>.deb  # install package
 sudo systemctl unmask cornrowd.service              # unmask service
