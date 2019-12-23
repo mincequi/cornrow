@@ -1,7 +1,8 @@
-import QtQuick 2.9
+import QtQuick 2.14
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.2
 import QtQuick.Layouts 1.3
+import QtQuick.Window 2.14
 
 import QtGraphicalEffects 1.0
 
@@ -171,7 +172,6 @@ ApplicationWindow {
                 }
             }
 
-            /*
             CornrowSoftClipChart {
                 id: softClipChart
                 currentFilter: CornrowModel.currentBand
@@ -180,7 +180,6 @@ ApplicationWindow {
                 sumPlotColor: Material.accent
                 criticalColor: Material.color(Material.Pink)
             }
-            */
         }
 
         PageIndicator {
@@ -243,6 +242,15 @@ ApplicationWindow {
                 checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
                 onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+1)
             }
+            /*
+            FilterBandButton {
+                text: "SC"
+                indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+2]
+                //visible: CornrowConfiguration.swAvailable
+                checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+2
+                onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+2)
+            }
+            */
             /*
             FilterBandButton {
                 text: "SW"
@@ -399,6 +407,25 @@ ApplicationWindow {
             }
             */
         }
+
+        /*
+        Column {
+            id: softClip
+            anchors.top: filterParameters.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            visible: CornrowModel.currentBand == CornrowModel.peqFilterCount+2
+            FilterParameter {
+                label: "Clipping"
+                onValueChanged: softClipChart.setClipping(value)
+            }
+            FilterParameter {
+                label: "InputRange"
+                onValueChanged: softClipChart.setInputRange(value*2.0)
+            }
+        }
+        */
+
     } // Item peq
 
     FastBlur {

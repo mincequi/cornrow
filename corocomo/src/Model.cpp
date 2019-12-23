@@ -35,12 +35,12 @@ Model::Model(const Config& config, QObject *parent) :
     m_config(config),
     m_loudnessBand(config.peqFilterCount),
     m_xoBand(config.peqFilterCount+1),
-    m_swBand(config.peqFilterCount+2)
+    m_scBand(config.peqFilterCount+2)
 {
     auto filterCount = m_config.peqFilterCount;
     if (m_config.loudnessAvailable) ++filterCount;
     if (m_config.xoAvailable) ++filterCount;
-    if (m_config.swAvailable) ++filterCount;
+    if (m_config.scAvailable) ++filterCount;
     resizeFilters(filterCount);
     setCurrentBand(0);
 
@@ -166,7 +166,7 @@ int Model::filterType() const
         if (m_currentFilter->t == common::FilterType::CrossoverLr2) return 1;
         else if (m_currentFilter->t == common::FilterType::CrossoverLr4) return 2;
         else return 0;
-    } else if (m_currentBand == m_swBand) {
+    } else if (m_currentBand == m_scBand) {
         return (m_currentFilter->t == common::FilterType::Invalid) ? 0 : 1;
     }
 
@@ -186,7 +186,7 @@ void Model::setFilterType(int type)
         else if (type == 2) t = common::FilterType::CrossoverLr4;
         m_currentFilter->q = type == 1 ? 28 : 34;
         //m_currentFilter->g = type == 1 ? 1.0 : 2.0;
-    } else if (m_currentBand == m_swBand) {
+    } else if (m_currentBand == m_scBand) {
         t = (type == 0)  ? common::FilterType::Invalid : common::FilterType::Subwoofer;
         m_currentFilter->q = type == 1 ? 28 : 34;
         //m_currentFilter->g = type == 1 ? 1.0 : 2.0;
@@ -358,14 +358,14 @@ QStringList Model::crossoverTypeNames() const
 
 int Model::subwooferType() const
 {
-    return (m_filters.at(m_swBand).t == common::FilterType::Invalid) ? 0 : static_cast<int>(m_filters.at(m_swBand).g);
+    return (m_filters.at(m_scBand).t == common::FilterType::Invalid) ? 0 : static_cast<int>(m_filters.at(m_scBand).g);
 }
 
 void Model::setSubwooferType(int filterType)
 {
-    m_filters[m_swBand].t = (filterType == 0)  ? common::FilterType::Invalid : common::FilterType::Subwoofer;
-    m_filters[m_swBand].q = filterType == 1 ? 28 : 34;
-    m_filters[m_swBand].g = filterType == 1 ? 1.0 : 2.0;
+    m_filters[m_scBand].t = (filterType == 0)  ? common::FilterType::Invalid : common::FilterType::Subwoofer;
+    m_filters[m_scBand].q = filterType == 1 ? 28 : 34;
+    m_filters[m_scBand].g = filterType == 1 ? 1.0 : 2.0;
 }
 
 void Model::setFilters(common::ble::CharacteristicType task, const std::vector<Filter>& filters)

@@ -1,16 +1,16 @@
 <RCC>
     <qresource prefix="/">
+        <file>src/Chip.qml</file>
+        <file>src/ChipGroup.qml</file>
+        <file>src/CornrowBusyIndicator.qml</file>
+        <file>src/FilterBandButton.qml</file>
+        <file>src/FilterParameter.qml</file>
+        <file>src/Io.qml</file>
+        <file>src/Presets.qml</file>
         <file>src/main.qml</file>
         <file>qtquickcontrols2.conf</file>
-        <file>src/FilterParameter.qml</file>
-        <file>src/FilterBandButton.qml</file>
-        <file>src/CornrowBusyIndicator.qml</file>
-        <file>src/Chip.qml</file>
-        <file>src/Io.qml</file>
-        <file>icons/menu.svg</file>
-        <file>src/Presets.qml</file>
-        <file>src/ChipGroup.qml</file>
         <file>icons/expand_less.svg</file>
         <file>icons/expand_more.svg</file>
+        <file>icons/menu.svg</file>
     </qresource>
 </RCC>

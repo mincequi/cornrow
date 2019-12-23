@@ -143,7 +143,7 @@ private:
     int             m_currentBand = 0;
     const int       m_loudnessBand;
     const int       m_xoBand;
-    const int       m_swBand;
+    const int       m_scBand;
     double          m_freqSlider;
     bool            m_demoMode = false;
 

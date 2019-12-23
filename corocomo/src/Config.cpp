@@ -40,6 +40,7 @@ Config::Config(Type type, QObject *parent)
     ioAvailable = true;
     loudnessAvailable = true;
     xoAvailable = true;
+    scAvailable = true;
 
     switch (type) {
     case Type::Low:

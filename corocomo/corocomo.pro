@@ -1,15 +1,5 @@
-VERSION = 0.7.0
-ANDROID_VERSION_NAME = $$VERSION
-
-equals(ANDROID_TARGET_ARCH, armeabi-v7a) {
-    ANDROID_VERSION_CODE = 600
-}
-else:equals(ANDROID_TARGET_ARCH, arm64-v8a) {
-    ANDROID_VERSION_CODE = 601
-}
-
 QT += bluetooth quick svg
-CONFIG += c++14
+CONFIG += c++11
 QMAKE_CXXFLAGS += -Wno-implicit-fallthrough
 
 # The following define makes your compiler emit warnings if you use
@@ -70,22 +60,10 @@ DISTFILES += \
     android/AndroidManifest.xml \
     android/build.gradle \
     android/gradle/wrapper/gradle-wrapper.jar \
-    android/gradle/wrapper/gradle-wrapper.jar \
     android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew \
     android/gradlew \
     android/gradlew.bat \
-    android/res/values/libs.xml \
-    android/build.gradle \
-    android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew.bat \
-    android/AndroidManifest.xml \
-    android/gradle/wrapper/gradle-wrapper.jar \
-    android/gradlew \
-    android/res/values/libs.xml \
-    android/build.gradle \
-    android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew.bat
+    android/res/values/libs.xml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

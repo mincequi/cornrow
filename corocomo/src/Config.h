@@ -14,7 +14,7 @@ class Config : public QObject
     Q_PROPERTY(bool ioAvailable MEMBER ioAvailable CONSTANT)
     Q_PROPERTY(bool loudnessAvailable MEMBER loudnessAvailable CONSTANT)
     Q_PROPERTY(bool xoAvailable MEMBER xoAvailable CONSTANT)
-    Q_PROPERTY(bool swAvailable MEMBER swAvailable CONSTANT)
+    Q_PROPERTY(bool scAvailable MEMBER scAvailable CONSTANT)
 
 public:
     enum class Type : uint8_t {
@@ -46,7 +46,7 @@ public:
     bool ioAvailable = false;
     bool loudnessAvailable = false;
     bool xoAvailable = false;
-    bool swAvailable = false;
+    bool scAvailable = false;
 
 private:
     explicit Config(Type type, QObject *parent = nullptr);
