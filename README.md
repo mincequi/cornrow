@@ -1,7 +1,6 @@
 # Cornrow
--- *the most sophisticated bluetooth audio receiver for linux*
 
-Cornrow is a bluetooth audio daemon designed for low-powered boards like the Raspberry Pi. It accepts bluetooth audio sources and transforms your computer into a bluetooth speaker.
+Cornrow is an audio sink daemon designed for low-powered boards like the Raspberry Pi. It accepts bluetooth audio sources and transforms your computer into a bluetooth speaker.
 
 It is made for Debian based environments and compatible with Ubuntu 18.04 Bionic and Debian Stretch (and later). This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
 
@@ -11,8 +10,11 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 [corocomo](https://play.google.com/store/apps/details?id=org.cornrow.corocomo)
 ![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
 
+
+
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd_0.7.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0_amd64.deb).
+Also a special version for Raspberry Pi exists [rpi-armhf](https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd-rpi_0.7.0_armhf.deb), which supports multichannel audio output via HDMI.
 
 Get dependencies first
 ```
@@ -45,8 +47,8 @@ sudo apt install \
   libboost-system-dev \
   libsbc-dev \
   qtconnectivity5-dev # get dependecies
-wget https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0.tar.xz
-tar xf cornrowd_0.6.0.tar.xz
+wget https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd_0.7.0.tar.gz
+tar xf cornrowd_0.7.0.tar.gz
 dpkg-buildpackage -us -uc                           # build unsigned debian package
 sudo dpkg -i ../cornrowd_<version>_<your_arch>.deb  # install package
 sudo systemctl unmask cornrowd.service              # unmask service
