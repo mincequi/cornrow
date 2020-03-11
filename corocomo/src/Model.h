@@ -148,8 +148,8 @@ private:
     bool            m_demoMode = false;
 
     // BLE
-    ble::Client* m_central = nullptr;
-    BleCentralAdapter* m_adapter = nullptr;
+    ble::Client* m_bleClient = nullptr;
+    BleCentralAdapter* m_bleAdapter = nullptr;
     friend class BleCentralAdapter;
 
     // Sub models

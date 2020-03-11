@@ -5,11 +5,18 @@ import QtQuick.Layouts 1.3
 import QtQuick.Shapes 1.11
 
 import Cornrow.BusyIndicatorModel 1.0
+import Cornrow.DeviceModel 1.0
 import Cornrow.Model 1.0
 
-Item {
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.bottom: parent.bottom
+Dialog {
+    visible: true
+    background: Rectangle { color: "transparent" }
+    anchors.centerIn: parent
+
+    Component.onCompleted: {
+        DeviceModel.startDiscovering()
+        CornrowModel.startDiscovering()
+    }
 
     CornrowBusyIndicatorModel {
         id: model
@@ -20,16 +27,15 @@ Item {
         Behavior on radius { SmoothedAnimation { velocity: 1000 }}
     }
 
-    Item {
+    Column {
         id: statusScreen
-        anchors.centerIn: parent
+        spacing: 16
         Canvas {
             id: busyIndicator
-            width: 120; height: 120
+            width: 120
+            height: 120
             contextType: "2d"
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.verticalCenter
-            anchors.bottomMargin: 48
 
             Shape {
                 ShapePath {
@@ -103,20 +109,17 @@ Item {
         }
 
         Label {
-            id: statusReadout
+            id: statusLabel
             text: CornrowModel.statusLabel;
             font.capitalization: Font.SmallCaps
             font.pixelSize: 20
             font.weight: Font.DemiBold
-
-            anchors.top: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
         }
 
         Label {
-            id: errorReadout
+            id: statusText
             horizontalAlignment: Text.AlignHCenter
-            //verticalAlignment: Text.AlignBottom
             maximumLineCount: 3
             text: CornrowModel.statusText;
             width: 240
@@ -125,43 +128,28 @@ Item {
             wrapMode: Text.Wrap
             font.pixelSize: 16
             font.weight: Font.Light
-
-            anchors.top: statusReadout.bottom
-            anchors.topMargin: 8
-            anchors.horizontalCenter: parent.horizontalCenter
         }
-    }
+    } // Column
 
-    ToolBar {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 48
-        visible: CornrowModel.status != CornrowModel.Discovering &&
-                 CornrowModel.status != CornrowModel.Connecting &&
+    footer: DialogButtonBox {
+        opacity: CornrowModel.status != CornrowModel.Discovering &&
                  CornrowModel.status != CornrowModel.Connected
-        background: background
-        RowLayout {
-            id: column
-            anchors.horizontalCenter: parent.horizontalCenter
 
-            ToolButton {
-                text: "Retry"
-                onPressed: CornrowModel.startDiscovering()
+        Button {
+            text: CornrowModel.status == CornrowModel.Connecting ? "Abort and retry" : "Retry"
+            flat: true
+            onPressed: {
+                DeviceModel.startDiscovering()
+                CornrowModel.startDiscovering()
             }
-            ToolButton {
-                text: "Demo"
-                onPressed: CornrowModel.startDemoMode()
-            }
+        }
+        Button {
+            text: "Demo"
+            flat: true
+            visible: CornrowModel.status != CornrowModel.Connecting
+            onPressed: CornrowModel.startDemoMode()
         }
     }
 
-    ToolButton {
-        text: "Abort and retry"
-        onPressed: CornrowModel.startDiscovering()
-        background: background
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 48
-        visible: CornrowModel.status == CornrowModel.Connecting
-    }
+    closePolicy: Popup.NoAutoClose
 }

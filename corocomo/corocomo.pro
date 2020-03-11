@@ -20,6 +20,7 @@ SOURCES += \
     src/BodePlotModel.cpp \
     src/BusyIndicatorModel.cpp \
     src/Config.cpp \
+    src/DeviceModel.cpp \
     src/EqChart.cpp \
     src/IoModel.cpp \
     src/Model.cpp \
@@ -34,6 +35,7 @@ HEADERS += \
     src/BodePlotModel.h \
     src/BusyIndicatorModel.h \
     src/Config.h \
+    src/DeviceModel.h \
     src/EqChart.h \
     src/IoModel.h \
     src/Model.h \
@@ -43,7 +45,8 @@ HEADERS += \
 
 RESOURCES += qml.qrc
 
-LIBS += -L$$OUT_PWD/../ble/ -lble
+LIBS += -L$$OUT_PWD/../ble/ -lble -L$$OUT_PWD/../net/ -lnet
+PRE_TARGETDEPS += $$OUT_PWD/../ble/libble.a $$OUT_PWD/../net/libnet.a
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

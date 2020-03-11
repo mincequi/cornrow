@@ -8,6 +8,7 @@
 
 #include <ble/Client.h>
 #include <common/Types.h>
+#include <net/NetClient.h>
 
 #include "BleCentralAdapter.h"
 #include "IoModel.h"
@@ -50,14 +51,14 @@ Model::Model(const Config& config, QObject *parent) :
     connect(this, &Model::qChanged, this, &Model::onParameterChanged);
 
     // @TODO(mawe): break up circular dependency
-    m_central = new ble::Client(this);
-    m_adapter = new BleCentralAdapter(m_central, this);
-    m_ioModel = IoModel::init(m_adapter);
-    m_presetModel = PresetModel::init(m_adapter);
-    m_adapter->setIoModel(m_ioModel);
+    m_bleClient = new ble::Client(this);
+    m_bleAdapter = new BleCentralAdapter(m_bleClient, this);
+    m_ioModel = IoModel::init(m_bleAdapter);
+    m_presetModel = PresetModel::init(m_bleAdapter);
+    m_bleAdapter->setIoModel(m_ioModel);
 
-    connect(m_adapter, &BleCentralAdapter::filtersReceived, this, &Model::setFilters);
-    connect(m_adapter, &BleCentralAdapter::status, this, &Model::onBleStatus);
+    connect(m_bleAdapter, &BleCentralAdapter::filtersReceived, this, &Model::setFilters);
+    connect(m_bleAdapter, &BleCentralAdapter::status, this, &Model::onBleStatus);
 }
 
 Model::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_t _q)
@@ -71,7 +72,7 @@ Model::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_t _q)
 void Model::startDiscovering()
 {
     m_demoMode = false;
-    m_central->startDiscovering();
+    m_bleClient->startDiscovering();
 }
 
 void Model::startDemoMode()
@@ -394,7 +395,7 @@ void Model::onParameterChanged()
     }
 
     if (!m_demoMode) {
-        m_adapter->setDirty(m_currentBand < m_config.peqFilterCount ? common::ble::peqCharacteristicUuid : common::ble::auxCharacteristicUuid);
+        m_bleAdapter->setDirty(m_currentBand < m_config.peqFilterCount ? common::ble::peqCharacteristicUuid : common::ble::auxCharacteristicUuid);
     }
 }
 

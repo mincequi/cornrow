@@ -1,8 +1,8 @@
-import QtQuick 2.14
+import QtQuick 2.12
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.2
 import QtQuick.Layouts 1.3
-import QtQuick.Window 2.14
+import QtQuick.Window 2.12
 
 import QtGraphicalEffects 1.0
 
@@ -38,10 +38,6 @@ ApplicationWindow {
     Material.primary: Material.color(Material.Indigo)
     Material.background: "#FF212121" //#FF000030
 
-    Component.onCompleted: {
-        CornrowModel.startDiscovering()
-    }
-
     Connections {
         target: CornrowModel
         onFilterChanged: {
@@ -66,7 +62,6 @@ ApplicationWindow {
         enabled: CornrowModel.status != CornrowModel.Connected
         opacity: CornrowModel.status != CornrowModel.Connected ? 1.0 : 0.0
         Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
-        anchors.fill: parent
         z: 10
     }
 
