@@ -13,16 +13,12 @@ class IoModel;
 class PresetModel;
 namespace ble
 {
-class Client;
+class BleClient;
 }
 
-class Model : public QObject
+class FilterModel : public QObject
 {
     Q_OBJECT
-
-    Q_PROPERTY(Status status READ status NOTIFY statusChanged)
-    Q_PROPERTY(QString statusLabel READ statusLabel NOTIFY statusChanged)
-    Q_PROPERTY(QString statusText READ statusText NOTIFY statusChanged)
 
     Q_PROPERTY(int peqFilterCount READ peqFilterCount CONSTANT)
     Q_PROPERTY(int currentBand READ currentBand WRITE setCurrentBand NOTIFY currentBandChanged)
@@ -53,15 +49,12 @@ public:
     };
     Q_ENUM(Status)
 
-    static Model* init(const Config& configuration);
-    static Model* instance();
+	// @TODO(mawe): think about how to remove ioModel dependency
+    static FilterModel* init(const Config& configuration, BleCentralAdapter* bleAdapter, IoModel* ioModel);
+    static FilterModel* instance();
 
     Q_INVOKABLE void startDiscovering();
-    Q_INVOKABLE void startDemoMode();
-
-    Status      status() const;
-    QString     statusLabel() const;
-    QString     statusText() const;
+    Q_INVOKABLE void startDemo();
 
     Q_INVOKABLE void resizeFilters(int diff);
 
@@ -115,7 +108,7 @@ signals:
     void qSliderChanged();
 
 private:
-    Model(const Config& config, QObject* parent = nullptr);
+    FilterModel(const Config& config, BleCentralAdapter* bleAdapter, IoModel* ioModel);
 
     // This is the model-oriented filter struct. We use indexed values here.
     struct Filter {
@@ -129,15 +122,11 @@ private:
     void setFilters(common::ble::CharacteristicType group, const std::vector<Filter>& filters);
 
     void onParameterChanged();
-    void onBleStatus(Status status, const QString& errorString);
 
-    static Model* s_instance;
+    static FilterModel* s_instance;
 
     const Config& m_config;
 
-    Status          m_status = Status::Discovering;
-    QString         m_statusLabel = "Discovering";
-    QString         m_statusText;
     QList<Filter>   m_filters;
     Filter*         m_currentFilter = nullptr;
     int             m_currentBand = 0;
@@ -148,8 +137,7 @@ private:
     bool            m_demoMode = false;
 
     // BLE
-    ble::Client* m_central = nullptr;
-    BleCentralAdapter* m_adapter = nullptr;
+    BleCentralAdapter* m_bleAdapter = nullptr;
     friend class BleCentralAdapter;
 
     // Sub models

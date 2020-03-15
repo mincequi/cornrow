@@ -1,16 +1,21 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QSurfaceFormat>
-
+#include "BleCentralAdapter.h"
 #include "BodePlotModel.h"
 #include "BusyIndicatorModel.h"
 #include "Config.h"
+#include "DeviceModel.h"
 #include "EqChart.h"
 #include "IoModel.h"
-#include "Model.h"
+#include "FilterModel.h"
 #include "PhaseChart.h"
 #include "PresetModel.h"
-//#include "SoftClipChart.h"
+#include "SoftClipChart.h"
+#include "ble/BleClient.h"
+#include "net/NetClient.h"
+
+#include <QDebug>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QSurfaceFormat>
 
 int main(int argc, char *argv[])
 {
@@ -21,22 +26,49 @@ int main(int argc, char *argv[])
     QSurfaceFormat::setDefaultFormat(format);
 
     QGuiApplication app(argc, argv);
+    
+	ble::BleClient bleClient;
+    BleCentralAdapter bleAdapter(&bleClient);
+    bool ret = QObject::connect(&bleClient, &ble::BleClient::status, [] {
+		qWarning() << "STATUS UPDATED";
+    });
+    Q_UNUSED(ret)
 
     auto config = Config::init(Config::Type::Low);
-    auto model = Model::init(*config);
-    auto bodePlot = BodePlotModel::init(*config);
-    Q_UNUSED(model)
-    Q_UNUSED(bodePlot)
+    auto indicatorModel = BusyIndicatorModel::instance();
+    auto deviceModel = DeviceModel::init(&bleAdapter);
+	auto ioModel = IoModel::init(&bleAdapter);
+    auto filterModel = FilterModel::init(*config, &bleAdapter, ioModel);
+    auto bodePlotModel = BodePlotModel::init(*config);
+
+    Q_UNUSED(indicatorModel)
+    Q_UNUSED(deviceModel)
+    Q_UNUSED(filterModel)
+    Q_UNUSED(bodePlotModel)
+    
+    bleAdapter.setModel(filterModel);
+    bleAdapter.setIoModel(ioModel);
+
+	qmlRegisterUncreatableMetaObject(net::NetDevice::staticMetaObject, "Cornrow.DeviceType", 1, 0, "CornrowDeviceType", "Only enums");
 
     qmlRegisterType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel");
     qmlRegisterType<EqChart>("Cornrow.EqChart", 1, 0, "CornrowEqChart");
     qmlRegisterType<PhaseChart>("Cornrow.PhaseChart", 1, 0, "CornrowPhaseChart");
-    //qmlRegisterType<SoftClipChart>("Cornrow.SoftClipChart", 1, 0, "CornrowSoftClipChart");
+    qmlRegisterType<SoftClipChart>("Cornrow.SoftClipChart", 1, 0, "CornrowSoftClipChart");
+
     qmlRegisterSingletonType<Config>("Cornrow.Configuration", 1, 0, "CornrowConfiguration", [](QQmlEngine*, QJSEngine*) -> QObject* {
         return Config::instance();
     });
-    qmlRegisterSingletonType<Model>("Cornrow.Model", 1, 0, "CornrowModel", [](QQmlEngine*, QJSEngine*) -> QObject* {
-        return Model::instance();
+    /*
+    qmlRegisterSingletonType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel", [](QQmlEngine*, QJSEngine*) -> QObject* {
+        return BusyIndicatorModel::instance();
+    });
+    */
+    qmlRegisterSingletonType<DeviceModel>("Cornrow.DeviceModel", 1, 0, "DeviceModel", [](QQmlEngine*, QJSEngine*) -> QObject* {
+        return DeviceModel::instance();
+    });
+    qmlRegisterSingletonType<FilterModel>("Cornrow.FilterModel", 1, 0, "FilterModel", [](QQmlEngine*, QJSEngine*) -> QObject* {
+        return FilterModel::instance();
     });
     qmlRegisterSingletonType<BodePlotModel>("Cornrow.BodePlotModel", 1, 0, "CornrowBodePlotModel", [](QQmlEngine*, QJSEngine*) -> QObject* {
         return BodePlotModel::instance();

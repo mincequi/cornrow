@@ -26,6 +26,12 @@ enum IoInterfaceType {
     Max         = 15
 };
 
+enum class CtrlInterfaceType : uint8_t {
+    Invalid     = 0,
+    BluetoothLe = 0x1,
+    TcpIp       = 0x2
+};
+
 enum class SampleFormat : uint8_t {
     Invalid     = 0,
 

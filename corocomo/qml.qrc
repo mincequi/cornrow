@@ -2,7 +2,7 @@
     <qresource prefix="/">
         <file>src/Chip.qml</file>
         <file>src/ChipGroup.qml</file>
-        <file>src/CornrowBusyIndicator.qml</file>
+        <file>src/DeviceDialog.qml</file>
         <file>src/FilterBandButton.qml</file>
         <file>src/FilterParameter.qml</file>
         <file>src/Io.qml</file>
@@ -12,5 +12,12 @@
         <file>icons/expand_less.svg</file>
         <file>icons/expand_more.svg</file>
         <file>icons/menu.svg</file>
+        <file>icons/airplay.svg</file>
+        <file>icons/bluetooth.svg</file>
+        <file>icons/wifi.svg</file>
+        <file>icons/chevron_left.svg</file>
+        <file>icons/chevron_right.svg</file>
+        <file>src/ListItemNew.qml</file>
+        <file>src/CoroBusyIndicator.qml</file>
     </qresource>
 </RCC>

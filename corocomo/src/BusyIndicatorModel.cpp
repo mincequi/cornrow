@@ -2,11 +2,23 @@
 
 #include <QDebug>
 
+BusyIndicatorModel* BusyIndicatorModel::s_instance = nullptr;
+
+BusyIndicatorModel* BusyIndicatorModel::instance()
+{
+    if (s_instance) {
+        return s_instance;
+    }
+
+    s_instance = new BusyIndicatorModel();
+    return s_instance;
+}
+
 BusyIndicatorModel::BusyIndicatorModel(QObject *parent) :
     QObject(parent),
     m_gen(m_rd()),
-    m_rhoDist(0.0, 0.2*m_radius),
-    m_thetaDist(0.0, 0.0*M_PI/m_numPoints)
+    m_rhoDist(0.0, 0.25*m_radius),
+    m_thetaDist(0.0, 0.5*M_PI/m_numPoints)
     //m_rhoDist(-24.0, +24.0),
     //m_thetaDist(-M_PI/m_numPoints, M_PI/m_numPoints)
 {
@@ -21,7 +33,7 @@ BusyIndicatorModel::BusyIndicatorModel(QObject *parent) :
 void BusyIndicatorModel::setActive(bool active)
 {
     if (active) {
-        m_randTimer.start(150);
+        m_randTimer.start(250);
     } else {
         m_randTimer.stop();
     }
@@ -42,7 +54,8 @@ void BusyIndicatorModel::randomize()
     for (uint i = 0; i < m_numPoints; ++i) {
         // @TODO(mawe): android 4.4 does not have std::polar. So, using own impl.
         //std::complex<double> coord = std::polar(abs(m_radius+randRho()), (i*M_PI*2.0/m_numPoints)+randTheta());
-        std::complex<double> coord = polar(abs(m_radius+randRho()), (i*M_PI*2.0/m_numPoints)+randTheta());
+        // Add offset of 0.625 to shift by 225 degrees
+        std::complex<double> coord = polar(abs(m_radius+randRho()), (((float)i/m_numPoints+0.625)*M_PI*2.0)+randTheta());
         m_xCoords[i] = m_center.x() + coord.real();
         m_yCoords[i] = m_center.y() + coord.imag();
     }

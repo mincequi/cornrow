@@ -1,17 +1,17 @@
 #include "BleCentralAdapter.h"
 
-#include <ble/Client.h>
+#include <ble/BleClient.h>
 
 #include "IoModel.h"
-#include "Model.h"
+#include "FilterModel.h"
 
-BleCentralAdapter::BleCentralAdapter(ble::Client* central, Model* model)
+BleCentralAdapter::BleCentralAdapter(ble::BleClient* central)
     : QObject(central),
-      m_central(central),
-      m_model(model)
+      m_central(central)
 {
-    connect(m_central, &ble::Client::characteristicRead, this, &BleCentralAdapter::onCharacteristicRead);
-    connect(m_central, &ble::Client::status, this, &BleCentralAdapter::onStatus);
+	connect(m_central, &ble::BleClient::deviceDiscovered, this, &BleCentralAdapter::deviceDiscovered);
+    connect(m_central, &ble::BleClient::characteristicRead, this, &BleCentralAdapter::onCharacteristicRead);
+    connect(m_central, &ble::BleClient::status, this, &BleCentralAdapter::onStatus);
 
     m_timer.setInterval(200);
     m_timer.setSingleShot(true);
@@ -20,6 +20,16 @@ BleCentralAdapter::BleCentralAdapter(ble::Client* central, Model* model)
 
 BleCentralAdapter::~BleCentralAdapter()
 {
+}
+
+void BleCentralAdapter::startDiscovering()
+{
+	m_central->startDiscovering();
+}
+
+void BleCentralAdapter::connectDevice(const QBluetoothDeviceInfo& device)
+{
+    m_central->connectDevice(device);
 }
 
 void BleCentralAdapter::setDirty(common::ble::CharacteristicType group)
@@ -39,6 +49,11 @@ void BleCentralAdapter::setDirty(const std::string& uuid)
     if (!m_timer.isActive()) {
         m_timer.start();
     }
+}
+
+void BleCentralAdapter::setModel(FilterModel* model)
+{
+    m_model = model;
 }
 
 void BleCentralAdapter::setIoModel(IoModel* ioModel)
@@ -88,29 +103,29 @@ void BleCentralAdapter::doWriteCharc()
     }
 }
 
-void BleCentralAdapter::onStatus(ble::Client::Status _status, const QString& statusText)
+void BleCentralAdapter::onStatus(ble::BleClient::Status _status, const QString& statusText)
 {
     switch (_status) {
-    case ble::Client::Status::NoBluetooth:
-        emit status(Model::Status::NoBluetooth);
+    case ble::BleClient::Status::NoBluetooth:
+        emit status(DeviceModel::Status::NoBluetooth);
         return;
-    case ble::Client::Status::Discovering:
-        emit status(Model::Status::Discovering, statusText);
+    case ble::BleClient::Status::Discovering:
+        emit status(DeviceModel::Status::Discovering);
         return;
-    case ble::Client::Status::Connecting:
-        emit status(Model::Status::Connecting, statusText);
+    case ble::BleClient::Status::Connecting:
+        emit status(DeviceModel::Status::Connecting, statusText);
         return;
-    case ble::Client::Status::Connected:
-        emit status(Model::Status::Connected);
+    case ble::BleClient::Status::Connected:
+        emit status(DeviceModel::Status::Connected);
         return;
-    case ble::Client::Status::Timeout:
-        emit status(Model::Status::Timeout);
+    case ble::BleClient::Status::Timeout:
+        emit status(DeviceModel::Status::Idle);
         return;
-    case ble::Client::Status::Lost:
-        emit status(Model::Status::Lost);
+    case ble::BleClient::Status::Lost:
+        emit status(DeviceModel::Status::Lost);
         return;
-    case ble::Client::Status::Error:
-        emit status(Model::Status::Error, statusText);
+    case ble::BleClient::Status::Error:
+        emit status(DeviceModel::Status::Error, statusText);
         return;
     }
 }
@@ -125,10 +140,10 @@ void BleCentralAdapter::onCharacteristicRead(const std::string& uuid, const QByt
             return;
         }
 
-        std::vector<Model::Filter> filters;
+        std::vector<FilterModel::Filter> filters;
         filters.reserve(value.size()/4);
         for (int i = 0; i < value.size(); i += 4) {
-            filters.push_back(Model::Filter(static_cast<common::FilterType>(value.at(i)),
+            filters.push_back(FilterModel::Filter(static_cast<common::FilterType>(value.at(i)),
                                             (static_cast<uint8_t>(value.at(i+1)-config.freqMin)/config.freqStep),
                                             value.at(i+2)*0.5,
                                             static_cast<uint8_t>(value.at(i+3))));

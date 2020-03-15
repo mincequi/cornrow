@@ -20,7 +20,10 @@ class BusyIndicatorModel : public QObject
     Q_PROPERTY(std::vector<double> yCoords READ yCoords NOTIFY coordsChanged)
 
 public:
+    // TODO(mawe): Currently, this class is not used as singleton. However, this is likely to come.
+    //             So, we keep the default constructor public and also keep the singleton impl.
     BusyIndicatorModel(QObject *parent = nullptr);
+    static BusyIndicatorModel* instance();
 
     void setActive(bool active);
     Q_INVOKABLE void setRhoDeviation(double dev);
@@ -37,10 +40,12 @@ private:
     double randTheta();
     std::complex<double> polar(double rho, double theta);
 
+    static BusyIndicatorModel* s_instance;
+
     bool        m_active = false;
     QVector2D   m_center = {60, 60};
     double      m_radius = 36.0;
-    uint        m_numPoints = 11;
+    uint        m_numPoints = 7;
     std::vector<double>  m_xCoords;
     std::vector<double>  m_yCoords;
 

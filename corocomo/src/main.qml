@@ -1,16 +1,17 @@
-import QtQuick 2.14
+import QtQuick 2.12
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.2
 import QtQuick.Layouts 1.3
-import QtQuick.Window 2.14
+import QtQuick.Window 2.12
 
 import QtGraphicalEffects 1.0
 
 import Cornrow.BodePlotModel 1.0
 import Cornrow.Configuration 1.0
+import Cornrow.DeviceModel 1.0
 import Cornrow.EqChart 1.0
 import Cornrow.IoModel 1.0
-import Cornrow.Model 1.0
+import Cornrow.FilterModel 1.0
 import Cornrow.PhaseChart 1.0
 import Cornrow.SoftClipChart 1.0
 
@@ -38,12 +39,8 @@ ApplicationWindow {
     Material.primary: Material.color(Material.Indigo)
     Material.background: "#FF212121" //#FF000030
 
-    Component.onCompleted: {
-        CornrowModel.startDiscovering()
-    }
-
     Connections {
-        target: CornrowModel
+        target: FilterModel
         onFilterChanged: {
             CornrowBodePlotModel.setFilter(i, t, f, g, q)
             eqChart.update()
@@ -55,18 +52,26 @@ ApplicationWindow {
             phaseChart.update()
         }
         onGainChanged: {
-            if (CornrowModel.currentBand == CornrowModel.peqFilterCount) {
-                var t = CornrowModel.gain < 1.0 ? 0 : 1
-                if (t !== CornrowModel.filterType) CornrowModel.filterType = t
+            if (FilterModel.currentBand === FilterModel.peqFilterCount) {
+                var t = FilterModel.gain < 1.0 ? 0 : 1
+                if (t !== FilterModel.filterType) FilterModel.filterType = t
             }
         }
     }
+    
+    Connections {
+        target: DeviceModel
+        onStatusChanged: {
+            if (DeviceModel.status != DeviceModel.Connected) drawer.close()
+        }
+    }
 
-    CornrowBusyIndicator {
-        enabled: CornrowModel.status != CornrowModel.Connected
-        opacity: CornrowModel.status != CornrowModel.Connected ? 1.0 : 0.0
+    DeviceDialog {
+        width: appWindow.width
+        height: appWindow.height
+        enabled: DeviceModel.status !== DeviceModel.Connected
+        opacity: DeviceModel.status != DeviceModel.Connected ? 1.0 : 0.0
         Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
-        anchors.fill: parent
         z: 10
     }
 
@@ -77,8 +82,8 @@ ApplicationWindow {
            y: drawer.position * menu.height
         }
         icon.source: drawer.opened ? "qrc:/icons/expand_less.svg" : "qrc:/icons/expand_more.svg"
-        enabled: CornrowModel.status == CornrowModel.Connected
-        z: 9
+        enabled: DeviceModel.status == DeviceModel.Connected
+        z: 12
         onPressed: {
             drawer.visible = !drawer.visible
         }
@@ -105,8 +110,8 @@ ApplicationWindow {
     Item {
         id: peq
         anchors.fill: parent
-        enabled: CornrowModel.status == CornrowModel.Connected
-        opacity: CornrowModel.status == CornrowModel.Connected ? 1.0 : 0.0
+        enabled: DeviceModel.status == DeviceModel.Connected
+        opacity: DeviceModel.status == DeviceModel.Connected ? 1.0 : 0.0
         //opacity: 0.0
         Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
         transform: Translate {
@@ -125,7 +130,7 @@ ApplicationWindow {
                 id: eqChart
                 frequencyTable: CornrowConfiguration.freqTable
                 bodePlot: CornrowBodePlotModel
-                currentFilter: CornrowModel.currentBand
+                currentFilter: FilterModel.currentBand
                 currentPlotColor: Material.accent
                 plotColor: Material.foreground
                 sumPlotColor: Material.accent
@@ -151,7 +156,7 @@ ApplicationWindow {
                 id: phaseChart
                 frequencyTable: CornrowConfiguration.freqTable
                 bodePlot: CornrowBodePlotModel
-                currentFilter: CornrowModel.currentBand
+                currentFilter: FilterModel.currentBand
                 currentPlotColor: Material.accent
                 plotColor: Material.foreground
                 sumPlotColor: Material.accent
@@ -172,14 +177,16 @@ ApplicationWindow {
                 }
             }
 
+            /*
             CornrowSoftClipChart {
                 id: softClipChart
-                currentFilter: CornrowModel.currentBand
+                currentFilter: FilterModel.currentBand
                 currentPlotColor: Material.accent
                 plotColor: Material.foreground
                 sumPlotColor: Material.accent
                 criticalColor: Material.color(Material.Pink)
             }
+            */
         }
 
         PageIndicator {
@@ -196,7 +203,7 @@ ApplicationWindow {
         ToolButton {
             id: help
             text: "?"
-            enabled: CornrowModel.status == CornrowModel.Connected
+            enabled: DeviceModel.status == DeviceModel.Connected
             anchors.right: parent.right
             anchors.top: parent.top
         }
@@ -219,46 +226,46 @@ ApplicationWindow {
             anchors.bottom: typeBar.top
 
             Repeater {
-                model: CornrowModel.peqFilterCount
+                model: FilterModel.peqFilterCount
                 FilterBandButton {
                     text: index+1
-                    indicatorVisible: CornrowModel.activeFilters[index]
-                    checked: CornrowModel.currentBand == index
-                    onPressed: CornrowModel.setCurrentBand(index)
+                    indicatorVisible: FilterModel.activeFilters[index]
+                    checked: FilterModel.currentBand === index
+                    onPressed: FilterModel.setCurrentBand(index)
                 }
             } // Repeater
             FilterBandButton {
                 text: "LN"
-                indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount]
+                indicatorVisible: FilterModel.activeFilters[FilterModel.peqFilterCount]
                 visible: CornrowConfiguration.loudnessAvailable
-                checked: CornrowModel.currentBand == CornrowModel.peqFilterCount
-                onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount)
+                checked: FilterModel.currentBand === FilterModel.peqFilterCount
+                onPressed: FilterModel.setCurrentBand(FilterModel.peqFilterCount)
             }
             FilterBandButton {
                 text: "XO"
-                indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+1]
+                indicatorVisible: FilterModel.activeFilters[FilterModel.peqFilterCount+1]
                 visible: CornrowConfiguration.xoAvailable
                 enabled: CornrowIoModel.multiChannelAvailable
-                checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
-                onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+1)
+                checked: FilterModel.currentBand === FilterModel.peqFilterCount+1
+                onPressed: FilterModel.setCurrentBand(FilterModel.peqFilterCount+1)
             }
             /*
             FilterBandButton {
                 text: "SC"
-                indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+2]
+                indicatorVisible: FilterModel.activeFilters[FilterModel.peqFilterCount+2]
                 //visible: CornrowConfiguration.swAvailable
-                checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+2
-                onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+2)
+                checked: FilterModel.currentBand == FilterModel.peqFilterCount+2
+                onPressed: FilterModel.setCurrentBand(FilterModel.peqFilterCount+2)
             }
             */
             /*
             FilterBandButton {
                 text: "SW"
-                indicatorVisible: CornrowModel.activeFilters[CornrowModel.peqFilterCount+2]
+                indicatorVisible: FilterModel.activeFilters[FilterModel.peqFilterCount+2]
                 visible: CornrowConfiguration.swAvailable
                 enabled: CornrowIoModel.multiChannelAvailable
-                checked: CornrowModel.currentBand == CornrowModel.peqFilterCount+2
-                onPressed: CornrowModel.setCurrentBand(CornrowModel.peqFilterCount+2)
+                checked: FilterModel.currentBand == FilterModel.peqFilterCount+2
+                onPressed: FilterModel.setCurrentBand(FilterModel.peqFilterCount+2)
             }
             */
         }
@@ -270,19 +277,19 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.right: parent.right
             background: background
-            enabled: CornrowModel.currentBand != CornrowModel.peqFilterCount
-            opacity: CornrowModel.currentBand != CornrowModel.peqFilterCount
-            visible: CornrowModel.currentBand != -1
+            enabled: FilterModel.currentBand !== FilterModel.peqFilterCount
+            opacity: FilterModel.currentBand !== FilterModel.peqFilterCount
+            visible: FilterModel.currentBand !== -1
 
             Row {
                 id: typeRow
                 Repeater {
-                    model: CornrowModel.filterTypeNames
+                    model: FilterModel.filterTypeNames
                     TabButton {
-                        text: CornrowModel.filterTypeNames[index]
+                        text: FilterModel.filterTypeNames[index]
                         autoExclusive: true
-                        checked: CornrowModel.filterType === index
-                        onPressed: CornrowModel.filterType = index
+                        checked: FilterModel.filterType === index
+                        onPressed: FilterModel.filterType = index
                     }
                 }
             }
@@ -294,42 +301,42 @@ ApplicationWindow {
             anchors.bottomMargin: 16
             anchors.left: parent.left
             anchors.right: parent.right
-            opacity: CornrowModel.currentBand != CornrowModel.peqFilterCount &&
-                     CornrowModel.currentBand != -1
+            opacity: FilterModel.currentBand !== FilterModel.peqFilterCount &&
+                     FilterModel.currentBand !== -1
 
             FilterParameter {
                 label: "Frequency (Hz)"
                 // prefix: "Hz"
-                opacity: CornrowModel.currentBand < CornrowModel.peqFilterCount
-                enabled: CornrowModel.currentBand < CornrowModel.peqFilterCount &&
-                         CornrowModel.filterType > 0
-                readout: CornrowModel.freqReadout
-                onStep: CornrowModel.stepFreq(i)
-                value: CornrowModel.freqSlider
-                onValueChanged: CornrowModel.freqSlider = value
+                opacity: FilterModel.currentBand < FilterModel.peqFilterCount
+                enabled: FilterModel.currentBand < FilterModel.peqFilterCount &&
+                         FilterModel.filterType > 0
+                readout: FilterModel.freqReadout
+                onStep: FilterModel.stepFreq(i)
+                value: FilterModel.freqSlider
+                onValueChanged: FilterModel.freqSlider = value
             }
             FilterParameter {
                 label: "Q"
-                opacity: CornrowModel.currentBand < CornrowModel.peqFilterCount
-                enabled: CornrowModel.currentBand < CornrowModel.peqFilterCount &&
-                         CornrowModel.filterType > 0
-                readout: CornrowModel.qReadout
-                onStep: CornrowModel.stepQ(i)
-                value: CornrowModel.qSlider
-                onValueChanged: CornrowModel.qSlider = value
+                opacity: FilterModel.currentBand < FilterModel.peqFilterCount
+                enabled: FilterModel.currentBand < FilterModel.peqFilterCount &&
+                         FilterModel.filterType > 0
+                readout: FilterModel.qReadout
+                onStep: FilterModel.stepQ(i)
+                value: FilterModel.qSlider
+                onValueChanged: FilterModel.qSlider = value
             }
             FilterParameter {
                 label: "Gain (dB)"
                 // prefix: "dB"
-                opacity: CornrowModel.currentBand < CornrowModel.peqFilterCount
-                enabled: CornrowModel.currentBand <= CornrowModel.peqFilterCount &&
-                         (CornrowModel.filterType === 1 ||
-                          CornrowModel.filterType === 4 ||
-                          CornrowModel.filterType === 5)
-                readout: CornrowConfiguration.gainStep < 1.0 ? CornrowModel.gain.toFixed(1) : CornrowModel.gain.toFixed(0)
-                onStep: CornrowModel.stepGain(i)
-                value: CornrowModel.gainSlider
-                onValueChanged: CornrowModel.gainSlider = value
+                opacity: FilterModel.currentBand < FilterModel.peqFilterCount
+                enabled: FilterModel.currentBand <= FilterModel.peqFilterCount &&
+                         (FilterModel.filterType === 1 ||
+                          FilterModel.filterType === 4 ||
+                          FilterModel.filterType === 5)
+                readout: CornrowConfiguration.gainStep < 1.0 ? FilterModel.gain.toFixed(1) : FilterModel.gain.toFixed(0)
+                onStep: FilterModel.stepGain(i)
+                value: FilterModel.gainSlider
+                onValueChanged: FilterModel.gainSlider = value
             }
         } // Column
 
@@ -339,12 +346,12 @@ ApplicationWindow {
             anchors.right: parent.right
             label: "Loudness (phon)"
             // prefix: "phon"
-            opacity: CornrowModel.currentBand == CornrowModel.peqFilterCount
-            enabled: CornrowModel.currentBand == CornrowModel.peqFilterCount
-            readout: CornrowModel.gain.toFixed(0)
-            onStep: CornrowModel.stepGain(i)
-            value: CornrowModel.gainSlider
-            onValueChanged: CornrowModel.gainSlider = value
+            opacity: FilterModel.currentBand === FilterModel.peqFilterCount
+            enabled: FilterModel.currentBand === FilterModel.peqFilterCount
+            readout: FilterModel.gain.toFixed(0)
+            onStep: FilterModel.stepGain(i)
+            value: FilterModel.gainSlider
+            onValueChanged: FilterModel.gainSlider = value
         }
 
         Column {
@@ -352,26 +359,26 @@ ApplicationWindow {
             anchors.top: filterParameters.top
             anchors.left: parent.left
             anchors.right: parent.right
-            visible: CornrowModel.currentBand == CornrowModel.peqFilterCount+1
+            visible: FilterModel.currentBand === FilterModel.peqFilterCount+1
 
             FilterParameter {
                 label: "Frequency (Hz)"
                 // prefix: "Hz"
-                enabled: CornrowModel.filterType > 0
-                readout: CornrowModel.freqReadout
-                onStep: CornrowModel.stepFreq(i)
-                value: CornrowModel.freqSlider
-                onValueChanged: CornrowModel.freqSlider = value
+                enabled: FilterModel.filterType > 0
+                readout: FilterModel.freqReadout
+                onStep: FilterModel.stepFreq(i)
+                value: FilterModel.freqSlider
+                onValueChanged: FilterModel.freqSlider = value
             }
 
             FilterParameter {
                 label: "Gain (dB)"
-                prefix: CornrowModel.gain < 0 ? "High:" : CornrowModel.gain == 0 ? "" : "Low:"
-                enabled: CornrowModel.filterType > 0
-                readout: (-1*Math.abs(CornrowModel.gain)).toFixed(1)
-                onStep: CornrowModel.stepGain(i)
-                value: CornrowModel.gainSlider
-                onValueChanged: CornrowModel.gainSlider = value
+                prefix: FilterModel.gain < 0 ? "High:" : FilterModel.gain === 0 ? "" : "Low:"
+                enabled: FilterModel.filterType > 0
+                readout: (-1*Math.abs(FilterModel.gain)).toFixed(1)
+                onStep: FilterModel.stepGain(i)
+                value: FilterModel.gainSlider
+                onValueChanged: FilterModel.gainSlider = value
             }
 
             /*
@@ -385,12 +392,12 @@ ApplicationWindow {
                 Row {
                     id: swTypeRow
                     Repeater {
-                        model: CornrowModel.filterTypeNames
+                        model: FilterModel.filterTypeNames
                         TabButton {
-                            text: CornrowModel.filterTypeNames[index]
+                            text: FilterModel.filterTypeNames[index]
                             autoExclusive: true
-                            //checked: CornrowModel.filterType === index
-                            //onPressed: CornrowModel.filterType = index
+                            //checked: FilterModel.filterType === index
+                            //onPressed: FilterModel.filterType = index
                         }
                     }
                 }
@@ -400,10 +407,10 @@ ApplicationWindow {
                 label: "LFE Frequency (Hz)"
                 unit: "Hz"
                 visible: false
-                //readout: CornrowModel.qReadout
-                //onStep: CornrowModel.stepQ(i)
-                //value: CornrowModel.qSlider
-                //onValueChanged: CornrowModel.qSlider = value
+                //readout: FilterModel.qReadout
+                //onStep: FilterModel.stepQ(i)
+                //value: FilterModel.qSlider
+                //onValueChanged: FilterModel.qSlider = value
             }
             */
         }
@@ -414,7 +421,7 @@ ApplicationWindow {
             anchors.top: filterParameters.top
             anchors.left: parent.left
             anchors.right: parent.right
-            visible: CornrowModel.currentBand == CornrowModel.peqFilterCount+2
+            visible: FilterModel.currentBand == FilterModel.peqFilterCount+2
             FilterParameter {
                 label: "Clipping"
                 onValueChanged: softClipChart.setClipping(value)
@@ -432,7 +439,7 @@ ApplicationWindow {
         anchors.fill: parent
         source: peq
         radius: 32
-        opacity: CornrowModel.status == CornrowModel.Connected ? 0.0 : 0.125
+        opacity: DeviceModel.status == DeviceModel.Connected ? 0.0 : 0.125
         Behavior on opacity { SmoothedAnimation { velocity: 0.5 }}
         transform: Translate {
            y: drawer.position * menu.height
