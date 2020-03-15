@@ -5,6 +5,8 @@ import QtQuick.Controls.Material 2.3
 
 AbstractButton {
     id: control
+    
+    property alias backgroundColor: background.color
 
     implicitWidth: Math.max(background ? background.implicitWidth : 0, contentItem.implicitWidth) + leftPadding + rightPadding
     implicitHeight: Math.max(background ? background.implicitHeight : 0, contentItem.implicitHeight) + topPadding + bottomPadding
@@ -23,6 +25,7 @@ AbstractButton {
     Material.elevation: control.pressed ? 2 : 0
 
     background: Rectangle {
+        id: background
         implicitHeight: 24
         radius: 12
         color: control.checked || control.hovered ? Material.accent : Material.color(Material.Grey)

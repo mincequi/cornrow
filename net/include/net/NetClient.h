@@ -65,17 +65,6 @@ class NetClient : public QObject
     Q_OBJECT
 
 public:
-    enum class Status
-    {
-        NoBluetooth,    // Currently unused, since we cannot tell on iOS wether Bluetooth is on.
-        Discovering,
-        Connecting,     // Connecting state hangs from time to time, so provide user interaction
-        Connected,
-        Timeout,
-        Lost,
-        Error
-    };
-
     explicit NetClient(QObject *parent = nullptr);
     ~NetClient();
 
@@ -83,7 +72,6 @@ public:
 	void stopDiscovering();
 
 signals:
-    void status(Status status, const QString& errorString = QString());
     void deviceDiscovered(NetDevicePtr device);
 
 private:

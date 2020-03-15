@@ -58,6 +58,13 @@ ApplicationWindow {
             }
         }
     }
+    
+    Connections {
+        target: DeviceModel
+        onStatusChanged: {
+            if (DeviceModel.status != DeviceModel.Connected) drawer.close()
+        }
+    }
 
     DeviceDialog {
         width: appWindow.width

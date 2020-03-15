@@ -44,7 +44,7 @@ void ClientSession::connectDevice(const QBluetoothDeviceInfo& device)
     m_control->setRemoteAddressType(QLowEnergyController::PublicAddress);
 
     // Connect to device
-    q->setStatus(BleClient::Status::Connecting, "Connecting " + m_control->remoteName());
+    //q->setStatus(BleClient::Status::Connecting, "Connecting " + m_control->remoteName());
 
     connect(m_control, &QLowEnergyController::connected, this, &ClientSession::onDeviceConnected);
     connect(m_control, &QLowEnergyController::disconnected, this, &ClientSession::onDeviceDisconnected);
@@ -130,7 +130,7 @@ void ClientSession::onServiceDiscoveryFinished()
     // We cannot access characteristics here, but we have to wait for appropriate state change.
     // discoverDetails() will trigger those state changes.
     m_service->discoverDetails();
-    q->setStatus(BleClient::Status::Connecting, "Reading settings from " + m_control->remoteName());
+    //q->setStatus(BleClient::Status::Connecting, "Reading settings from " + m_control->remoteName());
 }
 
 void ClientSession::onServiceStateChanged(QLowEnergyService::ServiceState s)

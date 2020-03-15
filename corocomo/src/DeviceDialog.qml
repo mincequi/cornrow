@@ -57,8 +57,9 @@ Dialog {
         Label {
             id: deviceLabel
             text: DeviceModel.statusText
-            font.pixelSize: 12
-            opacity: 0.5
+            font.capitalization: Font.AllUppercase
+            font.pixelSize: 10
+            opacity: 0.75
             leftPadding: 16
         }
         
@@ -67,6 +68,8 @@ Dialog {
             Layout.fillHeight: true
             Layout.fillWidth: true
             model: DeviceModel.devices
+            enabled: DeviceModel.status == DeviceModel.Discovering ||
+                     DeviceModel.status == DeviceModel.Idle
             delegate: ListItemNew {
                 icon.source: modelData.type === CornrowDeviceType.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
                 primaryText: modelData.name

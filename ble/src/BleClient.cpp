@@ -51,7 +51,7 @@ void BleClient::startDiscovering()
         return false;
     }*/
 
-    setStatus(Status::Discovering, "Searching for cornrow devices");
+    setStatus(Status::Discovering);
     m_clientSession = new ClientSession(this);
 }
 

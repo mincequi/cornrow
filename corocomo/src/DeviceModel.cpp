@@ -31,7 +31,7 @@ DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, QObject *parent) :
 	QObject(parent),
 	m_bleAdapter(bleAdapter)
 {
-    connect(m_bleAdapter, &BleCentralAdapter::status, this, &DeviceModel::onDeviceStatus);
+    connect(m_bleAdapter, &BleCentralAdapter::status, this, &DeviceModel::onBleDeviceStatus);
 
 	// Ble
 	connect(m_bleAdapter, &BleCentralAdapter::deviceDiscovered, this, &DeviceModel::onBleDeviceDiscovered);
@@ -54,7 +54,7 @@ void DeviceModel::startDiscovering()
 
 void DeviceModel::startDemo()
 {
-    onDeviceStatus(Status::Connected, QString());
+    onBleDeviceStatus(Status::Connected, QString());
 }
 
 DeviceModel::Status DeviceModel::status() const
@@ -85,6 +85,7 @@ void DeviceModel::connectDevice(net::NetDevice* device)
 {
     switch (device->type) {
     case net::NetDevice::DeviceType::BluetoothLe:
+        onBleDeviceStatus(Status::Connecting, "Connecting " + device->name);
         m_bleAdapter->connectDevice(device->bluetoothDeviceInfo);
         break;
     default:
@@ -106,7 +107,7 @@ void DeviceModel::onAppStateChanged(Qt::ApplicationState state)
     }
 }
 
-void DeviceModel::onDeviceStatus(Status _status, const QString& statusText)
+void DeviceModel::onBleDeviceStatus(Status _status, const QString& statusText)
 {
     m_status = _status;
     m_statusText.clear();
@@ -117,17 +118,22 @@ void DeviceModel::onDeviceStatus(Status _status, const QString& statusText)
         m_statusText = "Enable Bluetooth in your device's settings";
         break;
     case Status::Idle:
+        m_netClient->stopDiscovering();
         if (m_devices.empty()) {
             m_statusLabel = "Timeout";
             m_statusText = "Be sure to be close to a cornrow device";
         } else {
             m_statusLabel = "";
-            m_statusText = "Cornrow devices found. Tap to connect:";
+            m_statusText = "Cornrow devices found. Tap to connect";
         }
         break;
     case Status::Discovering:
-        m_statusLabel = "Discovering";
-        m_statusText = statusText;
+        if (m_devices.empty()) {
+            m_statusLabel = "Discovering";
+        } else {
+            m_statusLabel = "Discovering";
+            m_statusText = "Cornrow devices found. Tap to connect";
+        }
         break;
     case Status::Connecting:
         m_statusLabel = "Connecting";
@@ -162,10 +168,14 @@ void DeviceModel::onBleDeviceDiscovered(const QBluetoothDeviceInfo& _device)
 
 	m_devices.push_back(device);
     emit devicesChanged();
+    
+    onBleDeviceStatus(Status::Discovering, "");
 }
 
 void DeviceModel::onNetDeviceDiscovered(net::NetDevicePtr device)
 {
     m_devices.push_back(device);
     emit devicesChanged();
+    
+    onBleDeviceStatus(Status::Discovering, "");
 }

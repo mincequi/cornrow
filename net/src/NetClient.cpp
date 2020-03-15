@@ -28,9 +28,6 @@ NetClient::NetClient(QObject* parent)
 {
 	m_zeroConf = new QZeroConf(this);
 	connect(m_zeroConf, &QZeroConf::serviceAdded, this, &NetClient::onServiceAdded);
-
-    // TODO(mawe): only enable for debug purposes
-    startDiscovering();
 }
 
 NetClient::~NetClient()
@@ -42,8 +39,8 @@ void NetClient::startDiscovering()
     if (m_zeroConf->browserExists()) {
         stopDiscovering();
     }
-	emit status(Status::Discovering, "Searching for cornrow devices");
-    m_zeroConf->startBrowser("_printer._tcp");
+
+    m_zeroConf->startBrowser("_cornrow._tcp");
 }
 
 void NetClient::stopDiscovering()

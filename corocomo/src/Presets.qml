@@ -2,6 +2,7 @@ import QtQuick 2.10
 import QtQuick.Controls 2.3
 import QtQuick.Controls.Material 2.3
 
+import Cornrow.DeviceModel 1.0
 import Cornrow.PresetModel 1.0
 
 Item {
@@ -11,6 +12,16 @@ Item {
         id: io
         anchors.left: parent.left
         anchors.right: parent.right
+    }
+    
+    Chip {
+        text: "Disconnect"
+        anchors.top: parent.top
+        anchors.right: parent.right
+        backgroundColor: Material.color(Material.Pink)
+        onClicked: {
+            DeviceModel.startDiscovering()
+        }
     }
 
     /*

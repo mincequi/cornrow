@@ -56,9 +56,11 @@ signals:
 
 private:
 	explicit DeviceModel(BleCentralAdapter* bleAdapter, QObject *parent = nullptr);
+    
+    void stopDiscovering();
 
     void onAppStateChanged(Qt::ApplicationState state);
-	void onDeviceStatus(Status status, const QString& errorString);
+	void onBleDeviceStatus(Status status, const QString& errorString);
     void onBleDeviceDiscovered(const QBluetoothDeviceInfo& device);
     void onNetDeviceDiscovered(net::NetDevicePtr device);
 
