@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Client.h"
+#include "BleClient.h"
 
 #include "ClientSession.h"
 #include "Defines.h"
@@ -27,17 +27,17 @@
 namespace ble
 {
 
-Client::Client(QObject* parent)
+BleClient::BleClient(QObject* parent)
     : QObject(parent)
 {
 }
 
-Client::~Client()
+BleClient::~BleClient()
 {
     delete m_clientSession;
 }
 
-bool Client::startDiscovering()
+void BleClient::startDiscovering()
 {
     if (m_clientSession) {
         delete m_clientSession;
@@ -53,16 +53,15 @@ bool Client::startDiscovering()
 
     setStatus(Status::Discovering, "Searching for cornrow devices");
     m_clientSession = new ClientSession(this);
-    return true;
 }
 
-void Client::disconnect()
+void BleClient::disconnect()
 {
     delete m_clientSession;
     m_clientSession = nullptr;
 }
 
-void Client::writeCharacteristic(const std::string& uuid, const QByteArray& value)
+void BleClient::writeCharacteristic(const std::string& uuid, const QByteArray& value)
 {
     if (!m_clientSession || !m_clientSession->m_service) {
         return;
@@ -76,13 +75,13 @@ void Client::writeCharacteristic(const std::string& uuid, const QByteArray& valu
     m_clientSession->m_service->writeCharacteristic(characteristic, value);
 }
 
-void Client::setStatus(Status _error, const QString& errorString)
+void BleClient::setStatus(Status _error, const QString& errorString)
 {
     qDebug() << "Status:" << static_cast<int32_t>(_error) << "error:" << errorString;
     emit status(_error, errorString);
 }
 
-void Client::onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value)
+void BleClient::onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value)
 {
     qDebug() << __func__ << "> " << characteristic.uuid();
     emit status(Status::Connected);

@@ -9,14 +9,14 @@
 
 namespace ble
 {
-class Client;
+class BleClient;
 
 class ClientSession : public QObject
 {
 public:
-    ClientSession(Client* _q);
+    ClientSession(BleClient* _q);
 
-    void disconnect();
+	void connectDevice(const QBluetoothDeviceInfo& device);
 
     // QBluetoothDeviceDiscoveryAgent
     void onDeviceDiscovered(const QBluetoothDeviceInfo&);
@@ -35,7 +35,7 @@ public:
     void onServiceError(QLowEnergyService::ServiceError error);
     void onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
 
-    Client* q;
+    BleClient* q;
     QBluetoothDeviceDiscoveryAgent* m_discoverer = nullptr;
     QLowEnergyController*   m_control = nullptr;
     QLowEnergyService*      m_service = nullptr;

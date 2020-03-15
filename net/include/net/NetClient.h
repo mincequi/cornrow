@@ -17,6 +17,8 @@
 
 #pragma once
 
+// @TODO(mawe): remove bluetooth dependency
+#include <QBluetoothDeviceInfo>
 #include <QHostAddress>
 #include <QTimer>
 
@@ -29,25 +31,34 @@ typedef QSharedPointer<QZeroConfServiceData> QZeroConfService;
 namespace net
 {
 
-struct NetDevice
+struct NetDevice : public QObject
 {
-public:
-    using Type = common::CtrlInterfaceType;
-
-    Q_GADGET
-
-    Q_ENUM(Type)
-
+    Q_OBJECT
+    
     Q_PROPERTY(QString name MEMBER name)
-    Q_PROPERTY(Type type MEMBER type)
+    Q_PROPERTY(DeviceType type MEMBER type)
 
 public:
+	// We cannot use an alias here
+    //using DeviceType = common::CtrlInterfaceType;
+    
+    enum class DeviceType {
+		Invalid = 0,
+		BluetoothLe = 0x1,
+		TcpIp = 0x2
+    };
+    // We need this for QML engine
+    Q_ENUM(DeviceType)
+    
     QString name;
-    Type type = Type::Invalid;
+    DeviceType type = DeviceType::Invalid;
 
     QHostAddress address;
     uint16_t port = 0;
+    
+    QBluetoothDeviceInfo bluetoothDeviceInfo;
 };
+using NetDevicePtr = QSharedPointer<net::NetDevice>;
 
 class NetClient : public QObject
 {
@@ -68,12 +79,12 @@ public:
     explicit NetClient(QObject *parent = nullptr);
     ~NetClient();
 
-    bool startDiscovering();
+    void startDiscovering();
 	void stopDiscovering();
 
 signals:
     void status(Status status, const QString& errorString = QString());
-    void deviceDiscovered(const NetDevice& device);
+    void deviceDiscovered(NetDevicePtr device);
 
 private:
     void onServiceAdded(QZeroConfService);
@@ -82,3 +93,5 @@ private:
 };
 
 } // namespace net
+
+Q_DECLARE_METATYPE(net::NetDevicePtr)

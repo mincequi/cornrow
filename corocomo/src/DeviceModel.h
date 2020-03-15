@@ -6,9 +6,10 @@
 
 class BleCentralAdapter;
 namespace ble {
-class Client;
+class BleClient;
 }
 
+class QBluetoothDeviceInfo;
 class QZeroConf;
 class QZeroConfServiceData;
 typedef QSharedPointer<QZeroConfServiceData> QZeroConfService;
@@ -21,7 +22,8 @@ class DeviceModel : public QObject
     Q_PROPERTY(QString statusLabel READ statusLabel NOTIFY statusChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusChanged)
 
-    Q_PROPERTY(std::vector<net::NetDevice> devices READ devices NOTIFY devicesChanged)
+    // @TODO(Qt): QObjectList is not accepted. So, we must use QList<QObject*>.
+    Q_PROPERTY(QList<QObject*> devices READ devices NOTIFY devicesChanged)
 
 public:
     enum Status : uint8_t {
@@ -35,25 +37,29 @@ public:
     };
     Q_ENUM(Status)
 
+	static DeviceModel* init(BleCentralAdapter* adapter);
     static DeviceModel* instance();
 
     Q_INVOKABLE void startDiscovering();
+	Q_INVOKABLE void startDemo();
 
     Status      status() const;
     QString     statusLabel() const;
     QString     statusText() const;
 
-    std::vector<net::NetDevice> devices() const;
+    QObjectList devices() const;
 
 signals:
     void statusChanged();
     void devicesChanged();
 
 private:
-	explicit DeviceModel(QObject *parent = nullptr);
+	explicit DeviceModel(BleCentralAdapter* bleAdapter, QObject *parent = nullptr);
 
     void onAppStateChanged(Qt::ApplicationState state);
-    void onNetDeviceDiscovered(const net::NetDevice& device);
+	void onDeviceStatus(Status status, const QString& errorString);
+    void onBleDeviceDiscovered(const QBluetoothDeviceInfo& device);
+    void onNetDeviceDiscovered(net::NetDevicePtr device);
 
     static DeviceModel* s_instance;
 
@@ -62,10 +68,9 @@ private:
     QString         m_statusText;
     bool            m_demoMode = false;
 
-    std::vector<net::NetDevice> m_devices;
+    QList<net::NetDevicePtr> m_devices;
 
     // BLE
-    ble::Client* m_bleClient = nullptr;
     BleCentralAdapter* m_bleAdapter = nullptr;
     friend class BleCentralAdapter;
 

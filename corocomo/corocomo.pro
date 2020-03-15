@@ -22,8 +22,8 @@ SOURCES += \
     src/Config.cpp \
     src/DeviceModel.cpp \
     src/EqChart.cpp \
+    src/FilterModel.cpp \
     src/IoModel.cpp \
-    src/Model.cpp \
     src/PhaseChart.cpp \
     src/Plot.cpp \
     src/PresetModel.cpp \
@@ -37,8 +37,8 @@ HEADERS += \
     src/Config.h \
     src/DeviceModel.h \
     src/EqChart.h \
+    src/FilterModel.h \
     src/IoModel.h \
-    src/Model.h \
     src/PhaseChart.h \
     src/PresetModel.h \
     src/SoftClipChart.h

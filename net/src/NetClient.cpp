@@ -37,14 +37,13 @@ NetClient::~NetClient()
 {
 }
 
-bool NetClient::startDiscovering()
+void NetClient::startDiscovering()
 {
     if (m_zeroConf->browserExists()) {
         stopDiscovering();
     }
 	emit status(Status::Discovering, "Searching for cornrow devices");
     m_zeroConf->startBrowser("_printer._tcp");
-	return true;
 }
 
 void NetClient::stopDiscovering()
@@ -54,11 +53,11 @@ void NetClient::stopDiscovering()
 
 void NetClient::onServiceAdded(QZeroConfService service)
 {
-    NetDevice device;
-    device.name = service->name();
-    device.type = NetDevice::Type::TcpIp;
-    device.address = service->ip();
-    device.port = service->port();
+    NetDevicePtr device(new NetDevice);
+    device->name = service->name();
+    device->type = NetDevice::DeviceType::TcpIp;
+    device->address = service->ip();
+    device->port = service->port();
 
     emit deviceDiscovered(device);
     qDebug() << service;

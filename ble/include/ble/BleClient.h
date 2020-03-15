@@ -21,12 +21,13 @@
 
 #include <common/ble/Types.h>
 
+class QBluetoothDeviceInfo;
 class QLowEnergyCharacteristic;
 
 namespace ble
 {
 
-class Client : public QObject
+class BleClient : public QObject
 {
     Q_OBJECT
 
@@ -41,16 +42,17 @@ public:
         Error
     };
 
-    explicit Client(QObject *parent = nullptr);
-    ~Client();
+    explicit BleClient(QObject *parent = nullptr);
+    ~BleClient();
 
-    bool startDiscovering();
+    void startDiscovering();
     void disconnect();
 
     void writeCharacteristic(const std::string& uuid, const QByteArray& value);
 
 signals:
     void status(Status status, const QString& errorString = QString());
+	void deviceDiscovered(const QBluetoothDeviceInfo& device);
 
     // Emits initial values
     void characteristicRead(const std::string& uuid, const QByteArray& value);
