@@ -55,6 +55,16 @@ void BleClient::startDiscovering()
     m_clientSession = new ClientSession(this);
 }
 
+void BleClient::connectDevice(const QBluetoothDeviceInfo& device)
+{
+    if (!m_clientSession) {
+        qWarning() << "No client session";
+        return;
+    }
+
+    m_clientSession->connectDevice(device);
+}
+
 void BleClient::disconnect()
 {
     delete m_clientSession;
@@ -79,13 +89,6 @@ void BleClient::setStatus(Status _error, const QString& errorString)
 {
     qDebug() << "Status:" << static_cast<int32_t>(_error) << "error:" << errorString;
     emit status(_error, errorString);
-}
-
-void BleClient::onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value)
-{
-    qDebug() << __func__ << "> " << characteristic.uuid();
-    emit status(Status::Connected);
-    emit characteristicRead(characteristic.uuid().toString(QUuid::StringFormat::WithoutBraces).toStdString(), value);
 }
 
 } // namespace ble

@@ -60,8 +60,8 @@ ApplicationWindow {
     }
 
     DeviceDialog {
-        width: parent.width
-        height: 400
+        width: appWindow.width
+        height: appWindow.height
         enabled: DeviceModel.status !== DeviceModel.Connected
         opacity: DeviceModel.status != DeviceModel.Connected ? 1.0 : 0.0
         Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}

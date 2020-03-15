@@ -46,6 +46,7 @@ public:
     ~BleClient();
 
     void startDiscovering();
+    void connectDevice(const QBluetoothDeviceInfo& device);
     void disconnect();
 
     void writeCharacteristic(const std::string& uuid, const QByteArray& value);
@@ -59,7 +60,6 @@ signals:
 
 private:
     void setStatus(Status status, const QString& errorString = QString());
-    void onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
 
     class ClientSession* m_clientSession = nullptr;
     friend class ClientSession;

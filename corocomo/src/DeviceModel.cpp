@@ -81,6 +81,18 @@ QObjectList DeviceModel::devices() const
     return _devices;
 }
 
+void DeviceModel::connectDevice(net::NetDevice* device)
+{
+    switch (device->type) {
+    case net::NetDevice::DeviceType::BluetoothLe:
+        m_bleAdapter->connectDevice(device->bluetoothDeviceInfo);
+        break;
+    default:
+        qDebug() << "Unhandled device type: " << device->type;
+        break;
+    }
+}
+
 void DeviceModel::onAppStateChanged(Qt::ApplicationState state)
 {
     switch (state) {
@@ -104,6 +116,15 @@ void DeviceModel::onDeviceStatus(Status _status, const QString& statusText)
         m_statusLabel = "Bluetooth disabled";
         m_statusText = "Enable Bluetooth in your device's settings";
         break;
+    case Status::Idle:
+        if (m_devices.empty()) {
+            m_statusLabel = "Timeout";
+            m_statusText = "Be sure to be close to a cornrow device";
+        } else {
+            m_statusLabel = "";
+            m_statusText = "Cornrow devices found. Tap to connect:";
+        }
+        break;
     case Status::Discovering:
         m_statusLabel = "Discovering";
         m_statusText = statusText;
@@ -114,10 +135,6 @@ void DeviceModel::onDeviceStatus(Status _status, const QString& statusText)
         break;
     case Status::Connected:
         m_statusLabel = "";
-        break;
-    case Status::Timeout:
-        m_statusLabel = "Timeout";
-        m_statusText = "Be sure to be close to a cornrow device";
         break;
     case Status::Lost:
         m_statusLabel = "Lost";
@@ -137,7 +154,7 @@ void DeviceModel::onBleDeviceDiscovered(const QBluetoothDeviceInfo& _device)
 	net::NetDevicePtr device(new net::NetDevice);
 	QString name = _device.name();
 	if (name.isEmpty()) {
-		name = "<Unknwon cornrow device>";
+		name = "<unknown cornrow device>";
 	}
     device->name = name;
     device->type = net::NetDevice::DeviceType::BluetoothLe;

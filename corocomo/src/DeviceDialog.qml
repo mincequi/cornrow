@@ -19,28 +19,30 @@ Dialog {
     id: myDialog
     visible: true
     background: Rectangle { color: "transparent" }
-    anchors.centerIn: parent
-
+    padding: 0  // Make the dialog full screen
     Component.onCompleted: {
         DeviceModel.startDiscovering()
         FilterModel.startDiscovering()
     }
-
-    Column {
-        id: statusScreen
-        spacing: 16
-        anchors.centerIn: parent
-        width: myDialog.width
+    
+    CoroBusyIndicator {
+        id: busyIndicator
+        y: myDialog.availableHeight/12  // @TODO(mawe): this is placed by trial and error. Can be improved.
+        
         CoroBusyIndicator {
-            CoroBusyIndicator {
             strokeColor: Material.color(Material.Pink)
             fillColor: "transparent"
             innerRadius: 20
             outerRadius: 52
-            strokeWidth: 1
+            strokeWidth: 0.67
             inactiveOpacity: 0.5
-            }
         }
+    }
+    
+    ColumnLayout {
+        y: myDialog.availableHeight/3
+        width: myDialog.availableWidth
+        height: myDialog.availableHeight-y
         
         Label {
             id: statusLabel
@@ -48,31 +50,27 @@ Dialog {
             font.capitalization: Font.SmallCaps
             font.pixelSize: 20
             font.weight: Font.DemiBold
-            anchors.horizontalCenter: parent.horizontalCenter
+            Layout.alignment: Qt.AlignHCenter
+            Layout.bottomMargin: 16
         }
-
+        
         Label {
-            id: statusText
-            horizontalAlignment: Text.AlignHCenter
-            maximumLineCount: 2
-            text: DeviceModel.statusText;
-            width: 240
-            height: 48
-            clip: true
-            wrapMode: Text.Wrap
-            font.pixelSize: 16
-            font.weight: Font.Light
+            id: deviceLabel
+            text: DeviceModel.statusText
+            font.pixelSize: 12
+            opacity: 0.5
+            leftPadding: 16
         }
-
+        
         ListView {
             clip: true
-            width: parent.width
-            height: 120
+            Layout.fillHeight: true
+            Layout.fillWidth: true
             model: DeviceModel.devices
             delegate: ListItemNew {
                 icon.source: modelData.type === CornrowDeviceType.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
                 primaryText: modelData.name
-                onClicked: modelData.onClicked
+                onClicked: DeviceModel.connectDevice(modelData)
                 //subText: ip
                 //subTextFontSize: 12
                 //showDivider: true
@@ -85,7 +83,31 @@ Dialog {
                 */
             }
         }
+    } // ColumnLayout
+
+    /*
+    Column {
+        id: statusScreen
+        spacing: 16
+        anchors.centerIn: parent
+        width: myDialog.width
+
+        Label {
+            id: statusText
+            horizontalAlignment: Text.AlignHCenter
+            maximumLineCount: 2
+            text: DeviceModel.statusText;
+            width: parent.width - 2*spacing
+            height: 48
+            clip: true
+            wrapMode: Text.Wrap
+            font.pixelSize: 16
+            font.weight: Font.Light
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+
     } // Column
+    */
 
     footer: DialogButtonBox {
         opacity: DeviceModel.status != DeviceModel.Discovering &&

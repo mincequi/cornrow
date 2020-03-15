@@ -18,6 +18,8 @@ public:
     ~BleCentralAdapter();
     
     void startDiscovering();
+    
+    void connectDevice(const QBluetoothDeviceInfo& device);
 
     void setDirty(common::ble::CharacteristicType group);
     void setDirty(const std::string& uuid);
@@ -40,8 +42,8 @@ private:
     void onStatus(ble::BleClient::Status status, const QString& errorString);
     void onCharacteristicRead(const std::string& uuid, const QByteArray& value);
 
-    ble::BleClient*    m_central;
-    FilterModel*          m_model;
+    ble::BleClient* m_central;
+    FilterModel*    m_model;
     IoModel*        m_ioModel;
 
     QTimer          m_timer;

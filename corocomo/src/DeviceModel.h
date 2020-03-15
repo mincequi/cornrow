@@ -31,7 +31,7 @@ public:
         Discovering,
         Connecting,
         Connected,
-        Timeout,
+        Idle,
         Lost,
         Error
     };
@@ -48,6 +48,7 @@ public:
     QString     statusText() const;
 
     QObjectList devices() const;
+    Q_INVOKABLE void connectDevice(net::NetDevice* device);
 
 signals:
     void statusChanged();

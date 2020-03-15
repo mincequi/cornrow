@@ -27,6 +27,11 @@ void BleCentralAdapter::startDiscovering()
 	m_central->startDiscovering();
 }
 
+void BleCentralAdapter::connectDevice(const QBluetoothDeviceInfo& device)
+{
+    m_central->connectDevice(device);
+}
+
 void BleCentralAdapter::setDirty(common::ble::CharacteristicType group)
 {
     // @TODO(mawe): remove FilterGroup type
@@ -105,7 +110,7 @@ void BleCentralAdapter::onStatus(ble::BleClient::Status _status, const QString& 
         emit status(DeviceModel::Status::NoBluetooth);
         return;
     case ble::BleClient::Status::Discovering:
-        emit status(DeviceModel::Status::Discovering, statusText);
+        emit status(DeviceModel::Status::Discovering);
         return;
     case ble::BleClient::Status::Connecting:
         emit status(DeviceModel::Status::Connecting, statusText);
@@ -114,7 +119,7 @@ void BleCentralAdapter::onStatus(ble::BleClient::Status _status, const QString& 
         emit status(DeviceModel::Status::Connected);
         return;
     case ble::BleClient::Status::Timeout:
-        emit status(DeviceModel::Status::Timeout);
+        emit status(DeviceModel::Status::Idle);
         return;
     case ble::BleClient::Status::Lost:
         emit status(DeviceModel::Status::Lost);

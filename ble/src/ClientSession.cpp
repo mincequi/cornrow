@@ -67,13 +67,10 @@ void ClientSession::onDeviceDiscovered(const QBluetoothDeviceInfo& device)
     }
 
     qDebug() << __func__ << ": found cornrow device:" << device.name();
-    q->setStatus(BleClient::Status::Discovering, "Found cornrow device " + device.name());
+    q->setStatus(BleClient::Status::Discovering);
     m_devices.push_back(device);
     
     emit q->deviceDiscovered(device);
-
-    // @TODO(mawe): until we do not support multiple devices, we can stop here.
-    onDeviceDiscoveryFinished();
 }
 
 void ClientSession::onDeviceDiscoveryError(QBluetoothDeviceDiscoveryAgent::Error error)
@@ -87,12 +84,7 @@ void ClientSession::onDeviceDiscoveryFinished()
 {
     qDebug() << __func__;
 
-    if (m_devices.empty()) {
-        q->setStatus(BleClient::Status::Timeout);
-        return;
-    }
-    
-    connectDevice(m_devices.front());
+    q->setStatus(BleClient::Status::Timeout);
 }
 
 void ClientSession::onDeviceConnected()
@@ -132,7 +124,7 @@ void ClientSession::onServiceDiscoveryFinished()
     }
     m_service = m_control->createServiceObject(common::cornrowServiceUuid, this);
     connect(m_service, &QLowEnergyService::stateChanged, this, &ClientSession::onServiceStateChanged);
-    connect(m_service, &QLowEnergyService::characteristicRead, q, &BleClient::onCharacteristicRead);
+    connect(m_service, &QLowEnergyService::characteristicRead, this, &ClientSession::onCharacteristicRead);
     connect(m_service, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error), this, &ClientSession::onServiceError);
 
     // We cannot access characteristics here, but we have to wait for appropriate state change.
@@ -197,6 +189,13 @@ void ClientSession::onServiceError(QLowEnergyService::ServiceError /*error*/)
     qDebug() << __func__;
 
     q->setStatus(BleClient::Status::Error, "Service error");
+}
+
+void ClientSession::onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value)
+{
+    qDebug() << __func__ << "> " << characteristic.uuid();
+    q->setStatus(BleClient::Status::Connected);
+    emit q->characteristicRead(characteristic.uuid().toString(QUuid::StringFormat::WithoutBraces).toStdString(), value);
 }
 
 } // namespace ble
