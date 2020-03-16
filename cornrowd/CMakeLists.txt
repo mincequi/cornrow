@@ -18,6 +18,7 @@ target_link_libraries(${PROJECT_NAME}
     audio
     bluetooth
     config
+    net
 )
 
 install(TARGETS ${PROJECT_NAME}

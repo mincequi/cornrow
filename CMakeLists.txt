@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.7)
 
 project(cornrow)
 
+include(ExternalProject)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Werror \
     -Wno-psabi \
@@ -11,10 +13,28 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Werror \
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Qt5Core REQUIRED)
+find_package(Qt5Network REQUIRED)
 
+# Add thirdparty libs
+add_subdirectory(thirdparty/libcornrow)
+
+# QtRemoteObjects
+ExternalProject_Add(qtremoteobjects
+    GIT_REPOSITORY    https://github.com/qt/qtremoteobjects.git
+    GIT_TAG           v5.12.7
+    GIT_PROGRESS      1
+    CONFIGURE_COMMAND qmake "CONFIG += release static" ../qtremoteobjects
+    BUILD_COMMAND ${MAKE}
+    INSTALL_COMMAND ""
+)
+ExternalProject_Get_Property(qtremoteobjects BINARY_DIR)
+include_directories(${BINARY_DIR}/include)
+link_directories(${BINARY_DIR}/lib)
+
+# Add internal libs
 add_subdirectory(common)
 add_subdirectory(cornrowd)
-#add_subdirectory(corocomo)
+add_subdirectory(net)
 #add_subdirectory(bluebricated)
 
 # Replace install() to do-nothing macro.
@@ -25,8 +45,6 @@ add_subdirectory(thirdparty/bluez-qt)
 macro(install)
     _install(${ARGN})
 endmacro()
-
-add_subdirectory(thirdparty/libcornrow)
 
 # Mandatory debian variables
 SET(CPACK_GENERATOR "DEB")
@@ -47,7 +65,7 @@ SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "This daemon accepts and plays audio from 
 
 # DEBIAN OPTIONS
 #SET(CPACK_DEBIAN_PACKAGE_MAINTAINER  "Manuel Weichselbaumer <mincequi@web.de>")
-SET(CPACK_DEBIAN_PACKAGE_SECTION     "Sound")
+#SET(CPACK_DEBIAN_PACKAGE_SECTION     "Sound")
 #SET(CPACK_DEBIAN_PACKAGE_DEPENDS     "${OSG_PACKAGE_DEPENDS}")
 #SET(CPACK_DEBIAN_PACKAGE_CONFLICTS   "${OSG_PACKAGE_CONFLICTS}")
 #SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${OpenSceneGraph_SOURCE_DIR}/debian/postinst;")
