@@ -1,6 +1,7 @@
 #include "Controller.h"
 
 #include "config/Controller.h"
+#include <net/NetService.h>
 
 #include <QDBusObjectPath>
 
@@ -14,6 +15,8 @@ Controller::Controller(QObject *parent)
 
     connect(m_bluetooth, &bluetooth::Controller::transportChanged, this, &Controller::onTransportChanged);
     connect(m_bluetooth, &bluetooth::Controller::volumeChanged, this, &Controller::onVolumeChanged);
+
+    new net::NetService(this);
 }
 
 Controller::~Controller()
