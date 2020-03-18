@@ -16,26 +16,9 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 
 # Add thirdparty libs
+set(COMMON_LIBRARY_TYPE STATIC)
+add_subdirectory(ZeroEQ)
 add_subdirectory(thirdparty/libcornrow)
-
-# QtRemoteObjects
-ExternalProject_Add(qtremoteobjects
-    GIT_REPOSITORY    https://github.com/qt/qtremoteobjects.git
-    GIT_TAG           v5.12.7
-    GIT_PROGRESS      1
-    CONFIGURE_COMMAND qmake "CONFIG += release static" ../qtremoteobjects
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ""
-)
-ExternalProject_Get_Property(qtremoteobjects BINARY_DIR)
-include_directories(${BINARY_DIR}/include)
-link_directories(${BINARY_DIR}/lib)
-
-# Add internal libs
-add_subdirectory(common)
-add_subdirectory(cornrowd)
-add_subdirectory(net)
-#add_subdirectory(bluebricated)
 
 # Replace install() to do-nothing macro.
 macro(install)
@@ -45,6 +28,12 @@ add_subdirectory(thirdparty/bluez-qt)
 macro(install)
     _install(${ARGN})
 endmacro()
+
+# Add internal libs
+add_subdirectory(common)
+add_subdirectory(cornrowd)
+add_subdirectory(net)
+#add_subdirectory(bluebricated)
 
 # Mandatory debian variables
 SET(CPACK_GENERATOR "DEB")

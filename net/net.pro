@@ -7,7 +7,7 @@ CONFIG += staticlib create_prl
 include(../cornrow.pri)
 
 DEFINES += QZEROCONF_STATIC
-include(../thirdparty/qtzeroconf/qtzeroconf.pri)
+include(../thirdparty/QtZeroConf/qtzeroconf.pri)
 
 SOURCES += \
     src/NetClient.cpp

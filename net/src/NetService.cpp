@@ -27,6 +27,7 @@
 #include <qzeroconf.h>
 
 #include <loguru/loguru.hpp>
+#include <zeroeq/publisher.h>
 
 #include <cmath>
 #include <unistd.h>
@@ -45,11 +46,6 @@ NetService::NetService(QObject *parent)
         return;
     }
 
-    m_host = new QRemoteObjectHost(this);
-    QObject::connect(server, &QTcpServer::newConnection, m_host, [&]() {
-        m_host->addHostSideConnection(server->nextPendingConnection());
-    });
-
     QZeroConf* zeroConf = new QZeroConf(this);
     connect(zeroConf, &QZeroConf::servicePublished, [&]() {
         LOG_F(INFO, "Cornrow server published at port: %i", server->serverPort());
@@ -61,6 +57,9 @@ NetService::NetService(QObject *parent)
                                   "_cornrow._tcp",
                                   nullptr,
                                   qToBigEndian(server->serverPort()));
+
+    auto pub = new zeroeq::Publisher();
+    Q_UNUSED(pub)
 }
 
 NetService::~NetService()

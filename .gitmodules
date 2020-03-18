@@ -7,3 +7,12 @@
 [submodule "thirdparty/QtZeroConf"]
 	path = thirdparty/QtZeroConf
 	url = https://github.com/mincequi/QtZeroConf
+[submodule "Servus"]
+	path = Servus
+	url = https://github.com/mincequi/Servus.git
+[submodule "ZeroEQ"]
+	path = ZeroEQ
+	url = https://github.com/mincequi/ZeroEQ.git
+[submodule "CMake/common"]
+	path = CMake/common
+	url = https://github.com/Eyescale/CMake.git

@@ -19,7 +19,7 @@
 
 #include <functional>
 
-#include <QtRemoteObjects/QRemoteObjectHost>
+#include <QObject>
 
 #include <common/ble/Converter.h>
 
@@ -52,8 +52,6 @@ signals:
     void outputSet(common::IoInterface output);
 
 private:
-    QRemoteObjectHost* m_host = nullptr;
-
     QByteArray onReadPeqFilters();
     QByteArray onReadAuxFilters();
     QByteArray onReadIoCaps();
