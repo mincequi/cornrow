@@ -6,6 +6,10 @@
 #include "bluetooth/Controller.h"
 #include "config/Controller.h"
 
+namespace net {
+class NetService;
+}
+
 class Controller : public QObject
 {
     Q_OBJECT
@@ -19,6 +23,7 @@ private:
     void onVolumeChanged(float volume);
 
     audio::Controller*      m_audio;
-    bluetooth::Controller*  m_bluetooth;
+    bluetooth::Controller*  m_bluetoothService;
+    net::NetService*        m_netService;
     config::Controller*     m_config;
 };

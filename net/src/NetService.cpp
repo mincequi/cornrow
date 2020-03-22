@@ -20,14 +20,19 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QHostInfo>
+#include <QThread>
+#include <QTimer>
 #include <QtEndian>
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
+#include <QtRemoteObjects/QRemoteObjectHost>
 
 #include <qzeroconf.h>
 
 #include <loguru/loguru.hpp>
 #include <zeroeq/publisher.h>
+#include <zeroeq/server.h>
+#include <zeroeq/subscriber.h>
 
 #include <cmath>
 #include <unistd.h>
@@ -40,12 +45,20 @@ namespace net
 NetService::NetService(QObject *parent)
     : QObject(parent)
 {
+    // Open service
     QTcpServer* server = new QTcpServer(this);
     if (!server->listen(QHostAddress::AnyIPv4)) {
         LOG_F(ERROR, "Error starting NetService.");
         return;
     }
 
+    m_host = new QRemoteObjectHost(this);
+    QObject::connect(server, &QTcpServer::newConnection, m_host, [&]() {
+        m_host->addHostSideConnection(server->nextPendingConnection());
+    });
+    m_host->enableRemoting(new Filter(this), "Cornrow");
+
+    // Publish service
     QZeroConf* zeroConf = new QZeroConf(this);
     connect(zeroConf, &QZeroConf::servicePublished, [&]() {
         LOG_F(INFO, "Cornrow server published at port: %i", server->serverPort());
@@ -58,8 +71,27 @@ NetService::NetService(QObject *parent)
                                   nullptr,
                                   qToBigEndian(server->serverPort()));
 
-    auto pub = new zeroeq::Publisher();
-    Q_UNUSED(pub)
+    //m_publisher = new zeroeq::Publisher();
+    //QByteArray data = "1234";
+    //m_publisher->publish(zeroeq::uint128_t(1234), data.data(), data.size());
+
+    /*
+    m_server = new zeroeq::Server("cornrow");
+    LOG_F(INFO, "SERVER session: %s", m_server->getSession().c_str());
+
+    m_server->handle(zeroeq::uint128_t(1234), [](const void* _data, size_t size) {
+        QByteArray data((char *)_data, size);
+        std::cerr << "REQUEST received: " << data.toStdString() << std::endl;
+        return [&](zeroeq::uint128_t(1234), _data, size) {};
+    });
+
+    const zeroeq::HandleFunc handleFunc = [&](const void* _data, size_t size) -> zeroeq::ReplyData {
+        QByteArray data((char *)_data, size);
+        std::cerr << "REQUEST received: " << data.toStdString() << std::endl;
+        return { servus::uint128_t(1234), servus::Serializable::Data() };
+    };
+    m_server->handle(zeroeq::uint128_t(1234), handleFunc);
+    */
 }
 
 NetService::~NetService()

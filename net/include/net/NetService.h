@@ -23,8 +23,32 @@
 
 #include <common/ble/Converter.h>
 
+class QRemoteObjectHost;
+
 namespace net
 {
+
+class Filter : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(uint8_t type MEMBER m_type NOTIFY filterChanged)
+    Q_PROPERTY(uint8_t f MEMBER m_f NOTIFY filterChanged)
+    Q_PROPERTY(uint8_t g MEMBER m_g NOTIFY filterChanged)
+    Q_PROPERTY(uint8_t q MEMBER m_q NOTIFY filterChanged)
+
+public:
+    Filter(QObject *parent = 0) : QObject(parent){}
+    ~Filter() {}
+
+signals:
+    void filterChanged();
+
+private:
+    uint8_t m_type;
+    uint8_t m_f = 1;
+    uint8_t m_g = 2;
+    uint8_t m_q = 3;
+};
 
 class NetService : public QObject
 {
@@ -58,6 +82,8 @@ private:
     QByteArray onReadIoConf();
     void onWriteFilters(common::ble::CharacteristicType group, const QByteArray& value);
     void onWriteIoConf(const QByteArray& value);
+
+    QRemoteObjectHost* m_host = nullptr;
 
     ReadFiltersCallback m_readFiltersCallback = nullptr;
     ReadIoCapsCallback  m_readIoCapsCallback = nullptr;

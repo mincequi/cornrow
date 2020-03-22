@@ -9,14 +9,14 @@ Controller::Controller(QObject *parent)
     : QObject(parent)
 {
     // Create objects
-    m_bluetooth = new bluetooth::Controller(this);
+    m_bluetoothService = new bluetooth::Controller(this);
     m_audio = new audio::Controller(this);
-    m_config = new config::Controller(m_audio, m_bluetooth, this);
+    m_config = new config::Controller(m_audio, m_bluetoothService, this);
 
-    connect(m_bluetooth, &bluetooth::Controller::transportChanged, this, &Controller::onTransportChanged);
-    connect(m_bluetooth, &bluetooth::Controller::volumeChanged, this, &Controller::onVolumeChanged);
+    connect(m_bluetoothService, &bluetooth::Controller::transportChanged, this, &Controller::onTransportChanged);
+    connect(m_bluetoothService, &bluetooth::Controller::volumeChanged, this, &Controller::onVolumeChanged);
 
-    new net::NetService(this);
+    m_netService = new net::NetService(this);
 }
 
 Controller::~Controller()
