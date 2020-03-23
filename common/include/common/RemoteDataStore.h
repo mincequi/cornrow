@@ -11,7 +11,7 @@ namespace common
 {
 class IAudioConf;
 
-class RemoteData : public QObject
+class RemoteDataStore : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QByteArray peq MEMBER m_peq NOTIFY peqChanged)
@@ -20,8 +20,8 @@ class RemoteData : public QObject
     Q_PROPERTY(QByteArray ioConf WRITE setIoConf)
 
 public:
-    RemoteData(IAudioConf* audio, QObject* parent = 0);
-    ~RemoteData();
+    RemoteDataStore(IAudioConf* audio, QObject* parent = 0);
+    ~RemoteDataStore();
 
     QByteArray peq() const;
     void setPeq(const QByteArray& peq);

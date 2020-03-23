@@ -22,7 +22,7 @@
 #include <QDataStream>
 #include <QTcpServer>
 
-#include <common/RemoteData.h>
+#include <common/RemoteDataStore.h>
 #include <common/ble/Converter.h>
 
 namespace net
@@ -50,7 +50,7 @@ private:
     void onDataReceived();
     void onWriteIoConf(const QByteArray& value);
 
-    common::RemoteData* m_remoteData = nullptr;
+    common::RemoteDataStore* m_remoteData = nullptr;
 
     QTcpServer  m_tcpServer;
     QTcpSocket* m_socket = nullptr;

@@ -30,7 +30,7 @@
 
 #include <qzeroconf.h>
 
-#include <common/RemoteData.h>
+#include <common/RemoteDataStore.h>
 #include <loguru/loguru.hpp>
 
 #include <cmath>
@@ -45,7 +45,7 @@ NetService::NetService(common::IAudioConf* audio, QObject *parent)
     : QObject(parent)
 {
     m_inStream.setVersion(QDataStream::Qt_5_6);
-    m_remoteData = new common::RemoteData(audio, this);
+    m_remoteData = new common::RemoteDataStore(audio, this);
 
     // Open service
     if (!m_tcpServer.listen(QHostAddress::AnyIPv4)) {

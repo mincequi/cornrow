@@ -1,6 +1,6 @@
 add_library(common STATIC
-    include/common/RemoteData.h
-    src/RemoteData.cpp
+    include/common/RemoteDataStore.h
+    src/RemoteDataStore.cpp
     src/Types.cpp
     src/Util.cpp
     src/ble/Converter.cpp
