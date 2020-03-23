@@ -16,20 +16,18 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 
 # Add thirdparty libs
-set(COMMON_LIBRARY_TYPE STATIC)
-add_subdirectory(ZeroEQ)
 add_subdirectory(thirdparty/libcornrow)
 
 # QtRemoteObjects
-ExternalProject_Add(qtremoteobjects
-    SOURCE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/qtremoteobjects
-    CONFIGURE_COMMAND qmake "CONFIG += release static" ${PROJECT_SOURCE_DIR}/thirdparty/qtremoteobjects
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ""
-    )
-ExternalProject_Get_Property(qtremoteobjects BINARY_DIR)
-include_directories(${BINARY_DIR}/include)
-link_directories(${BINARY_DIR}/lib)
+#ExternalProject_Add(qtremoteobjects
+#    SOURCE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/qtremoteobjects
+#    CONFIGURE_COMMAND qmake "CONFIG += debug static" ${PROJECT_SOURCE_DIR}/thirdparty/qtremoteobjects
+#    BUILD_COMMAND ${MAKE}
+#    INSTALL_COMMAND ""
+#    )
+#ExternalProject_Get_Property(qtremoteobjects BINARY_DIR)
+#include_directories(${BINARY_DIR}/include)
+#link_directories(${BINARY_DIR}/lib)
 
 # Replace install() to do-nothing macro.
 macro(install)

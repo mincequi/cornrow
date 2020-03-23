@@ -13,10 +13,10 @@ add_library(net STATIC
     ../thirdparty/QtZeroConf/avahi-qt/qt-watch.cpp
 )
 
-include(ExternalProject)
-ExternalProject_Get_Property(qtremoteobjects BINARY_DIR)
-include_directories(${BINARY_DIR}/include)
-link_directories(${BINARY_DIR}/lib)
+#include(ExternalProject)
+#ExternalProject_Get_Property(qtremoteobjects BINARY_DIR)
+#include_directories(${BINARY_DIR}/include)
+#link_directories(${BINARY_DIR}/lib)
 
 target_include_directories(net
 PUBLIC
@@ -34,6 +34,4 @@ target_link_libraries(net
     common
     cornrow
     Qt5::Network
-    Qt5RemoteObjects
-    ZeroEQ
 )

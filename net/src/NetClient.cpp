@@ -18,7 +18,7 @@
 #include "NetClient.h"
 
 #include <QDebug>
-#include <qzeroconf.h>
+#include "qzeroconf.h"
 
 namespace net
 {

@@ -17,22 +17,21 @@
 
 #include "NetService.h"
 
+#include <QAbstractSocket>
 #include <QCoreApplication>
+#include <QDataStream>
 #include <QDebug>
 #include <QHostInfo>
+#include <QMetaProperty>
 #include <QThread>
 #include <QTimer>
 #include <QtEndian>
-#include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
-#include <QtRemoteObjects/QRemoteObjectHost>
 
 #include <qzeroconf.h>
 
+#include <common/RemoteData.h>
 #include <loguru/loguru.hpp>
-#include <zeroeq/publisher.h>
-#include <zeroeq/server.h>
-#include <zeroeq/subscriber.h>
 
 #include <cmath>
 #include <unistd.h>
@@ -42,100 +41,88 @@ using namespace std::placeholders;
 namespace net
 {
 
-NetService::NetService(QObject *parent)
+NetService::NetService(common::IAudioConf* audio, QObject *parent)
     : QObject(parent)
 {
+    m_inStream.setVersion(QDataStream::Qt_5_6);
+    m_remoteData = new common::RemoteData(audio, this);
+
     // Open service
-    QTcpServer* server = new QTcpServer(this);
-    if (!server->listen(QHostAddress::AnyIPv4)) {
+    if (!m_tcpServer.listen(QHostAddress::AnyIPv4)) {
         LOG_F(ERROR, "Error starting NetService.");
         return;
     }
 
-    m_host = new QRemoteObjectHost(this);
-    QObject::connect(server, &QTcpServer::newConnection, m_host, [&]() {
-        m_host->addHostSideConnection(server->nextPendingConnection());
+    QObject::connect(&m_tcpServer, &QTcpServer::newConnection, [this]() {
+        if (m_socket) {
+            LOG_F(INFO, "Another client already connected");
+            return;
+        }
+
+        QVariantMap properties;
+        LOG_F(INFO, "New connection. Send properties:");
+        for (int i = m_remoteData->metaObject()->propertyOffset(); i < m_remoteData->metaObject()->propertyCount(); ++i) {
+            const char* name = m_remoteData->metaObject()->property(i).name();
+            const QVariant value = m_remoteData->metaObject()->property(i).read(m_remoteData);
+            LOG_F(INFO, "%s: %s", name, value);
+            properties.insert(name, value);
+        }
+
+        m_socket = m_tcpServer.nextPendingConnection();
+        connect(m_socket, &QAbstractSocket::disconnected, this, &NetService::disconnect);
+        connect(m_socket, &QAbstractSocket::readyRead, this, &NetService::onDataReceived);
+        m_inStream.setDevice(m_socket);
+
+        QByteArray block;
+        QDataStream outStream(&block, QIODevice::WriteOnly);
+        outStream.setVersion(QDataStream::Qt_5_6);
+        outStream << properties;
+        m_socket->write(block);
     });
-    m_host->enableRemoting(new Filter(this), "Cornrow");
 
     // Publish service
     QZeroConf* zeroConf = new QZeroConf(this);
     connect(zeroConf, &QZeroConf::servicePublished, [&]() {
-        LOG_F(INFO, "Cornrow server published at port: %i", server->serverPort());
+        LOG_F(INFO, "TCP server published at port: %i", m_tcpServer.serverPort());
     });
     connect(zeroConf, &QZeroConf::error, [](QZeroConf::error_t error) {
-        LOG_F(INFO, "Error publishing service: %i", error);
+        LOG_F(WARNING, "Error publishing service: %i", error);
     });
     zeroConf->startServicePublish(QHostInfo::localHostName().toStdString().c_str(),
                                   "_cornrow._tcp",
                                   nullptr,
-                                  qToBigEndian(server->serverPort()));
-
-    //m_publisher = new zeroeq::Publisher();
-    //QByteArray data = "1234";
-    //m_publisher->publish(zeroeq::uint128_t(1234), data.data(), data.size());
-
-    /*
-    m_server = new zeroeq::Server("cornrow");
-    LOG_F(INFO, "SERVER session: %s", m_server->getSession().c_str());
-
-    m_server->handle(zeroeq::uint128_t(1234), [](const void* _data, size_t size) {
-        QByteArray data((char *)_data, size);
-        std::cerr << "REQUEST received: " << data.toStdString() << std::endl;
-        return [&](zeroeq::uint128_t(1234), _data, size) {};
-    });
-
-    const zeroeq::HandleFunc handleFunc = [&](const void* _data, size_t size) -> zeroeq::ReplyData {
-        QByteArray data((char *)_data, size);
-        std::cerr << "REQUEST received: " << data.toStdString() << std::endl;
-        return { servus::uint128_t(1234), servus::Serializable::Data() };
-    };
-    m_server->handle(zeroeq::uint128_t(1234), handleFunc);
-    */
+                                  m_tcpServer.serverPort());
 }
 
 NetService::~NetService()
 {
 }
 
-void NetService::setReadFiltersCallback(ReadFiltersCallback callback)
+void NetService::disconnect()
 {
-    m_readFiltersCallback = callback;
+    if (!m_socket) {
+        return;
+    }
+    m_socket->abort();
+    m_socket->deleteLater();
+    m_socket = nullptr;
 }
 
-void NetService::setReadIoCapsCallback(ReadIoCapsCallback callback)
+void NetService::onDataReceived()
 {
-    m_readIoCapsCallback = callback;
-}
+    m_inStream.startTransaction();
 
-void NetService::setReadIoConfCallback(ReadIoConfCallback callback)
-{
-    m_readIoConfCallback = callback;
-}
+    QVariantMap properties;
+    m_inStream >> properties;
 
-QByteArray NetService::onReadPeqFilters()
-{
-    return m_converter.filtersToBle(m_readFiltersCallback(common::ble::CharacteristicType::Peq));
-}
+    if (!m_inStream.commitTransaction()) {
+        LOG_F(WARNING, "Error deserializing data");
+        return;
+    }
 
-QByteArray NetService::onReadAuxFilters()
-{
-    return m_converter.filtersToBle(m_readFiltersCallback(common::ble::CharacteristicType::Aux));
-}
-
-QByteArray NetService::onReadIoCaps()
-{
-    return m_converter.toBle(m_readIoCapsCallback());
-}
-
-QByteArray NetService::onReadIoConf()
-{
-    return m_converter.toBle(m_readIoConfCallback());
-}
-
-void NetService::onWriteFilters(common::ble::CharacteristicType group, const QByteArray& value)
-{
-    emit filtersWritten(group, m_converter.filtersFromBle(value));
+    for (const auto& kv : properties.toStdMap()) {
+        m_remoteData->setProperty(kv.first.toStdString().c_str(), kv.second);
+    }
 }
 
 void NetService::onWriteIoConf(const QByteArray& value)

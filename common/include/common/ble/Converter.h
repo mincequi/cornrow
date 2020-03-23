@@ -16,21 +16,21 @@ public:
     Converter();
     virtual ~Converter();
 
-    virtual QByteArray toBle(const std::vector<common::IoInterface>& interfaces);
-    virtual std::vector<common::IoInterface> fromBle(const QByteArray& bytes);
+    virtual QByteArray toBle(const std::vector<common::IoInterface>& interfaces) const;
+    virtual std::vector<common::IoInterface> fromBle(const QByteArray& bytes) const;
 
-    virtual QByteArray filtersToBle(const std::vector<common::Filter>& filters);
-    virtual std::vector<common::Filter> filtersFromBle(const QByteArray& array);
+    virtual QByteArray filtersToBle(const std::vector<common::Filter>& filters) const;
+    virtual std::vector<common::Filter> filtersFromBle(const QByteArray& array) const;
 
 protected:
-    virtual uint8_t fToBle(float f);
-    virtual float fFromBle(uint8_t i);
+    virtual uint8_t fToBle(float f) const;
+    virtual float fFromBle(uint8_t i) const;
 
-    virtual int8_t gToBle(float g);
-    virtual float gFromBle(int8_t g);
+    virtual int8_t gToBle(float g) const;
+    virtual float gFromBle(int8_t g) const;
 
-    virtual uint8_t qToBle(float q);
-    virtual float qFromBle(uint8_t i);
+    virtual uint8_t qToBle(float q) const;
+    virtual float qFromBle(uint8_t i) const;
 };
 
 } // namespace ble

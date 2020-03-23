@@ -9,7 +9,7 @@ BleCentralAdapter::BleCentralAdapter(ble::BleClient* central)
     : QObject(central),
       m_central(central)
 {
-	connect(m_central, &ble::BleClient::deviceDiscovered, this, &BleCentralAdapter::deviceDiscovered);
+    connect(m_central, &ble::BleClient::deviceDiscovered, this, &BleCentralAdapter::deviceDiscovered);
     connect(m_central, &ble::BleClient::characteristicRead, this, &BleCentralAdapter::onCharacteristicRead);
     connect(m_central, &ble::BleClient::status, this, &BleCentralAdapter::onStatus);
 

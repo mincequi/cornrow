@@ -16,7 +16,7 @@ Controller::Controller(QObject *parent)
     connect(m_bluetoothService, &bluetooth::Controller::transportChanged, this, &Controller::onTransportChanged);
     connect(m_bluetoothService, &bluetooth::Controller::volumeChanged, this, &Controller::onVolumeChanged);
 
-    m_netService = new net::NetService(this);
+    m_netService = new net::NetService(m_audio, this);
 }
 
 Controller::~Controller()
