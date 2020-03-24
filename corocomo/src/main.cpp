@@ -27,24 +27,18 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
     
+    // Remote services: BLE, Tcp
 	ble::BleClient bleClient;
     BleCentralAdapter bleAdapter(&bleClient);
-    bool ret = QObject::connect(&bleClient, &ble::BleClient::status, [] {
-		qWarning() << "STATUS UPDATED";
-    });
-    Q_UNUSED(ret)
+    net::NetClient netClient;
 
+    // Setup view models
     auto config = Config::init(Config::Type::Low);
-    auto indicatorModel = BusyIndicatorModel::instance();
-    auto deviceModel = DeviceModel::init(&bleAdapter);
+    DeviceModel::init(&bleAdapter, &netClient);
 	auto ioModel = IoModel::init(&bleAdapter);
-    auto filterModel = FilterModel::init(*config, &bleAdapter, ioModel);
-    auto bodePlotModel = BodePlotModel::init(*config);
-
-    Q_UNUSED(indicatorModel)
-    Q_UNUSED(deviceModel)
-    Q_UNUSED(filterModel)
-    Q_UNUSED(bodePlotModel)
+    auto filterModel = FilterModel::init(*config, &bleAdapter, &netClient);
+    BodePlotModel::init(*config);
+    PresetModel::init(&bleAdapter);
     
     bleAdapter.setModel(filterModel);
     bleAdapter.setIoModel(ioModel);

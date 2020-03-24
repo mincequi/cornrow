@@ -21,7 +21,7 @@ PresetModel* PresetModel::init(BleCentralAdapter* adapter)
     return s_instance;
 }
 
-PresetModel::PresetModel(BleCentralAdapter* adapter, QObject *parent) :
+PresetModel::PresetModel(BleCentralAdapter* adapter, QObject* parent) :
     QObject(parent),
     m_adapter(adapter)
 {

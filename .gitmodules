@@ -16,7 +16,3 @@
 [submodule "CMake/common"]
 	path = CMake/common
 	url = https://github.com/Eyescale/CMake.git
-[submodule "thirdparty/qtremoteobjects"]
-	path = thirdparty/qtremoteobjects
-	url = https://github.com/mincequi/qtremoteobjects.git
-	branch = 5.12

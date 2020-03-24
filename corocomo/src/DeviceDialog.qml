@@ -110,7 +110,7 @@ Dialog {
     */
 
     footer: DialogButtonBox {
-        opacity: DeviceModel.status != DeviceModel.Discovering &&
+        opacity: /*DeviceModel.status != DeviceModel.Discovering &&*/
                  DeviceModel.status != DeviceModel.Connected
 
         Button {

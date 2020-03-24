@@ -1,5 +1,4 @@
-#ifndef MODEL_H
-#define MODEL_H
+#pragma once
 
 #include <QObject>
 
@@ -14,6 +13,10 @@ class PresetModel;
 namespace ble
 {
 class BleClient;
+}
+namespace net
+{
+class NetClient;
 }
 
 class FilterModel : public QObject
@@ -37,22 +40,13 @@ class FilterModel : public QObject
     Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
 
 public:
-    enum Status : uint8_t
-    {
-        NoBluetooth,
-        Discovering,
-        Connecting,
-        Connected,
-        Timeout,
-        Lost,
-        Error
-    };
-    Q_ENUM(Status)
-
 	// @TODO(mawe): think about how to remove ioModel dependency
-    static FilterModel* init(const Config& configuration, BleCentralAdapter* bleAdapter, IoModel* ioModel);
+    static FilterModel* init(const Config& configuration,
+                             BleCentralAdapter* bleAdapter,
+                             net::NetClient* netClient);
     static FilterModel* instance();
 
+    // Still needed to set demo mode flag
     Q_INVOKABLE void startDiscovering();
     Q_INVOKABLE void startDemo();
 
@@ -108,7 +102,9 @@ signals:
     void qSliderChanged();
 
 private:
-    FilterModel(const Config& config, BleCentralAdapter* bleAdapter, IoModel* ioModel);
+    FilterModel(const Config& config,
+                BleCentralAdapter* bleAdapter,
+                net::NetClient* netClient);
 
     // This is the model-oriented filter struct. We use indexed values here.
     struct Filter {
@@ -140,9 +136,6 @@ private:
     BleCentralAdapter* m_bleAdapter = nullptr;
     friend class BleCentralAdapter;
 
-    // Sub models
-    IoModel* m_ioModel = nullptr;
-    PresetModel* m_presetModel = nullptr;
+    // Tcp
+    net::NetClient* m_netClient = nullptr;
 };
-
-#endif // MODEL_H

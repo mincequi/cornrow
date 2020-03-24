@@ -18,6 +18,8 @@
 #include "NetClient.h"
 
 #include <QDebug>
+#include <QTcpSocket>
+#include <QtGlobal>
 #include <qzeroconf.h>
 
 namespace net
@@ -26,8 +28,22 @@ namespace net
 NetClient::NetClient(QObject* parent)
     : QObject(parent)
 {
+    m_dataStream.setDevice(&m_socket);
+    m_dataStream.setVersion(QDataStream::Qt_5_6);
+
 	m_zeroConf = new QZeroConf(this);
 	connect(m_zeroConf, &QZeroConf::serviceAdded, this, &NetClient::onServiceAdded);
+
+    connect(&m_socket, &QTcpSocket::connected, [this]() {
+        onStatus(ble::BleClient::Status::Connected);
+    });
+    connect(&m_socket, &QTcpSocket::disconnected, [this]() {
+        onStatus(ble::BleClient::Status::Lost);
+    });
+    connect(&m_socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), [this](QAbstractSocket::SocketError) {
+        onStatus(ble::BleClient::Status::Error, m_socket.errorString());
+    });
+    connect(&m_socket, &QIODevice::readyRead, this, &NetClient::onDataReceived);
 }
 
 NetClient::~NetClient()
@@ -48,6 +64,33 @@ void NetClient::stopDiscovering()
 	m_zeroConf->stopBrowser();
 }
 
+void NetClient::connectDevice(net::NetDevice* device)
+{
+    disconnect();
+
+    m_socket.connectToHost(device->address, device->port);
+}
+
+void NetClient::disconnect()
+{
+    m_socket.abort();
+}
+
+void NetClient::setProperty(const std::string& name, const QByteArray& value)
+{
+    if (m_socket.state() != QAbstractSocket::ConnectedState) {
+        qDebug() << "Socket not connected";
+        return;
+    }
+
+    QByteArray block;
+    QDataStream dataStream(&block, QIODevice::WriteOnly);
+    dataStream.setVersion(QDataStream::Qt_5_6);
+    dataStream << QVariantMap( {{ name.c_str(), value }} );
+
+    m_socket.write(block);
+}
+
 void NetClient::onServiceAdded(QZeroConfService service)
 {
     NetDevicePtr device(new NetDevice);
@@ -58,6 +101,45 @@ void NetClient::onServiceAdded(QZeroConfService service)
 
     emit deviceDiscovered(device);
     qDebug() << service;
+}
+
+void NetClient::onStatus(ble::BleClient::Status _status, QString)
+{
+    switch (_status) {
+    case ble::BleClient::Status::Connected: {
+        /*
+        m_remote.addClientSideConnection(&m_socket);
+        m_replica = m_remote.acquireDynamic("CornrowData");
+        qDebug() << "Replica initialized: " << m_replica->isInitialized();
+        connect(m_replica, &QRemoteObjectDynamicReplica::initialized, [&]() {
+            for (int i = m_replica->metaObject()->propertyOffset(); i < m_replica->metaObject()->propertyCount(); ++i) {
+                qDebug() << "Property: " << m_replica->metaObject()->property(i).name();
+            }
+        });
+        connect(m_replica, &QRemoteObjectDynamicReplica::stateChanged, [&]() {
+            qDebug() << "Cornrow replica state: " << m_replica->state();
+        });
+        */
+    }
+        break;
+    default:
+        break;
+    }
+
+    emit status(_status);
+}
+
+void NetClient::onDataReceived()
+{
+    m_dataStream.startTransaction();
+
+    QVariantMap properties;
+    m_dataStream >> properties;
+
+    if (!m_dataStream.commitTransaction()) {
+        qWarning("Error deserializing data");
+        return;
+    }
 }
 
 } // namespace net

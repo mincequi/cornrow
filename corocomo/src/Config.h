@@ -1,5 +1,4 @@
-#ifndef MODELCONFIGURATION_H
-#define MODELCONFIGURATION_H
+#pragma once
 
 #include <QObject>
 
@@ -54,5 +53,3 @@ private:
 };
 // QVector<qreal> is Qt 5.9 compatible. Qt 5.11 also accepts std::vector<double>.
 //Q_DECLARE_METATYPE(std::vector<double>)
-
-#endif // MODELCONFIGURATION_H

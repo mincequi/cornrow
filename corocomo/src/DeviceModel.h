@@ -37,7 +37,7 @@ public:
     };
     Q_ENUM(Status)
 
-	static DeviceModel* init(BleCentralAdapter* adapter);
+    static DeviceModel* init(BleCentralAdapter* bleClient, net::NetClient* netClient);
     static DeviceModel* instance();
 
     Q_INVOKABLE void startDiscovering();
@@ -55,12 +55,13 @@ signals:
     void devicesChanged();
 
 private:
-	explicit DeviceModel(BleCentralAdapter* bleAdapter, QObject *parent = nullptr);
+    explicit DeviceModel(BleCentralAdapter* bleAdapter, net::NetClient* m_netClient, QObject* parent = nullptr);
     
     void stopDiscovering();
 
     void onAppStateChanged(Qt::ApplicationState state);
-	void onBleDeviceStatus(Status status, const QString& errorString);
+    void onBleDeviceStatus(Status status, const QString& errorString = QString());
+    void onNetDeviceStatus(ble::BleClient::Status, const QString& errorString);
     void onBleDeviceDiscovered(const QBluetoothDeviceInfo& device);
     void onNetDeviceDiscovered(net::NetDevicePtr device);
 
@@ -79,5 +80,4 @@ private:
 
     // Net
     net::NetClient* m_netClient = nullptr;
-    QZeroConf* m_zeroConf = nullptr;
 };
