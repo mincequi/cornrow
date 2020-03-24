@@ -17,27 +17,27 @@ DeviceModel* DeviceModel::instance()
     return s_instance;
 }
 
-DeviceModel* DeviceModel::init(BleCentralAdapter* bleAdapter)
+DeviceModel* DeviceModel::init(BleCentralAdapter* bleAdapter, net::NetClient* netClient)
 {
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new DeviceModel(bleAdapter);
+    s_instance = new DeviceModel(bleAdapter, netClient);
     return s_instance;
 }
 
-DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, QObject *parent) :
+DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, net::NetClient* netClient, QObject *parent) :
 	QObject(parent),
-	m_bleAdapter(bleAdapter)
+    m_bleAdapter(bleAdapter),
+    m_netClient(netClient)
 {
+    // Ble
     connect(m_bleAdapter, &BleCentralAdapter::status, this, &DeviceModel::onBleDeviceStatus);
-
-	// Ble
-	connect(m_bleAdapter, &BleCentralAdapter::deviceDiscovered, this, &DeviceModel::onBleDeviceDiscovered);
+    connect(m_bleAdapter, &BleCentralAdapter::deviceDiscovered, this, &DeviceModel::onBleDeviceDiscovered);
 	
     // Net
-    m_netClient = new net::NetClient(this);
+    connect(m_netClient, &net::NetClient::status, this, &DeviceModel::onNetDeviceStatus);
     connect(m_netClient, &net::NetClient::deviceDiscovered, this, &DeviceModel::onNetDeviceDiscovered);
     
     connect(qGuiApp, &QGuiApplication::applicationStateChanged, this, &DeviceModel::onAppStateChanged);
@@ -48,7 +48,8 @@ void DeviceModel::startDiscovering()
 	m_devices.clear();
 	emit devicesChanged();
 	
-	m_bleAdapter->startDiscovering();
+    onBleDeviceStatus(Status::Discovering);
+    //m_bleAdapter->startDiscovering();
     m_netClient->startDiscovering();
 }
 
@@ -87,6 +88,10 @@ void DeviceModel::connectDevice(net::NetDevice* device)
     case net::NetDevice::DeviceType::BluetoothLe:
         onBleDeviceStatus(Status::Connecting, "Connecting " + device->name);
         m_bleAdapter->connectDevice(device->bluetoothDeviceInfo);
+        break;
+    case net::NetDevice::DeviceType::TcpIp:
+        onBleDeviceStatus(Status::Connecting, "Connecting " + device->name);
+        m_netClient->connectDevice(device);
         break;
     default:
         qDebug() << "Unhandled device type: " << device->type;
@@ -153,6 +158,33 @@ void DeviceModel::onBleDeviceStatus(Status _status, const QString& statusText)
     }
 
     emit statusChanged();
+}
+
+void DeviceModel::onNetDeviceStatus(ble::BleClient::Status _status, const QString& statusText)
+{
+    switch (_status) {
+    case ble::BleClient::Status::NoBluetooth:
+        onBleDeviceStatus(DeviceModel::Status::NoBluetooth);
+        return;
+    case ble::BleClient::Status::Discovering:
+        onBleDeviceStatus(DeviceModel::Status::Discovering);
+        return;
+    case ble::BleClient::Status::Connecting:
+        onBleDeviceStatus(DeviceModel::Status::Connecting, statusText);
+        return;
+    case ble::BleClient::Status::Connected:
+        onBleDeviceStatus(DeviceModel::Status::Connected);
+        return;
+    case ble::BleClient::Status::Timeout:
+        onBleDeviceStatus(DeviceModel::Status::Idle);
+        return;
+    case ble::BleClient::Status::Lost:
+        onBleDeviceStatus(DeviceModel::Status::Lost);
+        return;
+    case ble::BleClient::Status::Error:
+        onBleDeviceStatus(DeviceModel::Status::Error, statusText);
+        return;
+    }
 }
 
 void DeviceModel::onBleDeviceDiscovered(const QBluetoothDeviceInfo& _device)

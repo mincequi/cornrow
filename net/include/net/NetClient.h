@@ -19,11 +19,15 @@
 
 // @TODO(mawe): remove bluetooth dependency
 #include <QBluetoothDeviceInfo>
+#include <QDataStream>
 #include <QHostAddress>
+#include <QTcpSocket>
 #include <QTimer>
 
+#include <ble/BleClient.h>
 #include <common/Types.h>
 
+class QTcpSocket;
 class QZeroConf;
 class QZeroConfServiceData;
 typedef QSharedPointer<QZeroConfServiceData> QZeroConfService;
@@ -41,7 +45,6 @@ struct NetDevice : public QObject
 public:
 	// We cannot use an alias here
     //using DeviceType = common::CtrlInterfaceType;
-    
     enum class DeviceType {
 		Invalid = 0,
 		BluetoothLe = 0x1,
@@ -71,13 +74,23 @@ public:
     void startDiscovering();
 	void stopDiscovering();
 
+    void connectDevice(net::NetDevice* device);
+    void disconnect();
+
+    void setProperty(const std::string& name, const QByteArray& value);
+
 signals:
+    void status(ble::BleClient::Status status, const QString& errorString = QString());
     void deviceDiscovered(NetDevicePtr device);
 
 private:
     void onServiceAdded(QZeroConfService);
+    void onStatus(ble::BleClient::Status status, QString errorString = QString());
+    void onDataReceived();
 
     QZeroConf* m_zeroConf = nullptr;
+    QTcpSocket  m_socket;
+    QDataStream m_dataStream;
 };
 
 } // namespace net

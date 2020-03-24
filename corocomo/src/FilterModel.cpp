@@ -21,24 +21,26 @@ FilterModel* FilterModel::instance()
     return s_instance;
 }
 
-FilterModel* FilterModel::init(const Config& configuration, BleCentralAdapter* bleAdapter, IoModel* ioModel)
+FilterModel* FilterModel::init(const Config& configuration,
+                               BleCentralAdapter* bleAdapter,
+                               net::NetClient* netClient)
 {
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new FilterModel(configuration, bleAdapter, ioModel);
+    s_instance = new FilterModel(configuration, bleAdapter, netClient);
     return s_instance;
 }
 
-FilterModel::FilterModel(const Config& config, BleCentralAdapter* bleAdapter, IoModel* ioModel) :
+FilterModel::FilterModel(const Config& config, BleCentralAdapter* bleAdapter, net::NetClient* netClient) :
     QObject(nullptr),
     m_config(config),
     m_loudnessBand(config.peqFilterCount),
     m_xoBand(config.peqFilterCount+1),
     m_scBand(config.peqFilterCount+2),
     m_bleAdapter(bleAdapter),
-    m_ioModel(ioModel)
+    m_netClient(netClient)
 {
     auto filterCount = m_config.peqFilterCount;
     if (m_config.loudnessAvailable) ++filterCount;
@@ -51,9 +53,6 @@ FilterModel::FilterModel(const Config& config, BleCentralAdapter* bleAdapter, Io
     connect(this, &FilterModel::freqChanged, this, &FilterModel::onParameterChanged);
     connect(this, &FilterModel::gainChanged, this, &FilterModel::onParameterChanged);
     connect(this, &FilterModel::qChanged, this, &FilterModel::onParameterChanged);
-
-    // @TODO(mawe): break up circular dependency
-    m_presetModel = PresetModel::init(m_bleAdapter);
 
     connect(m_bleAdapter, &BleCentralAdapter::filtersReceived, this, &FilterModel::setFilters);
 }
@@ -354,6 +353,7 @@ void FilterModel::setFilters(common::ble::CharacteristicType task, const std::ve
     for (const auto& filter : filters) {
         if (i >= m_filters.size()) break;
         m_filters[i].t = filter.t;
+        // @TODO(mawe): why std::min? This shall not be needed (probably due to compatibility with stored index from daemon).
         m_filters[i].f = std::min(filter.f, static_cast<uint8_t>(m_config.freqTable.size()-1));
         m_filters[i].g = filter.g;
         m_filters[i].q = filter.q < m_config.qMin ? m_config.qMin : filter.q > m_config.qMax ? m_config.qMax : filter.q;
@@ -373,6 +373,7 @@ void FilterModel::onParameterChanged()
     }
 
     if (!m_demoMode) {
-        m_bleAdapter->setDirty(m_currentBand < m_config.peqFilterCount ? common::ble::peqCharacteristicUuid : common::ble::auxCharacteristicUuid);
+        //m_bleAdapter->setDirty(m_currentBand < m_config.peqFilterCount ? common::ble::peqCharacteristicUuid : common::ble::auxCharacteristicUuid);
+        m_netClient->setProperty(m_currentBand < m_config.peqFilterCount ? "peq" : "aux", QByteArray("HELL YES"));
     }
 }
