@@ -6,8 +6,12 @@
 #include "bluetooth/Controller.h"
 #include "config/Controller.h"
 
+namespace common {
+class RemoteDataStore;
+}
+
 namespace net {
-class NetService;
+class TcpServer;
 }
 
 class Controller : public QObject
@@ -24,6 +28,7 @@ private:
 
     audio::Controller*      m_audio;
     bluetooth::Controller*  m_bluetoothService;
-    net::NetService*        m_netService;
+    net::TcpServer*         m_tcpServer;
     config::Controller*     m_config;
+    common::RemoteDataStore*    m_remoteStore = nullptr;
 };

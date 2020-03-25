@@ -17,7 +17,7 @@ DeviceModel* DeviceModel::instance()
     return s_instance;
 }
 
-DeviceModel* DeviceModel::init(BleCentralAdapter* bleAdapter, net::NetClient* netClient)
+DeviceModel* DeviceModel::init(BleCentralAdapter* bleAdapter, net::TcpClient* netClient)
 {
     if (s_instance) {
         return s_instance;
@@ -27,7 +27,7 @@ DeviceModel* DeviceModel::init(BleCentralAdapter* bleAdapter, net::NetClient* ne
     return s_instance;
 }
 
-DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, net::NetClient* netClient, QObject *parent) :
+DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, net::TcpClient* netClient, QObject *parent) :
 	QObject(parent),
     m_bleAdapter(bleAdapter),
     m_netClient(netClient)
@@ -37,8 +37,8 @@ DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, net::NetClient* netClien
     connect(m_bleAdapter, &BleCentralAdapter::deviceDiscovered, this, &DeviceModel::onBleDeviceDiscovered);
 	
     // Net
-    connect(m_netClient, &net::NetClient::status, this, &DeviceModel::onNetDeviceStatus);
-    connect(m_netClient, &net::NetClient::deviceDiscovered, this, &DeviceModel::onNetDeviceDiscovered);
+    connect(m_netClient, &net::TcpClient::status, this, &DeviceModel::onNetDeviceStatus);
+    connect(m_netClient, &net::TcpClient::deviceDiscovered, this, &DeviceModel::onNetDeviceDiscovered);
     
     connect(qGuiApp, &QGuiApplication::applicationStateChanged, this, &DeviceModel::onAppStateChanged);
 }

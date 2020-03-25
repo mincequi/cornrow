@@ -37,7 +37,7 @@ public:
     };
     Q_ENUM(Status)
 
-    static DeviceModel* init(BleCentralAdapter* bleClient, net::NetClient* netClient);
+    static DeviceModel* init(BleCentralAdapter* bleClient, net::TcpClient* netClient);
     static DeviceModel* instance();
 
     Q_INVOKABLE void startDiscovering();
@@ -55,7 +55,7 @@ signals:
     void devicesChanged();
 
 private:
-    explicit DeviceModel(BleCentralAdapter* bleAdapter, net::NetClient* m_netClient, QObject* parent = nullptr);
+    explicit DeviceModel(BleCentralAdapter* bleAdapter, net::TcpClient* m_netClient, QObject* parent = nullptr);
     
     void stopDiscovering();
 
@@ -79,5 +79,5 @@ private:
     friend class BleCentralAdapter;
 
     // Net
-    net::NetClient* m_netClient = nullptr;
+    net::TcpClient* m_netClient = nullptr;
 };

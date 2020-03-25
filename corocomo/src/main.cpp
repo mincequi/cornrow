@@ -29,10 +29,10 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     
     // Remote services: BLE, Tcp
+    common::RemoteDataStore remoteDataStore(nullptr);
     ble::BleClient bleClient;
     BleCentralAdapter bleAdapter(&bleClient);
-    net::NetClient netClient;
-    common::RemoteDataStore remoteDataStore(nullptr);
+    net::TcpClient netClient(&remoteDataStore);
 
     // Setup view models
     auto config = Config::init(Config::Type::Low);

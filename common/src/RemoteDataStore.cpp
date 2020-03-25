@@ -10,8 +10,9 @@ RemoteDataStore::RemoteDataStore(IAudioConf* audio, QObject *parent)
     : QObject(parent),
       m_audio(audio)
 {
-    m_timer.setInterval(200);
+    m_timer.setInterval(m_audio ? 0 : 200);
     m_timer.setSingleShot(true);
+
     connect(&m_timer, &QTimer::timeout, this, &RemoteDataStore::doNotify);
 }
 
@@ -31,6 +32,9 @@ QByteArray RemoteDataStore::peq() const
 void RemoteDataStore::setPeq(const QByteArray& peq)
 {
     m_peq = peq;
+    if (m_audio) {
+        m_audio->setFilters(common::ble::CharacteristicType::Peq, m_converter.filtersFromBle(peq));
+    }
     setDirty("peq");
 }
 
@@ -46,6 +50,9 @@ QByteArray RemoteDataStore::aux() const
 void RemoteDataStore::setAux(const QByteArray& aux)
 {
     m_aux = aux;
+    if (m_audio) {
+        m_audio->setFilters(common::ble::CharacteristicType::Aux, m_converter.filtersFromBle(aux));
+    }
     setDirty("aux");
 }
 

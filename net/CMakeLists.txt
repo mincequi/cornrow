@@ -1,8 +1,8 @@
 add_definitions(-DQZEROCONF_STATIC)
 
 add_library(net STATIC
-    include/net/NetService.h
-    src/NetService.cpp
+    include/net/TcpServer.h
+    src/TcpServer.cpp
 
     ../thirdparty/QtZeroConf/qzeroconf.h
     ../thirdparty/QtZeroConf/avahi-qt/qt-watch.h

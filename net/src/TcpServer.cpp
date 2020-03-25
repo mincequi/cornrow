@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NetService.h"
+#include "TcpServer.h"
 
 #include <QAbstractSocket>
 #include <QCoreApplication>
@@ -41,44 +41,18 @@ using namespace std::placeholders;
 namespace net
 {
 
-NetService::NetService(common::IAudioConf* audio, QObject *parent)
-    : QObject(parent)
+TcpServer::TcpServer(common::RemoteDataStore* remoteStore, QObject *parent)
+    : QObject(parent),
+      m_remoteData(remoteStore)
 {
     m_inStream.setVersion(QDataStream::Qt_5_6);
-    m_remoteData = new common::RemoteDataStore(audio, this);
 
     // Open service
+    connect(&m_tcpServer, &QTcpServer::newConnection, this, &TcpServer::onClientConnected);
     if (!m_tcpServer.listen(QHostAddress::AnyIPv4)) {
         LOG_F(ERROR, "Error starting NetService.");
         return;
     }
-
-    QObject::connect(&m_tcpServer, &QTcpServer::newConnection, [this]() {
-        if (m_socket) {
-            LOG_F(INFO, "Another client already connected");
-            return;
-        }
-
-        QVariantMap properties;
-        LOG_F(INFO, "New connection. Send properties:");
-        for (int i = m_remoteData->metaObject()->propertyOffset(); i < m_remoteData->metaObject()->propertyCount(); ++i) {
-            const char* name = m_remoteData->metaObject()->property(i).name();
-            const QVariant value = m_remoteData->metaObject()->property(i).read(m_remoteData);
-            LOG_F(INFO, "%s: %s", name, value);
-            properties.insert(name, value);
-        }
-
-        m_socket = m_tcpServer.nextPendingConnection();
-        connect(m_socket, &QAbstractSocket::disconnected, this, &NetService::disconnect);
-        connect(m_socket, &QAbstractSocket::readyRead, this, &NetService::onDataReceived);
-        m_inStream.setDevice(m_socket);
-
-        QByteArray block;
-        QDataStream outStream(&block, QIODevice::WriteOnly);
-        outStream.setVersion(QDataStream::Qt_5_6);
-        outStream << properties;
-        m_socket->write(block);
-    });
 
     // Publish service
     QZeroConf* zeroConf = new QZeroConf(this);
@@ -94,11 +68,11 @@ NetService::NetService(common::IAudioConf* audio, QObject *parent)
                                   m_tcpServer.serverPort());
 }
 
-NetService::~NetService()
+TcpServer::~TcpServer()
 {
 }
 
-void NetService::disconnect()
+void TcpServer::disconnect()
 {
     if (!m_socket) {
         return;
@@ -108,7 +82,39 @@ void NetService::disconnect()
     m_socket = nullptr;
 }
 
-void NetService::onDataReceived()
+void TcpServer::onClientConnected()
+{
+    if (m_socket) {
+        LOG_F(INFO, "Another client already connected");
+        return;
+    }
+
+    QVariantMap properties;
+    LOG_F(INFO, "New connection. Send properties:");
+    for (int i = m_remoteData->metaObject()->propertyOffset(); i < m_remoteData->metaObject()->propertyCount(); ++i) {
+        const char* name = m_remoteData->metaObject()->property(i).name();
+        const QVariant value = m_remoteData->metaObject()->property(i).read(m_remoteData);
+        LOG_F(INFO, "%s: %s", name, value);
+        properties.insert(name, value);
+    }
+
+    m_socket = m_tcpServer.nextPendingConnection();
+    connect(m_socket, &QAbstractSocket::disconnected, this, &TcpServer::disconnect);
+    connect(m_socket, &QAbstractSocket::readyRead, this, &TcpServer::onDataReceived);
+    m_inStream.setDevice(m_socket);
+
+    QByteArray block;
+    QDataStream outStream(&block, QIODevice::WriteOnly);
+    outStream.setVersion(QDataStream::Qt_5_6);
+    outStream << properties;
+    m_socket->write(block);
+    if (!m_socket->waitForBytesWritten(500)) {
+        LOG_F(WARNING, "Error conecting client");
+        disconnect();
+    }
+}
+
+void TcpServer::onDataReceived()
 {
     m_inStream.startTransaction();
 
@@ -123,25 +129,6 @@ void NetService::onDataReceived()
     for (const auto& kv : properties.toStdMap()) {
         m_remoteData->setProperty(kv.first.toStdString().c_str(), kv.second);
     }
-}
-
-void NetService::onWriteIoConf(const QByteArray& value)
-{
-    auto interfaces = m_converter.fromBle(value);
-
-    common::IoInterface input;
-    common::IoInterface output;
-
-    for (const auto& interface : interfaces) {
-        if (interface.isOutput) {
-            output = interface;
-        } else {
-            input = interface;
-        }
-    }
-
-    emit inputSet(input);
-    emit outputSet(output);
 }
 
 } // namespace net

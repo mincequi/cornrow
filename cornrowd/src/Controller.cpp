@@ -1,7 +1,7 @@
 #include "Controller.h"
 
 #include "config/Controller.h"
-#include <net/NetService.h>
+#include <net/TcpServer.h>
 
 #include <QDBusObjectPath>
 
@@ -12,11 +12,12 @@ Controller::Controller(QObject *parent)
     m_bluetoothService = new bluetooth::Controller(this);
     m_audio = new audio::Controller(this);
     m_config = new config::Controller(m_audio, m_bluetoothService, this);
+    m_remoteStore = new common::RemoteDataStore(m_audio, this);
 
     connect(m_bluetoothService, &bluetooth::Controller::transportChanged, this, &Controller::onTransportChanged);
     connect(m_bluetoothService, &bluetooth::Controller::volumeChanged, this, &Controller::onVolumeChanged);
 
-    m_netService = new net::NetService(m_audio, this);
+    m_tcpServer = new net::TcpServer(m_remoteStore, this);
 }
 
 Controller::~Controller()

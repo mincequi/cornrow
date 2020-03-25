@@ -23,40 +23,29 @@
 #include <QTcpServer>
 
 #include <common/RemoteDataStore.h>
-#include <common/ble/Converter.h>
 
 namespace net
 {
 
-class NetService : public QObject
+class TcpServer : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit NetService(common::IAudioConf* audio, QObject *parent = nullptr);
-    ~NetService();
+    explicit TcpServer(common::RemoteDataStore* remoteStore, QObject *parent = nullptr);
+    ~TcpServer();
 
     void disconnect();
 
-
-signals:
-    void transportChanged(int fd, uint16_t blockSize, uint32_t sampleRate);
-    void volumeChanged(float volume);
-
-    void inputSet(common::IoInterface input);
-    void outputSet(common::IoInterface output);
-
 private:
+    void onClientConnected();
     void onDataReceived();
-    void onWriteIoConf(const QByteArray& value);
 
     common::RemoteDataStore* m_remoteData = nullptr;
 
     QTcpServer  m_tcpServer;
     QTcpSocket* m_socket = nullptr;
     QDataStream m_inStream;
-
-    common::ble::Converter m_converter;
 };
 
 } // namespace net

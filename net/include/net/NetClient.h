@@ -32,6 +32,10 @@ class QZeroConf;
 class QZeroConfServiceData;
 typedef QSharedPointer<QZeroConfServiceData> QZeroConfService;
 
+namespace common {
+class RemoteDataStore;
+}
+
 namespace net
 {
 
@@ -63,13 +67,13 @@ public:
 };
 using NetDevicePtr = QSharedPointer<net::NetDevice>;
 
-class NetClient : public QObject
+class TcpClient : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit NetClient(QObject *parent = nullptr);
-    ~NetClient();
+    explicit TcpClient(common::RemoteDataStore* remoteStore, QObject *parent = nullptr);
+    ~TcpClient();
 
     void startDiscovering();
 	void stopDiscovering();
@@ -88,6 +92,7 @@ private:
     void onStatus(ble::BleClient::Status status, QString errorString = QString());
     void onDataReceived();
 
+    common::RemoteDataStore* m_remoteStore = nullptr;
     QZeroConf* m_zeroConf = nullptr;
     QTcpSocket  m_socket;
     QDataStream m_dataStream;

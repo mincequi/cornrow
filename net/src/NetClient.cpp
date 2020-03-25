@@ -22,17 +22,20 @@
 #include <QtGlobal>
 #include <qzeroconf.h>
 
+#include <common/RemoteDataStore.h>
+
 namespace net
 {
 
-NetClient::NetClient(QObject* parent)
-    : QObject(parent)
+TcpClient::TcpClient(common::RemoteDataStore* remoteStore, QObject* parent)
+    : QObject(parent),
+      m_remoteStore(remoteStore)
 {
     m_dataStream.setDevice(&m_socket);
     m_dataStream.setVersion(QDataStream::Qt_5_6);
 
     m_zeroConf = new QZeroConf(this);
-    connect(m_zeroConf, &QZeroConf::serviceAdded, this, &NetClient::onServiceAdded);
+    connect(m_zeroConf, &QZeroConf::serviceAdded, this, &TcpClient::onServiceAdded);
 
     connect(&m_socket, &QTcpSocket::connected, [this]() {
         onStatus(ble::BleClient::Status::Connected);
@@ -43,14 +46,14 @@ NetClient::NetClient(QObject* parent)
     connect(&m_socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), [this](QAbstractSocket::SocketError) {
         onStatus(ble::BleClient::Status::Error, m_socket.errorString());
     });
-    connect(&m_socket, &QIODevice::readyRead, this, &NetClient::onDataReceived);
+    connect(&m_socket, &QIODevice::readyRead, this, &TcpClient::onDataReceived);
 }
 
-NetClient::~NetClient()
+TcpClient::~TcpClient()
 {
 }
 
-void NetClient::startDiscovering()
+void TcpClient::startDiscovering()
 {
     if (m_zeroConf->browserExists()) {
         stopDiscovering();
@@ -59,24 +62,24 @@ void NetClient::startDiscovering()
     m_zeroConf->startBrowser("_cornrow._tcp");
 }
 
-void NetClient::stopDiscovering()
+void TcpClient::stopDiscovering()
 {
     m_zeroConf->stopBrowser();
 }
 
-void NetClient::connectDevice(net::NetDevice* device)
+void TcpClient::connectDevice(net::NetDevice* device)
 {
     disconnect();
 
     m_socket.connectToHost(device->address, device->port);
 }
 
-void NetClient::disconnect()
+void TcpClient::disconnect()
 {
     m_socket.abort();
 }
 
-void NetClient::setProperty(const std::string& name, const QByteArray& value)
+void TcpClient::setProperty(const std::string& name, const QByteArray& value)
 {
     if (m_socket.state() != QAbstractSocket::ConnectedState) {
         qDebug() << "Socket not connected";
@@ -91,7 +94,7 @@ void NetClient::setProperty(const std::string& name, const QByteArray& value)
     m_socket.write(block);
 }
 
-void NetClient::onServiceAdded(QZeroConfService service)
+void TcpClient::onServiceAdded(QZeroConfService service)
 {
     NetDevicePtr device(new NetDevice);
     device->name = service->name();
@@ -103,7 +106,7 @@ void NetClient::onServiceAdded(QZeroConfService service)
     qDebug() << service;
 }
 
-void NetClient::onStatus(ble::BleClient::Status _status, QString)
+void TcpClient::onStatus(ble::BleClient::Status _status, QString)
 {
     switch (_status) {
     case ble::BleClient::Status::Connected: {
@@ -129,7 +132,7 @@ void NetClient::onStatus(ble::BleClient::Status _status, QString)
     emit status(_status);
 }
 
-void NetClient::onDataReceived()
+void TcpClient::onDataReceived()
 {
     m_dataStream.startTransaction();
 
@@ -139,6 +142,10 @@ void NetClient::onDataReceived()
     if (!m_dataStream.commitTransaction()) {
         qWarning("Error deserializing data");
         return;
+    }
+
+    for (const auto& kv : properties.toStdMap()) {
+        m_remoteStore->setProperty(kv.first.toStdString().c_str(), kv.second);
     }
 }
 
