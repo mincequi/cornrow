@@ -14,13 +14,13 @@ class IAudioConf;
 class RemoteDataStore : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QByteArray peq MEMBER m_peq NOTIFY peqChanged)
-    Q_PROPERTY(QByteArray aux MEMBER m_aux NOTIFY auxChanged)
+    Q_PROPERTY(QByteArray peq READ peq WRITE setPeq NOTIFY peqChanged)
+    Q_PROPERTY(QByteArray aux READ aux WRITE setAux NOTIFY auxChanged)
     Q_PROPERTY(QByteArray ioCaps READ ioCaps NOTIFY ioCapsChanged)
-    Q_PROPERTY(QByteArray ioConf WRITE setIoConf)
+    Q_PROPERTY(QByteArray ioConf MEMBER m_ioConf)
 
 public:
-    RemoteDataStore(IAudioConf* audio, QObject* parent = 0);
+    RemoteDataStore(IAudioConf* audio = nullptr, QObject* parent = nullptr);
     ~RemoteDataStore();
 
     QByteArray peq() const;
@@ -41,7 +41,7 @@ private:
     void setDirty(const std::string& property);
     void doNotify();
 
-    IAudioConf* m_audio;
+    IAudioConf* m_audio = nullptr;
 
     QTimer  m_timer;
 

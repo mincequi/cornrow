@@ -7,8 +7,8 @@
 #include <QPen>
 
 #include <ble/BleClient.h>
+#include <common/RemoteDataStore.h>
 #include <common/Types.h>
-#include <net/NetClient.h>
 
 #include "BleCentralAdapter.h"
 #include "IoModel.h"
@@ -23,24 +23,24 @@ FilterModel* FilterModel::instance()
 
 FilterModel* FilterModel::init(const Config& configuration,
                                BleCentralAdapter* bleAdapter,
-                               net::NetClient* netClient)
+                               common::RemoteDataStore* dataStore)
 {
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new FilterModel(configuration, bleAdapter, netClient);
+    s_instance = new FilterModel(configuration, bleAdapter, dataStore);
     return s_instance;
 }
 
-FilterModel::FilterModel(const Config& config, BleCentralAdapter* bleAdapter, net::NetClient* netClient) :
+FilterModel::FilterModel(const Config& config, BleCentralAdapter* bleAdapter, common::RemoteDataStore* dataStore) :
     QObject(nullptr),
     m_config(config),
     m_loudnessBand(config.peqFilterCount),
     m_xoBand(config.peqFilterCount+1),
     m_scBand(config.peqFilterCount+2),
     m_bleAdapter(bleAdapter),
-    m_netClient(netClient)
+    m_remoteStore(dataStore)
 {
     auto filterCount = m_config.peqFilterCount;
     if (m_config.loudnessAvailable) ++filterCount;
@@ -372,8 +372,25 @@ void FilterModel::onParameterChanged()
         emit filterChanged(m_currentBand, 0, 0, 0.0, 0.0);
     }
 
-    if (!m_demoMode) {
-        //m_bleAdapter->setDirty(m_currentBand < m_config.peqFilterCount ? common::ble::peqCharacteristicUuid : common::ble::auxCharacteristicUuid);
-        m_netClient->setProperty(m_currentBand < m_config.peqFilterCount ? "peq" : "aux", QByteArray("HELL YES"));
+    if (m_currentBand < m_config.peqFilterCount) {
+        QByteArray value(m_config.peqFilterCount * 4, 0);
+        for (int i = 0; i < m_config.peqFilterCount; ++i) {
+            value[i*4]   = static_cast<char>(m_filters.at(i).t);
+            value[i*4+1] = m_filters.at(i).f * m_config.freqStep + m_config.freqMin;
+            value[i*4+2] = static_cast<int8_t>(m_filters.at(i).g * 2.0);
+            value[i*4+3] = m_filters.at(i).q;
+        }
+        m_remoteStore->setPeq(value);
+    } else {
+        QByteArray value((m_filters.count() - m_config.peqFilterCount) * 4, 0);
+        for (int i = 0; i < (m_filters.count() - m_config.peqFilterCount); ++i) {
+            value[i*4]   = static_cast<char>(m_filters.at(i + m_config.peqFilterCount).t);
+            value[i*4+1] = m_filters.at(i + m_config.peqFilterCount).f * m_config.freqStep + m_config.freqMin;
+            value[i*4+2] = static_cast<int8_t>(m_filters.at(i+ m_config.peqFilterCount).g * 2.0);
+            value[i*4+3] = m_filters.at(i + m_config.peqFilterCount).q;
+        }
+        m_remoteStore->setAux(value);
     }
+
+    //m_bleAdapter->setDirty(m_currentBand < m_config.peqFilterCount ? common::ble::peqCharacteristicUuid : common::ble::auxCharacteristicUuid);
 }

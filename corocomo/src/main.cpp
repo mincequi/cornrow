@@ -4,13 +4,14 @@
 #include "Config.h"
 #include "DeviceModel.h"
 #include "EqChart.h"
-#include "IoModel.h"
 #include "FilterModel.h"
+#include "IoModel.h"
 #include "PhaseChart.h"
 #include "PresetModel.h"
 #include "SoftClipChart.h"
 #include "ble/BleClient.h"
 #include "net/NetClient.h"
+#include <common/RemoteDataStore.h>
 
 #include <QDebug>
 #include <QGuiApplication>
@@ -28,22 +29,31 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     
     // Remote services: BLE, Tcp
-	ble::BleClient bleClient;
+    ble::BleClient bleClient;
     BleCentralAdapter bleAdapter(&bleClient);
     net::NetClient netClient;
+    common::RemoteDataStore remoteDataStore(nullptr);
 
     // Setup view models
     auto config = Config::init(Config::Type::Low);
     DeviceModel::init(&bleAdapter, &netClient);
-	auto ioModel = IoModel::init(&bleAdapter);
-    auto filterModel = FilterModel::init(*config, &bleAdapter, &netClient);
+    auto ioModel = IoModel::init(&bleAdapter);
+    // @TODO(mawe): remove bleAdapter from FilterModel
+    auto filterModel = FilterModel::init(*config, &bleAdapter, &remoteDataStore);
     BodePlotModel::init(*config);
     PresetModel::init(&bleAdapter);
     
     bleAdapter.setModel(filterModel);
     bleAdapter.setIoModel(ioModel);
 
-	qmlRegisterUncreatableMetaObject(net::NetDevice::staticMetaObject, "Cornrow.DeviceType", 1, 0, "CornrowDeviceType", "Only enums");
+    QObject::connect(&remoteDataStore, &common::RemoteDataStore::peqChanged, [&]() {
+        netClient.setProperty("peq", remoteDataStore.peq());
+    });
+    QObject::connect(&remoteDataStore, &common::RemoteDataStore::auxChanged, [&]() {
+        netClient.setProperty("aux", remoteDataStore.aux());
+    });
+
+    qmlRegisterUncreatableMetaObject(net::NetDevice::staticMetaObject, "Cornrow.DeviceType", 1, 0, "CornrowDeviceType", "Only enums");
 
     qmlRegisterType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel");
     qmlRegisterType<EqChart>("Cornrow.EqChart", 1, 0, "CornrowEqChart");

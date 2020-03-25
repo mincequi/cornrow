@@ -14,9 +14,9 @@ namespace ble
 {
 class BleClient;
 }
-namespace net
+namespace common
 {
-class NetClient;
+class RemoteDataStore;
 }
 
 class FilterModel : public QObject
@@ -43,7 +43,7 @@ public:
 	// @TODO(mawe): think about how to remove ioModel dependency
     static FilterModel* init(const Config& configuration,
                              BleCentralAdapter* bleAdapter,
-                             net::NetClient* netClient);
+                             common::RemoteDataStore* remoteStore);
     static FilterModel* instance();
 
     // Still needed to set demo mode flag
@@ -104,7 +104,7 @@ signals:
 private:
     FilterModel(const Config& config,
                 BleCentralAdapter* bleAdapter,
-                net::NetClient* netClient);
+                common::RemoteDataStore* remoteStore);
 
     // This is the model-oriented filter struct. We use indexed values here.
     struct Filter {
@@ -136,6 +136,5 @@ private:
     BleCentralAdapter* m_bleAdapter = nullptr;
     friend class BleCentralAdapter;
 
-    // Tcp
-    net::NetClient* m_netClient = nullptr;
+    common::RemoteDataStore* m_remoteStore = nullptr;
 };

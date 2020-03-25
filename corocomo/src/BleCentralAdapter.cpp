@@ -1,6 +1,7 @@
 #include "BleCentralAdapter.h"
 
 #include <ble/BleClient.h>
+#include <common/RemoteDataStore.h>
 
 #include "IoModel.h"
 #include "FilterModel.h"

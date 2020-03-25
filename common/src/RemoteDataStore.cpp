@@ -21,7 +21,11 @@ RemoteDataStore::~RemoteDataStore()
 
 QByteArray RemoteDataStore::peq() const
 {
-    return m_converter.filtersToBle(m_audio->filters(common::ble::CharacteristicType::Peq));
+    if (m_audio) {
+        return m_converter.filtersToBle(m_audio->filters(common::ble::CharacteristicType::Peq));
+    }
+
+    return m_peq;
 }
 
 void RemoteDataStore::setPeq(const QByteArray& peq)
@@ -32,7 +36,11 @@ void RemoteDataStore::setPeq(const QByteArray& peq)
 
 QByteArray RemoteDataStore::aux() const
 {
-    return m_converter.filtersToBle(m_audio->filters(common::ble::CharacteristicType::Aux));
+    if (m_audio) {
+        return m_converter.filtersToBle(m_audio->filters(common::ble::CharacteristicType::Aux));
+    }
+
+    return m_aux;
 }
 
 void RemoteDataStore::setAux(const QByteArray& aux)

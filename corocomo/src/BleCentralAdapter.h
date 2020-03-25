@@ -9,6 +9,10 @@
 #include "DeviceModel.h"
 #include "FilterModel.h"
 
+namespace common {
+class RemoteDataStore;
+}
+
 class BleCentralAdapter : public QObject
 {
     Q_OBJECT
@@ -42,6 +46,7 @@ private:
     void onStatus(ble::BleClient::Status status, const QString& errorString);
     void onCharacteristicRead(const std::string& uuid, const QByteArray& value);
 
+    common::RemoteDataStore* m_dataStore;
     ble::BleClient* m_central;
     FilterModel*    m_model;
     IoModel*        m_ioModel;
