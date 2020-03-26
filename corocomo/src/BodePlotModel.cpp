@@ -7,23 +7,22 @@ BodePlotModel* BodePlotModel::s_instance = nullptr;
 
 BodePlotModel* BodePlotModel::instance()
 {
-    return s_instance;
-}
-
-BodePlotModel* BodePlotModel::init(const Config& configuration)
-{
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new BodePlotModel(configuration);
+    s_instance = new BodePlotModel();
     return s_instance;
 }
 
-BodePlotModel::BodePlotModel(const Config& config, QObject *parent) :
-    QObject(parent),
-    m_config(config)
+BodePlotModel::BodePlotModel(QObject *parent) :
+    QObject(parent)
 {
+    auto* config = Config::instance();
+    m_freqTable.resize(0);
+    for (auto it = config->freqTable.begin() + config->freqMin; it < config->freqTable.begin() + config->freqMax + 1; it += config->freqStep) {
+        m_freqTable.push_back(*it);
+    }
 }
 
 void BodePlotModel::setFilter(int idx, uchar t, uchar f, double g, double q)
@@ -33,13 +32,13 @@ void BodePlotModel::setFilter(int idx, uchar t, uchar f, double g, double q)
     // Dynamically append graphs
     int diff = idx-m_graphs.size()+1;
     while (diff-- > 0) {
-        Plot graph(m_config);
+        Plot graph(m_freqTable);
         m_graphs.append(graph);
     }
 
     // Apply filter parameters
     m_graphs[idx].setFrequencyIndex(f);
-    m_graphs[idx].setFilter({static_cast<common::FilterType>(t), m_config.freqTable.at(f), g, q});
+    m_graphs[idx].setFilter({static_cast<common::FilterType>(t), common::frequencyTable.at(f), g, q});
 }
 
 /*

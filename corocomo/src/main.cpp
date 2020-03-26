@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
     auto ioModel = IoModel::init(&bleAdapter);
     // @TODO(mawe): remove bleAdapter from FilterModel
     auto filterModel = FilterModel::init(*config, &bleAdapter, &remoteDataStore);
-    BodePlotModel::init(*config);
     PresetModel::init(&bleAdapter);
     
     bleAdapter.setModel(filterModel);

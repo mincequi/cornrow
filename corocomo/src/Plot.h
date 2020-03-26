@@ -5,12 +5,10 @@
 
 #include <common/Types.h>
 
-class Config;
-
 class Plot
 {
 public:
-    explicit Plot(const Config& config);
+    explicit Plot(const std::vector<double>& freqTable);
 
     Plot& operator=(const Plot&);
 
@@ -31,7 +29,7 @@ private:
     static void sumMags(const QList<QPolygonF>& mags, QPolygonF& magSum);
     void sumPhases(const QList<QPolygonF>& phases, QPolygonF& phaseSum);
 
-    const Config& m_config;
+    const std::vector<double>& m_freqTable;
 
     uchar m_f = 0;
 

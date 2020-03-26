@@ -40,17 +40,13 @@ class FilterModel : public QObject
     Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
 
 public:
-	// @TODO(mawe): think about how to remove ioModel dependency
     static FilterModel* init(const Config& configuration,
                              BleCentralAdapter* bleAdapter,
                              common::RemoteDataStore* remoteStore);
     static FilterModel* instance();
 
-    // Still needed to set demo mode flag
-    Q_INVOKABLE void startDiscovering();
-    Q_INVOKABLE void startDemo();
-
     Q_INVOKABLE void resizeFilters(int diff);
+    Q_INVOKABLE void readFilters();
 
     int         peqFilterCount() const;
 
@@ -90,7 +86,6 @@ public:
     void        setSubwooferType(int filterType);
 
 signals:
-    void statusChanged();
     void currentBandChanged();
     void filterChanged(int i, uchar t, double f, double g, double q);
     void filterTypeChanged();
@@ -102,10 +97,6 @@ signals:
     void qSliderChanged();
 
 private:
-    FilterModel(const Config& config,
-                BleCentralAdapter* bleAdapter,
-                common::RemoteDataStore* remoteStore);
-
     // This is the model-oriented filter struct. We use indexed values here.
     struct Filter {
         explicit Filter(common::FilterType t, uint8_t f, double g, uint8_t q);
@@ -115,7 +106,11 @@ private:
         uint8_t q;
     };
 
-    void setFilters(common::ble::CharacteristicType group, const std::vector<Filter>& filters);
+    FilterModel(const Config& config,
+                BleCentralAdapter* bleAdapter,
+                common::RemoteDataStore* remoteStore);
+
+    static uint8_t snap(double value, uint8_t min, uint8_t max, uint8_t step);
 
     void onParameterChanged();
 
@@ -130,7 +125,6 @@ private:
     const int       m_xoBand;
     const int       m_scBand;
     double          m_freqSlider;
-    bool            m_demoMode = false;
 
     // BLE
     BleCentralAdapter* m_bleAdapter = nullptr;

@@ -4,14 +4,11 @@
 
 #include "Plot.h"
 
-class Config;
-
 class BodePlotModel : public QObject
 {
     Q_OBJECT
 
 public:
-    static BodePlotModel* init(const Config& configuration);
     static BodePlotModel* instance();
 
     Q_INVOKABLE void setFilter(int i, uchar t, uchar f, double g, double q);
@@ -21,11 +18,11 @@ public:
     const QList<Plot>& plots() const;
 
 private:
-    BodePlotModel(const Config& config, QObject* parent = nullptr);
+    BodePlotModel(QObject* parent = nullptr);
 
     static BodePlotModel* s_instance;
 
-    const Config&   m_config;
+    std::vector<double> m_freqTable;
 
     QList<Plot>  m_graphs;
 

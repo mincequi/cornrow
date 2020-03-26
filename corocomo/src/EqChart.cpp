@@ -7,10 +7,16 @@
 #include <common/Util.h>
 
 #include "BodePlotModel.h"
+#include "Config.h"
 
 EqChart::EqChart(QQuickItem *parent) :
     QQuickPaintedItem(parent)
 {
+    const auto* config = Config::instance();
+    m_frequencyTable.resize(0);
+    for (auto it = config->freqTable.begin() + config->freqMin; it < config->freqTable.begin() + config->freqMax + 1; it += config->freqStep) {
+        m_frequencyTable.push_back(*it);
+    }
 }
 
 QColor EqChart::plotColor() const

@@ -128,7 +128,6 @@ ApplicationWindow {
 
             CornrowEqChart {
                 id: eqChart
-                frequencyTable: CornrowConfiguration.freqTable
                 bodePlot: CornrowBodePlotModel
                 currentFilter: FilterModel.currentBand
                 currentPlotColor: Material.accent
@@ -143,7 +142,7 @@ ApplicationWindow {
                     Label {
                         id: axisLabel
                         text: "Magnitude (dB)"
-                        font.pointSize: font.pointSize-2
+                        font.pointSize: font.pointSize.valueOf() - 2
                         opacity: 0.5
                         rotation: -90
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -154,7 +153,6 @@ ApplicationWindow {
 
             CornrowPhaseChart {
                 id: phaseChart
-                frequencyTable: CornrowConfiguration.freqTable
                 bodePlot: CornrowBodePlotModel
                 currentFilter: FilterModel.currentBand
                 currentPlotColor: Material.accent
@@ -168,7 +166,7 @@ ApplicationWindow {
                     Label {
                         id: phaseAxisLabel
                         text: "Phase (rad)"
-                        font.pointSize: font.pointSize-2
+                        font.pointSize: font.pointSize.valueOf()-2
                         opacity: 0.5
                         rotation: -90
                         anchors.horizontalCenter: parent.horizontalCenter

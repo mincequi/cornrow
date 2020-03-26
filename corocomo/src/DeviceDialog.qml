@@ -19,7 +19,6 @@ Dialog {
     padding: 0  // Make the dialog full screen
     Component.onCompleted: {
         DeviceModel.startDiscovering()
-        FilterModel.startDiscovering()
     }
     
     CoroBusyIndicator {
@@ -118,7 +117,6 @@ Dialog {
             flat: true
             onPressed: {
                 DeviceModel.startDiscovering()
-                FilterModel.startDiscovering()
             }
         }
         Button {
@@ -126,7 +124,6 @@ Dialog {
             flat: true
             visible: DeviceModel.status !== DeviceModel.Connecting
             onPressed: {
-                FilterModel.startDemo()
                 DeviceModel.startDemo()
                 CornrowIoModel.startDemo()
                 CornrowPresetModel.startDemo()

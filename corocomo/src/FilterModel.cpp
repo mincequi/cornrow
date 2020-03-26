@@ -4,6 +4,7 @@
 
 #include <algorithm>
 
+#include <QDebug>
 #include <QPen>
 
 #include <ble/BleClient.h>
@@ -45,7 +46,7 @@ FilterModel::FilterModel(const Config& config, BleCentralAdapter* bleAdapter, co
     auto filterCount = m_config.peqFilterCount;
     if (m_config.loudnessAvailable) ++filterCount;
     if (m_config.xoAvailable) ++filterCount;
-    if (m_config.scAvailable) ++filterCount;
+    if (m_config.swAvailable) ++filterCount;
     resizeFilters(filterCount);
     setCurrentBand(0);
 
@@ -53,8 +54,6 @@ FilterModel::FilterModel(const Config& config, BleCentralAdapter* bleAdapter, co
     connect(this, &FilterModel::freqChanged, this, &FilterModel::onParameterChanged);
     connect(this, &FilterModel::gainChanged, this, &FilterModel::onParameterChanged);
     connect(this, &FilterModel::qChanged, this, &FilterModel::onParameterChanged);
-
-    connect(m_bleAdapter, &BleCentralAdapter::filtersReceived, this, &FilterModel::setFilters);
 }
 
 FilterModel::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_t _q)
@@ -63,16 +62,6 @@ FilterModel::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_
       g(_g),
       q(_q)
 {
-}
-
-void FilterModel::startDiscovering()
-{
-    m_demoMode = false;
-}
-
-void FilterModel::startDemo()
-{
-    m_demoMode = true;
 }
 
 void FilterModel::resizeFilters(int diff)
@@ -199,8 +188,8 @@ QString FilterModel::freqReadout() const
 
 void FilterModel::stepFreq(int i)
 {
-    int idx = m_currentFilter->f + i;
-    if (idx < 0 || idx > static_cast<int>(m_config.freqTable.size()-1) || idx == m_currentFilter->f) {
+    int idx = m_currentFilter->f + (i*m_config.freqStep);
+    if (idx < m_config.freqMin || idx > m_config.freqMax || idx == m_currentFilter->f) {
         return;
     }
 
@@ -211,12 +200,14 @@ void FilterModel::stepFreq(int i)
 
 double FilterModel::freqSlider() const
 {
-    return static_cast<double>(m_currentFilter->f)/(m_config.freqTable.size()-1);
+    const double value = static_cast<double>(m_currentFilter->f - m_config.freqMin)/(m_config.freqMax - m_config.freqMin);
+    return value;
 }
 
 void FilterModel::setFreqSlider(double f)
 {
-    uint8_t idx = static_cast<uint8_t>(qRound(f*(m_config.freqTable.size()-1)));
+    const uint8_t idx = snap(f, m_config.freqMin, m_config.freqMax, m_config.freqStep);
+
     if (m_currentFilter->f == idx) return;
 
     m_currentFilter->f = idx;
@@ -286,11 +277,9 @@ QString FilterModel::qReadout() const
 void FilterModel::stepQ(int i)
 {
     int idx = m_currentFilter->q + i*m_config.qStep;
-    if (idx < m_config.qMin || idx > m_config.qMax) {
+    if (idx < m_config.qMin || idx > m_config.qMax || idx == m_currentFilter->q) {
         return;
     }
-
-    if (m_currentFilter->q == idx) return;
 
     m_currentFilter->q = static_cast<uint8_t>(idx);
     emit qChanged();
@@ -346,22 +335,55 @@ void FilterModel::setSubwooferType(int filterType)
     m_filters[m_scBand].g = filterType == 1 ? 1.0 : 2.0;
 }
 
-void FilterModel::setFilters(common::ble::CharacteristicType task, const std::vector<Filter>& filters)
+void FilterModel::readFilters()
 {
-    int i = (task == common::ble::CharacteristicType::Peq) ? 0 : m_config.peqFilterCount;
-
-    for (const auto& filter : filters) {
-        if (i >= m_filters.size()) break;
-        m_filters[i].t = filter.t;
-        // @TODO(mawe): why std::min? This shall not be needed (probably due to compatibility with stored index from daemon).
-        m_filters[i].f = std::min(filter.f, static_cast<uint8_t>(m_config.freqTable.size()-1));
-        m_filters[i].g = filter.g;
-        m_filters[i].q = filter.q < m_config.qMin ? m_config.qMin : filter.q > m_config.qMax ? m_config.qMax : filter.q;
-        emit filterChanged(i, static_cast<uchar>(m_filters[i].t), m_filters[i].f, m_filters[i].g, common::qTable.at(m_filters[i].q));
-        ++i;
+    {
+        const QByteArray& value = m_remoteStore->peq();
+        if (value.size() % 4 == 0) {
+            int j = 0;
+            for (int i = 0; i < value.size() && i <= 4 * m_config.peqFilterCount; i += 4) {
+                m_filters[j].t = static_cast<common::FilterType>(value.at(i));
+                m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
+                m_filters[j].g = value.at(i+2)*0.5;
+                m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
+                emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
+                ++j;
+            }
+        } else {
+            qDebug("Invalid size for filter group");
+        }
+    } {
+        const QByteArray& value = m_remoteStore->aux();
+        if (value.size() % 4 == 0) {
+            int j = m_config.peqFilterCount;
+            for (int i = 0; i < value.size() && i <= 4 * (m_filters.size() - m_config.peqFilterCount); i += 4) {
+                m_filters[j].t = static_cast<common::FilterType>(value.at(i));
+                m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
+                m_filters[j].g = value.at(i+2)*0.5;
+                m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
+                emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
+                ++j;
+            }
+        } else {
+            qDebug("Invalid size for filter group");
+        }
     }
 
+    // m_filters[i].q = filter.q < m_config.qMin ? m_config.qMin : filter.q > m_config.qMax ? m_config.qMax : filter.q;
+
     setCurrentBand(0);
+}
+
+uint8_t FilterModel::snap(double value, uint8_t min, uint8_t max, uint8_t step)
+{
+    uint8_t idx = static_cast<uint8_t>(qRound(value * (max - min)));
+    const uint8_t rest = idx % step;
+    idx -= rest;
+    if (rest >= step/2) {
+        idx += step;
+    }
+
+    return idx + min;
 }
 
 void FilterModel::onParameterChanged()
@@ -376,7 +398,7 @@ void FilterModel::onParameterChanged()
         QByteArray value(m_config.peqFilterCount * 4, 0);
         for (int i = 0; i < m_config.peqFilterCount; ++i) {
             value[i*4]   = static_cast<char>(m_filters.at(i).t);
-            value[i*4+1] = m_filters.at(i).f * m_config.freqStep + m_config.freqMin;
+            value[i*4+1] = m_filters.at(i).f;
             value[i*4+2] = static_cast<int8_t>(m_filters.at(i).g * 2.0);
             value[i*4+3] = m_filters.at(i).q;
         }
@@ -385,12 +407,10 @@ void FilterModel::onParameterChanged()
         QByteArray value((m_filters.count() - m_config.peqFilterCount) * 4, 0);
         for (int i = 0; i < (m_filters.count() - m_config.peqFilterCount); ++i) {
             value[i*4]   = static_cast<char>(m_filters.at(i + m_config.peqFilterCount).t);
-            value[i*4+1] = m_filters.at(i + m_config.peqFilterCount).f * m_config.freqStep + m_config.freqMin;
+            value[i*4+1] = m_filters.at(i + m_config.peqFilterCount).f;
             value[i*4+2] = static_cast<int8_t>(m_filters.at(i+ m_config.peqFilterCount).g * 2.0);
             value[i*4+3] = m_filters.at(i + m_config.peqFilterCount).q;
         }
         m_remoteStore->setAux(value);
     }
-
-    //m_bleAdapter->setDirty(m_currentBand < m_config.peqFilterCount ? common::ble::peqCharacteristicUuid : common::ble::auxCharacteristicUuid);
 }
