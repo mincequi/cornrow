@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <common/Types.h>
-#include <net/NetClient.h>
+#include <net/TcpClient.h>
 
 class BleCentralAdapter;
 namespace ble {
@@ -55,7 +55,7 @@ signals:
     void devicesChanged();
 
 private:
-    explicit DeviceModel(BleCentralAdapter* bleAdapter, net::TcpClient* m_netClient, QObject* parent = nullptr);
+    explicit DeviceModel(BleCentralAdapter* bleAdapter, net::TcpClient* m_tcpClient, QObject* parent = nullptr);
     
     void stopDiscovering();
 
@@ -79,5 +79,5 @@ private:
     friend class BleCentralAdapter;
 
     // Net
-    net::TcpClient* m_netClient = nullptr;
+    net::TcpClient* m_tcpClient = nullptr;
 };

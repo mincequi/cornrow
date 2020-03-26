@@ -41,7 +41,6 @@ class FilterModel : public QObject
 
 public:
     static FilterModel* init(const Config& configuration,
-                             BleCentralAdapter* bleAdapter,
                              common::RemoteDataStore* remoteStore);
     static FilterModel* instance();
 
@@ -107,7 +106,6 @@ private:
     };
 
     FilterModel(const Config& config,
-                BleCentralAdapter* bleAdapter,
                 common::RemoteDataStore* remoteStore);
 
     static uint8_t snap(double value, uint8_t min, uint8_t max, uint8_t step);
@@ -125,10 +123,6 @@ private:
     const int       m_xoBand;
     const int       m_scBand;
     double          m_freqSlider;
-
-    // BLE
-    BleCentralAdapter* m_bleAdapter = nullptr;
-    friend class BleCentralAdapter;
 
     common::RemoteDataStore* m_remoteStore = nullptr;
 };

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NetClient.h"
+#include "TcpClient.h"
 
 #include <QDebug>
 #include <QTcpSocket>

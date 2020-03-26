@@ -10,10 +10,10 @@ DEFINES += QZEROCONF_STATIC
 include(../thirdparty/QtZeroConf/qtzeroconf.pri)
 
 SOURCES += \
-    src/NetClient.cpp
+    src/TcpClient.cpp
 
 HEADERS += \
-    include/net/NetClient.h
+    include/net/TcpClient.h
 
 INCLUDEPATH += \
     include/net

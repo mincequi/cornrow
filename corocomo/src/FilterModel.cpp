@@ -23,24 +23,22 @@ FilterModel* FilterModel::instance()
 }
 
 FilterModel* FilterModel::init(const Config& configuration,
-                               BleCentralAdapter* bleAdapter,
                                common::RemoteDataStore* dataStore)
 {
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new FilterModel(configuration, bleAdapter, dataStore);
+    s_instance = new FilterModel(configuration, dataStore);
     return s_instance;
 }
 
-FilterModel::FilterModel(const Config& config, BleCentralAdapter* bleAdapter, common::RemoteDataStore* dataStore) :
+FilterModel::FilterModel(const Config& config, common::RemoteDataStore* dataStore) :
     QObject(nullptr),
     m_config(config),
     m_loudnessBand(config.peqFilterCount),
     m_xoBand(config.peqFilterCount+1),
     m_scBand(config.peqFilterCount+2),
-    m_bleAdapter(bleAdapter),
     m_remoteStore(dataStore)
 {
     auto filterCount = m_config.peqFilterCount;

@@ -27,6 +27,7 @@ SOURCES += \
     src/PhaseChart.cpp \
     src/Plot.cpp \
     src/PresetModel.cpp \
+    src/RemoteAccessManager.cpp \
     src/SoftClipChart.cpp \
     src/main.cpp
 
@@ -41,6 +42,7 @@ HEADERS += \
     src/IoModel.h \
     src/PhaseChart.h \
     src/PresetModel.h \
+    src/RemoteAccessManager.h \
     src/SoftClipChart.h
 
 RESOURCES += qml.qrc

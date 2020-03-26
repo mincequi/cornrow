@@ -1,7 +1,7 @@
 #include "DeviceModel.h"
 
 #include <ble/BleClient.h>
-#include <net/NetClient.h>
+#include <net/TcpClient.h>
 
 #include <QBluetoothAddress>
 #include <QBluetoothDeviceInfo>
@@ -30,15 +30,15 @@ DeviceModel* DeviceModel::init(BleCentralAdapter* bleAdapter, net::TcpClient* ne
 DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, net::TcpClient* netClient, QObject *parent) :
 	QObject(parent),
     m_bleAdapter(bleAdapter),
-    m_netClient(netClient)
+    m_tcpClient(netClient)
 {
     // Ble
     connect(m_bleAdapter, &BleCentralAdapter::status, this, &DeviceModel::onBleDeviceStatus);
     connect(m_bleAdapter, &BleCentralAdapter::deviceDiscovered, this, &DeviceModel::onBleDeviceDiscovered);
 	
     // Net
-    connect(m_netClient, &net::TcpClient::status, this, &DeviceModel::onNetDeviceStatus);
-    connect(m_netClient, &net::TcpClient::deviceDiscovered, this, &DeviceModel::onNetDeviceDiscovered);
+    connect(m_tcpClient, &net::TcpClient::status, this, &DeviceModel::onNetDeviceStatus);
+    connect(m_tcpClient, &net::TcpClient::deviceDiscovered, this, &DeviceModel::onNetDeviceDiscovered);
     
     connect(qGuiApp, &QGuiApplication::applicationStateChanged, this, &DeviceModel::onAppStateChanged);
 }
@@ -49,8 +49,8 @@ void DeviceModel::startDiscovering()
 	emit devicesChanged();
 	
     onBleDeviceStatus(Status::Discovering);
-    //m_bleAdapter->startDiscovering();
-    m_netClient->startDiscovering();
+    m_bleAdapter->startDiscovering();
+    m_tcpClient->startDiscovering();
 }
 
 void DeviceModel::startDemo()
@@ -91,7 +91,7 @@ void DeviceModel::connectDevice(net::NetDevice* device)
         break;
     case net::NetDevice::DeviceType::TcpIp:
         onBleDeviceStatus(Status::Connecting, "Connecting " + device->name);
-        m_netClient->connectDevice(device);
+        m_tcpClient->connectDevice(device);
         break;
     default:
         qDebug() << "Unhandled device type: " << device->type;
@@ -105,7 +105,7 @@ void DeviceModel::onAppStateChanged(Qt::ApplicationState state)
     case Qt::ApplicationSuspended:
     case Qt::ApplicationHidden:
     case Qt::ApplicationInactive:
-        m_netClient->stopDiscovering();
+        m_tcpClient->stopDiscovering();
         break;
     case Qt::ApplicationActive:
         break;
@@ -123,7 +123,7 @@ void DeviceModel::onBleDeviceStatus(Status _status, const QString& statusText)
         m_statusText = "Enable Bluetooth in your device's settings";
         break;
     case Status::Idle:
-        m_netClient->stopDiscovering();
+        m_tcpClient->stopDiscovering();
         if (m_devices.empty()) {
             m_statusLabel = "Timeout";
             m_statusText = "Be sure to be close to a cornrow device";

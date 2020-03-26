@@ -10,7 +10,7 @@
 #include "PresetModel.h"
 #include "SoftClipChart.h"
 #include "ble/BleClient.h"
-#include "net/NetClient.h"
+#include "net/TcpClient.h"
 #include <common/RemoteDataStore.h>
 
 #include <QDebug>
@@ -31,25 +31,25 @@ int main(int argc, char *argv[])
     // Remote services: BLE, Tcp
     common::RemoteDataStore remoteDataStore(nullptr);
     ble::BleClient bleClient;
-    BleCentralAdapter bleAdapter(&bleClient);
+    BleCentralAdapter bleAdapter(&remoteDataStore, &bleClient);
     net::TcpClient netClient(&remoteDataStore);
 
     // Setup view models
     auto config = Config::init(Config::Type::Low);
     DeviceModel::init(&bleAdapter, &netClient);
     auto ioModel = IoModel::init(&bleAdapter);
-    // @TODO(mawe): remove bleAdapter from FilterModel
-    auto filterModel = FilterModel::init(*config, &bleAdapter, &remoteDataStore);
+    FilterModel::init(*config, &remoteDataStore);
     PresetModel::init(&bleAdapter);
     
-    bleAdapter.setModel(filterModel);
     bleAdapter.setIoModel(ioModel);
 
     QObject::connect(&remoteDataStore, &common::RemoteDataStore::peqChanged, [&]() {
         netClient.setProperty("peq", remoteDataStore.peq());
+        bleClient.writeCharacteristic(common::ble::peqCharacteristicUuid, remoteDataStore.peq());
     });
     QObject::connect(&remoteDataStore, &common::RemoteDataStore::auxChanged, [&]() {
         netClient.setProperty("aux", remoteDataStore.aux());
+        bleClient.writeCharacteristic(common::ble::auxCharacteristicUuid, remoteDataStore.aux());
     });
 
     qmlRegisterUncreatableMetaObject(net::NetDevice::staticMetaObject, "Cornrow.DeviceType", 1, 0, "CornrowDeviceType", "Only enums");

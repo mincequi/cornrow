@@ -74,6 +74,7 @@ void BleClient::disconnect()
 void BleClient::writeCharacteristic(const std::string& uuid, const QByteArray& value)
 {
     if (!m_clientSession || !m_clientSession->m_service) {
+        qDebug() << __func__ << "No BLE device connected";
         return;
     }
 
