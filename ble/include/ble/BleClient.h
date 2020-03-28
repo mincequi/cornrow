@@ -46,17 +46,18 @@ public:
     ~BleClient();
 
     void startDiscovering();
+
     void connectDevice(const QBluetoothDeviceInfo& device);
     void disconnect();
 
-    void writeCharacteristic(const std::string& uuid, const QByteArray& value);
+    void setCharacteristic(const std::string& uuid, const QByteArray& value);
 
 signals:
     void status(Status status, const QString& errorString = QString());
 	void deviceDiscovered(const QBluetoothDeviceInfo& device);
 
-    // Emits initial values
-    void characteristicRead(const std::string& uuid, const QByteArray& value);
+    // Emits remotely changed values
+    void characteristicChanged(const char* uuid, const QByteArray& value);
 
 private:
     void setStatus(Status status, const QString& errorString = QString());

@@ -22,31 +22,35 @@
 #include <QtGlobal>
 #include <qzeroconf.h>
 
-#include <common/RemoteDataStore.h>
-
 namespace net
 {
 
-TcpClient::TcpClient(common::RemoteDataStore* remoteStore, QObject* parent)
-    : QObject(parent),
-      m_remoteStore(remoteStore)
+TcpClient::TcpClient(QObject* parent)
+    : QObject(parent)
 {
+    m_timer.setInterval(200);
+    m_timer.setSingleShot(true);
+
+    connect(&m_timer, &QTimer::timeout, this, &TcpClient::doSend);
+
     m_dataStream.setDevice(&m_socket);
     m_dataStream.setVersion(QDataStream::Qt_5_6);
 
     m_zeroConf = new QZeroConf(this);
-    connect(m_zeroConf, &QZeroConf::serviceAdded, this, &TcpClient::onServiceAdded);
+    connect(m_zeroConf, &QZeroConf::serviceAdded, this, &TcpClient::onServiceDiscovered);
 
+    /*
     connect(&m_socket, &QTcpSocket::connected, [this]() {
         onStatus(ble::BleClient::Status::Connected);
     });
+    */
     connect(&m_socket, &QTcpSocket::disconnected, [this]() {
         onStatus(ble::BleClient::Status::Lost);
     });
     connect(&m_socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), [this](QAbstractSocket::SocketError) {
         onStatus(ble::BleClient::Status::Error, m_socket.errorString());
     });
-    connect(&m_socket, &QIODevice::readyRead, this, &TcpClient::onDataReceived);
+    connect(&m_socket, &QIODevice::readyRead, this, &TcpClient::onReceive);
 }
 
 TcpClient::~TcpClient()
@@ -79,22 +83,17 @@ void TcpClient::disconnect()
     m_socket.abort();
 }
 
-void TcpClient::setProperty(const std::string& name, const QByteArray& value)
+void TcpClient::setProperty(const char* name, const QByteArray& value)
 {
-    if (m_socket.state() != QAbstractSocket::ConnectedState) {
-        qDebug() << "Socket not connected";
-        return;
+    QObject::setProperty(name, value);
+
+    m_dirtyProperties.insert(name);
+    if (!m_timer.isActive()) {
+        m_timer.start();
     }
-
-    QByteArray block;
-    QDataStream dataStream(&block, QIODevice::WriteOnly);
-    dataStream.setVersion(QDataStream::Qt_5_6);
-    dataStream << QVariantMap( {{ name.c_str(), value }} );
-
-    m_socket.write(block);
 }
 
-void TcpClient::onServiceAdded(QZeroConfService service)
+void TcpClient::onServiceDiscovered(QZeroConfService service)
 {
     NetDevicePtr device(new NetDevice);
     device->name = service->name();
@@ -132,21 +131,58 @@ void TcpClient::onStatus(ble::BleClient::Status _status, QString)
     emit status(_status);
 }
 
-void TcpClient::onDataReceived()
+void TcpClient::doSend()
 {
-    m_dataStream.startTransaction();
+    // If we are not connected, we do not send
+    if (m_socket.state() != QAbstractSocket::ConnectedState) {
+        qDebug() << "Socket not connected";
+        return;
+    }
 
+    // Iterate dirty properties and serialize them
+    qDebug() << "Send properties:";
+    QVariantMap properties;
+    for (const auto& name : m_dirtyProperties) {
+        const auto value = property(name).toByteArray();
+        qDebug() << "name:" << name << ", value size:" << value.size();
+        properties.insert(name, value);
+    }
+
+    // Write out
+    QByteArray block;
+    QDataStream outStream(&block, QIODevice::WriteOnly);
+    outStream.setVersion(QDataStream::Qt_5_6);
+    outStream << properties;
+    const auto bytes = m_socket.write(block);
+    qDebug() << "Wrote" << bytes << "bytes";
+    m_socket.flush();
+
+    // Clear dirty propertiers
+    m_dirtyProperties.clear();
+}
+
+void TcpClient::onReceive()
+{
+    // Deserialize data
+    m_dataStream.startTransaction();
     QVariantMap properties;
     m_dataStream >> properties;
-
     if (!m_dataStream.commitTransaction()) {
         qWarning("Error deserializing data");
         return;
     }
 
+    // Apply data and emit changes
+    qDebug("Data received:");
     for (const auto& kv : properties.toStdMap()) {
-        m_remoteStore->setProperty(kv.first.toStdString().c_str(), kv.second);
+        const auto key = kv.first.toLatin1();
+        const auto val = kv.second.toByteArray();
+        qDebug("name: %s, value size: %i", key.constData(), val.size());
+        QObject::setProperty(key.constData(), val);
+        emit propertyChanged(key, val);
     }
+
+    onStatus(ble::BleClient::Status::Connected);
 }
 
 } // namespace net

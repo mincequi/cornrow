@@ -7,18 +7,15 @@
 #include <common/Types.h>
 
 #include "DeviceModel.h"
-#include "FilterModel.h"
 
-namespace common {
-class RemoteDataStore;
-}
+class IoModel;
 
 class BleCentralAdapter : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit BleCentralAdapter(common::RemoteDataStore* remoteStore, ble::BleClient* central);
+    explicit BleCentralAdapter(ble::BleClient* central);
     ~BleCentralAdapter();
     
     void startDiscovering();
@@ -42,9 +39,8 @@ signals:
 private:
     void doWriteCharc();
     void onStatus(ble::BleClient::Status status, const QString& errorString);
-    void onCharacteristicRead(const std::string& uuid, const QByteArray& value);
+    void onCharacteristicChanged(const std::string& uuid, const QByteArray& value);
 
-    common::RemoteDataStore* m_remoteStore = nullptr;
     ble::BleClient* m_central;
     IoModel*        m_ioModel;
 

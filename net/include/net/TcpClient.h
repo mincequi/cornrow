@@ -72,7 +72,7 @@ class TcpClient : public QObject
     Q_OBJECT
 
 public:
-    explicit TcpClient(common::RemoteDataStore* remoteStore, QObject *parent = nullptr);
+    explicit TcpClient(QObject *parent = nullptr);
     ~TcpClient();
 
     void startDiscovering();
@@ -81,21 +81,30 @@ public:
     void connectDevice(net::NetDevice* device);
     void disconnect();
 
-    void setProperty(const std::string& name, const QByteArray& value);
+    void setProperty(const char* name, const QByteArray& value);
 
 signals:
     void status(ble::BleClient::Status status, const QString& errorString = QString());
     void deviceDiscovered(NetDevicePtr device);
+    void propertyChanged(const char* key, const QByteArray& value);
 
 private:
-    void onServiceAdded(QZeroConfService);
+    // Device related event handlers
+    void onServiceDiscovered(QZeroConfService);
     void onStatus(ble::BleClient::Status status, QString errorString = QString());
-    void onDataReceived();
 
-    common::RemoteDataStore* m_remoteStore = nullptr;
+    // Property related event handlers / action
+    void onReceive();
+    void doSend();
+
     QZeroConf* m_zeroConf = nullptr;
+
     QTcpSocket  m_socket;
     QDataStream m_dataStream;
+
+    QTimer              m_timer;
+    QSet<QByteArray>    m_dirtyProperties;
+
 };
 
 } // namespace net

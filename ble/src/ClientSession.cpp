@@ -195,7 +195,7 @@ void ClientSession::onCharacteristicRead(const QLowEnergyCharacteristic& charact
 {
     qDebug() << __func__ << "> " << characteristic.uuid();
     q->setStatus(BleClient::Status::Connected);
-    emit q->characteristicRead(characteristic.uuid().toString(QUuid::StringFormat::WithoutBraces).toStdString(), value);
+    emit q->characteristicChanged(characteristic.uuid().toString(QUuid::StringFormat::WithoutBraces).toStdString().c_str(), value);
 }
 
 } // namespace ble

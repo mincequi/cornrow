@@ -6,13 +6,12 @@
 #include "IoModel.h"
 #include "FilterModel.h"
 
-BleCentralAdapter::BleCentralAdapter(common::RemoteDataStore* remoteStore, ble::BleClient* central)
+BleCentralAdapter::BleCentralAdapter(ble::BleClient* central)
     : QObject(central),
-      m_remoteStore(remoteStore),
       m_central(central)
 {
     connect(m_central, &ble::BleClient::deviceDiscovered, this, &BleCentralAdapter::deviceDiscovered);
-    connect(m_central, &ble::BleClient::characteristicRead, this, &BleCentralAdapter::onCharacteristicRead);
+    connect(m_central, &ble::BleClient::characteristicChanged, this, &BleCentralAdapter::onCharacteristicChanged);
     connect(m_central, &ble::BleClient::status, this, &BleCentralAdapter::onStatus);
 
     m_timer.setInterval(200);
@@ -68,7 +67,7 @@ void BleCentralAdapter::doWriteCharc()
         if (o.number > 0) o.number -= 1; // Correct number to index
         value[0] = *reinterpret_cast<char*>(&i);
         value[1] = *reinterpret_cast<char*>(&o);
-        m_central->writeCharacteristic(common::ble::ioConfCharacteristicUuid, value);
+        m_central->setCharacteristic(common::ble::ioConfCharacteristicUuid, value);
         m_dirtyCharcs.erase(common::ble::ioConfCharacteristicUuid);
     }
 }
@@ -100,19 +99,9 @@ void BleCentralAdapter::onStatus(ble::BleClient::Status _status, const QString& 
     }
 }
 
-void BleCentralAdapter::onCharacteristicRead(const std::string& uuid, const QByteArray& value)
+void BleCentralAdapter::onCharacteristicChanged(const std::string& uuid, const QByteArray& value)
 {
-    if (uuid == common::ble::peqCharacteristicUuid || uuid == common::ble::auxCharacteristicUuid) {
-        if (value.size()%4 != 0) {
-            return;
-        }
-
-        if (uuid == common::ble::peqCharacteristicUuid) {
-            m_remoteStore->setPeq(value);
-        } else if (uuid == common::ble::auxCharacteristicUuid) {
-            m_remoteStore->setAux(value);
-        }
-    } else if (uuid == common::ble::ioCapsCharacteristicUuid) {
+    if (uuid == common::ble::ioCapsCharacteristicUuid) {
         std::vector<common::IoInterface> inputs;
         std::vector<common::IoInterface> outputs;
         for (const auto& c : value) {

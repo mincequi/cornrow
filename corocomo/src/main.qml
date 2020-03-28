@@ -10,8 +10,8 @@ import Cornrow.BodePlotModel 1.0
 import Cornrow.Configuration 1.0
 import Cornrow.DeviceModel 1.0
 import Cornrow.EqChart 1.0
-import Cornrow.IoModel 1.0
 import Cornrow.FilterModel 1.0
+import Cornrow.IoModel 1.0
 import Cornrow.PhaseChart 1.0
 import Cornrow.SoftClipChart 1.0
 

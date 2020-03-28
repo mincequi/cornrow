@@ -10,13 +10,13 @@
 class BleCentralAdapter;
 class IoModel;
 class PresetModel;
-namespace ble
-{
+
+namespace ble {
 class BleClient;
 }
-namespace common
-{
-class RemoteDataStore;
+
+namespace net {
+class TcpClient;
 }
 
 class FilterModel : public QObject
@@ -40,12 +40,10 @@ class FilterModel : public QObject
     Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
 
 public:
-    static FilterModel* init(const Config& configuration,
-                             common::RemoteDataStore* remoteStore);
+    static FilterModel* init(const Config& configuration, net::TcpClient* tcpClient, ble::BleClient* bleClient);
     static FilterModel* instance();
 
     Q_INVOKABLE void resizeFilters(int diff);
-    Q_INVOKABLE void readFilters();
 
     int         peqFilterCount() const;
 
@@ -105,12 +103,12 @@ private:
         uint8_t q;
     };
 
-    FilterModel(const Config& config,
-                common::RemoteDataStore* remoteStore);
+    FilterModel(const Config& config, net::TcpClient* tcpClient, ble::BleClient* bleClient);
 
     static uint8_t snap(double value, uint8_t min, uint8_t max, uint8_t step);
 
-    void onParameterChanged();
+    void onFilterChangedLocally();
+    void onFilterChangedRemotely(const char* key, const QByteArray& value);
 
     static FilterModel* s_instance;
 
@@ -124,5 +122,6 @@ private:
     const int       m_scBand;
     double          m_freqSlider;
 
-    common::RemoteDataStore* m_remoteStore = nullptr;
+    net::TcpClient* m_tcpClient = nullptr;
+    ble::BleClient* m_bleClient = nullptr;
 };

@@ -11,7 +11,6 @@
 #include "SoftClipChart.h"
 #include "ble/BleClient.h"
 #include "net/TcpClient.h"
-#include <common/RemoteDataStore.h>
 
 #include <QDebug>
 #include <QGuiApplication>
@@ -29,29 +28,22 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     
     // Remote services: BLE, Tcp
-    common::RemoteDataStore remoteDataStore(nullptr);
     ble::BleClient bleClient;
-    BleCentralAdapter bleAdapter(&remoteDataStore, &bleClient);
-    net::TcpClient netClient(&remoteDataStore);
+    BleCentralAdapter bleAdapter(&bleClient);
+    net::TcpClient tcpClient;
 
     // Setup view models
+    // Init config first!
     auto config = Config::init(Config::Type::Low);
-    DeviceModel::init(&bleAdapter, &netClient);
+    DeviceModel::init(&bleAdapter, &tcpClient);
     auto ioModel = IoModel::init(&bleAdapter);
-    FilterModel::init(*config, &remoteDataStore);
+    // @TODO(mawe): config is registered as singleton. No need to pass here.
+    FilterModel::init(*config, &tcpClient, &bleClient);
     PresetModel::init(&bleAdapter);
     
     bleAdapter.setIoModel(ioModel);
 
-    QObject::connect(&remoteDataStore, &common::RemoteDataStore::peqChanged, [&]() {
-        netClient.setProperty("peq", remoteDataStore.peq());
-        bleClient.writeCharacteristic(common::ble::peqCharacteristicUuid, remoteDataStore.peq());
-    });
-    QObject::connect(&remoteDataStore, &common::RemoteDataStore::auxChanged, [&]() {
-        netClient.setProperty("aux", remoteDataStore.aux());
-        bleClient.writeCharacteristic(common::ble::auxCharacteristicUuid, remoteDataStore.aux());
-    });
-
+    // Register types for QML engine
     qmlRegisterUncreatableMetaObject(net::NetDevice::staticMetaObject, "Cornrow.DeviceType", 1, 0, "CornrowDeviceType", "Only enums");
 
     qmlRegisterType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel");
@@ -83,6 +75,7 @@ int main(int argc, char *argv[])
         return PresetModel::instance();
     });
 
+    // Start QML engine
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/src/main.qml")));
     if (engine.rootObjects().isEmpty())

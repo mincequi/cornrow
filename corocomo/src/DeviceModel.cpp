@@ -48,9 +48,9 @@ void DeviceModel::startDiscovering()
 	m_devices.clear();
 	emit devicesChanged();
 	
-    onBleDeviceStatus(Status::Discovering);
     m_bleAdapter->startDiscovering();
     m_tcpClient->startDiscovering();
+    onBleDeviceStatus(Status::Discovering);
 }
 
 void DeviceModel::startDemo()

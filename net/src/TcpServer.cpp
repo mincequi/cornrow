@@ -107,11 +107,9 @@ void TcpServer::onClientConnected()
     QDataStream outStream(&block, QIODevice::WriteOnly);
     outStream.setVersion(QDataStream::Qt_5_6);
     outStream << properties;
-    m_socket->write(block);
-    if (!m_socket->waitForBytesWritten(500)) {
-        LOG_F(WARNING, "Error conecting client");
-        disconnect();
-    }
+    const auto bytes = m_socket->write(block);
+    LOG_F(INFO, "Wrote %i bytes", bytes);
+    m_socket->flush();
 }
 
 void TcpServer::onDataReceived()

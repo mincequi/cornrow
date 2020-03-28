@@ -8,12 +8,7 @@
 #include <QPen>
 
 #include <ble/BleClient.h>
-#include <common/RemoteDataStore.h>
-#include <common/Types.h>
-
-#include "BleCentralAdapter.h"
-#include "IoModel.h"
-#include "PresetModel.h"
+#include <net/TcpClient.h>
 
 FilterModel* FilterModel::s_instance = nullptr;
 
@@ -23,23 +18,25 @@ FilterModel* FilterModel::instance()
 }
 
 FilterModel* FilterModel::init(const Config& configuration,
-                               common::RemoteDataStore* dataStore)
+                               net::TcpClient* tcpClient,
+                               ble::BleClient* bleClient)
 {
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new FilterModel(configuration, dataStore);
+    s_instance = new FilterModel(configuration, tcpClient, bleClient);
     return s_instance;
 }
 
-FilterModel::FilterModel(const Config& config, common::RemoteDataStore* dataStore) :
+FilterModel::FilterModel(const Config& config, net::TcpClient* tcpClient, ble::BleClient* bleClient) :
     QObject(nullptr),
     m_config(config),
     m_loudnessBand(config.peqFilterCount),
     m_xoBand(config.peqFilterCount+1),
     m_scBand(config.peqFilterCount+2),
-    m_remoteStore(dataStore)
+    m_tcpClient(tcpClient),
+    m_bleClient(bleClient)
 {
     auto filterCount = m_config.peqFilterCount;
     if (m_config.loudnessAvailable) ++filterCount;
@@ -48,10 +45,13 @@ FilterModel::FilterModel(const Config& config, common::RemoteDataStore* dataStor
     resizeFilters(filterCount);
     setCurrentBand(0);
 
-    connect(this, &FilterModel::filterTypeChanged, this, &FilterModel::onParameterChanged);
-    connect(this, &FilterModel::freqChanged, this, &FilterModel::onParameterChanged);
-    connect(this, &FilterModel::gainChanged, this, &FilterModel::onParameterChanged);
-    connect(this, &FilterModel::qChanged, this, &FilterModel::onParameterChanged);
+    connect(this, &FilterModel::filterTypeChanged, this, &FilterModel::onFilterChangedLocally);
+    connect(this, &FilterModel::freqChanged, this, &FilterModel::onFilterChangedLocally);
+    connect(this, &FilterModel::gainChanged, this, &FilterModel::onFilterChangedLocally);
+    connect(this, &FilterModel::qChanged, this, &FilterModel::onFilterChangedLocally);
+
+    connect(m_tcpClient, &net::TcpClient::propertyChanged, this, &FilterModel::onFilterChangedRemotely);
+    connect(m_bleClient, &ble::BleClient::characteristicChanged, this, &FilterModel::onFilterChangedRemotely);
 }
 
 FilterModel::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_t _q)
@@ -333,45 +333,6 @@ void FilterModel::setSubwooferType(int filterType)
     m_filters[m_scBand].g = filterType == 1 ? 1.0 : 2.0;
 }
 
-void FilterModel::readFilters()
-{
-    {
-        const QByteArray& value = m_remoteStore->peq();
-        if (value.size() % 4 == 0) {
-            int j = 0;
-            for (int i = 0; i < value.size() && i <= 4 * m_config.peqFilterCount; i += 4) {
-                m_filters[j].t = static_cast<common::FilterType>(value.at(i));
-                m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
-                m_filters[j].g = value.at(i+2)*0.5;
-                m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
-                emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
-                ++j;
-            }
-        } else {
-            qDebug("Invalid size for filter group");
-        }
-    } {
-        const QByteArray& value = m_remoteStore->aux();
-        if (value.size() % 4 == 0) {
-            int j = m_config.peqFilterCount;
-            for (int i = 0; i < value.size() && i <= 4 * (m_filters.size() - m_config.peqFilterCount); i += 4) {
-                m_filters[j].t = static_cast<common::FilterType>(value.at(i));
-                m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
-                m_filters[j].g = value.at(i+2)*0.5;
-                m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
-                emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
-                ++j;
-            }
-        } else {
-            qDebug("Invalid size for filter group");
-        }
-    }
-
-    // m_filters[i].q = filter.q < m_config.qMin ? m_config.qMin : filter.q > m_config.qMax ? m_config.qMax : filter.q;
-
-    setCurrentBand(0);
-}
-
 uint8_t FilterModel::snap(double value, uint8_t min, uint8_t max, uint8_t step)
 {
     uint8_t idx = static_cast<uint8_t>(qRound(value * (max - min)));
@@ -384,7 +345,7 @@ uint8_t FilterModel::snap(double value, uint8_t min, uint8_t max, uint8_t step)
     return idx + min;
 }
 
-void FilterModel::onParameterChanged()
+void FilterModel::onFilterChangedLocally()
 {
     if (m_currentFilter) {
         emit filterChanged(m_currentBand, static_cast<uchar>(m_currentFilter->t), m_currentFilter->f, m_currentFilter->g, common::qTable.at(m_currentFilter->q));
@@ -400,7 +361,8 @@ void FilterModel::onParameterChanged()
             value[i*4+2] = static_cast<int8_t>(m_filters.at(i).g * 2.0);
             value[i*4+3] = m_filters.at(i).q;
         }
-        m_remoteStore->setPeq(value);
+        m_tcpClient->setProperty(common::ble::peqCharacteristicUuid.c_str(), value);
+        m_bleClient->setCharacteristic(common::ble::peqCharacteristicUuid, value);
     } else {
         QByteArray value((m_filters.count() - m_config.peqFilterCount) * 4, 0);
         for (int i = 0; i < (m_filters.count() - m_config.peqFilterCount); ++i) {
@@ -409,6 +371,46 @@ void FilterModel::onParameterChanged()
             value[i*4+2] = static_cast<int8_t>(m_filters.at(i+ m_config.peqFilterCount).g * 2.0);
             value[i*4+3] = m_filters.at(i + m_config.peqFilterCount).q;
         }
-        m_remoteStore->setAux(value);
+        m_tcpClient->setProperty(common::ble::auxCharacteristicUuid.c_str(), value);
+        m_bleClient->setCharacteristic(common::ble::auxCharacteristicUuid, value);
     }
+}
+
+void FilterModel::onFilterChangedRemotely(const char* key, const QByteArray& value)
+{
+    if (strcmp(key, common::ble::peqCharacteristicUuid.c_str())) {
+        if (value.size() % 4 == 0) {
+            int j = 0;
+            for (int i = 0; i < value.size() && i <= 4 * m_config.peqFilterCount; i += 4) {
+                m_filters[j].t = static_cast<common::FilterType>(value.at(i));
+                m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
+                m_filters[j].g = value.at(i+2)*0.5;
+                m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
+                emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
+                ++j;
+            }
+        } else {
+            qDebug("Invalid size for filter group");
+        }
+        return;
+    }
+
+    if (strcmp(key, common::ble::peqCharacteristicUuid.c_str())) {
+        if (value.size() % 4 == 0) {
+            int j = m_config.peqFilterCount;
+            for (int i = 0; i < value.size() && i <= 4 * (m_filters.size() - m_config.peqFilterCount); i += 4) {
+                m_filters[j].t = static_cast<common::FilterType>(value.at(i));
+                m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
+                m_filters[j].g = value.at(i+2)*0.5;
+                m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
+                emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
+                ++j;
+            }
+        } else {
+            qDebug("Invalid size for filter group");
+        }
+        return;
+    }
+
+    qDebug() << "Unknown property:" << key;
 }

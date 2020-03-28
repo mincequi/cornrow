@@ -46,6 +46,7 @@ public:
     bool loudnessAvailable = false;
     bool xoAvailable = false;
     bool swAvailable = false;
+    bool scAvailable = false; // SC = soft clip
 
 private:
     explicit Config(Type type, QObject *parent = nullptr);
