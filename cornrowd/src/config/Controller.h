@@ -21,18 +21,21 @@
 
 #include "Persistence.h"
 
-namespace audio
-{
+#include <common/ble/Converter.h>
+
+namespace audio {
 class Controller;
 }
 
-namespace bluetooth
-{
+namespace bluetooth {
 class Controller;
 }
 
-namespace config
-{
+namespace net {
+class TcpServer;
+}
+
+namespace config {
 
 class Controller : public QObject
 {
@@ -41,6 +44,7 @@ class Controller : public QObject
 public:
     explicit Controller(audio::Controller* audio,
                         bluetooth::Controller* bluetooth,
+                        net::TcpServer* tcpServer,
                         QObject* parent = nullptr);
     ~Controller();
 
@@ -49,8 +53,11 @@ public:
 private:
     audio::Controller* m_audio = nullptr;
     bluetooth::Controller* m_bluetooth = nullptr;
+    net::TcpServer* m_tcpServer = nullptr;
 
     Persistence m_persistence;
+
+    common::ble::Converter m_converter;
 };
 
 } // namespace config

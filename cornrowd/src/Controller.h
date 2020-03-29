@@ -6,10 +6,6 @@
 #include "bluetooth/Controller.h"
 #include "config/Controller.h"
 
-namespace common {
-class RemoteDataStore;
-}
-
 namespace net {
 class TcpServer;
 }
@@ -30,5 +26,4 @@ private:
     bluetooth::Controller*  m_bluetoothService;
     net::TcpServer*         m_tcpServer;
     config::Controller*     m_config;
-    common::RemoteDataStore*    m_remoteStore = nullptr;
 };

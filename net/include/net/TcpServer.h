@@ -22,8 +22,6 @@
 #include <QDataStream>
 #include <QTcpServer>
 
-#include <common/RemoteDataStore.h>
-
 namespace net
 {
 
@@ -32,16 +30,23 @@ class TcpServer : public QObject
     Q_OBJECT
 
 public:
-    explicit TcpServer(common::RemoteDataStore* remoteStore, QObject *parent = nullptr);
+    explicit TcpServer(QObject *parent = nullptr);
     ~TcpServer();
+
+    void startPublishing();
 
     void disconnect();
 
+    void setProperty(const char* name, const QByteArray& value);
+
+signals:
+    void propertyChanged(const char* name, const QByteArray& value);
+
 private:
     void onClientConnected();
-    void onDataReceived();
-
-    common::RemoteDataStore* m_remoteData = nullptr;
+    // Property related event handlers / action
+    void onReceive();
+    void doSend(const char* name);
 
     QTcpServer  m_tcpServer;
     QTcpSocket* m_socket = nullptr;

@@ -22,6 +22,9 @@
 #include "../audio/Controller.h"
 #include "../bluetooth/Controller.h"
 
+#include <loguru/loguru.hpp>
+#include <net/TcpServer.h>
+
 using namespace std::placeholders;
 
 namespace config
@@ -29,10 +32,12 @@ namespace config
 
 Controller::Controller(audio::Controller* audio,
                        bluetooth::Controller* bluetooth,
+                       net::TcpServer* tcpServer,
                        QObject* parent)
     : QObject(parent),
       m_audio(audio),
-      m_bluetooth(bluetooth)
+      m_bluetooth(bluetooth),
+      m_tcpServer(tcpServer)
 {
     // On start-up we read config from disk
     std::vector<common::Filter> filters = m_persistence.readConfig();
@@ -50,6 +55,20 @@ Controller::Controller(audio::Controller* audio,
 
     m_bluetooth->setReadFiltersCallback(std::bind(&audio::Controller::filters, m_audio, _1));
     connect(m_bluetooth, &bluetooth::Controller::filtersWritten, m_audio, &audio::Controller::setFilters);
+
+    m_tcpServer->setProperty(common::ble::peqCharacteristicUuid.c_str(), m_converter.filtersToBle(peqFilters));
+    m_tcpServer->setProperty(common::ble::auxCharacteristicUuid.c_str(), m_converter.filtersToBle(auxFilters));
+
+    //m_tcpServer->setReadCallback();
+    connect(m_tcpServer, &net::TcpServer::propertyChanged, [this](const char* name, const QByteArray& value) {
+        if (!strcmp(name, common::ble::peqCharacteristicUuid.c_str())) {
+            m_audio->setFilters(common::ble::CharacteristicType::Peq, m_converter.filtersFromBle(value));
+        } else if (!strcmp(name, common::ble::auxCharacteristicUuid.c_str())) {
+            m_audio->setFilters(common::ble::CharacteristicType::Aux, m_converter.filtersFromBle(value));
+        } else {
+            LOG_F(WARNING, "Unknown property name: %s", name);
+        }
+    });
 
     m_bluetooth->setReadIoCapsCallback(std::bind(&audio::Controller::ioCaps, m_audio));
     m_bluetooth->setReadIoConfCallback(std::bind(&audio::Controller::ioConf, m_audio));

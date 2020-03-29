@@ -86,7 +86,7 @@ public:
 signals:
     void status(ble::BleClient::Status status, const QString& errorString = QString());
     void deviceDiscovered(NetDevicePtr device);
-    void propertyChanged(const char* key, const QByteArray& value);
+    void propertyChanged(const char* name, const QByteArray& value);
 
 private:
     // Device related event handlers

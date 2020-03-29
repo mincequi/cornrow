@@ -8,16 +8,15 @@
 Controller::Controller(QObject *parent)
     : QObject(parent)
 {
-    // Create objects
+    // Remote services
     m_bluetoothService = new bluetooth::Controller(this);
+    m_tcpServer = new net::TcpServer(this);
+
     m_audio = new audio::Controller(this);
-    m_config = new config::Controller(m_audio, m_bluetoothService, this);
-    m_remoteStore = new common::RemoteDataStore(m_audio, this);
+    m_config = new config::Controller(m_audio, m_bluetoothService, m_tcpServer, this);
 
     connect(m_bluetoothService, &bluetooth::Controller::transportChanged, this, &Controller::onTransportChanged);
     connect(m_bluetoothService, &bluetooth::Controller::volumeChanged, this, &Controller::onVolumeChanged);
-
-    m_tcpServer = new net::TcpServer(m_remoteStore, this);
 }
 
 Controller::~Controller()

@@ -7,5 +7,6 @@ target_link_libraries(config
     audio
     bluetooth
     common
+    net
     Qt5::Core
 )

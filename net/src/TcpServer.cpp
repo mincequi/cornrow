@@ -30,7 +30,6 @@
 
 #include <qzeroconf.h>
 
-#include <common/RemoteDataStore.h>
 #include <loguru/loguru.hpp>
 
 #include <cmath>
@@ -41,9 +40,8 @@ using namespace std::placeholders;
 namespace net
 {
 
-TcpServer::TcpServer(common::RemoteDataStore* remoteStore, QObject *parent)
-    : QObject(parent),
-      m_remoteData(remoteStore)
+TcpServer::TcpServer(QObject *parent)
+    : QObject(parent)
 {
     m_inStream.setVersion(QDataStream::Qt_5_6);
 
@@ -54,6 +52,15 @@ TcpServer::TcpServer(common::RemoteDataStore* remoteStore, QObject *parent)
         return;
     }
 
+    startPublishing();
+}
+
+TcpServer::~TcpServer()
+{
+}
+
+void TcpServer::startPublishing()
+{
     // Publish service
     QZeroConf* zeroConf = new QZeroConf(this);
     connect(zeroConf, &QZeroConf::servicePublished, [&]() {
@@ -68,10 +75,6 @@ TcpServer::TcpServer(common::RemoteDataStore* remoteStore, QObject *parent)
                                   m_tcpServer.serverPort());
 }
 
-TcpServer::~TcpServer()
-{
-}
-
 void TcpServer::disconnect()
 {
     if (!m_socket) {
@@ -82,6 +85,13 @@ void TcpServer::disconnect()
     m_socket = nullptr;
 }
 
+void TcpServer::setProperty(const char* name, const QByteArray& value)
+{
+    QObject::setProperty(name, value);
+
+    doSend(name);
+}
+
 void TcpServer::onClientConnected()
 {
     if (m_socket) {
@@ -89,30 +99,31 @@ void TcpServer::onClientConnected()
         return;
     }
 
-    QVariantMap properties;
-    LOG_F(INFO, "New connection. Send properties:");
-    for (int i = m_remoteData->metaObject()->propertyOffset(); i < m_remoteData->metaObject()->propertyCount(); ++i) {
-        const char* name = m_remoteData->metaObject()->property(i).name();
-        const QVariant value = m_remoteData->metaObject()->property(i).read(m_remoteData);
-        LOG_F(INFO, "%s: %s", name, value);
-        properties.insert(name, value);
-    }
-
+    // Open socket
     m_socket = m_tcpServer.nextPendingConnection();
+    m_socket->readAll(); // No idea, why we have to do this, but we have to.
     connect(m_socket, &QAbstractSocket::disconnected, this, &TcpServer::disconnect);
-    connect(m_socket, &QAbstractSocket::readyRead, this, &TcpServer::onDataReceived);
+    connect(m_socket, &QAbstractSocket::readyRead, this, &TcpServer::onReceive);
     m_inStream.setDevice(m_socket);
 
+    // Serialize dynamic properties
+    LOG_F(INFO, "New connection. Send properties:");
     QByteArray block;
     QDataStream outStream(&block, QIODevice::WriteOnly);
     outStream.setVersion(QDataStream::Qt_5_6);
+    QVariantMap properties;
+    for (const auto name : dynamicPropertyNames()) {
+        const auto value = property(name).toByteArray();
+        LOG_F(INFO, "%s: %i", name.toStdString().c_str(), value.size());
+        properties.insert(name, value);
+    }
     outStream << properties;
     const auto bytes = m_socket->write(block);
     LOG_F(INFO, "Wrote %i bytes", bytes);
     m_socket->flush();
 }
 
-void TcpServer::onDataReceived()
+void TcpServer::onReceive()
 {
     m_inStream.startTransaction();
 
@@ -125,8 +136,35 @@ void TcpServer::onDataReceived()
     }
 
     for (const auto& kv : properties.toStdMap()) {
-        m_remoteData->setProperty(kv.first.toStdString().c_str(), kv.second);
+        const char* name = kv.first.toLatin1().constData();
+        const QByteArray value = kv.second.toByteArray();
+        QObject::setProperty(name, value);
+        emit propertyChanged(name, value);
     }
+}
+
+void TcpServer::doSend(const char* name)
+{
+    // If we are not connected, we do not send
+    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+        qDebug() << "Socket not connected";
+        return;
+    }
+
+    // Send property
+    QVariantMap properties;
+    const auto value = property(name).toByteArray();
+    qDebug() << "Send property:" << name << ", value size:" << value.size();
+    properties.insert(name, value);
+
+    // Write out
+    QByteArray block;
+    QDataStream outStream(&block, QIODevice::WriteOnly);
+    outStream.setVersion(QDataStream::Qt_5_6);
+    outStream << properties;
+    const auto bytes = m_socket->write(block);
+    qDebug() << "Wrote" << bytes << "bytes";
+    m_socket->flush();
 }
 
 } // namespace net
