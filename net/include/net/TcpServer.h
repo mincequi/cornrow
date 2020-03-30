@@ -37,16 +37,16 @@ public:
 
     void disconnect();
 
-    void setProperty(const char* name, const QByteArray& value);
+    void setProperty(const QUuid& name, const QByteArray& value);
 
 signals:
-    void propertyChanged(const char* name, const QByteArray& value);
+    void propertyChanged(const QUuid& name, const QByteArray& value);
 
 private:
     void onClientConnected();
     // Property related event handlers / action
     void onReceive();
-    void doSend(const char* name);
+    void doSend(const QByteArray& name);
 
     QTcpServer  m_tcpServer;
     QTcpSocket* m_socket = nullptr;

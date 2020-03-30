@@ -25,6 +25,8 @@
 #include <loguru/loguru.hpp>
 #include <net/TcpServer.h>
 
+#include <QUuid>
+
 using namespace std::placeholders;
 
 namespace config
@@ -56,17 +58,18 @@ Controller::Controller(audio::Controller* audio,
     m_bluetooth->setReadFiltersCallback(std::bind(&audio::Controller::filters, m_audio, _1));
     connect(m_bluetooth, &bluetooth::Controller::filtersWritten, m_audio, &audio::Controller::setFilters);
 
-    m_tcpServer->setProperty(common::ble::peqCharacteristicUuid.c_str(), m_converter.filtersToBle(peqFilters));
-    m_tcpServer->setProperty(common::ble::auxCharacteristicUuid.c_str(), m_converter.filtersToBle(auxFilters));
+    m_tcpServer->setProperty(QByteArray(common::ble::peqCharacteristicUuid.c_str()), m_converter.filtersToBle(peqFilters));
+    m_tcpServer->setProperty(QByteArray(common::ble::auxCharacteristicUuid.c_str()), m_converter.filtersToBle(auxFilters));
 
     //m_tcpServer->setReadCallback();
-    connect(m_tcpServer, &net::TcpServer::propertyChanged, [this](const char* name, const QByteArray& value) {
-        if (!strcmp(name, common::ble::peqCharacteristicUuid.c_str())) {
+    connect(m_tcpServer, &net::TcpServer::propertyChanged, [this](const QUuid& name, const QByteArray& value) {
+        auto uuid = name.toByteArray(QUuid::WithoutBraces).toStdString();
+        if (uuid == common::ble::peqCharacteristicUuid) {
             m_audio->setFilters(common::ble::CharacteristicType::Peq, m_converter.filtersFromBle(value));
-        } else if (!strcmp(name, common::ble::auxCharacteristicUuid.c_str())) {
+        } else if (uuid == common::ble::auxCharacteristicUuid) {
             m_audio->setFilters(common::ble::CharacteristicType::Aux, m_converter.filtersFromBle(value));
         } else {
-            LOG_F(WARNING, "Unknown property name: %s", name);
+            LOG_F(WARNING, "Unknown uuid: %s", name.toByteArray(QUuid::WithoutBraces).toStdString().c_str());
         }
     });
 

@@ -25,6 +25,7 @@
 #include <QMetaProperty>
 #include <QThread>
 #include <QTimer>
+#include <QUuid>
 #include <QtEndian>
 #include <QtNetwork/QTcpSocket>
 
@@ -85,11 +86,12 @@ void TcpServer::disconnect()
     m_socket = nullptr;
 }
 
-void TcpServer::setProperty(const char* name, const QByteArray& value)
+void TcpServer::setProperty(const QUuid& name, const QByteArray& value)
 {
-    QObject::setProperty(name, value);
+    auto _name = name.toByteArray(QUuid::WithoutBraces);
+    QObject::setProperty(_name, value);
 
-    doSend(name);
+    doSend(_name);
 }
 
 void TcpServer::onClientConnected()
@@ -143,7 +145,7 @@ void TcpServer::onReceive()
     }
 }
 
-void TcpServer::doSend(const char* name)
+void TcpServer::doSend(const QByteArray& name)
 {
     // If we are not connected, we do not send
     if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
