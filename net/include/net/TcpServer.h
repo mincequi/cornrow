@@ -17,10 +17,7 @@
 
 #pragma once
 
-#include <functional>
-
-#include <QDataStream>
-#include <QTcpServer>
+#include <QtWebSockets/QWebSocketServer>
 
 namespace net
 {
@@ -45,12 +42,11 @@ signals:
 private:
     void onClientConnected();
     // Property related event handlers / action
-    void onReceive();
+    void onReceive(const QByteArray& message);
     void doSend(const QByteArray& name);
 
-    QTcpServer  m_tcpServer;
-    QTcpSocket* m_socket = nullptr;
-    QDataStream m_inStream;
+    QWebSocketServer    m_server;
+    QWebSocket*         m_client = nullptr;
 };
 
 } // namespace net

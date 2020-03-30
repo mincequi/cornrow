@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
+find_package(Qt5WebSockets REQUIRED)
 
 # Add thirdparty libs
 add_subdirectory(thirdparty/libcornrow)

@@ -34,4 +34,5 @@ target_link_libraries(net
     common
     cornrow
     Qt5::Network
+    Qt5::WebSockets
 )
