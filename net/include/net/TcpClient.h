@@ -81,16 +81,18 @@ public:
     void connectDevice(net::NetDevice* device);
     void disconnect();
 
-    void setProperty(const char* name, const QByteArray& value);
+    void setProperty(const QUuid& uuid, const QByteArray& value);
 
 signals:
     void status(ble::BleClient::Status status, const QString& errorString = QString());
     void deviceDiscovered(NetDevicePtr device);
-    void propertyChanged(const char* name, const QByteArray& value);
+    void deviceDisappeared(const QHostAddress& ip);
+    void propertyChanged(const QUuid& uuid, const QByteArray& value);
 
 private:
     // Device related event handlers
     void onServiceDiscovered(QZeroConfService);
+    void onServiceRemoved(QZeroConfService);
     void onStatus(ble::BleClient::Status status, QString errorString = QString());
 
     // Property related event handlers / action

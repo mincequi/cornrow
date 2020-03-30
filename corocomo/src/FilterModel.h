@@ -24,6 +24,7 @@ class FilterModel : public QObject
     Q_OBJECT
 
     Q_PROPERTY(int peqFilterCount READ peqFilterCount CONSTANT)
+
     Q_PROPERTY(int currentBand READ currentBand WRITE setCurrentBand NOTIFY currentBandChanged)
     Q_PROPERTY(std::vector<bool> activeFilters READ activeFilters NOTIFY filterTypeChanged)
 
@@ -108,7 +109,7 @@ private:
     static uint8_t snap(double value, uint8_t min, uint8_t max, uint8_t step);
 
     void onFilterChangedLocally();
-    void onFilterChangedRemotely(const char* key, const QByteArray& value);
+    void onFilterChangedRemotely(const QUuid& key, const QByteArray& value);
 
     static FilterModel* s_instance;
 

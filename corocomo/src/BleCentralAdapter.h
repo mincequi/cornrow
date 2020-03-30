@@ -39,7 +39,7 @@ signals:
 private:
     void doWriteCharc();
     void onStatus(ble::BleClient::Status status, const QString& errorString);
-    void onCharacteristicChanged(const std::string& uuid, const QByteArray& value);
+    void onCharacteristicChanged(const QUuid& uuid, const QByteArray& value);
 
     ble::BleClient* m_central;
     IoModel*        m_ioModel;

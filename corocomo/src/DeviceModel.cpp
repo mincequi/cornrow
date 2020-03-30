@@ -39,14 +39,24 @@ DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, net::TcpClient* netClien
     // Net
     connect(m_tcpClient, &net::TcpClient::status, this, &DeviceModel::onNetDeviceStatus);
     connect(m_tcpClient, &net::TcpClient::deviceDiscovered, this, &DeviceModel::onNetDeviceDiscovered);
+    connect(m_tcpClient, &net::TcpClient::deviceDisappeared, this, &DeviceModel::onNetDeviceDisappeared);
     
     connect(qGuiApp, &QGuiApplication::applicationStateChanged, this, &DeviceModel::onAppStateChanged);
 }
 
 void DeviceModel::startDiscovering()
 {
-	m_devices.clear();
-	emit devicesChanged();
+    // @TODO(mawe): Only clear BLE devices, since QtZeroConf has an issue when re-discovering.
+    // m_devices.clear();
+    for (auto it = m_devices.begin(); it != m_devices.end(); ++it) {
+        if ((*it)->type == net::NetDevice::DeviceType::BluetoothLe) {
+            it = m_devices.erase(it);
+            if (it == m_devices.end()) {
+                break;
+            }
+        }
+    }
+    emit devicesChanged();
 	
     m_bleAdapter->startDiscovering();
     m_tcpClient->startDiscovering();
@@ -103,10 +113,10 @@ void DeviceModel::onAppStateChanged(Qt::ApplicationState state)
 {
     switch (state) {
     case Qt::ApplicationSuspended:
-    case Qt::ApplicationHidden:
-    case Qt::ApplicationInactive:
         m_tcpClient->stopDiscovering();
         break;
+    case Qt::ApplicationHidden:
+    case Qt::ApplicationInactive:
     case Qt::ApplicationActive:
         break;
     }
@@ -114,7 +124,6 @@ void DeviceModel::onAppStateChanged(Qt::ApplicationState state)
 
 void DeviceModel::onBleDeviceStatus(Status _status, const QString& statusText)
 {
-    m_status = _status;
     m_statusText.clear();
 
     switch (_status) {
@@ -123,7 +132,10 @@ void DeviceModel::onBleDeviceStatus(Status _status, const QString& statusText)
         m_statusText = "Enable Bluetooth in your device's settings";
         break;
     case Status::Idle:
-        m_tcpClient->stopDiscovering();
+        if (m_status == Status::Connected) {
+            return;
+        }
+        //m_tcpClient->stopDiscovering();
         if (m_devices.empty()) {
             m_statusLabel = "Timeout";
             m_statusText = "Be sure to be close to a cornrow device";
@@ -157,6 +169,7 @@ void DeviceModel::onBleDeviceStatus(Status _status, const QString& statusText)
         break;
     }
 
+    m_status = _status;
     emit statusChanged();
 }
 
@@ -201,7 +214,9 @@ void DeviceModel::onBleDeviceDiscovered(const QBluetoothDeviceInfo& _device)
 	m_devices.push_back(device);
     emit devicesChanged();
     
-    onBleDeviceStatus(Status::Discovering, "");
+    if (m_status == Status::Discovering) {
+        onBleDeviceStatus(Status::Discovering, "");
+    }
 }
 
 void DeviceModel::onNetDeviceDiscovered(net::NetDevicePtr device)
@@ -209,5 +224,21 @@ void DeviceModel::onNetDeviceDiscovered(net::NetDevicePtr device)
     m_devices.push_back(device);
     emit devicesChanged();
     
-    onBleDeviceStatus(Status::Discovering, "");
+    onBleDeviceStatus(m_status, "");
+}
+
+void DeviceModel::onNetDeviceDisappeared(const QHostAddress& address)
+{
+    for (auto it = m_devices.begin(); it != m_devices.end(); ++it) {
+        if ((*it)->address == address) {
+            it = m_devices.erase(it);
+            if (it == m_devices.end()) {
+                break;
+            }
+        }
+    }
+
+    emit devicesChanged();
+
+    onBleDeviceStatus(m_status, "");
 }

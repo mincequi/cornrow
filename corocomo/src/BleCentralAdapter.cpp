@@ -1,10 +1,11 @@
 #include "BleCentralAdapter.h"
 
 #include <ble/BleClient.h>
-#include <common/RemoteDataStore.h>
 
 #include "IoModel.h"
 #include "FilterModel.h"
+
+#include <QUuid>
 
 BleCentralAdapter::BleCentralAdapter(ble::BleClient* central)
     : QObject(central),
@@ -99,9 +100,9 @@ void BleCentralAdapter::onStatus(ble::BleClient::Status _status, const QString& 
     }
 }
 
-void BleCentralAdapter::onCharacteristicChanged(const std::string& uuid, const QByteArray& value)
+void BleCentralAdapter::onCharacteristicChanged(const QUuid& uuid, const QByteArray& value)
 {
-    if (uuid == common::ble::ioCapsCharacteristicUuid) {
+    if (uuid.toByteArray(QUuid::WithoutBraces).toStdString() == common::ble::ioCapsCharacteristicUuid) {
         std::vector<common::IoInterface> inputs;
         std::vector<common::IoInterface> outputs;
         for (const auto& c : value) {
@@ -114,7 +115,7 @@ void BleCentralAdapter::onCharacteristicChanged(const std::string& uuid, const Q
         }
 
         emit ioCapsReceived(inputs, outputs);
-    } else if (uuid == common::ble::ioConfCharacteristicUuid) {
+    } else if (uuid.toByteArray(QUuid::WithoutBraces).toStdString() == common::ble::ioConfCharacteristicUuid) {
         common::IoInterface i;
         common::IoInterface o;
         for (const auto c : value) {
