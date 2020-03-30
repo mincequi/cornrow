@@ -19,6 +19,7 @@
 
 #include <QDebug>
 #include <QTcpSocket>
+#include <QUuid>
 #include <QtGlobal>
 #include <qzeroconf.h>
 
@@ -38,12 +39,16 @@ TcpClient::TcpClient(QObject* parent)
 
     m_zeroConf = new QZeroConf(this);
     connect(m_zeroConf, &QZeroConf::serviceAdded, this, &TcpClient::onServiceDiscovered);
+    connect(m_zeroConf, &QZeroConf::serviceRemoved, this, &TcpClient::onServiceRemoved);
 
     /*
     connect(&m_socket, &QTcpSocket::connected, [this]() {
         onStatus(ble::BleClient::Status::Connected);
     });
     */
+    connect(&m_socket, &QTcpSocket::stateChanged, [](QAbstractSocket::SocketState state) {
+        qDebug() << "stateChanged:" << state;
+    });
     connect(&m_socket, &QTcpSocket::disconnected, [this]() {
         onStatus(ble::BleClient::Status::Lost);
     });
@@ -51,6 +56,18 @@ TcpClient::TcpClient(QObject* parent)
         onStatus(ble::BleClient::Status::Error, m_socket.errorString());
     });
     connect(&m_socket, &QIODevice::readyRead, this, &TcpClient::onReceive);
+
+    /*
+    BonjourServiceBrowser *bonjourBrowser = new BonjourServiceBrowser(this);
+    BonjourServiceResolver *bonjourResolver = new BonjourServiceResolver(this);
+
+    connect(bonjourBrowser, &BonjourServiceBrowser::currentBonjourRecordsChanged, this, [](const QList<BonjourRecord>& records) {
+        bonjourResolver->resolveBonjourRecord(variant.value<BonjourRecord>());
+    });
+    bonjourBrowser->browseForServiceType(QLatin1String("_cornrow._tcp"));
+
+    connect(bonjourResolver, SIGNAL(bonjourRecordResolved(const QHostInfo &, int)), this, SLOT(connectToServer(const QHostInfo &, int)));
+    */
 }
 
 TcpClient::~TcpClient()
@@ -59,10 +76,6 @@ TcpClient::~TcpClient()
 
 void TcpClient::startDiscovering()
 {
-    if (m_zeroConf->browserExists()) {
-        stopDiscovering();
-    }
-
     m_zeroConf->startBrowser("_cornrow._tcp");
 }
 
@@ -83,11 +96,12 @@ void TcpClient::disconnect()
     m_socket.abort();
 }
 
-void TcpClient::setProperty(const char* name, const QByteArray& value)
+void TcpClient::setProperty(const QUuid& name, const QByteArray& value)
 {
-    QObject::setProperty(name, value);
+    auto _name = name.toByteArray(QUuid::WithoutBraces);
+    QObject::setProperty(_name, value);
 
-    m_dirtyProperties.insert(name);
+    m_dirtyProperties.insert(_name);
     if (!m_timer.isActive()) {
         m_timer.start();
     }
@@ -102,7 +116,12 @@ void TcpClient::onServiceDiscovered(QZeroConfService service)
     device->port = service->port();
 
     emit deviceDiscovered(device);
-    qDebug() << service;
+    qDebug() << __func__ << ">" << service;
+}
+
+void TcpClient::onServiceRemoved(QZeroConfService service)
+{
+    emit deviceDisappeared(service->ip());
 }
 
 void TcpClient::onStatus(ble::BleClient::Status _status, QString)
@@ -140,11 +159,10 @@ void TcpClient::doSend()
     }
 
     // Iterate dirty properties and serialize them
-    qDebug() << "Send properties:";
     QVariantMap properties;
     for (const auto& name : m_dirtyProperties) {
         const auto value = property(name).toByteArray();
-        qDebug() << "name:" << name << ", value size:" << value.size();
+        qDebug() << "Send property:" << name << ", value size:" << value.size();
         properties.insert(name, value);
     }
 

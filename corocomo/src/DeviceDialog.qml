@@ -29,9 +29,9 @@ Dialog {
             strokeColor: Material.color(Material.Pink)
             fillColor: "transparent"
             innerRadius: 20
-            outerRadius: 52
+            outerRadius: 48
             strokeWidth: 0.67
-            inactiveOpacity: 0.5
+            inactiveOpacity: 0.67
         }
     }
     

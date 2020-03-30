@@ -64,6 +64,7 @@ private:
     void onNetDeviceStatus(ble::BleClient::Status, const QString& errorString);
     void onBleDeviceDiscovered(const QBluetoothDeviceInfo& device);
     void onNetDeviceDiscovered(net::NetDevicePtr device);
+    void onNetDeviceDisappeared(const QHostAddress& address);
 
     static DeviceModel* s_instance;
 

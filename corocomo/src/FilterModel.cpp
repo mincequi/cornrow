@@ -5,7 +5,9 @@
 #include <algorithm>
 
 #include <QDebug>
+#include <QLatin1String>
 #include <QPen>
+#include <QUuid>
 
 #include <ble/BleClient.h>
 #include <net/TcpClient.h>
@@ -361,7 +363,8 @@ void FilterModel::onFilterChangedLocally()
             value[i*4+2] = static_cast<int8_t>(m_filters.at(i).g * 2.0);
             value[i*4+3] = m_filters.at(i).q;
         }
-        m_tcpClient->setProperty(common::ble::peqCharacteristicUuid.c_str(), value);
+
+        m_tcpClient->setProperty(QByteArray(common::ble::peqCharacteristicUuid.c_str()), value);
         m_bleClient->setCharacteristic(common::ble::peqCharacteristicUuid, value);
     } else {
         QByteArray value((m_filters.count() - m_config.peqFilterCount) * 4, 0);
@@ -371,14 +374,15 @@ void FilterModel::onFilterChangedLocally()
             value[i*4+2] = static_cast<int8_t>(m_filters.at(i+ m_config.peqFilterCount).g * 2.0);
             value[i*4+3] = m_filters.at(i + m_config.peqFilterCount).q;
         }
-        m_tcpClient->setProperty(common::ble::auxCharacteristicUuid.c_str(), value);
+        m_tcpClient->setProperty(QByteArray(common::ble::auxCharacteristicUuid.c_str()), value);
         m_bleClient->setCharacteristic(common::ble::auxCharacteristicUuid, value);
     }
 }
 
-void FilterModel::onFilterChangedRemotely(const char* key, const QByteArray& value)
+void FilterModel::onFilterChangedRemotely(const QUuid& key, const QByteArray& value)
 {
-    if (strcmp(key, common::ble::peqCharacteristicUuid.c_str())) {
+    auto _key = key.toByteArray(QUuid::WithoutBraces).toStdString();
+    if (_key == common::ble::peqCharacteristicUuid) {
         if (value.size() % 4 == 0) {
             int j = 0;
             for (int i = 0; i < value.size() && i <= 4 * m_config.peqFilterCount; i += 4) {
@@ -387,6 +391,7 @@ void FilterModel::onFilterChangedRemotely(const char* key, const QByteArray& val
                 m_filters[j].g = value.at(i+2)*0.5;
                 m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
                 emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
+                setCurrentBand(currentBand());  // emit all signals
                 ++j;
             }
         } else {
@@ -395,7 +400,7 @@ void FilterModel::onFilterChangedRemotely(const char* key, const QByteArray& val
         return;
     }
 
-    if (strcmp(key, common::ble::peqCharacteristicUuid.c_str())) {
+    if (_key == common::ble::auxCharacteristicUuid) {
         if (value.size() % 4 == 0) {
             int j = m_config.peqFilterCount;
             for (int i = 0; i < value.size() && i <= 4 * (m_filters.size() - m_config.peqFilterCount); i += 4) {
@@ -404,6 +409,7 @@ void FilterModel::onFilterChangedRemotely(const char* key, const QByteArray& val
                 m_filters[j].g = value.at(i+2)*0.5;
                 m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
                 emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
+                setCurrentBand(currentBand());  // emit all signals
                 ++j;
             }
         } else {

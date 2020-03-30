@@ -57,7 +57,7 @@ signals:
 	void deviceDiscovered(const QBluetoothDeviceInfo& device);
 
     // Emits remotely changed values
-    void characteristicChanged(const char* uuid, const QByteArray& value);
+    void characteristicChanged(const QUuid& uuid, const QByteArray& value);
 
 private:
     void setStatus(Status status, const QString& errorString = QString());
