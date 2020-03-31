@@ -34,19 +34,20 @@ public:
 
     void disconnect();
 
-    void setProperty(const QUuid& name, const QByteArray& value);
+    void setProperty(const QUuid& uuid, const QByteArray& value);
 
 signals:
-    void propertyChanged(const QUuid& name, const QByteArray& value);
+    void propertyChanged(const QUuid& uuid, const QByteArray& value);
 
 private:
     void onClientConnected();
     // Property related event handlers / action
     void onReceive(const QByteArray& message);
-    void doSend(const QByteArray& name);
 
     QWebSocketServer    m_server;
     QWebSocket*         m_client = nullptr;
+
+    QMap<QUuid, QByteArray>  m_properties;
 };
 
 } // namespace net

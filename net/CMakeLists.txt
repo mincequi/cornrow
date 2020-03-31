@@ -11,12 +11,27 @@ add_library(net STATIC
     ../thirdparty/QtZeroConf/avahi-qt/qt-watch.cpp
     ../thirdparty/QtZeroConf/avahiclient.cpp
     ../thirdparty/QtZeroConf/avahi-qt/qt-watch.cpp
-)
 
-#include(ExternalProject)
-#ExternalProject_Get_Property(qtremoteobjects BINARY_DIR)
-#include_directories(${BINARY_DIR}/include)
-#link_directories(${BINARY_DIR}/lib)
+    ../thirdparty/qmsgpack/src/msgpack.cpp
+    ../thirdparty/qmsgpack/src/msgpackcommon.cpp
+    ../thirdparty/qmsgpack/src/msgpackstream.cpp
+    ../thirdparty/qmsgpack/src/private/pack_p.cpp
+    ../thirdparty/qmsgpack/src/private/unpack_p.cpp
+    ../thirdparty/qmsgpack/src/private/qt_types_p.cpp
+    ../thirdparty/qmsgpack/src/stream/time.cpp
+    ../thirdparty/qmsgpack/src/stream/geometry.cpp
+
+    ../thirdparty/qmsgpack/src/msgpack.h
+    ../thirdparty/qmsgpack/src/endianhelper.h
+    ../thirdparty/qmsgpack/src/msgpackcommon.h
+    ../thirdparty/qmsgpack/src/msgpack_export.h
+    ../thirdparty/qmsgpack/src/msgpackstream.h
+    ../thirdparty/qmsgpack/src/private/pack_p.h
+    ../thirdparty/qmsgpack/src/private/unpack_p.h
+    ../thirdparty/qmsgpack/src/private/qt_types_p.h
+    ../thirdparty/qmsgpack/src/stream/time.h
+    ../thirdparty/qmsgpack/src/stream/geometry.h
+)
 
 target_include_directories(net
 PUBLIC
@@ -24,8 +39,8 @@ PUBLIC
     $<INSTALL_INTERFACE:include>
 PRIVATE
     include/net
-
     ../thirdparty/QtZeroConf
+    ../thirdparty/qmsgpack/src
 )
 
 target_link_libraries(net
@@ -33,6 +48,5 @@ target_link_libraries(net
     avahi-client
     common
     cornrow
-    Qt5::Network
     Qt5::WebSockets
 )
