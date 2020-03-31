@@ -28,6 +28,7 @@
 #include <QUuid>
 #include <QtEndian>
 #include <QtNetwork/QTcpSocket>
+#include <QtWebSockets/QWebSocket>
 
 #include <qzeroconf.h>
 
@@ -42,13 +43,12 @@ namespace net
 {
 
 TcpServer::TcpServer(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      m_server("", QWebSocketServer::SslMode::NonSecureMode)
 {
-    m_inStream.setVersion(QDataStream::Qt_5_6);
-
     // Open service
-    connect(&m_tcpServer, &QTcpServer::newConnection, this, &TcpServer::onClientConnected);
-    if (!m_tcpServer.listen(QHostAddress::AnyIPv4)) {
+    connect(&m_server, &QWebSocketServer::newConnection, this, &TcpServer::onClientConnected);
+    if (!m_server.listen(QHostAddress::AnyIPv4)) {
         LOG_F(ERROR, "Error starting NetService.");
         return;
     }
@@ -65,7 +65,7 @@ void TcpServer::startPublishing()
     // Publish service
     QZeroConf* zeroConf = new QZeroConf(this);
     connect(zeroConf, &QZeroConf::servicePublished, [&]() {
-        LOG_F(INFO, "TCP server published at port: %i", m_tcpServer.serverPort());
+        LOG_F(INFO, "TCP server published at port: %i", m_server.serverPort());
     });
     connect(zeroConf, &QZeroConf::error, [](QZeroConf::error_t error) {
         LOG_F(WARNING, "Error publishing service: %i", error);
@@ -73,17 +73,17 @@ void TcpServer::startPublishing()
     zeroConf->startServicePublish(QHostInfo::localHostName().toStdString().c_str(),
                                   "_cornrow._tcp",
                                   nullptr,
-                                  m_tcpServer.serverPort());
+                                  m_server.serverPort());
 }
 
 void TcpServer::disconnect()
 {
-    if (!m_socket) {
+    if (!m_client) {
         return;
     }
-    m_socket->abort();
-    m_socket->deleteLater();
-    m_socket = nullptr;
+    m_client->abort();
+    m_client->deleteLater();
+    m_client = nullptr;
 }
 
 void TcpServer::setProperty(const QUuid& name, const QByteArray& value)
@@ -91,22 +91,21 @@ void TcpServer::setProperty(const QUuid& name, const QByteArray& value)
     auto _name = name.toByteArray(QUuid::WithoutBraces);
     QObject::setProperty(_name, value);
 
-    doSend(_name);
+    //doSend(_name);
 }
 
 void TcpServer::onClientConnected()
 {
-    if (m_socket) {
+    if (m_client) {
         LOG_F(INFO, "Another client already connected");
         return;
     }
 
     // Open socket
-    m_socket = m_tcpServer.nextPendingConnection();
-    m_socket->readAll(); // No idea, why we have to do this, but we have to.
-    connect(m_socket, &QAbstractSocket::disconnected, this, &TcpServer::disconnect);
-    connect(m_socket, &QAbstractSocket::readyRead, this, &TcpServer::onReceive);
-    m_inStream.setDevice(m_socket);
+    m_client = m_server.nextPendingConnection();
+
+    connect(m_client, &QWebSocket::binaryMessageReceived, this, &TcpServer::onReceive);
+    connect(m_client, &QWebSocket::disconnected, this, &TcpServer::disconnect);
 
     // Serialize dynamic properties
     LOG_F(INFO, "New connection. Send properties:");
@@ -114,26 +113,30 @@ void TcpServer::onClientConnected()
     QDataStream outStream(&block, QIODevice::WriteOnly);
     outStream.setVersion(QDataStream::Qt_5_6);
     QVariantMap properties;
-    for (const auto name : dynamicPropertyNames()) {
+    for (const auto& name : dynamicPropertyNames()) {
         const auto value = property(name).toByteArray();
         LOG_F(INFO, "%s: %i", name.toStdString().c_str(), value.size());
         properties.insert(name, value);
     }
     outStream << properties;
-    const auto bytes = m_socket->write(block);
+
+    // Send buffer
+    const auto bytes = m_client->sendBinaryMessage(block);
     LOG_F(INFO, "Wrote %i bytes", bytes);
-    m_socket->flush();
+    m_client->flush();
 }
 
-void TcpServer::onReceive()
+void TcpServer::onReceive(const QByteArray& message)
 {
-    m_inStream.startTransaction();
+    QDataStream dataStream(message);
+    dataStream.setVersion(QDataStream::Qt_5_6);
 
+    // Deserialize data
+    dataStream.startTransaction();
     QVariantMap properties;
-    m_inStream >> properties;
-
-    if (!m_inStream.commitTransaction()) {
-        LOG_F(WARNING, "Error deserializing data");
+    dataStream >> properties;
+    if (!dataStream.commitTransaction()) {
+        qWarning("Error deserializing data");
         return;
     }
 
@@ -148,7 +151,7 @@ void TcpServer::onReceive()
 void TcpServer::doSend(const QByteArray& name)
 {
     // If we are not connected, we do not send
-    if (!m_socket || m_socket->state() != QAbstractSocket::ConnectedState) {
+    if (!m_client || m_client->state() != QAbstractSocket::ConnectedState) {
         qDebug() << "Socket not connected";
         return;
     }
@@ -164,9 +167,9 @@ void TcpServer::doSend(const QByteArray& name)
     QDataStream outStream(&block, QIODevice::WriteOnly);
     outStream.setVersion(QDataStream::Qt_5_6);
     outStream << properties;
-    const auto bytes = m_socket->write(block);
+    const auto bytes = m_client->sendBinaryMessage(block);
     qDebug() << "Wrote" << bytes << "bytes";
-    m_socket->flush();
+    m_client->flush();
 }
 
 } // namespace net
