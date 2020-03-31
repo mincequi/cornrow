@@ -10,3 +10,6 @@
 [submodule "CMake/common"]
 	path = CMake/common
 	url = https://github.com/Eyescale/CMake.git
+[submodule "thirdparty/qmsgpack"]
+	path = thirdparty/qmsgpack
+	url = https://github.com/romixlab/qmsgpack.git
