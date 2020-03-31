@@ -17,10 +17,9 @@
 
 #include "TcpClient.h"
 
-#include <QDebug>
-#include <QTcpSocket>
 #include <QUuid>
-#include <QtGlobal>
+
+#include <msgpack.h>
 #include <qzeroconf.h>
 
 namespace net
@@ -55,29 +54,17 @@ TcpClient::TcpClient(QObject* parent)
         qDebug() << "stateChanged:" << state;
     });
 
-
-
-
     // Setup zeroconf
     m_zeroConf = new QZeroConf(this);
     connect(m_zeroConf, &QZeroConf::serviceAdded, this, &TcpClient::onServiceDiscovered);
     connect(m_zeroConf, &QZeroConf::serviceRemoved, this, &TcpClient::onServiceRemoved);
 
-    /*
-    //connect(&m_socket, &QTcpSocket::connected, [this]() {
-    //    onStatus(ble::BleClient::Status::Connected);
-    //});
-    connect(&m_socket, &QTcpSocket::stateChanged, [](QAbstractSocket::SocketState state) {
-        qDebug() << "stateChanged:" << state;
+    MsgPack::registerPacker(QVariant::Type::Uuid, QVariant::Type::Uuid, [](const QVariant& variant) -> QByteArray {
+        return variant.toUuid().toRfc4122();
     });
-    connect(&m_socket, &QTcpSocket::disconnected, [this]() {
-        onStatus(ble::BleClient::Status::Lost);
+    MsgPack::registerUnpacker(QVariant::Type::Uuid, [](const QByteArray& buffer) -> QVariant {
+        return QUuid::fromRfc4122(buffer);
     });
-    connect(&m_socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), [this](QAbstractSocket::SocketError) {
-        onStatus(ble::BleClient::Status::Error, m_socket.errorString());
-    });
-    connect(&m_socket, &QIODevice::readyRead, this, &TcpClient::onReceive);
-    */
 }
 
 TcpClient::~TcpClient()
@@ -110,12 +97,33 @@ void TcpClient::disconnect()
     m_socket.abort();
 }
 
-void TcpClient::setProperty(const QUuid& name, const QByteArray& value)
+void TcpClient::setDebounceTime(int msec)
 {
-    auto _name = name.toByteArray(QUuid::WithoutBraces);
+    m_timer.setInterval(msec);
+}
+
+/*
+void TcpClient::setProperty(quint32 uuid, const QByteArray& value)
+{
+    QByteArray store;
+    store << uuid;
+    m_properties.insert(uuid, value);
+
+    m_dirtyProperties.insert(uuid);
+    if (!m_timer.isActive()) {
+        m_timer.start();
+    }
+}
+*/
+
+void TcpClient::setProperty(const QUuid& uuid, const QByteArray& value)
+{
+    m_properties.insert(uuid, value);
+
+    auto _name = uuid.toByteArray(QUuid::WithoutBraces);
     QObject::setProperty(_name, value);
 
-    m_dirtyProperties.insert(_name);
+    m_dirtyProperties.insert(uuid);
     if (!m_timer.isActive()) {
         m_timer.start();
     }
@@ -151,21 +159,18 @@ void TcpClient::doSend()
         return;
     }
 
-    // Iterate dirty properties and serialize them
-    QVariantMap properties;
-    for (const auto& name : m_dirtyProperties) {
-        const auto value = property(name).toByteArray();
-        qDebug() << "Send property:" << name << ", value size:" << value.size();
-        properties.insert(name, value);
-    }
+    // Iterate dirty properties and send them
+    for (const auto& key : m_dirtyProperties) {
+        const auto& value = m_properties[key];
+        qDebug() << "Send property:" << key << ", value size:" << value.size();
 
-    // Write out
-    QByteArray block;
-    QDataStream outStream(&block, QIODevice::WriteOnly);
-    outStream.setVersion(QDataStream::Qt_5_6);
-    outStream << properties;
-    const auto bytes = m_socket.sendBinaryMessage(block);
-    qDebug() << "Wrote" << bytes << "bytes";
+        QByteArray block;
+        block += static_cast<char>(0x81);   // Map with one element
+        block += MsgPack::pack(key);
+        block += MsgPack::pack(value);
+        const auto bytes = m_socket.sendBinaryMessage(block);
+        qDebug() << "Wrote" << bytes << "bytes";
+    }
     m_socket.flush();
 
     // Clear dirty propertiers
@@ -174,27 +179,16 @@ void TcpClient::doSend()
 
 void TcpClient::onReceive(const QByteArray& message)
 {
-    QDataStream dataStream(message);
-    dataStream.setVersion(QDataStream::Qt_5_6);
-
-    // Deserialize data
-    dataStream.startTransaction();
-    QVariantMap properties;
-    dataStream >> properties;
-    if (!dataStream.commitTransaction()) {
-        qWarning("Error deserializing data");
+    if (message.front() != static_cast<char>(0x81)) {
+        qDebug() << "Illegal data:" << message.front();
         return;
     }
 
-    // Apply data and emit changes
-    qDebug("Data received:");
-    for (const auto& kv : properties.toStdMap()) {
-        const auto key = kv.first.toLatin1();
-        const auto val = kv.second.toByteArray();
-        qDebug("name: %s, value size: %i", key.constData(), val.size());
-        QObject::setProperty(key.constData(), val);
-        emit propertyChanged(key, val);
-    }
+    auto key = MsgPack::unpack(message.mid(1, 18)).toUuid();
+    auto value = MsgPack::unpack(message.mid(19)).toByteArray();
+    qDebug("uuid: %s, value size: %i", key.toByteArray().constData(), value.size());
+    m_properties.insert(key, value);
+    emit propertyChanged(key, value);
 
     onStatus(ble::BleClient::Status::Connected);
 }

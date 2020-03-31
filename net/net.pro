@@ -8,6 +8,7 @@ include(../cornrow.pri)
 
 DEFINES += QZEROCONF_STATIC
 include(../thirdparty/QtZeroConf/qtzeroconf.pri)
+include(../thirdparty/qmsgpack/qmsgpack.pri)
 
 SOURCES += \
     src/TcpClient.cpp

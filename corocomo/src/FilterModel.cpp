@@ -364,7 +364,7 @@ void FilterModel::onFilterChangedLocally()
             value[i*4+3] = m_filters.at(i).q;
         }
 
-        m_tcpClient->setProperty(QByteArray(common::ble::peqCharacteristicUuid.c_str()), value);
+        m_tcpClient->setProperty(QUuid(common::ble::peqCharacteristicUuid.c_str()), value);
         m_bleClient->setCharacteristic(common::ble::peqCharacteristicUuid, value);
     } else {
         QByteArray value((m_filters.count() - m_config.peqFilterCount) * 4, 0);
@@ -374,7 +374,7 @@ void FilterModel::onFilterChangedLocally()
             value[i*4+2] = static_cast<int8_t>(m_filters.at(i+ m_config.peqFilterCount).g * 2.0);
             value[i*4+3] = m_filters.at(i + m_config.peqFilterCount).q;
         }
-        m_tcpClient->setProperty(QByteArray(common::ble::auxCharacteristicUuid.c_str()), value);
+        m_tcpClient->setProperty(QUuid(common::ble::auxCharacteristicUuid.c_str()), value);
         m_bleClient->setCharacteristic(common::ble::auxCharacteristicUuid, value);
     }
 }
