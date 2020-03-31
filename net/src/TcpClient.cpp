@@ -29,6 +29,8 @@ namespace net
 TcpClient::TcpClient(QObject* parent)
     : QObject(parent)
 {
+    m_socket.setSocketOption(QAbstractSocket::SocketOption::LowDelayOption, 1);
+
     m_timer.setInterval(200);
     m_timer.setSingleShot(true);
 
@@ -174,6 +176,7 @@ void TcpClient::doSend()
     const auto bytes = m_socket.write(block);
     qDebug() << "Wrote" << bytes << "bytes";
     m_socket.flush();
+    m_socket.waitForBytesWritten(100);
 
     // Clear dirty propertiers
     m_dirtyProperties.clear();

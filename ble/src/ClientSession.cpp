@@ -17,13 +17,8 @@ ClientSession::ClientSession(BleClient* _q)
     connect(m_discoverer, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &ClientSession::onDeviceDiscoveryError);
     connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::finished, this, &ClientSession::onDeviceDiscoveryFinished);
 
-    // @TODO(mawe): make Qt 5.7 compatible
-#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
     m_discoverer->setLowEnergyDiscoveryTimeout(8000);
     m_discoverer->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-#else
-    m_discoverer->start();
-#endif
 }
 
 void ClientSession::connectDevice(const QBluetoothDeviceInfo& device)
