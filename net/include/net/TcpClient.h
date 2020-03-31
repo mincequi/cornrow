@@ -19,26 +19,19 @@
 
 // @TODO(mawe): remove bluetooth dependency
 #include <QBluetoothDeviceInfo>
-#include <QDataStream>
-#include <QHostAddress>
-#include <QTcpSocket>
 #include <QTimer>
 #include <QtWebSockets/QWebSocket>
 
 #include <ble/BleClient.h>
-#include <common/Types.h>
 
-class QTcpSocket;
 class QZeroConf;
 class QZeroConfServiceData;
 typedef QSharedPointer<QZeroConfServiceData> QZeroConfService;
 
-namespace common {
-class RemoteDataStore;
-}
-
 namespace net
 {
+
+uint qHash(const QVariant& var);
 
 struct NetDevice : public QObject
 {
@@ -76,12 +69,16 @@ public:
     explicit TcpClient(QObject *parent = nullptr);
     ~TcpClient();
 
-    void startDiscovering();
-	void stopDiscovering();
+    Q_INVOKABLE void startDiscovering();
+    Q_INVOKABLE void stopDiscovering();
 
-    void connectDevice(net::NetDevice* device);
-    void disconnect();
+    Q_INVOKABLE void connectDevice(net::NetDevice* device);
+    Q_INVOKABLE void disconnect();
 
+    Q_INVOKABLE void setDebounceTime(int msec);
+
+    // @TODO(mawe): implement uint based properties (need to store as a key together with Uuids somehow).
+    //void setProperty(quint32 uuid, const QByteArray& value);
     void setProperty(const QUuid& uuid, const QByteArray& value);
 
 signals:
@@ -91,6 +88,8 @@ signals:
     void propertyChanged(const QUuid& uuid, const QByteArray& value);
 
 private:
+    static QByteArray toMsgPack(const QVariant& key, const QByteArray& value);
+
     // Device related event handlers
     void onServiceDiscovered(QZeroConfService);
     void onServiceRemoved(QZeroConfService);
@@ -102,12 +101,11 @@ private:
 
     QZeroConf* m_zeroConf = nullptr;
 
-    //QTcpSocket  m_socket;
     QWebSocket  m_socket;
 
-    QTimer              m_timer;
-    QSet<QByteArray>    m_dirtyProperties;
-
+    QTimer      m_timer;
+    QSet<QUuid> m_dirtyProperties;
+    QMap<QUuid, QByteArray>  m_properties;
 };
 
 } // namespace net
