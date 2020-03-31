@@ -23,6 +23,7 @@
 #include <QHostAddress>
 #include <QTcpSocket>
 #include <QTimer>
+#include <QtWebSockets/QWebSocket>
 
 #include <ble/BleClient.h>
 #include <common/Types.h>
@@ -96,13 +97,13 @@ private:
     void onStatus(ble::BleClient::Status status, QString errorString = QString());
 
     // Property related event handlers / action
-    void onReceive();
+    void onReceive(const QByteArray &message);
     void doSend();
 
     QZeroConf* m_zeroConf = nullptr;
 
-    QTcpSocket  m_socket;
-    QDataStream m_dataStream;
+    //QTcpSocket  m_socket;
+    QWebSocket  m_socket;
 
     QTimer              m_timer;
     QSet<QByteArray>    m_dirtyProperties;

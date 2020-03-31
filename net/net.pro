@@ -1,7 +1,7 @@
 TEMPLATE = lib
 QT     -= gui
 # @TODO(mawe): remove bluetooth dependency
-QT     += core network bluetooth
+QT     += core network bluetooth websockets
 CONFIG += staticlib create_prl
 
 include(../cornrow.pri)

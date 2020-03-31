@@ -29,25 +29,44 @@ namespace net
 TcpClient::TcpClient(QObject* parent)
     : QObject(parent)
 {
-    m_socket.setSocketOption(QAbstractSocket::SocketOption::LowDelayOption, 1);
-
+    // Setup timer
     m_timer.setInterval(200);
     m_timer.setSingleShot(true);
-
     connect(&m_timer, &QTimer::timeout, this, &TcpClient::doSend);
 
-    m_dataStream.setDevice(&m_socket);
-    m_dataStream.setVersion(QDataStream::Qt_5_6);
+    // Setup socket
+    connect(&m_socket, &QWebSocket::binaryMessageReceived, [this](const QByteArray &message) {
+        onReceive(message);
+    });
+    connect(&m_socket, &QWebSocket::connected, []() {
+        qDebug() << "connected";
+    });
+    connect(&m_socket, &QWebSocket::disconnected, [this]() {
+        onStatus(ble::BleClient::Status::Lost);
+    });
+    connect(&m_socket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), [this](QAbstractSocket::SocketError error) {
+        qDebug() << "error:" << error;
+        onStatus(ble::BleClient::Status::Error, m_socket.errorString());
+    });
+    connect(&m_socket, &QWebSocket::pong, [](quint64 elapsedTime, const QByteArray &payload) {
+        qDebug() << "pong> elapsedTime:" << elapsedTime << ", payload.size: " << payload.size();
+    });
+    connect(&m_socket, &QWebSocket::stateChanged, [](QAbstractSocket::SocketState state) {
+        qDebug() << "stateChanged:" << state;
+    });
 
+
+
+
+    // Setup zeroconf
     m_zeroConf = new QZeroConf(this);
     connect(m_zeroConf, &QZeroConf::serviceAdded, this, &TcpClient::onServiceDiscovered);
     connect(m_zeroConf, &QZeroConf::serviceRemoved, this, &TcpClient::onServiceRemoved);
 
     /*
-    connect(&m_socket, &QTcpSocket::connected, [this]() {
-        onStatus(ble::BleClient::Status::Connected);
-    });
-    */
+    //connect(&m_socket, &QTcpSocket::connected, [this]() {
+    //    onStatus(ble::BleClient::Status::Connected);
+    //});
     connect(&m_socket, &QTcpSocket::stateChanged, [](QAbstractSocket::SocketState state) {
         qDebug() << "stateChanged:" << state;
     });
@@ -58,17 +77,6 @@ TcpClient::TcpClient(QObject* parent)
         onStatus(ble::BleClient::Status::Error, m_socket.errorString());
     });
     connect(&m_socket, &QIODevice::readyRead, this, &TcpClient::onReceive);
-
-    /*
-    BonjourServiceBrowser *bonjourBrowser = new BonjourServiceBrowser(this);
-    BonjourServiceResolver *bonjourResolver = new BonjourServiceResolver(this);
-
-    connect(bonjourBrowser, &BonjourServiceBrowser::currentBonjourRecordsChanged, this, [](const QList<BonjourRecord>& records) {
-        bonjourResolver->resolveBonjourRecord(variant.value<BonjourRecord>());
-    });
-    bonjourBrowser->browseForServiceType(QLatin1String("_cornrow._tcp"));
-
-    connect(bonjourResolver, SIGNAL(bonjourRecordResolved(const QHostInfo &, int)), this, SLOT(connectToServer(const QHostInfo &, int)));
     */
 }
 
@@ -90,7 +98,11 @@ void TcpClient::connectDevice(net::NetDevice* device)
 {
     disconnect();
 
-    m_socket.connectToHost(device->address, device->port);
+    QUrl url;
+    url.setScheme("ws");
+    url.setHost(device->address.toString());
+    url.setPort(device->port);
+    m_socket.open(url);
 }
 
 void TcpClient::disconnect()
@@ -128,27 +140,6 @@ void TcpClient::onServiceRemoved(QZeroConfService service)
 
 void TcpClient::onStatus(ble::BleClient::Status _status, QString)
 {
-    switch (_status) {
-    case ble::BleClient::Status::Connected: {
-        /*
-        m_remote.addClientSideConnection(&m_socket);
-        m_replica = m_remote.acquireDynamic("CornrowData");
-        qDebug() << "Replica initialized: " << m_replica->isInitialized();
-        connect(m_replica, &QRemoteObjectDynamicReplica::initialized, [&]() {
-            for (int i = m_replica->metaObject()->propertyOffset(); i < m_replica->metaObject()->propertyCount(); ++i) {
-                qDebug() << "Property: " << m_replica->metaObject()->property(i).name();
-            }
-        });
-        connect(m_replica, &QRemoteObjectDynamicReplica::stateChanged, [&]() {
-            qDebug() << "Cornrow replica state: " << m_replica->state();
-        });
-        */
-    }
-        break;
-    default:
-        break;
-    }
-
     emit status(_status);
 }
 
@@ -173,22 +164,24 @@ void TcpClient::doSend()
     QDataStream outStream(&block, QIODevice::WriteOnly);
     outStream.setVersion(QDataStream::Qt_5_6);
     outStream << properties;
-    const auto bytes = m_socket.write(block);
+    const auto bytes = m_socket.sendBinaryMessage(block);
     qDebug() << "Wrote" << bytes << "bytes";
     m_socket.flush();
-    m_socket.waitForBytesWritten(100);
 
     // Clear dirty propertiers
     m_dirtyProperties.clear();
 }
 
-void TcpClient::onReceive()
+void TcpClient::onReceive(const QByteArray& message)
 {
+    QDataStream dataStream(message);
+    dataStream.setVersion(QDataStream::Qt_5_6);
+
     // Deserialize data
-    m_dataStream.startTransaction();
+    dataStream.startTransaction();
     QVariantMap properties;
-    m_dataStream >> properties;
-    if (!m_dataStream.commitTransaction()) {
+    dataStream >> properties;
+    if (!dataStream.commitTransaction()) {
         qWarning("Error deserializing data");
         return;
     }
