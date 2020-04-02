@@ -1,7 +1,7 @@
 #include "DeviceModel.h"
 
 #include <ble/BleClient.h>
-#include <net/TcpClient.h>
+#include <QZeroProps/QZeroPropsService.h>
 
 #include <QBluetoothAddress>
 #include <QBluetoothDeviceInfo>
@@ -17,7 +17,7 @@ DeviceModel* DeviceModel::instance()
     return s_instance;
 }
 
-DeviceModel* DeviceModel::init(BleCentralAdapter* bleAdapter, net::TcpClient* netClient)
+DeviceModel* DeviceModel::init(BleCentralAdapter* bleAdapter, QZeroProps::QZeroPropsClient* netClient)
 {
     if (s_instance) {
         return s_instance;
@@ -27,19 +27,19 @@ DeviceModel* DeviceModel::init(BleCentralAdapter* bleAdapter, net::TcpClient* ne
     return s_instance;
 }
 
-DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, net::TcpClient* netClient, QObject *parent) :
-	QObject(parent),
+DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, QZeroProps::QZeroPropsClient* netClient, QObject *parent) :
+    QObject(parent),
     m_bleAdapter(bleAdapter),
     m_tcpClient(netClient)
 {
     // Ble
     connect(m_bleAdapter, &BleCentralAdapter::status, this, &DeviceModel::onBleDeviceStatus);
     connect(m_bleAdapter, &BleCentralAdapter::deviceDiscovered, this, &DeviceModel::onBleDeviceDiscovered);
-	
+
     // Net
-    connect(m_tcpClient, &net::TcpClient::status, this, &DeviceModel::onNetDeviceStatus);
-    connect(m_tcpClient, &net::TcpClient::deviceDiscovered, this, &DeviceModel::onNetDeviceDiscovered);
-    connect(m_tcpClient, &net::TcpClient::deviceDisappeared, this, &DeviceModel::onNetDeviceDisappeared);
+    connect(m_tcpClient, &QZeroProps::QZeroPropsClient::stateChanged, this, &DeviceModel::onNetDeviceStatus);
+    connect(m_tcpClient, &QZeroProps::QZeroPropsClient::deviceDiscovered, this, &DeviceModel::onNetDeviceDiscovered);
+    connect(m_tcpClient, &QZeroProps::QZeroPropsClient::deviceDisappeared, this, &DeviceModel::onNetDeviceDisappeared);
     
     connect(qGuiApp, &QGuiApplication::applicationStateChanged, this, &DeviceModel::onAppStateChanged);
 }
@@ -49,7 +49,7 @@ void DeviceModel::startDiscovering()
     // @TODO(mawe): Only clear BLE devices, since QtZeroConf has an issue when re-discovering.
     // m_devices.clear();
     for (auto it = m_devices.begin(); it != m_devices.end(); ++it) {
-        if ((*it)->type == net::NetDevice::DeviceType::BluetoothLe) {
+        if ((*it)->m_type == QZeroProps::QZeroPropsService::Type::BluetoothLe) {
             it = m_devices.erase(it);
             if (it == m_devices.end()) {
                 break;
@@ -57,9 +57,9 @@ void DeviceModel::startDiscovering()
         }
     }
     emit devicesChanged();
-	
+
     m_bleAdapter->startDiscovering();
-    m_tcpClient->startDiscovering();
+    m_tcpClient->startDiscovery({ "_cornrow._tcp", QUuid()});
     onBleDeviceStatus(Status::Discovering);
 }
 
@@ -85,26 +85,26 @@ QString DeviceModel::statusText() const
 
 QObjectList DeviceModel::devices() const
 {
-	QObjectList _devices;
-	for (const auto& device : m_devices) {
-		_devices.push_back(device.get());
-	}
+    QObjectList _devices;
+    for (const auto& device : m_devices) {
+        _devices.push_back(device.get());
+    }
     return _devices;
 }
 
-void DeviceModel::connectDevice(net::NetDevice* device)
+void DeviceModel::connectToService(QZeroProps::QZeroPropsService* service)
 {
-    switch (device->type) {
-    case net::NetDevice::DeviceType::BluetoothLe:
-        onBleDeviceStatus(Status::Connecting, "Connecting " + device->name);
-        m_bleAdapter->connectDevice(device->bluetoothDeviceInfo);
+    switch (service->m_type) {
+    case QZeroProps::QZeroPropsService::Type::BluetoothLe:
+        onBleDeviceStatus(Status::Connecting, "Connecting " + service->m_name);
+        m_bleAdapter->connectDevice(service->m_bluetoothDeviceInfo);
         break;
-    case net::NetDevice::DeviceType::TcpIp:
-        onBleDeviceStatus(Status::Connecting, "Connecting " + device->name);
-        m_tcpClient->connectDevice(device);
+    case QZeroProps::QZeroPropsService::Type::WebSocket:
+        onBleDeviceStatus(Status::Connecting, "Connecting " + service->m_name);
+        m_tcpClient->connectToService(service);
         break;
     default:
-        qDebug() << "Unhandled device type: " << device->type;
+        qDebug() << "Unhandled device type: " << service->m_type;
         break;
     }
 }
@@ -113,7 +113,7 @@ void DeviceModel::onAppStateChanged(Qt::ApplicationState state)
 {
     switch (state) {
     case Qt::ApplicationSuspended:
-        m_tcpClient->stopDiscovering();
+        m_tcpClient->stopDiscovery();
         break;
     case Qt::ApplicationHidden:
     case Qt::ApplicationInactive:
@@ -173,28 +173,25 @@ void DeviceModel::onBleDeviceStatus(Status _status, const QString& statusText)
     emit statusChanged();
 }
 
-void DeviceModel::onNetDeviceStatus(ble::BleClient::Status _status, const QString& statusText)
+void DeviceModel::onNetDeviceStatus(QZeroProps::QZeroPropsClient::State _status, const QString& statusText)
 {
     switch (_status) {
-    case ble::BleClient::Status::NoBluetooth:
-        onBleDeviceStatus(DeviceModel::Status::NoBluetooth);
-        return;
-    case ble::BleClient::Status::Discovering:
-        onBleDeviceStatus(DeviceModel::Status::Discovering);
-        return;
-    case ble::BleClient::Status::Connecting:
-        onBleDeviceStatus(DeviceModel::Status::Connecting, statusText);
-        return;
-    case ble::BleClient::Status::Connected:
-        onBleDeviceStatus(DeviceModel::Status::Connected);
-        return;
-    case ble::BleClient::Status::Timeout:
+    case QZeroProps::QZeroPropsClient::State::Idle:
         onBleDeviceStatus(DeviceModel::Status::Idle);
         return;
-    case ble::BleClient::Status::Lost:
+    case QZeroProps::QZeroPropsClient::State::Discovering:
+        onBleDeviceStatus(DeviceModel::Status::Discovering);
+        return;
+    case QZeroProps::QZeroPropsClient::State::Connecting:
+        onBleDeviceStatus(DeviceModel::Status::Connecting, statusText);
+        return;
+    case QZeroProps::QZeroPropsClient::State::Connected:
+        onBleDeviceStatus(DeviceModel::Status::Connected);
+        return;
+    case QZeroProps::QZeroPropsClient::State::Disconnected:
         onBleDeviceStatus(DeviceModel::Status::Lost);
         return;
-    case ble::BleClient::Status::Error:
+    case QZeroProps::QZeroPropsClient::State::Error:
         onBleDeviceStatus(DeviceModel::Status::Error, statusText);
         return;
     }
@@ -202,16 +199,16 @@ void DeviceModel::onNetDeviceStatus(ble::BleClient::Status _status, const QStrin
 
 void DeviceModel::onBleDeviceDiscovered(const QBluetoothDeviceInfo& _device)
 {
-	net::NetDevicePtr device(new net::NetDevice);
-	QString name = _device.name();
-	if (name.isEmpty()) {
-		name = "<unknown cornrow device>";
-	}
-    device->name = name;
-    device->type = net::NetDevice::DeviceType::BluetoothLe;
-    device->bluetoothDeviceInfo = _device;
+    QZeroProps::QZeroPropsServicePtr device(new QZeroProps::QZeroPropsService);
+    QString name = _device.name();
+    if (name.isEmpty()) {
+        name = "<unknown cornrow device>";
+    }
+    device->m_name = name;
+    device->m_type = QZeroProps::QZeroPropsService::Type::BluetoothLe;
+    device->m_bluetoothDeviceInfo = _device;
 
-	m_devices.push_back(device);
+    m_devices.push_back(device);
     emit devicesChanged();
     
     if (m_status == Status::Discovering) {
@@ -219,7 +216,7 @@ void DeviceModel::onBleDeviceDiscovered(const QBluetoothDeviceInfo& _device)
     }
 }
 
-void DeviceModel::onNetDeviceDiscovered(net::NetDevicePtr device)
+void DeviceModel::onNetDeviceDiscovered(QZeroProps::QZeroPropsServicePtr device)
 {
     m_devices.push_back(device);
     emit devicesChanged();
@@ -230,7 +227,7 @@ void DeviceModel::onNetDeviceDiscovered(net::NetDevicePtr device)
 void DeviceModel::onNetDeviceDisappeared(const QHostAddress& address)
 {
     for (auto it = m_devices.begin(); it != m_devices.end(); ++it) {
-        if ((*it)->address == address) {
+        if ((*it)->m_address == address) {
             it = m_devices.erase(it);
             if (it == m_devices.end()) {
                 break;

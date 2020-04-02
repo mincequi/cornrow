@@ -69,7 +69,10 @@ Dialog {
             delegate: ListItemNew {
                 icon.source: modelData.type === CornrowDeviceType.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
                 primaryText: modelData.name
-                onClicked: DeviceModel.connectDevice(modelData)
+                onClicked: {
+                    FilterModel.setService(modelData)
+                    DeviceModel.connectToService(modelData)
+                }
                 //subText: ip
                 //subTextFontSize: 12
                 //showDivider: true

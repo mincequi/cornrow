@@ -7,6 +7,8 @@
 
 #include "Config.h"
 
+#include <QZeroProps/QZeroPropsService.h>
+
 class BleCentralAdapter;
 class IoModel;
 class PresetModel;
@@ -15,8 +17,8 @@ namespace ble {
 class BleClient;
 }
 
-namespace net {
-class TcpClient;
+namespace QZeroProps {
+class QZeroPropsClient;
 }
 
 class FilterModel : public QObject
@@ -41,9 +43,10 @@ class FilterModel : public QObject
     Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
 
 public:
-    static FilterModel* init(const Config& configuration, net::TcpClient* tcpClient, ble::BleClient* bleClient);
+    static FilterModel* init(const Config& configuration, ble::BleClient* bleClient);
     static FilterModel* instance();
 
+    Q_INVOKABLE void setService(QZeroProps::QZeroPropsService* service);
     Q_INVOKABLE void resizeFilters(int diff);
 
     int         peqFilterCount() const;
@@ -104,12 +107,12 @@ private:
         uint8_t q;
     };
 
-    FilterModel(const Config& config, net::TcpClient* tcpClient, ble::BleClient* bleClient);
+    FilterModel(const Config& config, ble::BleClient* bleClient);
 
     static uint8_t snap(double value, uint8_t min, uint8_t max, uint8_t step);
 
     void onFilterChangedLocally();
-    void onFilterChangedRemotely(const QUuid& key, const QByteArray& value);
+    void onFilterChangedRemotely(const QVariant& key, const QByteArray& value);
 
     static FilterModel* s_instance;
 
@@ -123,6 +126,8 @@ private:
     const int       m_scBand;
     double          m_freqSlider;
 
-    net::TcpClient* m_tcpClient = nullptr;
+    // @TODO(mawe): storing raw pointer might be dangerous here. It might get released from QZeroProps.
+    //              Howwever, QmlEngine cannot deal with QSharesPointers...
+    QZeroProps::QZeroPropsService* m_zpService = nullptr;
     ble::BleClient* m_bleClient = nullptr;
 };

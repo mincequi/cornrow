@@ -8,9 +8,10 @@
 #include <QLatin1String>
 #include <QPen>
 #include <QUuid>
+#include <QtGlobal>
 
 #include <ble/BleClient.h>
-#include <net/TcpClient.h>
+#include <QZeroProps/QZeroPropsClient.h>
 
 FilterModel* FilterModel::s_instance = nullptr;
 
@@ -20,24 +21,22 @@ FilterModel* FilterModel::instance()
 }
 
 FilterModel* FilterModel::init(const Config& configuration,
-                               net::TcpClient* tcpClient,
                                ble::BleClient* bleClient)
 {
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new FilterModel(configuration, tcpClient, bleClient);
+    s_instance = new FilterModel(configuration, bleClient);
     return s_instance;
 }
 
-FilterModel::FilterModel(const Config& config, net::TcpClient* tcpClient, ble::BleClient* bleClient) :
+FilterModel::FilterModel(const Config& config, ble::BleClient* bleClient) :
     QObject(nullptr),
     m_config(config),
     m_loudnessBand(config.peqFilterCount),
     m_xoBand(config.peqFilterCount+1),
     m_scBand(config.peqFilterCount+2),
-    m_tcpClient(tcpClient),
     m_bleClient(bleClient)
 {
     auto filterCount = m_config.peqFilterCount;
@@ -52,7 +51,6 @@ FilterModel::FilterModel(const Config& config, net::TcpClient* tcpClient, ble::B
     connect(this, &FilterModel::gainChanged, this, &FilterModel::onFilterChangedLocally);
     connect(this, &FilterModel::qChanged, this, &FilterModel::onFilterChangedLocally);
 
-    connect(m_tcpClient, &net::TcpClient::propertyChanged, this, &FilterModel::onFilterChangedRemotely);
     connect(m_bleClient, &ble::BleClient::characteristicChanged, this, &FilterModel::onFilterChangedRemotely);
 }
 
@@ -62,6 +60,19 @@ FilterModel::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_
       g(_g),
       q(_q)
 {
+}
+
+void FilterModel::setService(QZeroProps::QZeroPropsService* service)
+{
+    if (m_zpService) {
+        m_zpService->disconnect();
+    }
+
+    m_zpService = service;
+
+    if (m_zpService) {
+        connect(m_zpService, &QZeroProps::QZeroPropsService::propertyChanged, this, &FilterModel::onFilterChangedRemotely);
+    }
 }
 
 void FilterModel::resizeFilters(int diff)
@@ -364,7 +375,7 @@ void FilterModel::onFilterChangedLocally()
             value[i*4+3] = m_filters.at(i).q;
         }
 
-        m_tcpClient->setProperty(QUuid(common::ble::peqCharacteristicUuid.c_str()), value);
+        m_zpService->setProperty(QUuid(common::ble::peqCharacteristicUuid.c_str()), value);
         m_bleClient->setCharacteristic(common::ble::peqCharacteristicUuid, value);
     } else {
         QByteArray value((m_filters.count() - m_config.peqFilterCount) * 4, 0);
@@ -374,14 +385,14 @@ void FilterModel::onFilterChangedLocally()
             value[i*4+2] = static_cast<int8_t>(m_filters.at(i+ m_config.peqFilterCount).g * 2.0);
             value[i*4+3] = m_filters.at(i + m_config.peqFilterCount).q;
         }
-        m_tcpClient->setProperty(QUuid(common::ble::auxCharacteristicUuid.c_str()), value);
+        m_zpService->setProperty(QUuid(common::ble::auxCharacteristicUuid.c_str()), value);
         m_bleClient->setCharacteristic(common::ble::auxCharacteristicUuid, value);
     }
 }
 
-void FilterModel::onFilterChangedRemotely(const QUuid& key, const QByteArray& value)
+void FilterModel::onFilterChangedRemotely(const QVariant& key, const QByteArray& value)
 {
-    auto _key = key.toByteArray(QUuid::WithoutBraces).toStdString();
+    auto _key = key.toUuid().toByteArray(QUuid::WithoutBraces).toStdString();
     if (_key == common::ble::peqCharacteristicUuid) {
         if (value.size() % 4 == 0) {
             int j = 0;

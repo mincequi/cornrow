@@ -10,7 +10,7 @@
 #include "PresetModel.h"
 #include "SoftClipChart.h"
 #include "ble/BleClient.h"
-#include "net/TcpClient.h"
+#include <QZeroProps/QZeroPropsClient.h>
 
 #include <QDebug>
 #include <QGuiApplication>
@@ -30,21 +30,21 @@ int main(int argc, char *argv[])
     // Remote services: BLE, Tcp
     ble::BleClient bleClient;
     BleCentralAdapter bleAdapter(&bleClient);
-    net::TcpClient tcpClient;
+    QZeroProps::QZeroPropsClient tcpClient;
 
     // Setup view models
     // Init config first!
-    auto config = Config::init(Config::Type::Low);
+    auto config = Config::init(Config::Type::Mid);
     DeviceModel::init(&bleAdapter, &tcpClient);
     auto ioModel = IoModel::init(&bleAdapter);
     // @TODO(mawe): config is registered as singleton. No need to pass here.
-    FilterModel::init(*config, &tcpClient, &bleClient);
+    FilterModel::init(*config, &bleClient);
     PresetModel::init(&bleAdapter);
     
     bleAdapter.setIoModel(ioModel);
 
     // Register types for QML engine
-    qmlRegisterUncreatableMetaObject(net::NetDevice::staticMetaObject, "Cornrow.DeviceType", 1, 0, "CornrowDeviceType", "Only enums");
+    qmlRegisterUncreatableMetaObject(QZeroProps::QZeroPropsService::staticMetaObject, "Cornrow.DeviceType", 1, 0, "CornrowDeviceType", "Only enums");
 
     qmlRegisterType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel");
     qmlRegisterType<EqChart>("Cornrow.EqChart", 1, 0, "CornrowEqChart");

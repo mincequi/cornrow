@@ -11,12 +11,19 @@ include(../thirdparty/QtZeroConf/qtzeroconf.pri)
 include(../thirdparty/qmsgpack/qmsgpack.pri)
 
 SOURCES += \
-    src/TcpClient.cpp
+    src/QZeroPropsClient.cpp \
+    src/QZeroPropsService.cpp \
+    src/QZeroPropsServicePrivate.cpp \
+    src/QZeroPropsWebSocketService.cpp
 
 HEADERS += \
-    include/net/TcpClient.h
+    include/QZeroProps/QZeroPropsTypes.h \
+    include/QZeroProps/QZeroPropsClient.h \
+    include/QZeroProps/QZeroPropsService.h \
+    src/QZeroPropsServicePrivate.h \
+    src/QZeroPropsWebSocketService.h
 
 INCLUDEPATH += \
-    include/net
+    include/QZeroProps
 
 LIBS += -L$$OUT_PWD/../common/ -lcommon

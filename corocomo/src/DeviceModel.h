@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <common/Types.h>
-#include <net/TcpClient.h>
+#include <QZeroProps/QZeroPropsClient.h>
 
 class BleCentralAdapter;
 namespace ble {
@@ -37,7 +37,7 @@ public:
     };
     Q_ENUM(Status)
 
-    static DeviceModel* init(BleCentralAdapter* bleClient, net::TcpClient* netClient);
+    static DeviceModel* init(BleCentralAdapter* bleClient, QZeroProps::QZeroPropsClient* netClient);
     static DeviceModel* instance();
 
     Q_INVOKABLE void startDiscovering();
@@ -48,22 +48,22 @@ public:
     QString     statusText() const;
 
     QObjectList devices() const;
-    Q_INVOKABLE void connectDevice(net::NetDevice* device);
+    Q_INVOKABLE void connectToService(QZeroProps::QZeroPropsService* device);
 
 signals:
     void statusChanged();
     void devicesChanged();
 
 private:
-    explicit DeviceModel(BleCentralAdapter* bleAdapter, net::TcpClient* m_tcpClient, QObject* parent = nullptr);
+    explicit DeviceModel(BleCentralAdapter* bleAdapter, QZeroProps::QZeroPropsClient* m_tcpClient, QObject* parent = nullptr);
     
     void stopDiscovering();
 
     void onAppStateChanged(Qt::ApplicationState state);
     void onBleDeviceStatus(Status status, const QString& errorString = QString());
-    void onNetDeviceStatus(ble::BleClient::Status, const QString& errorString);
+    void onNetDeviceStatus(QZeroProps::QZeroPropsClient::State state, const QString& errorString);
     void onBleDeviceDiscovered(const QBluetoothDeviceInfo& device);
-    void onNetDeviceDiscovered(net::NetDevicePtr device);
+    void onNetDeviceDiscovered(QZeroProps::QZeroPropsServicePtr device);
     void onNetDeviceDisappeared(const QHostAddress& address);
 
     static DeviceModel* s_instance;
@@ -73,12 +73,12 @@ private:
     QString         m_statusText;
     bool            m_demoMode = false;
 
-    QList<net::NetDevicePtr> m_devices;
+    QList<QZeroProps::QZeroPropsServicePtr> m_devices;
 
     // BLE
     BleCentralAdapter* m_bleAdapter = nullptr;
     friend class BleCentralAdapter;
 
     // Net
-    net::TcpClient* m_tcpClient = nullptr;
+    QZeroProps::QZeroPropsClient* m_tcpClient = nullptr;
 };
