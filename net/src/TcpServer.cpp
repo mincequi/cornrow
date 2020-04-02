@@ -17,25 +17,14 @@
 
 #include "TcpServer.h"
 
-#include <QAbstractSocket>
 #include <QCoreApplication>
-#include <QDataStream>
-#include <QDebug>
 #include <QHostInfo>
-#include <QMetaProperty>
-#include <QThread>
-#include <QTimer>
 #include <QUuid>
-#include <QtEndian>
-#include <QtNetwork/QTcpSocket>
 #include <QtWebSockets/QWebSocket>
 
+#include <msgpack.h>
 #include <qzeroconf.h>
-
 #include <loguru/loguru.hpp>
-
-#include <cmath>
-#include <unistd.h>
 
 using namespace std::placeholders;
 
@@ -54,6 +43,13 @@ TcpServer::TcpServer(QObject *parent)
     }
 
     startPublishing();
+
+    MsgPack::registerPacker(QVariant::Type::Uuid, QVariant::Type::Uuid, [](const QVariant& variant) -> QByteArray {
+        return variant.toUuid().toRfc4122();
+    });
+    MsgPack::registerUnpacker(QVariant::Type::Uuid, [](const QByteArray& buffer) -> QVariant {
+        return QUuid::fromRfc4122(buffer);
+    });
 }
 
 TcpServer::~TcpServer()
@@ -86,10 +82,9 @@ void TcpServer::disconnect()
     m_client = nullptr;
 }
 
-void TcpServer::setProperty(const QUuid& name, const QByteArray& value)
+void TcpServer::setProperty(const QUuid& uuid, const QByteArray& value)
 {
-    auto _name = name.toByteArray(QUuid::WithoutBraces);
-    QObject::setProperty(_name, value);
+    m_properties.insert(uuid, value);
 
     //doSend(_name);
 }
@@ -107,69 +102,35 @@ void TcpServer::onClientConnected()
     connect(m_client, &QWebSocket::binaryMessageReceived, this, &TcpServer::onReceive);
     connect(m_client, &QWebSocket::disconnected, this, &TcpServer::disconnect);
 
-    // Serialize dynamic properties
+    // Iterate dirty properties and send them
     LOG_F(INFO, "New connection. Send properties:");
-    QByteArray block;
-    QDataStream outStream(&block, QIODevice::WriteOnly);
-    outStream.setVersion(QDataStream::Qt_5_6);
-    QVariantMap properties;
-    for (const auto& name : dynamicPropertyNames()) {
-        const auto value = property(name).toByteArray();
-        LOG_F(INFO, "%s: %i", name.toStdString().c_str(), value.size());
-        properties.insert(name, value);
-    }
-    outStream << properties;
+    for (const auto& kv : m_properties.toStdMap()) {
+        const auto& key = kv.first;
+        const auto& value = kv.second;
+        LOG_F(INFO, "%s: %i", key.toByteArray().toStdString().c_str(), value.size());
 
-    // Send buffer
-    const auto bytes = m_client->sendBinaryMessage(block);
-    LOG_F(INFO, "Wrote %i bytes", bytes);
+        QByteArray block;
+        block += static_cast<char>(0x81);   // Map with one element
+        block += MsgPack::pack(key);
+        block += MsgPack::pack(value);
+        const auto bytes = m_client->sendBinaryMessage(block);
+        LOG_F(INFO, "Wrote %lld bytes", bytes);
+    }
     m_client->flush();
 }
 
 void TcpServer::onReceive(const QByteArray& message)
 {
-    QDataStream dataStream(message);
-    dataStream.setVersion(QDataStream::Qt_5_6);
-
-    // Deserialize data
-    dataStream.startTransaction();
-    QVariantMap properties;
-    dataStream >> properties;
-    if (!dataStream.commitTransaction()) {
-        qWarning("Error deserializing data");
+    if (message.front() != static_cast<char>(0x81)) {
+        qDebug() << "Illegal data:" << message.front();
         return;
     }
 
-    for (const auto& kv : properties.toStdMap()) {
-        const char* name = kv.first.toLatin1().constData();
-        const QByteArray value = kv.second.toByteArray();
-        QObject::setProperty(name, value);
-        emit propertyChanged(name, value);
-    }
-}
-
-void TcpServer::doSend(const QByteArray& name)
-{
-    // If we are not connected, we do not send
-    if (!m_client || m_client->state() != QAbstractSocket::ConnectedState) {
-        qDebug() << "Socket not connected";
-        return;
-    }
-
-    // Send property
-    QVariantMap properties;
-    const auto value = property(name).toByteArray();
-    qDebug() << "Send property:" << name << ", value size:" << value.size();
-    properties.insert(name, value);
-
-    // Write out
-    QByteArray block;
-    QDataStream outStream(&block, QIODevice::WriteOnly);
-    outStream.setVersion(QDataStream::Qt_5_6);
-    outStream << properties;
-    const auto bytes = m_client->sendBinaryMessage(block);
-    qDebug() << "Wrote" << bytes << "bytes";
-    m_client->flush();
+    auto key = MsgPack::unpack(message.mid(1, 18)).toUuid();
+    auto value = MsgPack::unpack(message.mid(19)).toByteArray();
+    LOG_F(INFO, "uuid: %s, value size: %i", key.toByteArray().constData(), value.size());
+    m_properties.insert(key, value);
+    emit propertyChanged(key, value);
 }
 
 } // namespace net
