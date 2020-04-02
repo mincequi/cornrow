@@ -2,8 +2,6 @@
 
 #include <QObject>
 
-#include <common/ble/Converter.h>
-
 #include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/QLowEnergyAdvertisingParameters>
 
@@ -14,7 +12,7 @@ class BleClient;
 class ClientSession : public QObject
 {
 public:
-    ClientSession(BleClient* _q);
+    ClientSession(const QUuid& uuid, BleClient* _q);
 
 	void connectDevice(const QBluetoothDeviceInfo& device);
 
@@ -36,11 +34,10 @@ public:
     void onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
 
     BleClient* q;
+    const QUuid     m_serviceUuid;
     QBluetoothDeviceDiscoveryAgent* m_discoverer = nullptr;
     QLowEnergyController*   m_control = nullptr;
     QLowEnergyService*      m_service = nullptr;
-
-    common::ble::Converter m_converter;
 
 private:
     std::list<QBluetoothDeviceInfo> m_devices;

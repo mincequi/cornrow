@@ -4,8 +4,6 @@ QT     -= gui
 QT     += core network bluetooth websockets
 CONFIG += staticlib create_prl
 
-include(../cornrow.pri)
-
 DEFINES += QZEROCONF_STATIC
 include(../thirdparty/QtZeroConf/qtzeroconf.pri)
 include(../thirdparty/qmsgpack/qmsgpack.pri)
@@ -24,6 +22,4 @@ HEADERS += \
     src/QZeroPropsWebSocketService.h
 
 INCLUDEPATH += \
-    include/QZeroProps
-
-LIBS += -L$$OUT_PWD/../common/ -lcommon
+    include

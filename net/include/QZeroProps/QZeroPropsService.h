@@ -19,10 +19,6 @@
 
 #include <QBluetoothDeviceInfo>
 #include <QHostAddress>
-#include <QSet>
-#include <QTimer>
-#include <QUuid>
-#include <QVariant>
 
 #include <QZeroProps/QZeroPropsClient.h>
 

@@ -18,7 +18,10 @@ public:
     explicit BleCentralAdapter(ble::BleClient* central);
     ~BleCentralAdapter();
     
-    void startDiscovering();
+    // @TODO(mawe): HACK
+    ble::BleClient* central() { return m_central; }
+
+    void startDiscovering(const QUuid& serviceUuid);
     
     void connectDevice(const QBluetoothDeviceInfo& device);
 
@@ -29,17 +32,12 @@ public:
     void setIoModel(IoModel* ioModel);
 
 signals:
-	void deviceDiscovered(const QBluetoothDeviceInfo& device);
-
     void status(DeviceModel::Status status, const QString& errorString = QString());
-    void ioCapsReceived(const std::vector<common::IoInterface>& inputs, const std::vector<common::IoInterface>& ouputs);
-    void ioConfReceived(common::IoInterface input, common::IoInterface ouput);
     void presetReceived(uint8_t index, uint8_t total, uint8_t active, const QString& name);
 
 private:
     void doWriteCharc();
     void onStatus(ble::BleClient::Status status, const QString& errorString);
-    void onCharacteristicChanged(const QUuid& uuid, const QByteArray& value);
 
     ble::BleClient* m_central;
     IoModel*        m_ioModel;

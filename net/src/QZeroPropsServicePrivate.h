@@ -17,7 +17,9 @@
 
 #pragma once
 
-#include "QZeroPropsService.h"
+#include <QZeroProps/QZeroPropsService.h>
+
+#include <QTimer>
 
 namespace QZeroProps
 {

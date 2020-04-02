@@ -45,7 +45,7 @@ public:
     explicit BleClient(QObject *parent = nullptr);
     ~BleClient();
 
-    void startDiscovering();
+    void startDiscovering(const QUuid& uuid);
 
     void connectDevice(const QBluetoothDeviceInfo& device);
     void disconnect();

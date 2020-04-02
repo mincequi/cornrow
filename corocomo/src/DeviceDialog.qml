@@ -72,6 +72,7 @@ Dialog {
                 onClicked: {
                     FilterModel.setService(modelData)
                     DeviceModel.connectToService(modelData)
+                    CornrowIoModel.setService(modelData)
                 }
                 //subText: ip
                 //subTextFontSize: 12

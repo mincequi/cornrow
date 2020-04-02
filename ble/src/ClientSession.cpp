@@ -8,8 +8,9 @@
 namespace ble
 {
 
-ClientSession::ClientSession(BleClient* _q)
-    : q(_q)
+ClientSession::ClientSession(const QUuid& uuid, BleClient* _q)
+    : q(_q),
+      m_serviceUuid(uuid)
 {
     m_discoverer = new QBluetoothDeviceDiscoveryAgent(q);
 
@@ -57,7 +58,8 @@ void ClientSession::onDeviceDiscovered(const QBluetoothDeviceInfo& device)
     if (!(device.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration)) {
         return;
     }
-    if (!device.serviceUuids().contains(common::cornrowServiceUuid)) {
+
+    if (!device.serviceUuids().contains(m_serviceUuid)) {
         return;
     }
 
@@ -113,11 +115,11 @@ void ClientSession::onServiceDiscoveryFinished()
 {
     qDebug() << __func__;
 
-    if (!m_control->services().contains(common::cornrowServiceUuid)) {
+    if (!m_control->services().contains(m_serviceUuid)) {
         q->setStatus(BleClient::Status::Error, "Could not find cornrow service on device " + m_control->remoteName());
         return;
     }
-    m_service = m_control->createServiceObject(common::cornrowServiceUuid, this);
+    m_service = m_control->createServiceObject(m_serviceUuid, this);
     connect(m_service, &QLowEnergyService::stateChanged, this, &ClientSession::onServiceStateChanged);
     connect(m_service, &QLowEnergyService::characteristicRead, this, &ClientSession::onCharacteristicRead);
     connect(m_service, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error), this, &ClientSession::onServiceError);

@@ -17,25 +17,24 @@
 
 #pragma once
 
-// @TODO(mawe): remove bluetooth dependency
-#include <QBluetoothDeviceInfo>
-#include <QTimer>
-#include <QtWebSockets/QWebSocket>
-
-#include <ble/BleClient.h>
-
 #include <QZeroProps/QZeroPropsTypes.h>
 
 class QZeroConf;
 class QZeroConfServiceData;
 typedef QSharedPointer<QZeroConfServiceData> QZeroConfService;
 
+class BleCentralAdapter;
+
 namespace QZeroProps
 {
+class QZeroPropsClientPrivate;
 
 class QZeroPropsClient : public QObject
 {
     Q_OBJECT
+
+    // @TODO(Qt): QObjectList is not accepted. So, we must use QList<QObject*>.
+    Q_PROPERTY(QList<QObject*> discoveredServices READ discoveredServices NOTIFY servicesChanged)
 
 public:
     enum State : uint8_t {
@@ -64,7 +63,7 @@ public:
 
     //Backends supportedBackends() const;
 
-    QList<QZeroPropsServicePtr> discoveredServices() const;
+    QObjectList discoveredServices() const;
 
 public slots:
     void startDiscovery(const Configuration& config);
@@ -74,19 +73,27 @@ public slots:
     void disconnectFromService();
 
 signals:
-    void stateChanged(QZeroPropsClient::State state, const QString& errorString = QString());
-    void deviceDiscovered(QZeroPropsServicePtr device);
-    void deviceDisappeared(const QHostAddress& ip);
+    void stateChanged(State state, const QString& errorString = QString());
+    void servicesChanged();
 
 private:
-    // Device related event handlers
+    class QZeroPropsClientPrivate* const d;
+
+    // ZeroConf members
+    QZeroConf* m_zeroConf = nullptr;
     void onServiceDiscovered(QZeroConfService);
     void onServiceRemoved(QZeroConfService);
+
+    // ZeroProp members
+    QZeroPropsService* m_currentService = nullptr;
     void onStatus(QZeroPropsClient::State state, QString errorString = QString());
 
-    QZeroPropsService* m_currentService = nullptr;
+    // BLE
+    BleCentralAdapter* m_bleAdapter = nullptr;
+    friend class BleCentralAdapter;
 
-    QZeroConf* m_zeroConf = nullptr;
+    // @TODO(mawe): move to pimpl
+    QList<QZeroPropsServicePtr> m_services;
 };
 
 } // namespace QZeroProps

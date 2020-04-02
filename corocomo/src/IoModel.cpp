@@ -23,10 +23,23 @@ IoModel::IoModel(BleCentralAdapter* adapter, QObject *parent) :
     QObject(parent),
     m_adapter(adapter)
 {
-    connect(m_adapter, &BleCentralAdapter::ioCapsReceived, this, &IoModel::onIoCapsReceived);
-    connect(m_adapter, &BleCentralAdapter::ioConfReceived, this, &IoModel::onIoConfReceived);
+    connect(m_adapter->central(), &ble::BleClient::characteristicChanged, this, &IoModel::onPropertyChangedRemotely);
 
     onIoCapsReceived({}, {});
+}
+
+void IoModel::setService(QZeroProps::QZeroPropsService* service)
+{
+    if (m_zpService) {
+        m_zpService->disconnect();
+    }
+
+    m_zpService = service;
+
+    if (m_zpService) {
+        // @TODO(mawe): fix this
+        //connect(m_zpService, &QZeroProps::QZeroPropsService::propertyChanged, this, &IoModel::onPropertyChangedRemotely);
+    }
 }
 
 QStringList IoModel::inputNames() const
@@ -144,6 +157,34 @@ QString IoModel::toString(common::IoInterface interface)
     }
 
     return string;
+}
+
+void IoModel::onPropertyChangedRemotely(const QUuid& uuid, const QByteArray& value)
+{
+    if (uuid.toByteArray(QUuid::WithoutBraces).toStdString() == common::ble::ioCapsCharacteristicUuid) {
+        std::vector<common::IoInterface> inputs;
+        std::vector<common::IoInterface> outputs;
+        for (const auto& c : value) {
+            const common::IoInterface* i = reinterpret_cast<const common::IoInterface*>(&c);
+            if (i->isOutput) {
+                outputs.push_back(*i);
+            } else {
+                inputs.push_back(*i);
+            }
+        }
+
+        onIoCapsReceived(inputs, outputs);
+    } else if (uuid.toByteArray(QUuid::WithoutBraces).toStdString() == common::ble::ioConfCharacteristicUuid) {
+        common::IoInterface i;
+        common::IoInterface o;
+        for (const auto c : value) {
+            common::IoInterface interface = *reinterpret_cast<const common::IoInterface*>(&c);
+            if (!interface.isOutput) i = interface;
+            else o = interface;
+        }
+
+        onIoConfReceived(i, o);
+    }
 }
 
 void IoModel::onIoCapsReceived(const std::vector<common::IoInterface>& inputs, const std::vector<common::IoInterface>& outputs)

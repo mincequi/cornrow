@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QStringList>
 
+#include <QZeroProps/QZeroPropsService.h>
+
 #include <common/Types.h>
 
 class BleCentralAdapter;
@@ -20,6 +22,8 @@ class IoModel : public QObject
 public:
     static IoModel* init(BleCentralAdapter* adapter);
     static IoModel* instance();
+
+    Q_INVOKABLE void setService(QZeroProps::QZeroPropsService* service);
 
     QStringList inputNames() const;
     QStringList outputNames() const;
@@ -48,12 +52,15 @@ private:
 
     static QString toString(common::IoInterface interface);
 
+    void onPropertyChangedRemotely(const QUuid& uuid, const QByteArray& value);
     void onIoCapsReceived(const std::vector<common::IoInterface>& inputs, const std::vector<common::IoInterface>& ouputs);
     void onIoConfReceived(const common::IoInterface& input, const common::IoInterface& ouput);
 
     static IoModel* s_instance;
 
     BleCentralAdapter* m_adapter = nullptr;
+
+    QZeroProps::QZeroPropsService* m_zpService = nullptr;
 
     std::vector<common::IoInterface> m_inputs;
     std::vector<common::IoInterface> m_outputs;

@@ -15,7 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "QZeroPropsClient.h"
+#include <QZeroProps/QZeroPropsClient.h>
+#include <QZeroProps/QZeroPropsService.h>
 
 #include "QZeroPropsServicePrivate.h"
 
@@ -40,7 +41,8 @@ namespace QZeroProps
 {
 
 QZeroPropsClient::QZeroPropsClient(QObject* parent)
-    : QObject(parent)
+    : QObject(parent),
+      d(nullptr)
 {
     // Setup zeroconf
     m_zeroConf = new QZeroConf(this);
@@ -52,10 +54,27 @@ QZeroPropsClient::~QZeroPropsClient()
 {
 }
 
+QObjectList QZeroPropsClient::discoveredServices() const
+{
+    QObjectList _devices;
+    for (const auto& device : m_services) {
+        _devices.push_back(device.get());
+    }
+    return _devices;
+}
+
 void QZeroPropsClient::startDiscovery(const Configuration& config)
 {
-    Q_UNUSED(config)
-    m_zeroConf->startBrowser("_cornrow._tcp");
+    m_services.clear();
+    emit servicesChanged();
+
+    if (!config.zeroConfType.isEmpty()) {
+        m_zeroConf->startBrowser(config.zeroConfType);
+    }
+
+    if (config.bleUuid.isNull()) {
+        // m_ble...
+    }
 }
 
 void QZeroPropsClient::stopDiscovery()
@@ -93,13 +112,22 @@ void QZeroPropsClient::onServiceDiscovered(QZeroConfService service)
     device->m_address = service->ip();
     device->m_port = service->port();
 
-    emit deviceDiscovered(device);
-    qDebug() << __func__ << ">" << service;
+    m_services.push_back(device);
+    emit servicesChanged();
 }
 
 void QZeroPropsClient::onServiceRemoved(QZeroConfService service)
 {
-    emit deviceDisappeared(service->ip());
+    for (auto it = m_services.begin(); it != m_services.end(); ++it) {
+        if ((*it)->m_address == service->ip()) {
+            it = m_services.erase(it);
+            if (it == m_services.end()) {
+                break;
+            }
+        }
+    }
+
+    emit servicesChanged();
 }
 
 void QZeroPropsClient::onStatus(QZeroPropsClient::State _status, QString errorString)

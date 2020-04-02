@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "QZeroPropsService.h"
+#include <QZeroProps/QZeroPropsService.h>
 
 #include "QZeroPropsWebSocketService.h"
 

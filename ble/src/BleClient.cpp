@@ -37,7 +37,7 @@ BleClient::~BleClient()
     delete m_clientSession;
 }
 
-void BleClient::startDiscovering()
+void BleClient::startDiscovering(const QUuid& uuid)
 {
     if (m_clientSession) {
         delete m_clientSession;
@@ -52,7 +52,7 @@ void BleClient::startDiscovering()
     }*/
 
     setStatus(Status::Discovering);
-    m_clientSession = new ClientSession(this);
+    m_clientSession = new ClientSession(uuid, this);
 }
 
 void BleClient::connectDevice(const QBluetoothDeviceInfo& device)

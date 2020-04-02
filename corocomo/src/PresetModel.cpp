@@ -25,7 +25,7 @@ PresetModel::PresetModel(BleCentralAdapter* adapter, QObject* parent) :
     QObject(parent),
     m_adapter(adapter)
 {
-    connect(m_adapter, &BleCentralAdapter::presetReceived, this, &PresetModel::onPresetReceived);
+    //connect(m_adapter, &BleCentralAdapter::presetReceived, this, &PresetModel::onPresetReceived);
 }
 
 QStringList PresetModel::presetNames() const

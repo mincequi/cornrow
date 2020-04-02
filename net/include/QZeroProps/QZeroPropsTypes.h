@@ -23,8 +23,8 @@
 namespace QZeroProps {
 
 struct Configuration {
-    QString name;   // ZeroConf (WebSockets) service type
-    QUuid   uuid;   // BluetoothLe service uuid
+    QString zeroConfType;   // ZeroConf (WebSockets) service type
+    QUuid   bleUuid;        // BluetoothLe service uuid
 };
 
 class QZeroPropsService;

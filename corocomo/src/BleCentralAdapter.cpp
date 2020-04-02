@@ -11,8 +11,6 @@ BleCentralAdapter::BleCentralAdapter(ble::BleClient* central)
     : QObject(central),
       m_central(central)
 {
-    connect(m_central, &ble::BleClient::deviceDiscovered, this, &BleCentralAdapter::deviceDiscovered);
-    connect(m_central, &ble::BleClient::characteristicChanged, this, &BleCentralAdapter::onCharacteristicChanged);
     connect(m_central, &ble::BleClient::status, this, &BleCentralAdapter::onStatus);
 
     m_timer.setInterval(200);
@@ -24,9 +22,9 @@ BleCentralAdapter::~BleCentralAdapter()
 {
 }
 
-void BleCentralAdapter::startDiscovering()
+void BleCentralAdapter::startDiscovering(const QUuid& serviceUuid)
 {
-	m_central->startDiscovering();
+    m_central->startDiscovering(serviceUuid);
 }
 
 void BleCentralAdapter::connectDevice(const QBluetoothDeviceInfo& device)
@@ -97,33 +95,5 @@ void BleCentralAdapter::onStatus(ble::BleClient::Status _status, const QString& 
     case ble::BleClient::Status::Error:
         emit status(DeviceModel::Status::Error, statusText);
         return;
-    }
-}
-
-void BleCentralAdapter::onCharacteristicChanged(const QUuid& uuid, const QByteArray& value)
-{
-    if (uuid.toByteArray(QUuid::WithoutBraces).toStdString() == common::ble::ioCapsCharacteristicUuid) {
-        std::vector<common::IoInterface> inputs;
-        std::vector<common::IoInterface> outputs;
-        for (const auto& c : value) {
-            const common::IoInterface* i = reinterpret_cast<const common::IoInterface*>(&c);
-            if (i->isOutput) {
-                outputs.push_back(*i);
-            } else {
-                inputs.push_back(*i);
-            }
-        }
-
-        emit ioCapsReceived(inputs, outputs);
-    } else if (uuid.toByteArray(QUuid::WithoutBraces).toStdString() == common::ble::ioConfCharacteristicUuid) {
-        common::IoInterface i;
-        common::IoInterface o;
-        for (const auto c : value) {
-            common::IoInterface interface = *reinterpret_cast<const common::IoInterface*>(&c);
-            if (!interface.isOutput) i = interface;
-            else o = interface;
-        }
-
-        emit ioConfReceived(i, o);
     }
 }

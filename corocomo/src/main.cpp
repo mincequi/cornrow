@@ -30,12 +30,12 @@ int main(int argc, char *argv[])
     // Remote services: BLE, Tcp
     ble::BleClient bleClient;
     BleCentralAdapter bleAdapter(&bleClient);
-    QZeroProps::QZeroPropsClient tcpClient;
+    QZeroProps::QZeroPropsClient zpClient;
 
     // Setup view models
     // Init config first!
     auto config = Config::init(Config::Type::Mid);
-    DeviceModel::init(&bleAdapter, &tcpClient);
+    DeviceModel::init(&bleAdapter, &zpClient);
     auto ioModel = IoModel::init(&bleAdapter);
     // @TODO(mawe): config is registered as singleton. No need to pass here.
     FilterModel::init(*config, &bleClient);

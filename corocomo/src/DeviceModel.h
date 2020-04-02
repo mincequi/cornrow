@@ -1,8 +1,7 @@
 #pragma once
 
-#include <QObject>
-#include <common/Types.h>
 #include <QZeroProps/QZeroPropsClient.h>
+#include <QHostAddress>
 
 class BleCentralAdapter;
 namespace ble {
@@ -23,7 +22,7 @@ class DeviceModel : public QObject
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusChanged)
 
     // @TODO(Qt): QObjectList is not accepted. So, we must use QList<QObject*>.
-    Q_PROPERTY(QList<QObject*> devices READ devices NOTIFY devicesChanged)
+    Q_PROPERTY(QList<QObject*> services READ services NOTIFY servicesChanged)
 
 public:
     enum Status : uint8_t {
@@ -47,15 +46,15 @@ public:
     QString     statusLabel() const;
     QString     statusText() const;
 
-    QObjectList devices() const;
+    QObjectList services() const;
     Q_INVOKABLE void connectToService(QZeroProps::QZeroPropsService* device);
 
 signals:
     void statusChanged();
-    void devicesChanged();
+    void servicesChanged();
 
 private:
-    explicit DeviceModel(BleCentralAdapter* bleAdapter, QZeroProps::QZeroPropsClient* m_tcpClient, QObject* parent = nullptr);
+    explicit DeviceModel(BleCentralAdapter* bleAdapter, QZeroProps::QZeroPropsClient* m_zpClient, QObject* parent = nullptr);
     
     void stopDiscovering();
 
@@ -63,7 +62,7 @@ private:
     void onBleDeviceStatus(Status status, const QString& errorString = QString());
     void onNetDeviceStatus(QZeroProps::QZeroPropsClient::State state, const QString& errorString);
     void onBleDeviceDiscovered(const QBluetoothDeviceInfo& device);
-    void onNetDeviceDiscovered(QZeroProps::QZeroPropsServicePtr device);
+    void onDevicesChanged();
     void onNetDeviceDisappeared(const QHostAddress& address);
 
     static DeviceModel* s_instance;
@@ -73,12 +72,10 @@ private:
     QString         m_statusText;
     bool            m_demoMode = false;
 
-    QList<QZeroProps::QZeroPropsServicePtr> m_devices;
-
     // BLE
     BleCentralAdapter* m_bleAdapter = nullptr;
     friend class BleCentralAdapter;
 
     // Net
-    QZeroProps::QZeroPropsClient* m_tcpClient = nullptr;
+    QZeroProps::QZeroPropsClient* m_zpClient = nullptr;
 };

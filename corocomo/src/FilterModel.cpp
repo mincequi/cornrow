@@ -392,42 +392,39 @@ void FilterModel::onFilterChangedLocally()
 
 void FilterModel::onFilterChangedRemotely(const QVariant& key, const QByteArray& value)
 {
+    if (value.size() % 4 != 0) {
+        qDebug("Invalid size for filter group");
+        return;
+    }
+
     auto _key = key.toUuid().toByteArray(QUuid::WithoutBraces).toStdString();
     if (_key == common::ble::peqCharacteristicUuid) {
-        if (value.size() % 4 == 0) {
-            int j = 0;
-            for (int i = 0; i < value.size() && i <= 4 * m_config.peqFilterCount; i += 4) {
-                m_filters[j].t = static_cast<common::FilterType>(value.at(i));
-                m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
-                m_filters[j].g = value.at(i+2)*0.5;
-                m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
-                emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
-                setCurrentBand(currentBand());  // emit all signals
-                ++j;
-            }
-        } else {
-            qDebug("Invalid size for filter group");
+        int j = 0;
+        for (int i = 0; i < value.size() && i <= 4 * m_config.peqFilterCount; i += 4) {
+            m_filters[j].t = static_cast<common::FilterType>(value.at(i));
+            m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
+            m_filters[j].g = value.at(i+2)*0.5;
+            m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
+            emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
+            setCurrentBand(currentBand());  // emit all signals
+            ++j;
         }
         return;
     }
 
     if (_key == common::ble::auxCharacteristicUuid) {
-        if (value.size() % 4 == 0) {
-            int j = m_config.peqFilterCount;
-            for (int i = 0; i < value.size() && i <= 4 * (m_filters.size() - m_config.peqFilterCount); i += 4) {
-                m_filters[j].t = static_cast<common::FilterType>(value.at(i));
-                m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
-                m_filters[j].g = value.at(i+2)*0.5;
-                m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
-                emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
-                setCurrentBand(currentBand());  // emit all signals
-                ++j;
-            }
-        } else {
-            qDebug("Invalid size for filter group");
+        int j = m_config.peqFilterCount;
+        for (int i = 0; i < value.size() && i <= 4 * (m_filters.size() - m_config.peqFilterCount); i += 4) {
+            m_filters[j].t = static_cast<common::FilterType>(value.at(i));
+            m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
+            m_filters[j].g = value.at(i+2)*0.5;
+            m_filters[j].q = static_cast<uint8_t>(value.at(i+3));
+            emit filterChanged(j, static_cast<uchar>(m_filters[j].t), m_filters[j].f, m_filters[j].g, common::qTable.at(m_filters[j].q));
+            setCurrentBand(currentBand());  // emit all signals
+            ++j;
         }
         return;
     }
 
-    qDebug() << "Unknown property:" << key;
+    qDebug() << __func__ << "> Unknown property:" << key;
 }
