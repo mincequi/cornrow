@@ -1,12 +1,14 @@
-#include "ServerSession.h"
+#include "BleServerSession.h"
 
 #include "Defines.h"
-#include "Server.h"
+#include "BleServer.h"
 
-namespace ble
+using namespace common;
+
+namespace QZeroProps
 {
 
-ServerSession::ServerSession(Server* server, const std::map<QBluetoothUuid, QByteArray>& characteristicsMap)
+BleServerSession::BleServerSession(BleServer* server, const std::map<QBluetoothUuid, QByteArray>& characteristicsMap)
     : m_server(server)
 {
     // Service data
@@ -26,40 +28,40 @@ ServerSession::ServerSession(Server* server, const std::map<QBluetoothUuid, QByt
     // Peripheral
     peripheral = QLowEnergyController::createPeripheral(this);
     service = peripheral->addService(serviceData);
-    connect(service, &QLowEnergyService::characteristicChanged, m_server, &Server::characteristicChanged);
-    connect(service, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error), this, &ServerSession::onError);
+    connect(service, &QLowEnergyService::characteristicChanged, m_server, &BleServer::characteristicChanged);
+    connect(service, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error), this, &BleServerSession::onError);
 
     // Advertising data
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
     advertisingData.setServices({cornrowServiceUuid});
 
     // Advertising will stop once a client connects, so re-advertise once disconnected.
-    connect(peripheral, &QLowEnergyController::disconnected, this, &ServerSession::onDisconnected);
-    connect(peripheral, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error), this, &ServerSession::onError);
+    connect(peripheral, &QLowEnergyController::disconnected, this, &BleServerSession::onDisconnected);
+    connect(peripheral, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error), this, &BleServerSession::onError);
     // This has to be connected last, since it destroys the previous ServerSession object
-    connect(peripheral, &QLowEnergyController::disconnected, server, &Server::startPublishing);
+    connect(peripheral, &QLowEnergyController::disconnected, server, &BleServer::startPublishing);
 
     peripheral->startAdvertising(QLowEnergyAdvertisingParameters(), advertisingData/*, advertisingData*/);
 }
 
-ServerSession::~ServerSession()
+BleServerSession::~BleServerSession()
 {
     peripheral->stopAdvertising();
     peripheral->disconnectFromDevice();
 }
 
-void ServerSession::onError()
+void BleServerSession::onError()
 {
     qDebug() << __func__;
 
     emit m_server->deviceDisconnected();
 }
 
-void ServerSession::onDisconnected()
+void BleServerSession::onDisconnected()
 {
     qDebug() << __func__;
 
     emit m_server->deviceDisconnected();
 }
 
-} // namespace ble
+} // namespace QZeroProps

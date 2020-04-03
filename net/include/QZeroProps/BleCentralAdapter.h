@@ -3,10 +3,13 @@
 #include <QObject>
 #include <QTimer>
 
-#include <ble/BleClient.h>
+#include "QZeroPropsBluetoothLeService.h"
 #include <common/Types.h>
+#include <common/ble/Types.h>
 
-#include "DeviceModel.h"
+//#include "DeviceModel.h"
+
+#include <QZeroProps/QZeroPropsService.h>
 
 class IoModel;
 
@@ -15,15 +18,13 @@ class BleCentralAdapter : public QObject
     Q_OBJECT
 
 public:
-    explicit BleCentralAdapter(ble::BleClient* central);
+    explicit BleCentralAdapter(QZeroProps::QZeroPropsBluetoothLeService* central);
     ~BleCentralAdapter();
     
     // @TODO(mawe): HACK
-    ble::BleClient* central() { return m_central; }
+    QZeroProps::QZeroPropsBluetoothLeService* central() { return m_central; }
 
-    void startDiscovering(const QUuid& serviceUuid);
-    
-    void connectDevice(const QBluetoothDeviceInfo& device);
+    void connectDevice(QZeroProps::QZeroPropsService* service);
 
     void setDirty(common::ble::CharacteristicType group);
     void setDirty(const std::string& uuid);
@@ -32,14 +33,14 @@ public:
     void setIoModel(IoModel* ioModel);
 
 signals:
-    void status(DeviceModel::Status status, const QString& errorString = QString());
+    void status(QZeroProps::QZeroPropsClient::State state, const QString& errorString = QString());
     void presetReceived(uint8_t index, uint8_t total, uint8_t active, const QString& name);
 
 private:
     void doWriteCharc();
-    void onStatus(ble::BleClient::Status status, const QString& errorString);
+    void onStatus(QZeroProps::QZeroPropsClient::State state, const QString& errorString);
 
-    ble::BleClient* m_central;
+    QZeroProps::QZeroPropsBluetoothLeService* m_central;
     IoModel*        m_ioModel;
 
     QTimer          m_timer;

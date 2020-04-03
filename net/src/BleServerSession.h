@@ -5,17 +5,17 @@
 #include <QtBluetooth/QLowEnergyController>
 #include <QtBluetooth/QLowEnergyServiceData>
 
-namespace ble
+namespace QZeroProps
 {
-class Server;
+class BleServer;
 
-class ServerSession : public QObject
+class BleServerSession : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ServerSession(Server* server, const std::map<QBluetoothUuid, QByteArray>& characteristicsMap);
-    ~ServerSession();
+    explicit BleServerSession(BleServer* server, const std::map<QBluetoothUuid, QByteArray>& characteristicsMap);
+    ~BleServerSession();
 
     QLowEnergyController*       peripheral;
     QLowEnergyService*          service;
@@ -26,7 +26,7 @@ private:
     void onError();
     void onDisconnected();
 
-    Server* m_server = nullptr;
+    BleServer* m_server = nullptr;
 };
 
-} // namespace ble
+} // namespace QZeroProps

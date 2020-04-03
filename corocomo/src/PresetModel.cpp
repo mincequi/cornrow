@@ -1,6 +1,6 @@
 #include "PresetModel.h"
 
-#include "BleCentralAdapter.h"
+#include <QZeroProps/BleCentralAdapter.h>
 
 #include <QTimer>
 

@@ -10,7 +10,7 @@
 #include <QUuid>
 #include <QtGlobal>
 
-#include <ble/BleClient.h>
+#include <QZeroProps/QZeroPropsBluetoothLeService.h>
 #include <QZeroProps/QZeroPropsClient.h>
 
 FilterModel* FilterModel::s_instance = nullptr;
@@ -21,7 +21,7 @@ FilterModel* FilterModel::instance()
 }
 
 FilterModel* FilterModel::init(const Config& configuration,
-                               ble::BleClient* bleClient)
+                               QZeroProps::QZeroPropsBluetoothLeService* bleClient)
 {
     if (s_instance) {
         return s_instance;
@@ -31,7 +31,7 @@ FilterModel* FilterModel::init(const Config& configuration,
     return s_instance;
 }
 
-FilterModel::FilterModel(const Config& config, ble::BleClient* bleClient) :
+FilterModel::FilterModel(const Config& config, QZeroProps::QZeroPropsBluetoothLeService* bleClient) :
     QObject(nullptr),
     m_config(config),
     m_loudnessBand(config.peqFilterCount),
@@ -51,7 +51,7 @@ FilterModel::FilterModel(const Config& config, ble::BleClient* bleClient) :
     connect(this, &FilterModel::gainChanged, this, &FilterModel::onFilterChangedLocally);
     connect(this, &FilterModel::qChanged, this, &FilterModel::onFilterChangedLocally);
 
-    connect(m_bleClient, &ble::BleClient::characteristicChanged, this, &FilterModel::onFilterChangedRemotely);
+    connect(m_bleClient, &QZeroProps::QZeroPropsBluetoothLeService::characteristicChanged, this, &FilterModel::onFilterChangedRemotely);
 }
 
 FilterModel::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_t _q)

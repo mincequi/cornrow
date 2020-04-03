@@ -16,7 +16,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 include(../cornrow.pri)
 
 SOURCES += \
-    src/BleCentralAdapter.cpp \
     src/BodePlotModel.cpp \
     src/BusyIndicatorModel.cpp \
     src/Config.cpp \
@@ -32,7 +31,8 @@ SOURCES += \
     src/main.cpp
 
 HEADERS += \
-    src/BleCentralAdapter.h \
+    ../net/include/QZeroProps/BleCentralAdapter.h \
+    ../net/include/QZeroProps/QZeroPropsBluetoothLeService.h \
     src/BodePlotModel.h \
     src/BusyIndicatorModel.h \
     src/Config.h \
@@ -47,8 +47,9 @@ HEADERS += \
 
 RESOURCES += qml.qrc
 
-LIBS += -L$$OUT_PWD/../ble/ -lble -L$$OUT_PWD/../net/ -lnet
-PRE_TARGETDEPS += $$OUT_PWD/../ble/libble.a $$OUT_PWD/../net/libnet.a
+LIBS += -L$$OUT_PWD/../common/ -lcommon
+LIBS += -L$$OUT_PWD/../net/ -lnet
+PRE_TARGETDEPS += $$OUT_PWD/../net/libnet.a
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

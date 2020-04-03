@@ -1,4 +1,3 @@
-#include "BleCentralAdapter.h"
 #include "BodePlotModel.h"
 #include "BusyIndicatorModel.h"
 #include "Config.h"
@@ -9,7 +8,9 @@
 #include "PhaseChart.h"
 #include "PresetModel.h"
 #include "SoftClipChart.h"
-#include "ble/BleClient.h"
+
+#include <QZeroProps/BleCentralAdapter.h>
+#include <QZeroProps/QZeroPropsBluetoothLeService.h>
 #include <QZeroProps/QZeroPropsClient.h>
 
 #include <QDebug>
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     
     // Remote services: BLE, Tcp
-    ble::BleClient bleClient;
+    QZeroProps::QZeroPropsBluetoothLeService bleClient;
     BleCentralAdapter bleAdapter(&bleClient);
     QZeroProps::QZeroPropsClient zpClient;
 

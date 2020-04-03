@@ -15,29 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BleClient.h"
+#include <QZeroProps/QZeroPropsBluetoothLeService.h>
 
-#include "ClientSession.h"
+#include "BleClientSession.h"
 #include "Defines.h"
 
 #include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/QBluetoothLocalDevice>
 #include <QtBluetooth/QLowEnergyAdvertisingParameters>
 
-namespace ble
+#include <QZeroProps/QZeroPropsService.h>
+
+namespace QZeroProps
 {
 
-BleClient::BleClient(QObject* parent)
+QZeroPropsBluetoothLeService::QZeroPropsBluetoothLeService(QObject* parent)
     : QObject(parent)
 {
 }
 
-BleClient::~BleClient()
+QZeroPropsBluetoothLeService::~QZeroPropsBluetoothLeService()
 {
     delete m_clientSession;
 }
 
-void BleClient::startDiscovering(const QUuid& uuid)
+void QZeroPropsBluetoothLeService::startDiscovering(const QUuid& uuid)
 {
     if (m_clientSession) {
         delete m_clientSession;
@@ -51,27 +53,27 @@ void BleClient::startDiscovering(const QUuid& uuid)
         return false;
     }*/
 
-    setStatus(Status::Discovering);
-    m_clientSession = new ClientSession(uuid, this);
+    setStatus(QZeroPropsClient::State::Discovering);
+    m_clientSession = new BleClientSession(uuid, this);
 }
 
-void BleClient::connectDevice(const QBluetoothDeviceInfo& device)
+void QZeroPropsBluetoothLeService::connectToService(QZeroProps::QZeroPropsService* service)
 {
     if (!m_clientSession) {
         qWarning() << "No client session";
         return;
     }
 
-    m_clientSession->connectDevice(device);
+    m_clientSession->connectDevice(service->m_bluetoothDeviceInfo);
 }
 
-void BleClient::disconnect()
+void QZeroPropsBluetoothLeService::disconnect()
 {
     delete m_clientSession;
     m_clientSession = nullptr;
 }
 
-void BleClient::setCharacteristic(const std::string& uuid, const QByteArray& value)
+void QZeroPropsBluetoothLeService::setCharacteristic(const std::string& uuid, const QByteArray& value)
 {
     if (!m_clientSession || !m_clientSession->m_service) {
         // qDebug() << __func__ << "> No BLE device connected";
@@ -86,10 +88,10 @@ void BleClient::setCharacteristic(const std::string& uuid, const QByteArray& val
     m_clientSession->m_service->writeCharacteristic(characteristic, value);
 }
 
-void BleClient::setStatus(Status _error, const QString& errorString)
+void QZeroPropsBluetoothLeService::setStatus(QZeroPropsClient::State _error, const QString& errorString)
 {
     qDebug() << "Status:" << static_cast<int32_t>(_error) << "error:" << errorString;
     emit status(_error, errorString);
 }
 
-} // namespace ble
+} // namespace QZeroProps

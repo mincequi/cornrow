@@ -2,15 +2,14 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     common \
-    ble \
     net \
     corocomo
 
-ble.subdir      = ble
+#ble.subdir      = ble
 common.subdir   = common
 corocomo.subdir = corocomo
 net.subdir      = net
 
-ble.depends = common
+#ble.depends = common
 net.depends = common
-corocomo.depends = ble net
+corocomo.depends = net

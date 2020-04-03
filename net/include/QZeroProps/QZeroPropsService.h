@@ -17,10 +17,10 @@
 
 #pragma once
 
-#include <QBluetoothDeviceInfo>
-#include <QHostAddress>
-
 #include <QZeroProps/QZeroPropsClient.h>
+
+#include <QtBluetooth/QBluetoothDeviceInfo>
+#include <QtNetwork/QHostAddress>
 
 namespace QZeroProps
 {
@@ -30,19 +30,19 @@ class QZeroPropsService : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString name MEMBER m_name)
-    Q_PROPERTY(Type type MEMBER m_type)
+    Q_PROPERTY(ServiceType type MEMBER m_type)
 
 public:
     // We cannot use an alias here
     //using DeviceType = common::CtrlInterfaceType;
-    enum class Type {
+    enum class ServiceType {
         Invalid = 0,
         BluetoothLe = 0x1,
         WebSocket = 0x2,
         All = BluetoothLe | WebSocket
     };
     // We need this for QML engine
-    Q_ENUM(Type)
+    Q_ENUM(ServiceType)
 
     QZeroPropsService(QZeroPropsClient* parent = nullptr);
     virtual ~QZeroPropsService();
@@ -64,10 +64,7 @@ private:
 public:
     // @TODO(mawe): this needs to be reworked
     QString m_name;
-    Type m_type = Type::Invalid;
-
-    QHostAddress m_address;
-    uint16_t m_port = 0;
+    ServiceType m_type = ServiceType::Invalid;
 
     QBluetoothDeviceInfo m_bluetoothDeviceInfo;
 
@@ -78,4 +75,4 @@ using QZeroPropsServicePtr = QSharedPointer<QZeroPropsService>;
 
 } // namespace QZeroProps
 
-Q_DECLARE_METATYPE(QZeroProps::QZeroPropsServicePtr)
+//Q_DECLARE_METATYPE(QZeroProps::QZeroPropsServicePtr)

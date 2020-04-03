@@ -40,6 +40,10 @@ public:
     QSet<QVariant>  dirtyProperties;
     QMap<QVariant, QByteArray>  properties;
 
+    QHostAddress address;
+    uint16_t port = 0;
+    //QBluetoothDeviceInfo bluetoothDeviceInfo;
+
     class QZeroPropsService* const q;
 };
 

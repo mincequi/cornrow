@@ -5,14 +5,14 @@
 #include <QtBluetooth/QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/QLowEnergyAdvertisingParameters>
 
-namespace ble
+namespace QZeroProps
 {
-class BleClient;
+class QZeroPropsBluetoothLeService;
 
-class ClientSession : public QObject
+class BleClientSession : public QObject
 {
 public:
-    ClientSession(const QUuid& uuid, BleClient* _q);
+    BleClientSession(const QUuid& uuid, QZeroPropsBluetoothLeService* _q);
 
 	void connectDevice(const QBluetoothDeviceInfo& device);
 
@@ -33,7 +33,7 @@ public:
     void onServiceError(QLowEnergyService::ServiceError error);
     void onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
 
-    BleClient* q;
+    QZeroPropsBluetoothLeService* q;
     const QUuid     m_serviceUuid;
     QBluetoothDeviceDiscoveryAgent* m_discoverer = nullptr;
     QLowEnergyController*   m_control = nullptr;
@@ -43,4 +43,4 @@ private:
     std::list<QBluetoothDeviceInfo> m_devices;
 };
 
-} // namespace ble
+} // namespace QZeroProps

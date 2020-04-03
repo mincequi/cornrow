@@ -24,16 +24,16 @@
 
 class QLowEnergyCharacteristic;
 
-namespace ble
+namespace QZeroProps
 {
 
-class Server : public QObject
+class BleServer : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Server(QObject *parent = nullptr);
-    ~Server();
+    explicit BleServer(QObject *parent = nullptr);
+    ~BleServer();
 
 signals:
     // Signals, that a client has changed a characteristic
@@ -50,9 +50,9 @@ private:
 
     CharcsProvider m_charcsProvider = nullptr;
 
-    class ServerSession* m_session = nullptr;
-    friend class ServerAdapter;
-    friend class ServerSession;
+    class BleServerSession* m_session = nullptr;
+    friend class BleServerAdapter;
+    friend class BleServerSession;
 };
 
-} // namespace ble
+} // namespace QZeroProps

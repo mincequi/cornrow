@@ -108,9 +108,9 @@ void QZeroPropsClient::onServiceDiscovered(QZeroConfService service)
 {
     QZeroPropsServicePtr device(new QZeroPropsService);
     device->m_name = service->name();
-    device->m_type = QZeroPropsService::Type::WebSocket;
-    device->m_address = service->ip();
-    device->m_port = service->port();
+    device->m_type = QZeroPropsService::ServiceType::WebSocket;
+    device->d->address = service->ip();
+    device->d->port = service->port();
 
     m_services.push_back(device);
     emit servicesChanged();
@@ -119,7 +119,7 @@ void QZeroPropsClient::onServiceDiscovered(QZeroConfService service)
 void QZeroPropsClient::onServiceRemoved(QZeroConfService service)
 {
     for (auto it = m_services.begin(); it != m_services.end(); ++it) {
-        if ((*it)->m_address == service->ip()) {
+        if ((*it)->d->address == service->ip()) {
             it = m_services.erase(it);
             if (it == m_services.end()) {
                 break;

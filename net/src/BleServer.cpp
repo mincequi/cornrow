@@ -15,36 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Server.h"
+#include "BleServer.h"
 
 #include "Defines.h"
-#include "ServerSession.h"
+#include "BleServerSession.h"
 
 #include <QtBluetooth/QLowEnergyAdvertisingParameters>
 #include <QtBluetooth/QLowEnergyCharacteristicData>
 #include <QtBluetooth/QLowEnergyController>
 #include <QtBluetooth/QLowEnergyServiceData>
 
-namespace ble
+namespace QZeroProps
 {
 
-Server::Server(QObject *parent)
+BleServer::BleServer(QObject *parent)
     : QObject(parent)
 {
 }
 
-Server::~Server()
+BleServer::~BleServer()
 {
 }
 
-void Server::init(CharcsProvider charcsProvider)
+void BleServer::init(CharcsProvider charcsProvider)
 {
     m_charcsProvider = charcsProvider;
 
     startPublishing();
 }
 
-void Server::startPublishing()
+void BleServer::startPublishing()
 {
     if (m_session) {
         delete m_session;
@@ -52,7 +52,7 @@ void Server::startPublishing()
     }
 
     // Publish service
-    m_session = new ServerSession(this, m_charcsProvider());
+    m_session = new BleServerSession(this, m_charcsProvider());
 }
 
-} // namespace ble
+} // namespace QZeroProps

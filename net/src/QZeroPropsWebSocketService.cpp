@@ -63,8 +63,8 @@ void QZeroPropsWebSocketService::connect()
 {
     QUrl url;
     url.setScheme("ws");
-    url.setHost(q->m_address.toString());
-    url.setPort(q->m_port);
+    url.setHost(address.toString());
+    url.setPort(port);
     m_socket.open(url);
 }
 

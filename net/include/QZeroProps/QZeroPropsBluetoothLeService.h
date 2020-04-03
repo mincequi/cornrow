@@ -19,51 +19,42 @@
 
 #include <QObject>
 
-#include <common/ble/Types.h>
+#include <QZeroProps/QZeroPropsClient.h>
 
 class QBluetoothDeviceInfo;
 class QLowEnergyCharacteristic;
 
-namespace ble
+namespace QZeroProps
 {
+class QZeroPropsService;
 
-class BleClient : public QObject
+class QZeroPropsBluetoothLeService : public QObject
 {
     Q_OBJECT
 
 public:
-    enum class Status {
-        NoBluetooth,    // Currently unused, since we cannot tell on iOS wether Bluetooth is on.
-        Discovering,
-        Connecting,     // Connecting state hangs from time to time, so provide user interaction
-        Connected,
-        Timeout,
-        Lost,
-        Error
-    };
-
-    explicit BleClient(QObject *parent = nullptr);
-    ~BleClient();
+    explicit QZeroPropsBluetoothLeService(QObject *parent = nullptr);
+    ~QZeroPropsBluetoothLeService();
 
     void startDiscovering(const QUuid& uuid);
 
-    void connectDevice(const QBluetoothDeviceInfo& device);
+    void connectToService(QZeroProps::QZeroPropsService* service);
     void disconnect();
 
     void setCharacteristic(const std::string& uuid, const QByteArray& value);
 
 signals:
-    void status(Status status, const QString& errorString = QString());
+    void status(QZeroPropsClient::State state, const QString& errorString = QString());
 	void deviceDiscovered(const QBluetoothDeviceInfo& device);
 
     // Emits remotely changed values
     void characteristicChanged(const QUuid& uuid, const QByteArray& value);
 
 private:
-    void setStatus(Status status, const QString& errorString = QString());
+    void setStatus(QZeroPropsClient::State state, const QString& errorString = QString());
 
-    class ClientSession* m_clientSession = nullptr;
-    friend class ClientSession;
+    class BleClientSession* m_clientSession = nullptr;
+    friend class BleClientSession;
 };
 
-} // namespace ble
+} // namespace QZeroProps

@@ -1,6 +1,6 @@
 #include "IoModel.h"
 
-#include "BleCentralAdapter.h"
+#include <QZeroProps/BleCentralAdapter.h>
 
 IoModel* IoModel::s_instance = nullptr;
 
@@ -23,7 +23,7 @@ IoModel::IoModel(BleCentralAdapter* adapter, QObject *parent) :
     QObject(parent),
     m_adapter(adapter)
 {
-    connect(m_adapter->central(), &ble::BleClient::characteristicChanged, this, &IoModel::onPropertyChangedRemotely);
+    connect(m_adapter->central(), &QZeroProps::QZeroPropsBluetoothLeService::characteristicChanged, this, &IoModel::onPropertyChangedRemotely);
 
     onIoCapsReceived({}, {});
 }
