@@ -1,11 +1,11 @@
 #include "DeviceModel.h"
 
-#include <QZeroProps/BleCentralAdapter.h>
 #include <QZeroProps/QZeroPropsService.h>
+
+#include <common/ble/Types.h>
 
 #include <QBluetoothAddress>
 #include <QBluetoothDeviceInfo>
-#include <QBluetoothUuid>
 #include <QGuiApplication>
 
 DeviceModel* DeviceModel::s_instance = nullptr;
@@ -15,26 +15,20 @@ DeviceModel* DeviceModel::instance()
     return s_instance;
 }
 
-DeviceModel* DeviceModel::init(BleCentralAdapter* bleAdapter, QZeroProps::QZeroPropsClient* netClient)
+DeviceModel* DeviceModel::init(QZeroProps::QZeroPropsClient* netClient)
 {
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new DeviceModel(bleAdapter, netClient);
+    s_instance = new DeviceModel(netClient);
     return s_instance;
 }
 
-DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, QZeroProps::QZeroPropsClient* netClient, QObject *parent) :
+DeviceModel::DeviceModel(QZeroProps::QZeroPropsClient* netClient, QObject *parent) :
     QObject(parent),
-    m_bleAdapter(bleAdapter),
     m_zpClient(netClient)
 {
-    // Ble
-    connect(m_bleAdapter, &BleCentralAdapter::status, this, &DeviceModel::onDeviceStatus);
-    connect(m_bleAdapter->central(), &QZeroProps::QZeroPropsBluetoothLeService::deviceDiscovered, this, &DeviceModel::onBleDeviceDiscovered);
-
-    // Net
     connect(m_zpClient, &QZeroProps::QZeroPropsClient::stateChanged, this, &DeviceModel::onDeviceStatus);
     connect(m_zpClient, &QZeroProps::QZeroPropsClient::servicesChanged, this, &DeviceModel::onDevicesChanged);
 
@@ -43,9 +37,7 @@ DeviceModel::DeviceModel(BleCentralAdapter* bleAdapter, QZeroProps::QZeroPropsCl
 
 void DeviceModel::startDiscovering()
 {
-    m_bleAdapter->central()->startDiscovering(QUuid(common::ble::cornrowServiceUuid.c_str()));
-    m_zpClient->startDiscovery({ "_cornrow._tcp", QUuid()});
-    onDeviceStatus(QZeroProps::QZeroPropsClient::State::Discovering);
+    m_zpClient->startDiscovery({ "_cornrow._tcp", QUuid(common::ble::cornrowServiceUuid.c_str())});
 }
 
 void DeviceModel::startDemo()
@@ -75,19 +67,8 @@ QObjectList DeviceModel::services() const
 
 void DeviceModel::connectToService(QZeroProps::QZeroPropsService* service)
 {
-    switch (service->m_type) {
-    case QZeroProps::QZeroPropsService::ServiceType::BluetoothLe:
-        onDeviceStatus(QZeroProps::QZeroPropsClient::State::Connecting, "Connecting " + service->m_name);
-        m_bleAdapter->connectDevice(service);
-        break;
-    case QZeroProps::QZeroPropsService::ServiceType::WebSocket:
-        onDeviceStatus(QZeroProps::QZeroPropsClient::State::Connecting, "Connecting " + service->m_name);
-        m_zpClient->connectToService(service);
-        break;
-    default:
-        qDebug() << "Unhandled device type: " << service->m_type;
-        break;
-    }
+    onDeviceStatus(QZeroProps::QZeroPropsClient::State::Connecting, "Connecting " + service->name());
+    m_zpClient->connectToService(service);
 }
 
 void DeviceModel::onAppStateChanged(Qt::ApplicationState state)
@@ -154,25 +135,6 @@ void DeviceModel::onDeviceStatus(QZeroProps::QZeroPropsClient::State _status, co
 
     m_status = _status;
     emit statusChanged();
-}
-
-void DeviceModel::onBleDeviceDiscovered(const QBluetoothDeviceInfo& _device)
-{
-    QZeroProps::QZeroPropsServicePtr device(new QZeroProps::QZeroPropsService);
-    QString name = _device.name();
-    if (name.isEmpty()) {
-        name = "<unknown cornrow device>";
-    }
-    device->m_name = name;
-    device->m_type = QZeroProps::QZeroPropsService::ServiceType::BluetoothLe;
-    device->m_bluetoothDeviceInfo = _device;
-
-    //m_zpClient->discoveredServices().push_back(device);
-    //emit servicesChanged();
-    
-    if (m_status == QZeroProps::QZeroPropsClient::State::Discovering) {
-        onDeviceStatus(QZeroProps::QZeroPropsClient::State::Discovering, "");
-    }
 }
 
 void DeviceModel::onDevicesChanged()

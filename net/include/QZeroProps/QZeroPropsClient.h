@@ -19,27 +19,20 @@
 
 #include <QZeroProps/QZeroPropsTypes.h>
 
-class QZeroConf;
-class QZeroConfServiceData;
-typedef QSharedPointer<QZeroConfServiceData> QZeroConfService;
-
-class BleCentralAdapter;
-
 namespace QZeroProps
 {
-class QZeroPropsClientPrivate;
 
 class QZeroPropsClient : public QObject
 {
     Q_OBJECT
 
-    // @TODO(Qt): QObjectList is not accepted. So, we must use QList<QObject*>.
+    // @TODO(Qt): QObjectList is not accepted by QmlEngine. So, we must use QList<QObject*>.
     Q_PROPERTY(QList<QObject*> discoveredServices READ discoveredServices NOTIFY servicesChanged)
 
 public:
     enum State : uint8_t {
-        Idle,
-        Discovering,
+        Idle,           // Shall be triggered from discoverer
+        Discovering,    // Shall be triggered from discoverer
         Connecting,
         Connected,
         Disconnected,
@@ -63,6 +56,8 @@ public:
 
     //Backends supportedBackends() const;
 
+    void setDiscoveryTimeout(int msTimeout);
+
     QObjectList discoveredServices() const;
 
 public slots:
@@ -78,25 +73,8 @@ signals:
 
 private:
     class QZeroPropsClientPrivate* const d;
-
-    // ZeroConf members
-    QZeroConf* m_zeroConf = nullptr;
-    void onServiceDiscovered(QZeroConfService);
-    void onServiceRemoved(QZeroConfService);
-
-    // ZeroProp members
-    QZeroPropsService* m_currentService = nullptr;
-    void onStatus(QZeroPropsClient::State state, QString errorString = QString());
-
-    // BLE
-    BleCentralAdapter* m_bleAdapter = nullptr;
-    friend class BleCentralAdapter;
-
-    // @TODO(mawe): move to pimpl
-    QList<QZeroPropsServicePtr> m_services;
 };
 
 } // namespace QZeroProps
-
 
 //Q_DECLARE_OPERATORS_FOR_FLAGS(QZeroProps::QZeroPropsClient::Backends)

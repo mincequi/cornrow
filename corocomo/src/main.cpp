@@ -9,8 +9,6 @@
 #include "PresetModel.h"
 #include "SoftClipChart.h"
 
-#include <QZeroProps/BleCentralAdapter.h>
-#include <QZeroProps/QZeroPropsBluetoothLeService.h>
 #include <QZeroProps/QZeroPropsClient.h>
 
 #include <QDebug>
@@ -29,24 +27,19 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     
     // Remote services: BLE, Tcp
-    QZeroProps::QZeroPropsBluetoothLeService bleClient;
-    BleCentralAdapter bleAdapter(&bleClient);
     QZeroProps::QZeroPropsClient zpClient;
 
     // Setup view models
     // Init config first!
     auto config = Config::init(Config::Type::Mid);
-    DeviceModel::init(&bleAdapter, &zpClient);
-    auto ioModel = IoModel::init(&bleAdapter);
+    DeviceModel::init(&zpClient);
     // @TODO(mawe): config is registered as singleton. No need to pass here.
-    FilterModel::init(*config, &bleClient);
-    PresetModel::init(&bleAdapter);
-    
-    bleAdapter.setIoModel(ioModel);
+    FilterModel::init(*config);
 
     // Register types for QML engine
     qmlRegisterUncreatableMetaObject(QZeroProps::QZeroPropsService::staticMetaObject, "Cornrow.DeviceType", 1, 0, "CornrowDeviceType", "Only enums");
 
+    qmlRegisterType<QZeroProps::QZeroPropsClient>("Cornrow.ClientState", 1, 0, "ClientState");
     qmlRegisterType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel");
     qmlRegisterType<EqChart>("Cornrow.EqChart", 1, 0, "CornrowEqChart");
     qmlRegisterType<PhaseChart>("Cornrow.PhaseChart", 1, 0, "CornrowPhaseChart");

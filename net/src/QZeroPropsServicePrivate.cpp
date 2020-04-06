@@ -26,7 +26,7 @@ QZeroPropsServicePrivate::QZeroPropsServicePrivate(QZeroPropsService* _q)
     // Setup timer
     timer.setInterval(200);
     timer.setSingleShot(true);
-    q->connect(&timer, &QTimer::timeout, [this]() {
+    QTimer::connect(&timer, &QTimer::timeout, [this]() {
         onTimeout();
     });
 }

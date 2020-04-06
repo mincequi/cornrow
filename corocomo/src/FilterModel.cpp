@@ -10,7 +10,6 @@
 #include <QUuid>
 #include <QtGlobal>
 
-#include <QZeroProps/QZeroPropsBluetoothLeService.h>
 #include <QZeroProps/QZeroPropsClient.h>
 
 FilterModel* FilterModel::s_instance = nullptr;
@@ -20,24 +19,22 @@ FilterModel* FilterModel::instance()
     return s_instance;
 }
 
-FilterModel* FilterModel::init(const Config& configuration,
-                               QZeroProps::QZeroPropsBluetoothLeService* bleClient)
+FilterModel* FilterModel::init(const Config& configuration)
 {
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new FilterModel(configuration, bleClient);
+    s_instance = new FilterModel(configuration);
     return s_instance;
 }
 
-FilterModel::FilterModel(const Config& config, QZeroProps::QZeroPropsBluetoothLeService* bleClient) :
+FilterModel::FilterModel(const Config& config) :
     QObject(nullptr),
     m_config(config),
     m_loudnessBand(config.peqFilterCount),
     m_xoBand(config.peqFilterCount+1),
-    m_scBand(config.peqFilterCount+2),
-    m_bleClient(bleClient)
+    m_scBand(config.peqFilterCount+2)
 {
     auto filterCount = m_config.peqFilterCount;
     if (m_config.loudnessAvailable) ++filterCount;
@@ -50,8 +47,6 @@ FilterModel::FilterModel(const Config& config, QZeroProps::QZeroPropsBluetoothLe
     connect(this, &FilterModel::freqChanged, this, &FilterModel::onFilterChangedLocally);
     connect(this, &FilterModel::gainChanged, this, &FilterModel::onFilterChangedLocally);
     connect(this, &FilterModel::qChanged, this, &FilterModel::onFilterChangedLocally);
-
-    connect(m_bleClient, &QZeroProps::QZeroPropsBluetoothLeService::characteristicChanged, this, &FilterModel::onFilterChangedRemotely);
 }
 
 FilterModel::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_t _q)
@@ -64,10 +59,6 @@ FilterModel::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_
 
 void FilterModel::setService(QZeroProps::QZeroPropsService* service)
 {
-    if (m_zpService) {
-        m_zpService->disconnect();
-    }
-
     m_zpService = service;
 
     if (m_zpService) {
@@ -376,7 +367,6 @@ void FilterModel::onFilterChangedLocally()
         }
 
         m_zpService->setProperty(QUuid(common::ble::peqCharacteristicUuid.c_str()), value);
-        m_bleClient->setCharacteristic(common::ble::peqCharacteristicUuid, value);
     } else {
         QByteArray value((m_filters.count() - m_config.peqFilterCount) * 4, 0);
         for (int i = 0; i < (m_filters.count() - m_config.peqFilterCount); ++i) {
@@ -386,7 +376,6 @@ void FilterModel::onFilterChangedLocally()
             value[i*4+3] = m_filters.at(i + m_config.peqFilterCount).q;
         }
         m_zpService->setProperty(QUuid(common::ble::auxCharacteristicUuid.c_str()), value);
-        m_bleClient->setCharacteristic(common::ble::auxCharacteristicUuid, value);
     }
 }
 

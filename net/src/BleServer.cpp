@@ -17,13 +17,14 @@
 
 #include "BleServer.h"
 
-#include "Defines.h"
 #include "BleServerSession.h"
 
 #include <QtBluetooth/QLowEnergyAdvertisingParameters>
 #include <QtBluetooth/QLowEnergyCharacteristicData>
 #include <QtBluetooth/QLowEnergyController>
 #include <QtBluetooth/QLowEnergyServiceData>
+
+#include <QZeroProps/QZeroPropsTypes.h>
 
 namespace QZeroProps
 {
@@ -37,14 +38,14 @@ BleServer::~BleServer()
 {
 }
 
-void BleServer::init(CharcsProvider charcsProvider)
+void BleServer::init(const QUuid& uuid, CharcsProvider charcsProvider)
 {
     m_charcsProvider = charcsProvider;
 
-    startPublishing();
+    startPublishing(uuid);
 }
 
-void BleServer::startPublishing()
+void BleServer::startPublishing(const QUuid& uuid)
 {
     if (m_session) {
         delete m_session;
@@ -52,7 +53,7 @@ void BleServer::startPublishing()
     }
 
     // Publish service
-    m_session = new BleServerSession(this, m_charcsProvider());
+    m_session = new BleServerSession(uuid, this, m_charcsProvider());
 }
 
 } // namespace QZeroProps

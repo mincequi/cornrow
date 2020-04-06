@@ -29,8 +29,8 @@ class QZeroPropsServicePrivate;
 class QZeroPropsService : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString name MEMBER m_name)
-    Q_PROPERTY(ServiceType type MEMBER m_type)
+    Q_PROPERTY(QString name READ name)
+    Q_PROPERTY(ServiceType type READ type)
 
 public:
     // We cannot use an alias here
@@ -41,11 +41,12 @@ public:
         WebSocket = 0x2,
         All = BluetoothLe | WebSocket
     };
-    // We need this for QML engine
     Q_ENUM(ServiceType)
 
-    QZeroPropsService(QZeroPropsClient* parent = nullptr);
     virtual ~QZeroPropsService();
+
+    QString name() const;
+    ServiceType type() const;
 
 public slots:
     void setDebounceTime(int msec);
@@ -58,21 +59,20 @@ signals:
     void stateChanged(QZeroPropsClient::State state, const QString& errorString = QString());
     void propertyChanged(const QVariant& uuid, const QByteArray& value);
 
+protected:
+    void connect();
+
 private:
-    class QZeroPropsServicePrivate* const d;
+    QZeroPropsService(QObject* parent = nullptr);
 
-public:
-    // @TODO(mawe): this needs to be reworked
-    QString m_name;
-    ServiceType m_type = ServiceType::Invalid;
-
-    QBluetoothDeviceInfo m_bluetoothDeviceInfo;
+    // make non-const to later add custom impl
+    class QZeroPropsServicePrivate* d;
 
     friend class QZeroPropsClient;
+    friend class QZeroPropsClientPrivate;
+    friend class QZeroPropsServicePrivate;
 };
 
 using QZeroPropsServicePtr = QSharedPointer<QZeroPropsService>;
 
 } // namespace QZeroProps
-
-//Q_DECLARE_METATYPE(QZeroProps::QZeroPropsServicePtr)

@@ -14,7 +14,7 @@ class IoModel;
 class PresetModel;
 
 namespace QZeroProps {
-class QZeroPropsBluetoothLeService;
+class QZeroPropsBleClient;
 }
 
 namespace QZeroProps {
@@ -43,10 +43,11 @@ class FilterModel : public QObject
     Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
 
 public:
-    static FilterModel* init(const Config& configuration, QZeroProps::QZeroPropsBluetoothLeService* bleClient);
+    static FilterModel* init(const Config& configuration);
     static FilterModel* instance();
 
     Q_INVOKABLE void setService(QZeroProps::QZeroPropsService* service);
+
     Q_INVOKABLE void resizeFilters(int diff);
 
     int         peqFilterCount() const;
@@ -107,7 +108,7 @@ private:
         uint8_t q;
     };
 
-    FilterModel(const Config& config, QZeroProps::QZeroPropsBluetoothLeService* bleClient);
+    FilterModel(const Config& config);
 
     static uint8_t snap(double value, uint8_t min, uint8_t max, uint8_t step);
 
@@ -129,5 +130,4 @@ private:
     // @TODO(mawe): storing raw pointer might be dangerous here. It might get released from QZeroProps.
     //              Howwever, QmlEngine cannot deal with QSharesPointers...
     QZeroProps::QZeroPropsService* m_zpService = nullptr;
-    QZeroProps::QZeroPropsBluetoothLeService* m_bleClient = nullptr;
 };

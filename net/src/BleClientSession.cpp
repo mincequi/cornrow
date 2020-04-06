@@ -1,41 +1,46 @@
+/*
+ * Copyright (C) 2020 Manuel Weichselbaumer <mincequi@web.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "BleClientSession.h"
 
 #include <QtGlobal>
 
-#include <QZeroProps/QZeroPropsBluetoothLeService.h>
-#include "Defines.h"
-
-#include <common/ble/Types.h>
+#include "QZeroPropsBleClient.h"
+#include <QZeroProps/QZeroPropsService.h>
 
 namespace QZeroProps
 {
 
-BleClientSession::BleClientSession(const QUuid& uuid, QZeroPropsBluetoothLeService* _q)
-    : q(_q),
-      m_serviceUuid(uuid)
+BleClientSession::BleClientSession(QZeroPropsService* _q)
+    : q(_q)
 {
-    m_discoverer = new QBluetoothDeviceDiscoveryAgent(q);
-
-    connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &BleClientSession::onDeviceDiscovered);
-    connect(m_discoverer, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &BleClientSession::onDeviceDiscoveryError);
-    connect(m_discoverer, &QBluetoothDeviceDiscoveryAgent::finished, this, &BleClientSession::onDeviceDiscoveryFinished);
-
-    m_discoverer->setLowEnergyDiscoveryTimeout(8000);
-    m_discoverer->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 }
 
-void BleClientSession::connectDevice(const QBluetoothDeviceInfo& device)
+BleClientSession::~BleClientSession()
 {
+}
+
+void BleClientSession::connectToDevice(const QBluetoothDeviceInfo& device, const QUuid& serviceUuid)
+{
+    disconnectFromDevice();
+
 	qDebug() << "Connecting device: " << device.name();
 
-    m_discoverer->stop();
-    
-    // Disconnect
-    if (m_control) {
-        m_control->disconnectFromDevice();
-        delete m_control;
-        m_control = nullptr;
-    }
+    m_serviceUuid = serviceUuid;
 
     // @TODO(mawe): handle multiple devices
     m_control = new QLowEnergyController(device, this);
@@ -54,36 +59,14 @@ void BleClientSession::connectDevice(const QBluetoothDeviceInfo& device)
     connect(m_control, &QLowEnergyController::discoveryFinished, this, &BleClientSession::onServiceDiscoveryFinished);
 }
 
-void BleClientSession::onDeviceDiscovered(const QBluetoothDeviceInfo& device)
+void BleClientSession::disconnectFromDevice()
 {
-    // Only check LE devices
-    if (!(device.coreConfigurations() & QBluetoothDeviceInfo::LowEnergyCoreConfiguration)) {
-        return;
+    // Disconnect
+    if (m_control) {
+        m_control->disconnectFromDevice();
+        delete m_control;
+        m_control = nullptr;
     }
-
-    if (!device.serviceUuids().contains(m_serviceUuid)) {
-        return;
-    }
-
-    qDebug() << __func__ << ": found cornrow device:" << device.name();
-    q->setStatus(QZeroPropsClient::State::Discovering);
-    m_devices.push_back(device);
-    
-    emit q->deviceDiscovered(device);
-}
-
-void BleClientSession::onDeviceDiscoveryError(QBluetoothDeviceDiscoveryAgent::Error error)
-{
-    qDebug() << __func__ << "error:" << error << "string:" << m_discoverer->errorString();
-
-    q->setStatus(QZeroPropsClient::State::Error, m_discoverer->errorString());
-}
-
-void BleClientSession::onDeviceDiscoveryFinished()
-{
-    qDebug() << __func__;
-
-    q->setStatus(QZeroPropsClient::State::Idle);
 }
 
 void BleClientSession::onDeviceConnected()
@@ -98,7 +81,7 @@ void BleClientSession::onDeviceDisconnected()
     qDebug() << __func__;
 
     q->disconnect();
-    q->setStatus(QZeroPropsClient::State::Disconnected);
+    emit q->stateChanged(QZeroPropsClient::State::Disconnected);
 }
 
 void BleClientSession::onServiceDiscovered(const QBluetoothUuid& serviceUuid)
@@ -110,7 +93,7 @@ void BleClientSession::onServiceDiscoveryError(QLowEnergyController::Error /*err
 {
     qDebug() << __func__;
 
-    q->setStatus(QZeroPropsClient::State::Error, m_control->errorString());
+    emit q->stateChanged(QZeroPropsClient::State::Error, m_control->errorString());
 }
 
 void BleClientSession::onServiceDiscoveryFinished()
@@ -118,7 +101,7 @@ void BleClientSession::onServiceDiscoveryFinished()
     qDebug() << __func__;
 
     if (!m_control->services().contains(m_serviceUuid)) {
-        q->setStatus(QZeroPropsClient::State::Error, "Could not find cornrow service on device " + m_control->remoteName());
+        emit q->stateChanged(QZeroPropsClient::State::Error, "Could not find cornrow service on device " + m_control->remoteName());
         return;
     }
     m_service = m_control->createServiceObject(m_serviceUuid, this);
@@ -135,45 +118,14 @@ void BleClientSession::onServiceDiscoveryFinished()
 void BleClientSession::onServiceStateChanged(QLowEnergyService::ServiceState s)
 {
     switch (s) {
-    case QLowEnergyService::ServiceDiscovered: {
-        qDebug() << "Service details discovered.";
-        const QLowEnergyCharacteristic peq = m_service->characteristic(common::peqCharacteristicUuid);
-        if (!peq.isValid()) {
-            q->disconnect();
-            q->setStatus(QZeroPropsClient::State::Error, "Invalid PEQ characteristic");
-            return;
+    case QLowEnergyService::ServiceDiscovered:
+        for (const auto& charc : m_service->characteristics()) {
+            m_service->readCharacteristic(charc);
         }
-        m_service->readCharacteristic(m_service->characteristic(common::peqCharacteristicUuid));
-
-        const QLowEnergyCharacteristic aux = m_service->characteristic(common::auxCharacteristicUuid);
-        if (!aux.isValid()) {
-            q->disconnect();
-            q->setStatus(QZeroPropsClient::State::Error, "Invalid AUX characteristic");
-            return;
-        }
-        m_service->readCharacteristic(m_service->characteristic(common::auxCharacteristicUuid));
-
-        const QLowEnergyCharacteristic caps = m_service->characteristic(QBluetoothUuid(QString::fromStdString(common::ble::ioCapsCharacteristicUuid)));
-        if (!caps.isValid()) {
-            q->disconnect();
-            q->setStatus(QZeroPropsClient::State::Error, "Invalid IoCaps characteristic");
-            return;
-        }
-        m_service->readCharacteristic(m_service->characteristic(QBluetoothUuid(QString::fromStdString(common::ble::ioCapsCharacteristicUuid))));
-
-        const QLowEnergyCharacteristic conf = m_service->characteristic(QBluetoothUuid(QString::fromStdString(common::ble::ioConfCharacteristicUuid)));
-        if (!caps.isValid()) {
-            q->disconnect();
-            q->setStatus(QZeroPropsClient::State::Error, "Invalid IoConf characteristic");
-            return;
-        }
-        m_service->readCharacteristic(m_service->characteristic(QBluetoothUuid(QString::fromStdString(common::ble::ioConfCharacteristicUuid))));
-
         break;
-    }
     case QLowEnergyService::InvalidService:
         qDebug() << __func__;
-        q->setStatus(QZeroPropsClient::State::Disconnected);
+        emit q->stateChanged(QZeroPropsClient::State::Disconnected);
         break;
     case QLowEnergyService::DiscoveryRequired:
         // Rename DiscoveringServices -> DiscoveringDetails or DiscoveringService
@@ -187,14 +139,14 @@ void BleClientSession::onServiceError(QLowEnergyService::ServiceError /*error*/)
 {
     qDebug() << __func__;
 
-    q->setStatus(QZeroPropsClient::State::Error, "Service error");
+     emit q->stateChanged(QZeroPropsClient::State::Error, "Service error");
 }
 
 void BleClientSession::onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value)
 {
     qDebug() << __func__ << "> " << characteristic.uuid();
-    q->setStatus(QZeroPropsClient::State::Connected);
-    emit q->characteristicChanged(characteristic.uuid().toString(QUuid::StringFormat::WithoutBraces).toStdString().c_str(), value);
+    emit q->stateChanged(QZeroPropsClient::State::Connected);
+    emit characteristicChanged(characteristic.uuid().toString(QUuid::StringFormat::WithoutBraces).toStdString().c_str(), value);
 }
 
 } // namespace QZeroProps

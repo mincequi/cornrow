@@ -7,6 +7,7 @@ import QtQuick.Window 2.12
 import QtGraphicalEffects 1.0
 
 import Cornrow.BodePlotModel 1.0
+import Cornrow.ClientState 1.0
 import Cornrow.Configuration 1.0
 import Cornrow.DeviceModel 1.0
 import Cornrow.EqChart 1.0
@@ -62,15 +63,15 @@ ApplicationWindow {
     Connections {
         target: DeviceModel
         onStatusChanged: {
-            if (DeviceModel.status != DeviceModel.Connected) drawer.close()
+            if (DeviceModel.status !== ClientState.Connected) drawer.close()
         }
     }
 
     DeviceDialog {
         width: appWindow.width
         height: appWindow.height
-        enabled: DeviceModel.status !== DeviceModel.Connected
-        opacity: DeviceModel.status != DeviceModel.Connected ? 1.0 : 0.0
+        enabled: DeviceModel.status !== ClientState.Connected
+        opacity: DeviceModel.status !== ClientState.Connected ? 1.0 : 0.0
         Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
         z: 10
     }
@@ -82,7 +83,7 @@ ApplicationWindow {
            y: drawer.position * menu.height
         }
         icon.source: drawer.opened ? "qrc:/icons/expand_less.svg" : "qrc:/icons/expand_more.svg"
-        enabled: DeviceModel.status == DeviceModel.Connected
+        enabled: DeviceModel.status === ClientState.Connected
         z: 12
         onPressed: {
             drawer.visible = !drawer.visible
@@ -110,8 +111,8 @@ ApplicationWindow {
     Item {
         id: peq
         anchors.fill: parent
-        enabled: DeviceModel.status == DeviceModel.Connected
-        opacity: DeviceModel.status == DeviceModel.Connected ? 1.0 : 0.0
+        enabled: DeviceModel.status === ClientState.Connected
+        opacity: DeviceModel.status === ClientState.Connected ? 1.0 : 0.0
         //opacity: 0.0
         Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
         transform: Translate {
@@ -201,7 +202,7 @@ ApplicationWindow {
         ToolButton {
             id: help
             text: "?"
-            enabled: DeviceModel.status == DeviceModel.Connected
+            enabled: DeviceModel.status == ClientState.Connected
             anchors.right: parent.right
             anchors.top: parent.top
         }
@@ -437,7 +438,7 @@ ApplicationWindow {
         anchors.fill: parent
         source: peq
         radius: 32
-        opacity: DeviceModel.status == DeviceModel.Connected ? 0.0 : 0.125
+        opacity: DeviceModel.status === ClientState.Connected ? 0.0 : 0.125
         Behavior on opacity { SmoothedAnimation { velocity: 0.5 }}
         transform: Translate {
            y: drawer.position * menu.height

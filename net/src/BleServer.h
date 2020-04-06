@@ -26,6 +26,7 @@ class QLowEnergyCharacteristic;
 
 namespace QZeroProps
 {
+struct Configuration;
 
 class BleServer : public QObject
 {
@@ -44,9 +45,9 @@ signals:
 private:
     // Adapter should set initial values of characteristics
     using CharcsProvider = std::function<std::map<QBluetoothUuid, QByteArray>()>;
-    void init(CharcsProvider);
+    void init(const QUuid& uuid, CharcsProvider);
 
-    void startPublishing();
+    void startPublishing(const QUuid& uuid);
 
     CharcsProvider m_charcsProvider = nullptr;
 

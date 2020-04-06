@@ -17,44 +17,51 @@
 
 #pragma once
 
-#include <QObject>
-
 #include <QZeroProps/QZeroPropsClient.h>
 
+#include <QBluetoothDeviceDiscoveryAgent>
+
 class QBluetoothDeviceInfo;
-class QLowEnergyCharacteristic;
+class QLowEnergyController;
 
 namespace QZeroProps
 {
 class QZeroPropsService;
 
-class QZeroPropsBluetoothLeService : public QObject
+class QZeroPropsBleClient : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit QZeroPropsBluetoothLeService(QObject *parent = nullptr);
-    ~QZeroPropsBluetoothLeService();
+    explicit QZeroPropsBleClient(QObject *parent = nullptr);
+    ~QZeroPropsBleClient();
 
-    void startDiscovering(const QUuid& uuid);
-
-    void connectToService(QZeroProps::QZeroPropsService* service);
-    void disconnect();
-
-    void setCharacteristic(const std::string& uuid, const QByteArray& value);
+    void setDiscoveryTimeout(int msTimeout);
+    void startDiscovery(const QUuid& uuid);
+    void stopDiscovery();
 
 signals:
-    void status(QZeroPropsClient::State state, const QString& errorString = QString());
-	void deviceDiscovered(const QBluetoothDeviceInfo& device);
-
-    // Emits remotely changed values
-    void characteristicChanged(const QUuid& uuid, const QByteArray& value);
+    void stateChanged(QZeroPropsClient::State state, const QString& errorString = QString());
+    void serviceDiscovered(const QBluetoothDeviceInfo& device, const QUuid& serviceUuid);
 
 private:
     void setStatus(QZeroPropsClient::State state, const QString& errorString = QString());
 
-    class BleClientSession* m_clientSession = nullptr;
+    void onDeviceDiscovered(const QBluetoothDeviceInfo& device);
+    void onDeviceDiscoveryError(QBluetoothDeviceDiscoveryAgent::Error error);
+    void onDeviceDiscoveryFinished();
+
+    void discoverServices(const QBluetoothDeviceInfo& device);
+
+    QUuid   m_serviceUuid;
+    QBluetoothDeviceDiscoveryAgent* m_discoverer = nullptr;
+    QLowEnergyController* m_controller;
+
     friend class BleClientSession;
+    friend class QZeroPropsBleService;
+    friend class QZeroPropsClientPrivate;
+
+    int m_msTimeout = 8000;
 };
 
 } // namespace QZeroProps

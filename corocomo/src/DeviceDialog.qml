@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.3
 
 import Qt.labs.qmlmodels 1.0
 
+import Cornrow.ClientState 1.0
 import Cornrow.DeviceType 1.0
 import Cornrow.DeviceModel 1.0
 import Cornrow.IoModel 1.0
@@ -63,16 +64,17 @@ Dialog {
             clip: true
             Layout.fillHeight: true
             Layout.fillWidth: true
-            model: DeviceModel.devices
-            enabled: DeviceModel.status == DeviceModel.Discovering ||
-                     DeviceModel.status == DeviceModel.Idle
+            model: DeviceModel.services
+            enabled: DeviceModel.status === ClientState.Discovering ||
+                     DeviceModel.status === ClientState.Idle
             delegate: ListItemNew {
                 icon.source: modelData.type === CornrowDeviceType.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
                 primaryText: modelData.name
                 onClicked: {
                     FilterModel.setService(modelData)
-                    DeviceModel.connectToService(modelData)
                     CornrowIoModel.setService(modelData)
+                    CornrowPresetModel.setService(modelData)
+                    DeviceModel.connectToService(modelData)
                 }
                 //subText: ip
                 //subTextFontSize: 12
@@ -114,10 +116,10 @@ Dialog {
 
     footer: DialogButtonBox {
         opacity: /*DeviceModel.status != DeviceModel.Discovering &&*/
-                 DeviceModel.status != DeviceModel.Connected
+                 DeviceModel.status !== ClientState.Connected
 
         Button {
-            text: DeviceModel.status === DeviceModel.Connecting ? "Abort and rescan" : "Rescan"
+            text: DeviceModel.status === ClientState.Connecting ? "Abort and rescan" : "Rescan"
             flat: true
             onPressed: {
                 DeviceModel.startDiscovering()
@@ -126,7 +128,7 @@ Dialog {
         Button {
             text: "Demo"
             flat: true
-            visible: DeviceModel.status !== DeviceModel.Connecting
+            visible: DeviceModel.status !== ClientState.Connecting
             onPressed: {
                 DeviceModel.startDemo()
                 CornrowIoModel.startDemo()

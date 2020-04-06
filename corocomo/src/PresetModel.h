@@ -5,7 +5,9 @@
 
 #include <common/Types.h>
 
-class BleCentralAdapter;
+namespace QZeroProps {
+class QZeroPropsService;
+}
 
 class PresetModel : public QObject
 {
@@ -15,8 +17,9 @@ class PresetModel : public QObject
     Q_PROPERTY(int activePreset READ activePreset WRITE setActivePreset NOTIFY activePresetChanged)
 
 public:
-    static PresetModel* init(BleCentralAdapter* adapter);
     static PresetModel* instance();
+
+    Q_INVOKABLE void setService(QZeroProps::QZeroPropsService* service);
 
     QStringList presetNames() const;
 
@@ -30,7 +33,7 @@ signals:
     void activePresetChanged();
 
 private:
-    PresetModel(BleCentralAdapter* adapter, QObject* parent = nullptr);
+    PresetModel(QObject* parent = nullptr);
 
     static QString toString(common::IoInterface interface);
 
@@ -38,7 +41,7 @@ private:
 
     static PresetModel* s_instance;
 
-    BleCentralAdapter* m_adapter = nullptr;
+    QZeroProps::QZeroPropsService* m_zpService = nullptr;
 
     QStringList m_presetNames;
     int m_activePreset = 0;

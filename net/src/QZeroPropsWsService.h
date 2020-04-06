@@ -24,11 +24,11 @@
 namespace QZeroProps
 {
 
-class QZeroPropsWebSocketService : public QZeroPropsServicePrivate
+class QZeroPropsWsService : public QZeroPropsServicePrivate
 {
 public:
-    QZeroPropsWebSocketService(QZeroPropsService* _q);
-    ~QZeroPropsWebSocketService() override;
+    QZeroPropsWsService(QZeroPropsService* _q);
+    ~QZeroPropsWsService() override;
 
 private:
     void connect() override;
@@ -39,7 +39,12 @@ private:
     void onStateChanged(QAbstractSocket::SocketState state);
     void onReceive(const QByteArray& message);
 
-    QWebSocket  m_socket;
+    QHostAddress address;
+    uint16_t port = 0;
+
+    QWebSocket  socket;
+
+    friend class QZeroPropsClientPrivate;
 };
 
 } // namespace QZeroProps

@@ -18,7 +18,9 @@
 #include <QZeroProps/QZeroPropsClient.h>
 #include <QZeroProps/QZeroPropsService.h>
 
-#include "QZeroPropsServicePrivate.h"
+#include "QZeroPropsBleClient.h"
+#include "QZeroPropsBleService.h"
+#include "QZeroPropsWsService.h"
 
 #include <QUuid>
 
@@ -40,24 +42,91 @@ uint qHash(const QVariant& var)
 namespace QZeroProps
 {
 
+class QZeroPropsClientPrivate
+{
+public:
+    QZeroPropsClientPrivate(QZeroPropsClient* _q)
+        : q(_q)
+    {
+        // Setup zeroconf
+        QObject::connect(&zeroConf, &QZeroConf::serviceAdded, [this](QZeroConfService service) {
+            onServiceDiscovered(service);
+        });
+
+        QObject::connect(&bleClient, &QZeroProps::QZeroPropsBleClient::serviceDiscovered, [this](const QBluetoothDeviceInfo& service,  const QUuid& serviceUuid) {
+            onServiceDiscovered(service, serviceUuid);
+        });
+        QObject::connect(&bleClient, &QZeroPropsBleClient::stateChanged, [this](QZeroPropsClient::State state, const QString& errorString) {
+            if (state == QZeroPropsClient::State::Idle) {
+                q->stopDiscovery();
+                return;
+            }
+            emit q->stateChanged(state, errorString);
+        });
+    }
+
+    void onServiceDiscovered(QZeroConfService service)
+    {
+        // Create impl and attach to base class
+        QZeroPropsServicePtr device(new QZeroPropsService);
+        auto impl = new QZeroPropsWsService(device.data());
+        impl->name = service->name();
+        impl->type = QZeroPropsService::ServiceType::WebSocket;
+        impl->address = service->ip();
+        impl->port = service->port();
+        device->d = impl;
+
+        services.push_back(device);
+        emit q->servicesChanged();
+    }
+
+    void onServiceDiscovered(const QBluetoothDeviceInfo& info, const QUuid& serviceUuid)
+    {
+        QZeroPropsServicePtr device(new QZeroPropsService);
+        QString name = info.name();
+        if (name.isEmpty()) {
+            name = "<unknown cornrow device>";
+        }
+        auto impl = new QZeroPropsBleService(device.data());
+        impl->name = name;
+        impl->type = QZeroPropsService::ServiceType::BluetoothLe;
+        impl->bluetoothDeviceInfo = info;
+        impl->serviceUuid = serviceUuid;
+        device->d = impl;
+
+        services.push_back(device);
+        emit q->servicesChanged();
+    }
+
+    QZeroPropsClient* const q;
+
+    // ZeroConf members
+    QZeroConf           zeroConf;
+    QZeroPropsBleClient bleClient;
+
+    QList<QZeroPropsServicePtr> services;
+    QZeroPropsService* currentService = nullptr;
+};
+
 QZeroPropsClient::QZeroPropsClient(QObject* parent)
     : QObject(parent),
-      d(nullptr)
+      d(new QZeroPropsClientPrivate(this))
 {
-    // Setup zeroconf
-    m_zeroConf = new QZeroConf(this);
-    connect(m_zeroConf, &QZeroConf::serviceAdded, this, &QZeroPropsClient::onServiceDiscovered);
-    connect(m_zeroConf, &QZeroConf::serviceRemoved, this, &QZeroPropsClient::onServiceRemoved);
 }
 
 QZeroPropsClient::~QZeroPropsClient()
 {
 }
 
+void QZeroPropsClient::setDiscoveryTimeout(int msTimeout)
+{
+    d->bleClient.setDiscoveryTimeout(msTimeout);
+}
+
 QObjectList QZeroPropsClient::discoveredServices() const
 {
     QObjectList _devices;
-    for (const auto& device : m_services) {
+    for (const auto& device : d->services) {
         _devices.push_back(device.get());
     }
     return _devices;
@@ -65,21 +134,26 @@ QObjectList QZeroPropsClient::discoveredServices() const
 
 void QZeroPropsClient::startDiscovery(const Configuration& config)
 {
-    m_services.clear();
+    // Clear previous services
+    d->services.clear();
     emit servicesChanged();
+    emit stateChanged(State::Discovering);
 
     if (!config.zeroConfType.isEmpty()) {
-        m_zeroConf->startBrowser(config.zeroConfType);
+        d->zeroConf.startBrowser(config.zeroConfType);
     }
 
-    if (config.bleUuid.isNull()) {
-        // m_ble...
+    if (!config.bleUuid.isNull()) {
+        d->bleClient.startDiscovery(config.bleUuid);
     }
 }
 
 void QZeroPropsClient::stopDiscovery()
 {
-    m_zeroConf->stopBrowser();
+    d->zeroConf.stopBrowser();
+    d->bleClient.stopDiscovery();
+
+    emit stateChanged(State::Idle);
 }
 
 void QZeroPropsClient::connectToService(QZeroPropsService* service)
@@ -90,49 +164,20 @@ void QZeroPropsClient::connectToService(QZeroPropsService* service)
         return;
     }
 
-    m_currentService = service;
-    connect(m_currentService, &QZeroPropsService::stateChanged, this, &QZeroPropsClient::onStatus);
-    m_currentService->d->connect();
+    stopDiscovery();
+    emit stateChanged(State::Connecting, "Connecting " + service->name());
+
+    d->currentService = service;
+    connect(d->currentService, &QZeroPropsService::stateChanged, this, &QZeroPropsClient::stateChanged);
+    d->currentService->d->connect();
 }
 
 void QZeroPropsClient::disconnectFromService()
 {
-    if (m_currentService) {
-        m_currentService->d->disconnect();
-        m_currentService->disconnect();
-        m_currentService = nullptr;
+    if (d->currentService) {
+        //d->currentService->d->disconnect();
+        d->currentService = nullptr;
     }
-}
-
-void QZeroPropsClient::onServiceDiscovered(QZeroConfService service)
-{
-    QZeroPropsServicePtr device(new QZeroPropsService);
-    device->m_name = service->name();
-    device->m_type = QZeroPropsService::ServiceType::WebSocket;
-    device->d->address = service->ip();
-    device->d->port = service->port();
-
-    m_services.push_back(device);
-    emit servicesChanged();
-}
-
-void QZeroPropsClient::onServiceRemoved(QZeroConfService service)
-{
-    for (auto it = m_services.begin(); it != m_services.end(); ++it) {
-        if ((*it)->d->address == service->ip()) {
-            it = m_services.erase(it);
-            if (it == m_services.end()) {
-                break;
-            }
-        }
-    }
-
-    emit servicesChanged();
-}
-
-void QZeroPropsClient::onStatus(QZeroPropsClient::State _status, QString errorString)
-{
-    emit stateChanged(_status, errorString);
 }
 
 } // namespace QZeroProps

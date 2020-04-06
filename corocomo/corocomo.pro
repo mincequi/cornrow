@@ -31,8 +31,7 @@ SOURCES += \
     src/main.cpp
 
 HEADERS += \
-    ../net/include/QZeroProps/BleCentralAdapter.h \
-    ../net/include/QZeroProps/QZeroPropsBluetoothLeService.h \
+    ../net/include/QZeroProps/QZeroPropsBleClient.h \
     src/BodePlotModel.h \
     src/BusyIndicatorModel.h \
     src/Config.h \

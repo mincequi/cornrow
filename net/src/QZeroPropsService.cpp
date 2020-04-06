@@ -17,7 +17,7 @@
 
 #include <QZeroProps/QZeroPropsService.h>
 
-#include "QZeroPropsWebSocketService.h"
+#include "QZeroPropsWsService.h"
 
 #include <QDebug>
 #include <QVariant>
@@ -27,15 +27,24 @@ uint qHash(const QVariant& var);
 namespace QZeroProps
 {
 
-QZeroPropsService::QZeroPropsService(QZeroPropsClient* parent)
-    : QObject(static_cast<QObject*>(parent)),
-      d(new QZeroPropsWebSocketService(this))
+QZeroPropsService::QZeroPropsService(QObject* parent)
+    : QObject(parent)
 {
 }
 
 QZeroPropsService::~QZeroPropsService()
 {
     delete d;
+}
+
+QString QZeroPropsService::name() const
+{
+    return d->name;
+}
+
+QZeroPropsService::ServiceType QZeroPropsService::type() const
+{
+    return d->type;
 }
 
 void QZeroPropsService::setDebounceTime(int msec)
@@ -61,6 +70,11 @@ void QZeroPropsService::setProperty(const QUuid& uuid, const QByteArray& value)
     if (!d->timer.isActive()) {
         d->timer.start();
     }
+}
+
+void QZeroPropsService::connect()
+{
+    d->connect();
 }
 
 } // namespace QZeroProps

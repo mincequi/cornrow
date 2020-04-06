@@ -1,31 +1,27 @@
 #include "PresetModel.h"
 
-#include <QZeroProps/BleCentralAdapter.h>
-
 #include <QTimer>
 
 PresetModel* PresetModel::s_instance = nullptr;
 
 PresetModel* PresetModel::instance()
 {
-    return s_instance;
-}
-
-PresetModel* PresetModel::init(BleCentralAdapter* adapter)
-{
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new PresetModel(adapter);
+    s_instance = new PresetModel();
     return s_instance;
 }
 
-PresetModel::PresetModel(BleCentralAdapter* adapter, QObject* parent) :
-    QObject(parent),
-    m_adapter(adapter)
+PresetModel::PresetModel(QObject* parent) :
+    QObject(parent)
 {
-    //connect(m_adapter, &BleCentralAdapter::presetReceived, this, &PresetModel::onPresetReceived);
+}
+
+void PresetModel::setService(QZeroProps::QZeroPropsService* service)
+{
+    m_zpService = service;
 }
 
 QStringList PresetModel::presetNames() const
@@ -41,7 +37,6 @@ int PresetModel::activePreset() const
 void PresetModel::setActivePreset(int i)
 {
     m_activePreset = i;
-    m_adapter->setDirty(common::ble::presetCharacteristicUuid);
     emit activePresetChanged();
 }
 

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "QZeroPropsWebSocketService.h"
+#include "QZeroPropsWsService.h"
 
 #include <msgpack.h>
 
@@ -24,26 +24,26 @@
 namespace QZeroProps
 {
 
-QZeroPropsWebSocketService::QZeroPropsWebSocketService(QZeroPropsService* _q)
+QZeroPropsWsService::QZeroPropsWsService(QZeroPropsService* _q)
     : QZeroPropsServicePrivate(_q)
 {
     // Setup socket
-    q->connect(&m_socket, &QWebSocket::binaryMessageReceived, [this](const QByteArray &message) {
+    QObject::connect(&socket, &QWebSocket::binaryMessageReceived, [this](const QByteArray &message) {
         onReceive(message);
     });
-    q->connect(&m_socket, &QWebSocket::connected, [this]() {
+    QObject::connect(&socket, &QWebSocket::connected, [this]() {
         emit q->stateChanged(QZeroPropsClient::State::Connected);
     });
-    q->connect(&m_socket, &QWebSocket::disconnected, [this]() {
+    QObject::connect(&socket, &QWebSocket::disconnected, [this]() {
         emit q->stateChanged(QZeroPropsClient::State::Disconnected);
     });
-    q->connect(&m_socket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), [this](QAbstractSocket::SocketError) {
-        emit q->stateChanged(QZeroPropsClient::State::Error, m_socket.errorString());
+    QObject::connect(&socket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), [this](QAbstractSocket::SocketError) {
+        emit q->stateChanged(QZeroPropsClient::State::Error, socket.errorString());
     });
-    q->connect(&m_socket, &QWebSocket::pong, [](quint64 elapsedTime, const QByteArray &payload) {
+    QObject::connect(&socket, &QWebSocket::pong, [](quint64 elapsedTime, const QByteArray &payload) {
         qDebug() << "pong> elapsedTime:" << elapsedTime << ", payload.size: " << payload.size();
     });
-    q->connect(&m_socket, &QWebSocket::stateChanged, [this](QAbstractSocket::SocketState state) {
+    QObject::connect(&socket, &QWebSocket::stateChanged, [this](QAbstractSocket::SocketState state) {
         onStateChanged(state);
     });
 
@@ -55,25 +55,25 @@ QZeroPropsWebSocketService::QZeroPropsWebSocketService(QZeroPropsService* _q)
     });
 }
 
-QZeroPropsWebSocketService::~QZeroPropsWebSocketService()
+QZeroPropsWsService::~QZeroPropsWsService()
 {
 }
 
-void QZeroPropsWebSocketService::connect()
+void QZeroPropsWsService::connect()
 {
     QUrl url;
     url.setScheme("ws");
     url.setHost(address.toString());
     url.setPort(port);
-    m_socket.open(url);
+    socket.open(url);
 }
 
-void QZeroPropsWebSocketService::disconnect()
+void QZeroPropsWsService::disconnect()
 {
-    m_socket.abort();
+    socket.abort();
 }
 
-void QZeroPropsWebSocketService::onStateChanged(QAbstractSocket::SocketState state)
+void QZeroPropsWsService::onStateChanged(QAbstractSocket::SocketState state)
 {
     switch (state) {
     case QAbstractSocket::UnconnectedState:
@@ -93,7 +93,7 @@ void QZeroPropsWebSocketService::onStateChanged(QAbstractSocket::SocketState sta
     }
 }
 
-void QZeroPropsWebSocketService::onReceive(const QByteArray& message)
+void QZeroPropsWsService::onReceive(const QByteArray& message)
 {
     if (message.front() != static_cast<char>(0x81)) {
         qWarning() << "Illegal data:" << message.front();
@@ -114,10 +114,10 @@ void QZeroPropsWebSocketService::onReceive(const QByteArray& message)
     emit q->propertyChanged(vlist.first(), value);
 }
 
-void QZeroPropsWebSocketService::doSend(const QVariant& uuid, const QByteArray& value)
+void QZeroPropsWsService::doSend(const QVariant& uuid, const QByteArray& value)
 {
     // If we are not connected, we do not send
-    if (m_socket.state() != QAbstractSocket::ConnectedState) {
+    if (socket.state() != QAbstractSocket::ConnectedState) {
         qDebug() << "Socket not connected";
         return;
     }
@@ -126,10 +126,10 @@ void QZeroPropsWebSocketService::doSend(const QVariant& uuid, const QByteArray& 
     block += static_cast<char>(0x81);   // Map with one element
     block += MsgPack::pack(uuid);
     block += MsgPack::pack(value);
-    const auto bytes = m_socket.sendBinaryMessage(block);
+    const auto bytes = socket.sendBinaryMessage(block);
     qDebug() << "Sent" << bytes << "bytes";
 
-    m_socket.flush();
+    socket.flush();
 }
 
 } // namespace QZeroProps
