@@ -17,14 +17,14 @@
 
 #pragma once
 
-#include <QZeroProps/QZeroPropsClient.h>
+#include <QtZeroProps/QZeroPropsClient.h>
 
 #include <QBluetoothDeviceDiscoveryAgent>
 
 class QBluetoothDeviceInfo;
 class QLowEnergyController;
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 class QZeroPropsService;
 

@@ -24,7 +24,7 @@
 
 class QLowEnergyCharacteristic;
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 struct Configuration;
 

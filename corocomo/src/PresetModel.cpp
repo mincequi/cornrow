@@ -19,7 +19,7 @@ PresetModel::PresetModel(QObject* parent) :
 {
 }
 
-void PresetModel::setService(QZeroProps::QZeroPropsService* service)
+void PresetModel::setService(QtZeroProps::QZeroPropsService* service)
 {
     m_zpService = service;
 }

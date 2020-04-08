@@ -25,7 +25,7 @@
 
 #include "QZeroPropsBleService.h"
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 
 QZeroPropsBleClient::QZeroPropsBleClient(QObject* parent)

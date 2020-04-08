@@ -5,7 +5,7 @@
 
 #include <common/Types.h>
 
-namespace QZeroProps {
+namespace QtZeroProps {
 class QZeroPropsService;
 }
 
@@ -19,7 +19,7 @@ class PresetModel : public QObject
 public:
     static PresetModel* instance();
 
-    Q_INVOKABLE void setService(QZeroProps::QZeroPropsService* service);
+    Q_INVOKABLE void setService(QtZeroProps::QZeroPropsService* service);
 
     QStringList presetNames() const;
 
@@ -41,7 +41,7 @@ private:
 
     static PresetModel* s_instance;
 
-    QZeroProps::QZeroPropsService* m_zpService = nullptr;
+    QtZeroProps::QZeroPropsService* m_zpService = nullptr;
 
     QStringList m_presetNames;
     int m_activePreset = 0;

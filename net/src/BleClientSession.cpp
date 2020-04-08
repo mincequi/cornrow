@@ -20,12 +20,12 @@
 #include <QtGlobal>
 
 #include "QZeroPropsBleClient.h"
-#include <QZeroProps/QZeroPropsService.h>
+#include "QZeroPropsServicePrivate.h"
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 
-BleClientSession::BleClientSession(QZeroPropsService* _q)
+BleClientSession::BleClientSession(QZeroPropsServicePrivate* _q)
     : q(_q)
 {
 }

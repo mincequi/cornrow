@@ -1,16 +1,16 @@
 #include "FilterModel.h"
 
-#include <math.h>
+#include "Config.h"
 
-#include <algorithm>
+#include <common/ble/Types.h>
+
+#include <QtZeroProps/QZeroPropsService.h>
 
 #include <QDebug>
 #include <QLatin1String>
 #include <QPen>
 #include <QUuid>
 #include <QtGlobal>
-
-#include <QZeroProps/QZeroPropsClient.h>
 
 FilterModel* FilterModel::s_instance = nullptr;
 
@@ -57,12 +57,12 @@ FilterModel::Filter::Filter(common::FilterType _t, uint8_t _f, double _g, uint8_
 {
 }
 
-void FilterModel::setService(QZeroProps::QZeroPropsService* service)
+void FilterModel::setService(QtZeroProps::QZeroPropsService* service)
 {
     m_zpService = service;
 
     if (m_zpService) {
-        connect(m_zpService, &QZeroProps::QZeroPropsService::propertyChanged, this, &FilterModel::onFilterChangedRemotely);
+        connect(m_zpService, &QtZeroProps::QZeroPropsService::propertyChanged, this, &FilterModel::onFilterChangedRemotely);
     }
 }
 

@@ -1,6 +1,6 @@
 #include "DeviceModel.h"
 
-#include <QZeroProps/QZeroPropsService.h>
+#include <QtZeroProps/QZeroPropsService.h>
 
 #include <common/ble/Types.h>
 
@@ -15,7 +15,7 @@ DeviceModel* DeviceModel::instance()
     return s_instance;
 }
 
-DeviceModel* DeviceModel::init(QZeroProps::QZeroPropsClient* netClient)
+DeviceModel* DeviceModel::init(QtZeroProps::QZeroPropsClient* netClient)
 {
     if (s_instance) {
         return s_instance;
@@ -25,12 +25,12 @@ DeviceModel* DeviceModel::init(QZeroProps::QZeroPropsClient* netClient)
     return s_instance;
 }
 
-DeviceModel::DeviceModel(QZeroProps::QZeroPropsClient* netClient, QObject *parent) :
+DeviceModel::DeviceModel(QtZeroProps::QZeroPropsClient* netClient, QObject *parent) :
     QObject(parent),
     m_zpClient(netClient)
 {
-    connect(m_zpClient, &QZeroProps::QZeroPropsClient::stateChanged, this, &DeviceModel::onDeviceStatus);
-    connect(m_zpClient, &QZeroProps::QZeroPropsClient::servicesChanged, this, &DeviceModel::onDevicesChanged);
+    connect(m_zpClient, &QtZeroProps::QZeroPropsClient::stateChanged, this, &DeviceModel::onDeviceStatus);
+    connect(m_zpClient, &QtZeroProps::QZeroPropsClient::servicesChanged, this, &DeviceModel::onDevicesChanged);
 
     connect(qGuiApp, &QGuiApplication::applicationStateChanged, this, &DeviceModel::onAppStateChanged);
 }
@@ -42,10 +42,10 @@ void DeviceModel::startDiscovering()
 
 void DeviceModel::startDemo()
 {
-    onDeviceStatus(QZeroProps::QZeroPropsClient::State::Connected);
+    onDeviceStatus(QtZeroProps::QZeroPropsClient::State::Connected);
 }
 
-QZeroProps::QZeroPropsClient::State DeviceModel::status() const
+QtZeroProps::QZeroPropsClient::State DeviceModel::status() const
 {
     return m_status;
 }
@@ -62,12 +62,17 @@ QString DeviceModel::statusText() const
 
 QObjectList DeviceModel::services() const
 {
-    return m_zpClient->discoveredServices();
+    QList<QObject*> _devices;
+    for (const auto& device : m_zpClient->discoveredServices()) {
+        _devices.push_back(device);
+    }
+
+    return _devices;
 }
 
-void DeviceModel::connectToService(QZeroProps::QZeroPropsService* service)
+void DeviceModel::connectToService(QtZeroProps::QZeroPropsService* service)
 {
-    onDeviceStatus(QZeroProps::QZeroPropsClient::State::Connecting, "Connecting " + service->name());
+    onDeviceStatus(QtZeroProps::QZeroPropsClient::State::Connecting, "Connecting " + service->name());
     m_zpClient->connectToService(service);
 }
 
@@ -84,7 +89,7 @@ void DeviceModel::onAppStateChanged(Qt::ApplicationState state)
     }
 }
 
-void DeviceModel::onDeviceStatus(QZeroProps::QZeroPropsClient::State _status, const QString& statusText)
+void DeviceModel::onDeviceStatus(QtZeroProps::QZeroPropsClient::State _status, const QString& statusText)
 {
     m_statusText.clear();
 
@@ -95,8 +100,8 @@ void DeviceModel::onDeviceStatus(QZeroProps::QZeroPropsClient::State _status, co
         m_statusText = "Enable Bluetooth in your device's settings";
         break;
         */
-    case QZeroProps::QZeroPropsClient::State::Idle:
-        if (m_status == QZeroProps::QZeroPropsClient::State::Connected) {
+    case QtZeroProps::QZeroPropsClient::State::Idle:
+        if (m_status == QtZeroProps::QZeroPropsClient::State::Connected) {
             return;
         }
         //m_zpClient->stopDiscovering();
@@ -108,7 +113,7 @@ void DeviceModel::onDeviceStatus(QZeroProps::QZeroPropsClient::State _status, co
             m_statusText = "Cornrow devices found. Tap to connect";
         }
         break;
-    case QZeroProps::QZeroPropsClient::State::Discovering:
+    case QtZeroProps::QZeroPropsClient::State::Discovering:
         if (m_zpClient->discoveredServices().empty()) {
             m_statusLabel = "Discovering";
         } else {
@@ -116,18 +121,18 @@ void DeviceModel::onDeviceStatus(QZeroProps::QZeroPropsClient::State _status, co
             m_statusText = "Cornrow devices found. Tap to connect";
         }
         break;
-    case QZeroProps::QZeroPropsClient::State::Connecting:
+    case QtZeroProps::QZeroPropsClient::State::Connecting:
         m_statusLabel = "Connecting";
         m_statusText = statusText;
         break;
-    case QZeroProps::QZeroPropsClient::State::Connected:
+    case QtZeroProps::QZeroPropsClient::State::Connected:
         m_statusLabel = "";
         break;
-    case QZeroProps::QZeroPropsClient::State::Disconnected:
+    case QtZeroProps::QZeroPropsClient::State::Disconnected:
         m_statusLabel = "Lost";
         m_statusText = "Connection has been interrupted";
         break;
-    case QZeroProps::QZeroPropsClient::State::Error:
+    case QtZeroProps::QZeroPropsClient::State::Error:
         m_statusLabel = "Error";
         m_statusText = statusText;
         break;

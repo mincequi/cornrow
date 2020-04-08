@@ -17,17 +17,30 @@
 
 #pragma once
 
-#include <QSharedPointer>
+#include <QMetaEnum>
 #include <QUuid>
 
-namespace QZeroProps {
+namespace QtZeroProps
+{
+Q_NAMESPACE
 
-struct Configuration {
-    QString zeroConfType;   // ZeroConf (WebSockets) service type
-    QUuid   bleUuid;        // BluetoothLe service uuid
+/// Configuration struct for QZeroPropsServer and QZeroPropsClient.
+///
+/// Provide a valid zeroConfType for using the WebSocket backend (e.g. _raop._tcp).
+/// Provide a valid bleUuid for using the Bluetooth Low Energy backend.
+struct Configuration
+{
+    QString zeroConfType;   ///< ZeroConf (WebSocket) service type to publish/discover
+    QUuid   bleUuid;        ///< BluetoothLe service uuid to publish/discover
 };
 
-class QZeroPropsService;
-using QZeroPropsServicePtr = QSharedPointer<QZeroPropsService>;
+/// Supported device type / backend type.
+enum class ServiceType : uint8_t {
+    Invalid = 0,
+    BluetoothLe = 0x1,
+    WebSocket = 0x2,
+    All = BluetoothLe | WebSocket
+};
+Q_ENUM_NS(ServiceType)
 
 } // namespace QZeroProps

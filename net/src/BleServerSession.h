@@ -22,7 +22,7 @@
 #include <QtBluetooth/QLowEnergyController>
 #include <QtBluetooth/QLowEnergyServiceData>
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 class BleServer;
 

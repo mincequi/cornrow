@@ -24,9 +24,9 @@
 #include <QtBluetooth/QLowEnergyController>
 #include <QtBluetooth/QLowEnergyServiceData>
 
-#include <QZeroProps/QZeroPropsTypes.h>
+#include <QtZeroProps/QZeroPropsTypes.h>
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 
 BleServer::BleServer(QObject *parent)

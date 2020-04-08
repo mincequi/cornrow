@@ -19,7 +19,7 @@
 
 #include "BleServer.h"
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 
 BleServerSession::BleServerSession(const QUuid& serviceUuid, BleServer* server, const std::map<QBluetoothUuid, QByteArray>& characteristicsMap)

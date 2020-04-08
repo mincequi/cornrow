@@ -21,7 +21,7 @@
 
 #include <QUuid>
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 
 QZeroPropsWsService::QZeroPropsWsService(QZeroPropsService* _q)
@@ -32,13 +32,13 @@ QZeroPropsWsService::QZeroPropsWsService(QZeroPropsService* _q)
         onReceive(message);
     });
     QObject::connect(&socket, &QWebSocket::connected, [this]() {
-        emit q->stateChanged(QZeroPropsClient::State::Connected);
+        emit stateChanged(QZeroPropsClient::State::Connected);
     });
     QObject::connect(&socket, &QWebSocket::disconnected, [this]() {
-        emit q->stateChanged(QZeroPropsClient::State::Disconnected);
+        emit stateChanged(QZeroPropsClient::State::Disconnected);
     });
     QObject::connect(&socket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), [this](QAbstractSocket::SocketError) {
-        emit q->stateChanged(QZeroPropsClient::State::Error, socket.errorString());
+        emit stateChanged(QZeroPropsClient::State::Error, socket.errorString());
     });
     QObject::connect(&socket, &QWebSocket::pong, [](quint64 elapsedTime, const QByteArray &payload) {
         qDebug() << "pong> elapsedTime:" << elapsedTime << ", payload.size: " << payload.size();
@@ -61,6 +61,8 @@ QZeroPropsWsService::~QZeroPropsWsService()
 
 void QZeroPropsWsService::connect()
 {
+    emit stateChanged(QZeroPropsClient::State::Connecting, "Connecting " + q->name());
+
     QUrl url;
     url.setScheme("ws");
     url.setHost(address.toString());
@@ -80,10 +82,10 @@ void QZeroPropsWsService::onStateChanged(QAbstractSocket::SocketState state)
         break;
     case QAbstractSocket::HostLookupState:
     case QAbstractSocket::ConnectingState:
-        emit q->stateChanged(QZeroPropsClient::State::Connecting);
+        emit stateChanged(QZeroPropsClient::State::Connecting);
         break;
     case QAbstractSocket::ConnectedState:
-        emit q->stateChanged(QZeroPropsClient::State::Connected);
+        emit stateChanged(QZeroPropsClient::State::Connected);
         break;
     case QAbstractSocket::BoundState:
     case QAbstractSocket::ClosingState:

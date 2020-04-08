@@ -2,6 +2,10 @@
 
 #include <common/ble/Types.h>
 
+#include <QDebug>
+#include <QUuid>
+#include <QVariant>
+
 IoModel* IoModel::s_instance = nullptr;
 
 IoModel* IoModel::instance()
@@ -20,13 +24,13 @@ IoModel::IoModel(QObject *parent) :
     onIoCapsReceived({}, {});
 }
 
-void IoModel::setService(QZeroProps::QZeroPropsService* service)
+void IoModel::setService(QtZeroProps::QZeroPropsService* service)
 {
     m_zpService = service;
 
     if (m_zpService) {
         // @TODO(mawe): fix this
-        connect(m_zpService, &QZeroProps::QZeroPropsService::propertyChanged, this, &IoModel::onPropertyChangedRemotely);
+        connect(m_zpService, &QtZeroProps::QZeroPropsService::propertyChanged, this, &IoModel::onPropertyChangedRemotely);
     }
 }
 

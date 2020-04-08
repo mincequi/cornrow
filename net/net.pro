@@ -1,12 +1,9 @@
 TEMPLATE = lib
 QT     -= gui
-# @TODO(mawe): remove bluetooth dependency
-QT     += core network bluetooth websockets
+QT     += core bluetooth websockets
 CONFIG += staticlib create_prl
 
-include(../cornrow.pri)
-
-DEFINES += QZEROCONF_STATIC
+DEFINES += QZEROCONF_STATIC MSGPACK_NO_PACKTYPES
 include(../thirdparty/QtZeroConf/qtzeroconf.pri)
 include(../thirdparty/qmsgpack/qmsgpack.pri)
 
@@ -21,9 +18,9 @@ SOURCES += \
     src/QZeroPropsWsService.cpp
 
 HEADERS += \
-    include/QZeroProps/QZeroPropsTypes.h \
-    include/QZeroProps/QZeroPropsClient.h \
-    include/QZeroProps/QZeroPropsService.h \
+    include/QtZeroProps/QZeroPropsTypes.h \
+    include/QtZeroProps/QZeroPropsClient.h \
+    include/QtZeroProps/QZeroPropsService.h \
     src/BleClientSession.h \
     src/BleServerSession.h \
     src/QZeroPropsBleClient.h \
@@ -33,5 +30,3 @@ HEADERS += \
 
 INCLUDEPATH += \
     include
-
-#LIBS += -L$$OUT_PWD/../common/ -lcommon

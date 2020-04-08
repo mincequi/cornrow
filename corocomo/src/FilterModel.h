@@ -3,22 +3,11 @@
 #include <QObject>
 
 #include <common/Types.h>
-#include <common/ble/Types.h>
 
-#include "Config.h"
+class Config;
 
-#include <QZeroProps/QZeroPropsService.h>
-
-class BleCentralAdapter;
-class IoModel;
-class PresetModel;
-
-namespace QZeroProps {
-class QZeroPropsBleClient;
-}
-
-namespace QZeroProps {
-class QZeroPropsClient;
+namespace QtZeroProps {
+class QZeroPropsService;
 }
 
 class FilterModel : public QObject
@@ -46,7 +35,7 @@ public:
     static FilterModel* init(const Config& configuration);
     static FilterModel* instance();
 
-    Q_INVOKABLE void setService(QZeroProps::QZeroPropsService* service);
+    Q_INVOKABLE void setService(QtZeroProps::QZeroPropsService* service);
 
     Q_INVOKABLE void resizeFilters(int diff);
 
@@ -129,5 +118,5 @@ private:
 
     // @TODO(mawe): storing raw pointer might be dangerous here. It might get released from QZeroProps.
     //              Howwever, QmlEngine cannot deal with QSharesPointers...
-    QZeroProps::QZeroPropsService* m_zpService = nullptr;
+    QtZeroProps::QZeroPropsService* m_zpService = nullptr;
 };

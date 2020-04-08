@@ -9,7 +9,7 @@
 #include "PresetModel.h"
 #include "SoftClipChart.h"
 
-#include <QZeroProps/QZeroPropsClient.h>
+#include <QtZeroProps/QZeroPropsClient.h>
 
 #include <QDebug>
 #include <QGuiApplication>
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     
     // Remote services: BLE, Tcp
-    QZeroProps::QZeroPropsClient zpClient;
+    QtZeroProps::QZeroPropsClient zpClient;
 
     // Setup view models
     // Init config first!
@@ -37,9 +37,9 @@ int main(int argc, char *argv[])
     FilterModel::init(*config);
 
     // Register types for QML engine
-    qmlRegisterUncreatableMetaObject(QZeroProps::QZeroPropsService::staticMetaObject, "Cornrow.DeviceType", 1, 0, "CornrowDeviceType", "Only enums");
+    qmlRegisterUncreatableMetaObject(QtZeroProps::staticMetaObject, "QZeroProps.ServiceType", 1, 0, "ServiceType", "Only enums");
 
-    qmlRegisterType<QZeroProps::QZeroPropsClient>("Cornrow.ClientState", 1, 0, "ClientState");
+    qmlRegisterType<QtZeroProps::QZeroPropsClient>("Cornrow.ClientState", 1, 0, "ClientState");
     qmlRegisterType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel");
     qmlRegisterType<EqChart>("Cornrow.EqChart", 1, 0, "CornrowEqChart");
     qmlRegisterType<PhaseChart>("Cornrow.PhaseChart", 1, 0, "CornrowPhaseChart");

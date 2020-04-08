@@ -20,8 +20,9 @@
 #include "QZeroPropsServicePrivate.h"
 #include "QZeroPropsBleClient.h"
 #include "BleClientSession.h"
+#include <QtBluetooth/QBluetoothSocket>
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 
 class QZeroPropsBleService : public QZeroPropsServicePrivate
@@ -29,7 +30,7 @@ class QZeroPropsBleService : public QZeroPropsServicePrivate
 public:
     QZeroPropsBleService(QZeroPropsService* _q)
         : QZeroPropsServicePrivate(_q),
-          session(new BleClientSession(_q))
+          session(new BleClientSession(this))
     {
         QObject::connect(session, &BleClientSession::characteristicChanged, [this](const QUuid& uuid, const QByteArray& value) {
             onReceive(uuid, value);
@@ -41,6 +42,7 @@ public:
     }
 
     void connect() override {
+        emit stateChanged(QZeroPropsClient::State::Connecting, "Connecting " + q->name());
         session->connectToDevice(bluetoothDeviceInfo, serviceUuid);
     }
 

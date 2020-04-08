@@ -17,15 +17,20 @@
 
 #pragma once
 
-#include <QZeroProps/QZeroPropsService.h>
+#include <QtZeroProps/QZeroPropsClient.h>
+#include <QtZeroProps/QZeroPropsService.h>
 
+#include <QMap>
+#include <QSet>
 #include <QTimer>
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 
-class QZeroPropsServicePrivate
+class QZeroPropsServicePrivate : public QObject
 {
+    Q_OBJECT
+
 public:
     QZeroPropsServicePrivate(QZeroPropsService* _q);
     virtual ~QZeroPropsServicePrivate();
@@ -41,9 +46,12 @@ public:
     QMap<QVariant, QByteArray>  properties;
 
     QString     name;
-    QZeroPropsService::ServiceType type = QZeroPropsService::ServiceType::Invalid;
+    ServiceType type = ServiceType::Invalid;
 
     class QZeroPropsService* const q;
+
+signals:
+    void stateChanged(QZeroPropsClient::State state, const QString& errorString = QString());
 };
 
 } // namespace QZeroProps

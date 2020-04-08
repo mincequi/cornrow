@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QZeroProps/QZeroPropsService.h>
+#include <QtZeroProps/QZeroPropsService.h>
 
 #include "QZeroPropsWsService.h"
 
@@ -24,7 +24,7 @@
 
 uint qHash(const QVariant& var);
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 
 QZeroPropsService::QZeroPropsService(QObject* parent)
@@ -42,7 +42,7 @@ QString QZeroPropsService::name() const
     return d->name;
 }
 
-QZeroPropsService::ServiceType QZeroPropsService::type() const
+ServiceType QZeroPropsService::type() const
 {
     return d->type;
 }
@@ -70,11 +70,6 @@ void QZeroPropsService::setProperty(const QUuid& uuid, const QByteArray& value)
     if (!d->timer.isActive()) {
         d->timer.start();
     }
-}
-
-void QZeroPropsService::connect()
-{
-    d->connect();
 }
 
 } // namespace QZeroProps

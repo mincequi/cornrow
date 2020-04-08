@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QZeroProps/QZeroPropsClient.h>
-#include <QZeroProps/QZeroPropsService.h>
+#include <QtZeroProps/QZeroPropsClient.h>
+#include <QtZeroProps/QZeroPropsService.h>
 
 #include "QZeroPropsBleClient.h"
 #include "QZeroPropsBleService.h"
@@ -39,8 +39,9 @@ uint qHash(const QVariant& var)
     }
 }
 
-namespace QZeroProps
+namespace QtZeroProps
 {
+using QZeroPropsServicePtr = QSharedPointer<QZeroPropsService>;
 
 class QZeroPropsClientPrivate
 {
@@ -53,7 +54,7 @@ public:
             onServiceDiscovered(service);
         });
 
-        QObject::connect(&bleClient, &QZeroProps::QZeroPropsBleClient::serviceDiscovered, [this](const QBluetoothDeviceInfo& service,  const QUuid& serviceUuid) {
+        QObject::connect(&bleClient, &QtZeroProps::QZeroPropsBleClient::serviceDiscovered, [this](const QBluetoothDeviceInfo& service,  const QUuid& serviceUuid) {
             onServiceDiscovered(service, serviceUuid);
         });
         QObject::connect(&bleClient, &QZeroPropsBleClient::stateChanged, [this](QZeroPropsClient::State state, const QString& errorString) {
@@ -71,7 +72,7 @@ public:
         QZeroPropsServicePtr device(new QZeroPropsService);
         auto impl = new QZeroPropsWsService(device.data());
         impl->name = service->name();
-        impl->type = QZeroPropsService::ServiceType::WebSocket;
+        impl->type = ServiceType::WebSocket;
         impl->address = service->ip();
         impl->port = service->port();
         device->d = impl;
@@ -89,7 +90,7 @@ public:
         }
         auto impl = new QZeroPropsBleService(device.data());
         impl->name = name;
-        impl->type = QZeroPropsService::ServiceType::BluetoothLe;
+        impl->type = ServiceType::BluetoothLe;
         impl->bluetoothDeviceInfo = info;
         impl->serviceUuid = serviceUuid;
         device->d = impl;
@@ -168,7 +169,7 @@ void QZeroPropsClient::connectToService(QZeroPropsService* service)
     emit stateChanged(State::Connecting, "Connecting " + service->name());
 
     d->currentService = service;
-    connect(d->currentService, &QZeroPropsService::stateChanged, this, &QZeroPropsClient::stateChanged);
+    connect(d->currentService->d, &QZeroPropsServicePrivate::stateChanged, this, &QZeroPropsClient::stateChanged);
     d->currentService->d->connect();
 }
 

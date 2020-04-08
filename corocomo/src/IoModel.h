@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QStringList>
 
-#include <QZeroProps/QZeroPropsService.h>
+#include <QtZeroProps/QZeroPropsService.h>
 
 #include <common/Types.h>
 
@@ -22,7 +22,7 @@ class IoModel : public QObject
 public:
     static IoModel* instance();
 
-    Q_INVOKABLE void setService(QZeroProps::QZeroPropsService* service);
+    Q_INVOKABLE void setService(QtZeroProps::QZeroPropsService* service);
 
     QStringList inputNames() const;
     QStringList outputNames() const;
@@ -59,7 +59,7 @@ private:
 
     static IoModel* s_instance;
 
-    QZeroProps::QZeroPropsService* m_zpService = nullptr;
+    QtZeroProps::QZeroPropsService* m_zpService = nullptr;
 
     std::vector<common::IoInterface> m_inputs;
     std::vector<common::IoInterface> m_outputs;

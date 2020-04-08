@@ -21,7 +21,7 @@
 
 #include <QWebSocket>
 
-namespace QZeroProps
+namespace QtZeroProps
 {
 
 class QZeroPropsWsService : public QZeroPropsServicePrivate

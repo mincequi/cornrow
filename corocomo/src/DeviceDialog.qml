@@ -7,11 +7,12 @@ import QtQuick.Layouts 1.3
 import Qt.labs.qmlmodels 1.0
 
 import Cornrow.ClientState 1.0
-import Cornrow.DeviceType 1.0
 import Cornrow.DeviceModel 1.0
 import Cornrow.IoModel 1.0
 import Cornrow.FilterModel 1.0
 import Cornrow.PresetModel 1.0
+
+import QZeroProps.ServiceType 1.0
 
 Dialog {
     id: myDialog
@@ -68,7 +69,7 @@ Dialog {
             enabled: DeviceModel.status === ClientState.Discovering ||
                      DeviceModel.status === ClientState.Idle
             delegate: ListItemNew {
-                icon.source: modelData.type === CornrowDeviceType.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
+                icon.source: modelData.type === ServiceType.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
                 primaryText: modelData.name
                 onClicked: {
                     FilterModel.setService(modelData)

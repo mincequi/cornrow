@@ -21,17 +21,16 @@
 
 #include <QtBluetooth/QLowEnergyAdvertisingParameters>
 
-namespace QZeroProps
+namespace QtZeroProps
 {
-class QZeroPropsBleClient;
-class QZeroPropsService;
+class QZeroPropsServicePrivate;
 
 class BleClientSession : public QObject
 {
     Q_OBJECT
 
 public:
-    BleClientSession(QZeroPropsService* _q);
+    BleClientSession(QZeroPropsServicePrivate* _q);
     ~BleClientSession();
 
     void setDiscoveryTimeout(int msTimeout);
@@ -58,7 +57,7 @@ private:
     void onServiceError(QLowEnergyService::ServiceError error);
     void onCharacteristicRead(const QLowEnergyCharacteristic& characteristic, const QByteArray& value);
 
-    QZeroPropsService* q;
+    QZeroPropsServicePrivate* q;
     QUuid                   m_serviceUuid;
     QLowEnergyController*   m_control = nullptr;
     QLowEnergyService*      m_service = nullptr;

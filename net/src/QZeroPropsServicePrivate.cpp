@@ -17,7 +17,9 @@
 
 #include "QZeroPropsServicePrivate.h"
 
-namespace QZeroProps
+#include <QDebug>
+
+namespace QtZeroProps
 {
 
 QZeroPropsServicePrivate::QZeroPropsServicePrivate(QZeroPropsService* _q)
