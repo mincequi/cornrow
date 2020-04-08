@@ -26,7 +26,6 @@ class QLowEnergyCharacteristic;
 
 namespace QtZeroProps
 {
-struct Configuration;
 
 class BleServer : public QObject
 {

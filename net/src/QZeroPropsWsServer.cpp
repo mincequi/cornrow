@@ -17,120 +17,57 @@
 
 #include "QZeroPropsWsServer.h"
 
-#include <QCoreApplication>
+#include "QZeroPropsWsService.h"
+
+#include <QDebug>
 #include <QHostInfo>
-#include <QUuid>
 #include <QtWebSockets/QWebSocket>
 
-#include <msgpack.h>
 #include <qzeroconf.h>
-#include <loguru/loguru.hpp>
 
-using namespace std::placeholders;
-
-namespace net
+namespace QtZeroProps
 {
 
 QZeroPropsWsServer::QZeroPropsWsServer(QObject *parent)
-    : QObject(parent),
+    : QtZeroProps::QZeroPropsServerPrivate(parent),
       m_server("", QWebSocketServer::SslMode::NonSecureMode)
 {
-    // Open service
-    connect(&m_server, &QWebSocketServer::newConnection, this, &QZeroPropsWsServer::onClientConnected);
-    if (!m_server.listen(QHostAddress::AnyIPv4)) {
-        LOG_F(ERROR, "Error starting NetService.");
-        return;
-    }
-
-    startPublishing();
-
-    MsgPack::registerPacker(QVariant::Type::Uuid, QVariant::Type::Uuid, [](const QVariant& variant) -> QByteArray {
-        return variant.toUuid().toRfc4122();
-    });
-    MsgPack::registerUnpacker(QVariant::Type::Uuid, [](const QByteArray& buffer) -> QVariant {
-        return QUuid::fromRfc4122(buffer);
-    });
 }
 
 QZeroPropsWsServer::~QZeroPropsWsServer()
 {
 }
 
-void QZeroPropsWsServer::startPublishing()
+QZeroPropsServicePrivate* QZeroPropsWsServer::createService(const QtZeroProps::ServiceConfiguration& config)
 {
+    // Open socket
+    m_server.close();
+    if (!m_server.listen(QHostAddress::AnyIPv4)) {
+        qWarning("Error starting NetService.");
+        return nullptr;
+    }
+
+    auto service = new QZeroPropsWsService(m_currentService);
+    service->name = config.zeroConfType;
+    service->type = QZeroPropsService::ServiceType::WebSocket;
+    connect(&m_server, &QWebSocketServer::newConnection, [&]() {
+        service->onClientConnected(m_server.nextPendingConnection());
+    });
+
     // Publish service
     QZeroConf* zeroConf = new QZeroConf(this);
     connect(zeroConf, &QZeroConf::servicePublished, [&]() {
-        LOG_F(INFO, "TCP server published at port: %i", m_server.serverPort());
+        qDebug("TCP server published at port: %i", m_server.serverPort());
     });
     connect(zeroConf, &QZeroConf::error, [](QZeroConf::error_t error) {
-        LOG_F(WARNING, "Error publishing service: %i", error);
+        qWarning("Error publishing service: %i", error);
     });
     zeroConf->startServicePublish(QHostInfo::localHostName().toStdString().c_str(),
-                                  "_cornrow._tcp",
+                                  config.zeroConfType.toStdString().c_str(),
                                   nullptr,
                                   m_server.serverPort());
-}
 
-void QZeroPropsWsServer::disconnect()
-{
-    if (!m_client) {
-        return;
-    }
-    m_client->abort();
-    m_client->deleteLater();
-    m_client = nullptr;
-}
-
-void QZeroPropsWsServer::setProperty(const QUuid& uuid, const QByteArray& value)
-{
-    m_properties.insert(uuid, value);
-
-    //doSend(_name);
-}
-
-void QZeroPropsWsServer::onClientConnected()
-{
-    if (m_client) {
-        LOG_F(INFO, "Another client already connected");
-        return;
-    }
-
-    // Open socket
-    m_client = m_server.nextPendingConnection();
-
-    connect(m_client, &QWebSocket::binaryMessageReceived, this, &QZeroPropsWsServer::onReceive);
-    connect(m_client, &QWebSocket::disconnected, this, &QZeroPropsWsServer::disconnect);
-
-    // Iterate dirty properties and send them
-    LOG_F(INFO, "New connection. Send properties:");
-    for (const auto& kv : m_properties.toStdMap()) {
-        const auto& key = kv.first;
-        const auto& value = kv.second;
-        LOG_F(INFO, "%s: %i", key.toByteArray().toStdString().c_str(), value.size());
-
-        QByteArray block;
-        block += static_cast<char>(0x81);   // Map with one element
-        block += MsgPack::pack(key);
-        block += MsgPack::pack(value);
-        const auto bytes = m_client->sendBinaryMessage(block);
-        LOG_F(INFO, "Wrote %lld bytes", bytes);
-    }
-    m_client->flush();
-}
-
-void QZeroPropsWsServer::onReceive(const QByteArray& message)
-{
-    if (message.front() != static_cast<char>(0x81)) {
-        qDebug() << "Illegal data:" << message.front();
-        return;
-    }
-
-    auto key = MsgPack::unpack(message.mid(1, 18)).toUuid();
-    auto value = MsgPack::unpack(message.mid(19)).toByteArray();
-    LOG_F(INFO, "uuid: %s, value size: %i", key.toByteArray().constData(), value.size());
-    m_properties.insert(key, value);
-    emit propertyChanged(key, value);
+    return service;
 }
 
 } // namespace net

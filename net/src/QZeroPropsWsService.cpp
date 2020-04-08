@@ -27,26 +27,6 @@ namespace QtZeroProps
 QZeroPropsWsService::QZeroPropsWsService(QZeroPropsService* _q)
     : QZeroPropsServicePrivate(_q)
 {
-    // Setup socket
-    QObject::connect(&socket, &QWebSocket::binaryMessageReceived, [this](const QByteArray &message) {
-        onReceive(message);
-    });
-    QObject::connect(&socket, &QWebSocket::connected, [this]() {
-        emit stateChanged(QZeroPropsClient::State::Connected);
-    });
-    QObject::connect(&socket, &QWebSocket::disconnected, [this]() {
-        emit stateChanged(QZeroPropsClient::State::Disconnected);
-    });
-    QObject::connect(&socket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), [this](QAbstractSocket::SocketError) {
-        emit stateChanged(QZeroPropsClient::State::Error, socket.errorString());
-    });
-    QObject::connect(&socket, &QWebSocket::pong, [](quint64 elapsedTime, const QByteArray &payload) {
-        qDebug() << "pong> elapsedTime:" << elapsedTime << ", payload.size: " << payload.size();
-    });
-    QObject::connect(&socket, &QWebSocket::stateChanged, [this](QAbstractSocket::SocketState state) {
-        onStateChanged(state);
-    });
-
     MsgPack::registerPacker(QVariant::Type::Uuid, QVariant::Type::Uuid, [](const QVariant& variant) -> QByteArray {
         return variant.toUuid().toRfc4122();
     });
@@ -63,16 +43,77 @@ void QZeroPropsWsService::connect()
 {
     emit stateChanged(QZeroPropsClient::State::Connecting, "Connecting " + q->name());
 
+    if (socket) {
+        socket->disconnect();
+        socket->deleteLater();
+    }
+
+    socket = new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this);
+
+    // Setup socket
+    QObject::connect(socket, &QWebSocket::binaryMessageReceived, [this](const QByteArray &message) {
+        onReceive(message);
+    });
+    QObject::connect(socket, &QWebSocket::connected, [this]() {
+        emit stateChanged(QZeroPropsClient::State::Connected);
+    });
+    QObject::connect(socket, &QWebSocket::disconnected, [this]() {
+        emit stateChanged(QZeroPropsClient::State::Disconnected);
+    });
+    QObject::connect(socket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), [this](QAbstractSocket::SocketError) {
+        emit stateChanged(QZeroPropsClient::State::Error, socket->errorString());
+    });
+    QObject::connect(socket, &QWebSocket::pong, [](quint64 elapsedTime, const QByteArray &payload) {
+        qDebug() << "pong> elapsedTime:" << elapsedTime << ", payload.size: " << payload.size();
+    });
+    QObject::connect(socket, &QWebSocket::stateChanged, [this](QAbstractSocket::SocketState state) {
+        onStateChanged(state);
+    });
+
     QUrl url;
     url.setScheme("ws");
     url.setHost(address.toString());
     url.setPort(port);
-    socket.open(url);
+    socket->open(url);
 }
 
 void QZeroPropsWsService::disconnect()
 {
-    socket.abort();
+    if (socket) {
+        socket->abort();
+        socket->deleteLater();
+        socket = nullptr;
+    }
+}
+
+void QZeroPropsWsService::onClientConnected(QWebSocket* _socket)
+{
+    if (socket) {
+        qDebug("Another client already connected");
+        return;
+    }
+
+    // Open socket
+    socket = _socket;
+
+    QObject::connect(socket, &QWebSocket::binaryMessageReceived, this, &QZeroPropsWsService::onReceive);
+    QObject::connect(socket, &QWebSocket::disconnected, this, &QZeroPropsWsService::disconnect);
+
+    // Iterate dirty properties and send them
+    qDebug("New connection. Send properties:");
+    for (const auto& kv : properties.toStdMap()) {
+        const auto& key = kv.first;
+        const auto& value = kv.second;
+        qDebug("%s: %i", key.toByteArray().toStdString().c_str(), value.size());
+
+        QByteArray block;
+        block += static_cast<char>(0x81);   // Map with one element
+        block += MsgPack::pack(key);
+        block += MsgPack::pack(value);
+        const auto bytes = socket->sendBinaryMessage(block);
+        qDebug("Wrote %lld bytes", bytes);
+    }
+    socket->flush();
 }
 
 void QZeroPropsWsService::onStateChanged(QAbstractSocket::SocketState state)
@@ -119,7 +160,7 @@ void QZeroPropsWsService::onReceive(const QByteArray& message)
 void QZeroPropsWsService::doSend(const QVariant& uuid, const QByteArray& value)
 {
     // If we are not connected, we do not send
-    if (socket.state() != QAbstractSocket::ConnectedState) {
+    if (!socket || socket->state() != QAbstractSocket::ConnectedState) {
         qDebug() << "Socket not connected";
         return;
     }
@@ -128,10 +169,10 @@ void QZeroPropsWsService::doSend(const QVariant& uuid, const QByteArray& value)
     block += static_cast<char>(0x81);   // Map with one element
     block += MsgPack::pack(uuid);
     block += MsgPack::pack(value);
-    const auto bytes = socket.sendBinaryMessage(block);
+    const auto bytes = socket->sendBinaryMessage(block);
     qDebug() << "Sent" << bytes << "bytes";
 
-    socket.flush();
+    socket->flush();
 }
 
 } // namespace QZeroProps

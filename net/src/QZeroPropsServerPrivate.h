@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Manuel Weichselbaumer <mincequi@web.de>
+ * Copyright (C) 2018 Manuel Weichselbaumer <mincequi@web.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,19 +17,29 @@
 
 #pragma once
 
-#include <QUuid>
+#include <QObject>
 
 namespace QtZeroProps
 {
+class QZeroPropsService;
+class QZeroPropsServicePrivate;
+struct ServiceConfiguration;
 
-/// ServiceConfiguration struct for QZeroPropsServer and QZeroPropsClient.
-///
-/// Provide a valid zeroConfType for using the WebSocket backend (e.g. _raop._tcp).
-/// Provide a valid bleUuid for using the Bluetooth Low Energy backend.
-struct ServiceConfiguration
+class QZeroPropsServerPrivate : public QObject
 {
-    QString zeroConfType;   ///< ZeroConf (WebSocket) service type to announce/discover
-    QUuid   bleUuid;        ///< BluetoothLe service uuid to announce/discover
+    Q_OBJECT
+public:
+    explicit QZeroPropsServerPrivate(QObject *parent = nullptr);
+    ~QZeroPropsServerPrivate();
+
+    // @TODO(mawe): rename
+    QZeroPropsService* startPublishing(const ServiceConfiguration& config);
+    virtual void stopService();
+
+protected:
+    virtual QZeroPropsServicePrivate* createService(const ServiceConfiguration& config) = 0;
+
+    QZeroPropsService* m_currentService = nullptr;
 };
 
-} // namespace QZeroProps
+} // namespace QtZeroProps

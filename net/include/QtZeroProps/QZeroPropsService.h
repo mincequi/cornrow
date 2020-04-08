@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <QtZeroProps/QZeroPropsTypes.h>
+#include <QObject>
 
 namespace QtZeroProps
 {
@@ -38,6 +38,14 @@ class QZeroPropsService : public QObject
     Q_PROPERTY(ServiceType type READ type)
 
 public:
+    enum class ServiceType : uint8_t {
+        Invalid = 0,
+        BluetoothLe = 0x1,
+        WebSocket = 0x2,
+        All = BluetoothLe | WebSocket
+    };
+    Q_ENUM(ServiceType)
+
     /// Destroys this QZeroPropsService.
     virtual ~QZeroPropsService();
 
@@ -83,6 +91,8 @@ private:
 
     friend class QZeroPropsClient;
     friend class QZeroPropsClientPrivate;
+    friend class QZeroPropsServer;
+    friend class QZeroPropsServerPrivate;
 };
 
 } // namespace QZeroProps

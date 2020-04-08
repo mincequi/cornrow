@@ -46,7 +46,7 @@ public:
     QMap<QVariant, QByteArray>  properties;
 
     QString     name;
-    ServiceType type = ServiceType::Invalid;
+    QZeroPropsService::ServiceType type = QZeroPropsService::ServiceType::Invalid;
 
     class QZeroPropsService* const q;
 

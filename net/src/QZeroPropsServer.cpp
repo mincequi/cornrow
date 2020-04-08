@@ -15,39 +15,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <QtZeroProps/QZeroPropsServer.h>
 
-#include "QZeroPropsServicePrivate.h"
-
-#include <QWebSocket>
+#include <QtZeroProps/QZeroPropsTypes.h>
+#include "QZeroPropsWsServer.h"
+#include "QZeroPropsWsService.h"
 
 namespace QtZeroProps
 {
 
-class QZeroPropsWsService : public QZeroPropsServicePrivate
+QZeroPropsServer::QZeroPropsServer(QObject* parent) :
+    QObject(parent),
+    d(new QZeroPropsWsServer(this))
 {
-public:
-    QZeroPropsWsService(QZeroPropsService* _q);
-    ~QZeroPropsWsService() override;
+}
 
-private:
-    void connect() override;
-    void disconnect() override;
-    void doSend(const QVariant& uuid, const QByteArray& value) override;
+QZeroPropsServer::~QZeroPropsServer()
+{
+}
 
-    // Event handlers from socket/server
-    void onClientConnected(QWebSocket* socket);
-    void onStateChanged(QAbstractSocket::SocketState state);
-    void onReceive(const QByteArray& message);
+QZeroPropsService* QZeroPropsServer::startService(const ServiceConfiguration& configuration)
+{
+    d->stopService();
 
-    QHostAddress address;
-    uint16_t port = 0;
+    return d->startPublishing(configuration);
+}
 
-    QWebSocket*  socket = nullptr;
-
-    friend class QZeroPropsClientPrivate;
-    friend class QZeroPropsServer;
-    friend class QZeroPropsWsServer;
-};
+void QZeroPropsServer::stopService()
+{
+    d->stopService();
+}
 
 } // namespace QZeroProps

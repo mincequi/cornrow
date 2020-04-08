@@ -72,7 +72,7 @@ public:
         QZeroPropsServicePtr device(new QZeroPropsService);
         auto impl = new QZeroPropsWsService(device.data());
         impl->name = service->name();
-        impl->type = ServiceType::WebSocket;
+        impl->type = QZeroPropsService::ServiceType::WebSocket;
         impl->address = service->ip();
         impl->port = service->port();
         device->d = impl;
@@ -90,7 +90,7 @@ public:
         }
         auto impl = new QZeroPropsBleService(device.data());
         impl->name = name;
-        impl->type = ServiceType::BluetoothLe;
+        impl->type = QZeroPropsService::ServiceType::BluetoothLe;
         impl->bluetoothDeviceInfo = info;
         impl->serviceUuid = serviceUuid;
         device->d = impl;
@@ -133,7 +133,7 @@ QObjectList QZeroPropsClient::discoveredServices() const
     return _devices;
 }
 
-void QZeroPropsClient::startDiscovery(const Configuration& config)
+void QZeroPropsClient::startDiscovery(const ServiceConfiguration& config)
 {
     // Clear previous services
     d->services.clear();

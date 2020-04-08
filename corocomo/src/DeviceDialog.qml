@@ -12,7 +12,7 @@ import Cornrow.IoModel 1.0
 import Cornrow.FilterModel 1.0
 import Cornrow.PresetModel 1.0
 
-import QZeroProps.ServiceType 1.0
+import QtZeroProps 1.0
 
 Dialog {
     id: myDialog

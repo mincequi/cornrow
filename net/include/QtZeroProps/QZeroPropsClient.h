@@ -82,9 +82,9 @@ public slots:
     /// The configuration defines the Bluetooth Low Energy and WebSocket
     /// services we are looking for. If the appropriate fields are empty or
     /// undefined, they are not discovered.
-    void startDiscovery(const Configuration& config);
+    void startDiscovery(const ServiceConfiguration& config);
 
-    /// Stops QZeroProps device discovery.
+    /// Stops QZeroProps service discovery.
     ///
     /// The Idle state is emitted once the discovery is stopped.
     void stopDiscovery();
@@ -112,5 +112,3 @@ private:
 };
 
 } // namespace QZeroProps
-
-//Q_DECLARE_OPERATORS_FOR_FLAGS(QZeroProps::QZeroPropsClient::ServiceType)

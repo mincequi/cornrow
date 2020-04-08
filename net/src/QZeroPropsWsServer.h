@@ -18,36 +18,31 @@
 #pragma once
 
 #include <QtWebSockets/QWebSocketServer>
+#include "QZeroPropsServerPrivate.h"
 
-namespace net
+namespace QtZeroProps
 {
+class QZeroPropsWsService;
 
-class QZeroPropsWsServer : public QObject
+class QZeroPropsWsServer : public QtZeroProps::QZeroPropsServerPrivate
 {
     Q_OBJECT
 
 public:
     explicit QZeroPropsWsServer(QObject *parent = nullptr);
-    ~QZeroPropsWsServer();
+    ~QZeroPropsWsServer() override;
 
-    void startPublishing();
-
-    void disconnect();
-
-    void setProperty(const QUuid& uuid, const QByteArray& value);
+    void stopService() override;
 
 signals:
     void propertyChanged(const QUuid& uuid, const QByteArray& value);
 
 private:
-    void onClientConnected();
-    // Property related event handlers / action
-    void onReceive(const QByteArray& message);
+    virtual QZeroPropsServicePrivate* createService(const ServiceConfiguration& config) override;
 
     QWebSocketServer    m_server;
-    QWebSocket*         m_client = nullptr;
 
-    QMap<QUuid, QByteArray>  m_properties;
+    friend class QZeroPropsServer;
 };
 
 } // namespace net

@@ -11,7 +11,6 @@
 
 #include <QtZeroProps/QZeroPropsClient.h>
 
-#include <QDebug>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QSurfaceFormat>
@@ -37,7 +36,7 @@ int main(int argc, char *argv[])
     FilterModel::init(*config);
 
     // Register types for QML engine
-    qmlRegisterUncreatableMetaObject(QtZeroProps::staticMetaObject, "QZeroProps.ServiceType", 1, 0, "ServiceType", "Only enums");
+    qmlRegisterUncreatableType<QtZeroProps::QZeroPropsService>("QtZeroProps", 1, 0, "ServiceType", "Only enums");
 
     qmlRegisterType<QtZeroProps::QZeroPropsClient>("Cornrow.ClientState", 1, 0, "ClientState");
     qmlRegisterType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel");
