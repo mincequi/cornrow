@@ -7,7 +7,7 @@
 #include "config/Controller.h"
 
 namespace net {
-class TcpServer;
+class QZeroPropsWsServer;
 }
 
 class Controller : public QObject
@@ -24,6 +24,6 @@ private:
 
     audio::Controller*      m_audio;
     bluetooth::Controller*  m_bluetoothService;
-    net::TcpServer*         m_tcpServer;
+    net::QZeroPropsWsServer*         m_tcpServer;
     config::Controller*     m_config;
 };

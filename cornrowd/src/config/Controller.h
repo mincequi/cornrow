@@ -32,7 +32,7 @@ class Controller;
 }
 
 namespace net {
-class TcpServer;
+class QZeroPropsWsServer;
 }
 
 namespace config {
@@ -44,7 +44,7 @@ class Controller : public QObject
 public:
     explicit Controller(audio::Controller* audio,
                         bluetooth::Controller* bluetooth,
-                        net::TcpServer* tcpServer,
+                        net::QZeroPropsWsServer* tcpServer,
                         QObject* parent = nullptr);
     ~Controller();
 
@@ -53,7 +53,7 @@ public:
 private:
     audio::Controller* m_audio = nullptr;
     bluetooth::Controller* m_bluetooth = nullptr;
-    net::TcpServer* m_tcpServer = nullptr;
+    net::QZeroPropsWsServer* m_tcpServer = nullptr;
 
     Persistence m_persistence;
 

@@ -1,8 +1,8 @@
 add_definitions(-DQZEROCONF_STATIC)
 
 add_library(net STATIC
-    include/net/TcpServer.h
-    src/TcpServer.cpp
+    src/QZeroPropsWsServer.h
+    src/QZeroPropsWsServer.cpp
 
     ../thirdparty/QtZeroConf/qzeroconf.h
     ../thirdparty/QtZeroConf/avahi-qt/qt-watch.h
@@ -37,6 +37,7 @@ target_include_directories(net
 PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
+    src # @TODO(mawe): temporary hack
 PRIVATE
     include/net
     ../thirdparty/QtZeroConf

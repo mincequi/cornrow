@@ -19,17 +19,6 @@ find_package(Qt5WebSockets REQUIRED)
 # Add thirdparty libs
 add_subdirectory(thirdparty/libcornrow)
 
-# QtRemoteObjects
-#ExternalProject_Add(qtremoteobjects
-#    SOURCE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/qtremoteobjects
-#    CONFIGURE_COMMAND qmake "CONFIG += debug static" ${PROJECT_SOURCE_DIR}/thirdparty/qtremoteobjects
-#    BUILD_COMMAND ${MAKE}
-#    INSTALL_COMMAND ""
-#    )
-#ExternalProject_Get_Property(qtremoteobjects BINARY_DIR)
-#include_directories(${BINARY_DIR}/include)
-#link_directories(${BINARY_DIR}/lib)
-
 # Replace install() to do-nothing macro.
 macro(install)
 endmacro()

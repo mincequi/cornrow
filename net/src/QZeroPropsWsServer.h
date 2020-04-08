@@ -22,13 +22,13 @@
 namespace net
 {
 
-class TcpServer : public QObject
+class QZeroPropsWsServer : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit TcpServer(QObject *parent = nullptr);
-    ~TcpServer();
+    explicit QZeroPropsWsServer(QObject *parent = nullptr);
+    ~QZeroPropsWsServer();
 
     void startPublishing();
 

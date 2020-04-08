@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TcpServer.h"
+#include "QZeroPropsWsServer.h"
 
 #include <QCoreApplication>
 #include <QHostInfo>
@@ -31,12 +31,12 @@ using namespace std::placeholders;
 namespace net
 {
 
-TcpServer::TcpServer(QObject *parent)
+QZeroPropsWsServer::QZeroPropsWsServer(QObject *parent)
     : QObject(parent),
       m_server("", QWebSocketServer::SslMode::NonSecureMode)
 {
     // Open service
-    connect(&m_server, &QWebSocketServer::newConnection, this, &TcpServer::onClientConnected);
+    connect(&m_server, &QWebSocketServer::newConnection, this, &QZeroPropsWsServer::onClientConnected);
     if (!m_server.listen(QHostAddress::AnyIPv4)) {
         LOG_F(ERROR, "Error starting NetService.");
         return;
@@ -52,11 +52,11 @@ TcpServer::TcpServer(QObject *parent)
     });
 }
 
-TcpServer::~TcpServer()
+QZeroPropsWsServer::~QZeroPropsWsServer()
 {
 }
 
-void TcpServer::startPublishing()
+void QZeroPropsWsServer::startPublishing()
 {
     // Publish service
     QZeroConf* zeroConf = new QZeroConf(this);
@@ -72,7 +72,7 @@ void TcpServer::startPublishing()
                                   m_server.serverPort());
 }
 
-void TcpServer::disconnect()
+void QZeroPropsWsServer::disconnect()
 {
     if (!m_client) {
         return;
@@ -82,14 +82,14 @@ void TcpServer::disconnect()
     m_client = nullptr;
 }
 
-void TcpServer::setProperty(const QUuid& uuid, const QByteArray& value)
+void QZeroPropsWsServer::setProperty(const QUuid& uuid, const QByteArray& value)
 {
     m_properties.insert(uuid, value);
 
     //doSend(_name);
 }
 
-void TcpServer::onClientConnected()
+void QZeroPropsWsServer::onClientConnected()
 {
     if (m_client) {
         LOG_F(INFO, "Another client already connected");
@@ -99,8 +99,8 @@ void TcpServer::onClientConnected()
     // Open socket
     m_client = m_server.nextPendingConnection();
 
-    connect(m_client, &QWebSocket::binaryMessageReceived, this, &TcpServer::onReceive);
-    connect(m_client, &QWebSocket::disconnected, this, &TcpServer::disconnect);
+    connect(m_client, &QWebSocket::binaryMessageReceived, this, &QZeroPropsWsServer::onReceive);
+    connect(m_client, &QWebSocket::disconnected, this, &QZeroPropsWsServer::disconnect);
 
     // Iterate dirty properties and send them
     LOG_F(INFO, "New connection. Send properties:");
@@ -119,7 +119,7 @@ void TcpServer::onClientConnected()
     m_client->flush();
 }
 
-void TcpServer::onReceive(const QByteArray& message)
+void QZeroPropsWsServer::onReceive(const QByteArray& message)
 {
     if (message.front() != static_cast<char>(0x81)) {
         qDebug() << "Illegal data:" << message.front();

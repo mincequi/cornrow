@@ -23,7 +23,7 @@
 #include "../bluetooth/Controller.h"
 
 #include <loguru/loguru.hpp>
-#include <net/TcpServer.h>
+#include <QZeroPropsWsServer.h>
 
 #include <QUuid>
 
@@ -34,7 +34,7 @@ namespace config
 
 Controller::Controller(audio::Controller* audio,
                        bluetooth::Controller* bluetooth,
-                       net::TcpServer* tcpServer,
+                       net::QZeroPropsWsServer* tcpServer,
                        QObject* parent)
     : QObject(parent),
       m_audio(audio),
@@ -62,7 +62,7 @@ Controller::Controller(audio::Controller* audio,
     m_tcpServer->setProperty(QByteArray(common::ble::auxCharacteristicUuid.c_str()), m_converter.filtersToBle(auxFilters));
 
     //m_tcpServer->setReadCallback();
-    connect(m_tcpServer, &net::TcpServer::propertyChanged, [this](const QUuid& name, const QByteArray& value) {
+    connect(m_tcpServer, &net::QZeroPropsWsServer::propertyChanged, [this](const QUuid& name, const QByteArray& value) {
         auto uuid = name.toByteArray(QUuid::WithoutBraces).toStdString();
         if (uuid == common::ble::peqCharacteristicUuid) {
             m_audio->setFilters(common::ble::CharacteristicType::Peq, m_converter.filtersFromBle(value));
