@@ -37,6 +37,7 @@ QZeroPropsWsService::QZeroPropsWsService(QZeroPropsService* _q)
 
 QZeroPropsWsService::~QZeroPropsWsService()
 {
+    disconnect();
 }
 
 void QZeroPropsWsService::connect()
@@ -80,6 +81,7 @@ void QZeroPropsWsService::connect()
 void QZeroPropsWsService::disconnect()
 {
     if (socket) {
+        socket->disconnect();
         socket->abort();
         socket->deleteLater();
         socket = nullptr;
