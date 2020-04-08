@@ -32,11 +32,6 @@ public:
     explicit QZeroPropsWsServer(QObject *parent = nullptr);
     ~QZeroPropsWsServer() override;
 
-    void stopService() override;
-
-signals:
-    void propertyChanged(const QUuid& uuid, const QByteArray& value);
-
 private:
     virtual QZeroPropsServicePrivate* createService(const ServiceConfiguration& config) override;
 

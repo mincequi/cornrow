@@ -23,7 +23,7 @@
 #include "../bluetooth/Controller.h"
 
 #include <loguru/loguru.hpp>
-#include <QZeroPropsWsServer.h>
+#include <QtZeroProps/QZeroPropsService.h>
 
 #include <QUuid>
 
@@ -34,12 +34,12 @@ namespace config
 
 Controller::Controller(audio::Controller* audio,
                        bluetooth::Controller* bluetooth,
-                       net::QZeroPropsWsServer* tcpServer,
+                       QtZeroProps::QZeroPropsService* zpService,
                        QObject* parent)
     : QObject(parent),
       m_audio(audio),
       m_bluetooth(bluetooth),
-      m_tcpServer(tcpServer)
+      m_zpService(zpService)
 {
     // On start-up we read config from disk
     std::vector<common::Filter> filters = m_persistence.readConfig();
@@ -58,18 +58,18 @@ Controller::Controller(audio::Controller* audio,
     m_bluetooth->setReadFiltersCallback(std::bind(&audio::Controller::filters, m_audio, _1));
     connect(m_bluetooth, &bluetooth::Controller::filtersWritten, m_audio, &audio::Controller::setFilters);
 
-    m_tcpServer->setProperty(QByteArray(common::ble::peqCharacteristicUuid.c_str()), m_converter.filtersToBle(peqFilters));
-    m_tcpServer->setProperty(QByteArray(common::ble::auxCharacteristicUuid.c_str()), m_converter.filtersToBle(auxFilters));
+    m_zpService->setProperty(QUuid(common::ble::peqCharacteristicUuid.c_str()), m_converter.filtersToBle(peqFilters));
+    m_zpService->setProperty(QUuid(common::ble::auxCharacteristicUuid.c_str()), m_converter.filtersToBle(auxFilters));
 
     //m_tcpServer->setReadCallback();
-    connect(m_tcpServer, &net::QZeroPropsWsServer::propertyChanged, [this](const QUuid& name, const QByteArray& value) {
-        auto uuid = name.toByteArray(QUuid::WithoutBraces).toStdString();
+    connect(m_zpService, &QtZeroProps::QZeroPropsService::propertyChanged, [this](const QVariant& name, const QByteArray& value) {
+        auto uuid = name.toUuid().toByteArray(QUuid::WithoutBraces).toStdString();
         if (uuid == common::ble::peqCharacteristicUuid) {
             m_audio->setFilters(common::ble::CharacteristicType::Peq, m_converter.filtersFromBle(value));
         } else if (uuid == common::ble::auxCharacteristicUuid) {
             m_audio->setFilters(common::ble::CharacteristicType::Aux, m_converter.filtersFromBle(value));
         } else {
-            LOG_F(WARNING, "Unknown uuid: %s", name.toByteArray(QUuid::WithoutBraces).toStdString().c_str());
+            LOG_F(WARNING, "Unknown uuid: %s", name.toUuid().toByteArray().toStdString().c_str());
         }
     });
 

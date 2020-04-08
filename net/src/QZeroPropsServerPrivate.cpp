@@ -18,8 +18,8 @@ QZeroPropsServerPrivate::~QZeroPropsServerPrivate()
 QZeroPropsService* QZeroPropsServerPrivate::startPublishing(const ServiceConfiguration& config)
 {
     m_currentService = new QZeroPropsService;
-    m_currentService->setDebounceTime(0);
     m_currentService->d = createService(config);
+    m_currentService->setDebounceTime(0);
 
     return m_currentService;
 }

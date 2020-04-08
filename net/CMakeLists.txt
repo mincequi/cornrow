@@ -1,8 +1,18 @@
 add_definitions(-DQZEROCONF_STATIC)
 
 add_library(net STATIC
+    include/QtZeroProps/QZeroPropsServer.h
+    include/QtZeroProps/QZeroPropsService.h
+
+    #src/QZeroPropsClient.cpp
+    src/QZeroPropsServer.cpp
+    src/QZeroPropsServerPrivate.cpp
+    src/QZeroPropsService.cpp
+    src/QZeroPropsServicePrivate.cpp
     src/QZeroPropsWsServer.h
     src/QZeroPropsWsServer.cpp
+    src/QZeroPropsWsService.h
+    src/QZeroPropsWsService.cpp
 
     ../thirdparty/QtZeroConf/qzeroconf.h
     ../thirdparty/QtZeroConf/avahi-qt/qt-watch.h
