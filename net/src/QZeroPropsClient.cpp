@@ -27,18 +27,6 @@
 #include <msgpack.h>
 #include <qzeroconf.h>
 
-uint qHash(const QVariant& var)
-{
-    switch (var.type()) {
-    case QVariant::Uuid:
-        return qHash(var.toUuid());
-    case QVariant::UInt:
-        return qHash(var.toUInt());
-    default:
-        return 0;
-    }
-}
-
 namespace QtZeroProps
 {
 using QZeroPropsServicePtr = QSharedPointer<QZeroPropsService>;

@@ -6,8 +6,8 @@
 #include "bluetooth/Controller.h"
 #include "config/Controller.h"
 
-namespace net {
-class QZeroPropsWsServer;
+namespace QtZeroProps {
+class QZeroPropsServer;
 }
 
 class Controller : public QObject
@@ -24,6 +24,6 @@ private:
 
     audio::Controller*      m_audio;
     bluetooth::Controller*  m_bluetoothService;
-    net::QZeroPropsWsServer*         m_tcpServer;
+    QtZeroProps::QZeroPropsServer* m_zpServer;
     config::Controller*     m_config;
 };

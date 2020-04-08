@@ -47,11 +47,11 @@ QZeroPropsServicePrivate* QZeroPropsWsServer::createService(const QtZeroProps::S
         return nullptr;
     }
 
-    auto service = new QZeroPropsWsService(m_currentService);
-    service->name = config.zeroConfType;
-    service->type = QZeroPropsService::ServiceType::WebSocket;
-    connect(&m_server, &QWebSocketServer::newConnection, [&]() {
-        service->onClientConnected(m_server.nextPendingConnection());
+    m_service = new QZeroPropsWsService(m_currentService);
+    m_service->name = config.zeroConfType;
+    m_service->type = QZeroPropsService::ServiceType::WebSocket;
+    connect(&m_server, &QWebSocketServer::newConnection, [this]() {
+        m_service->onClientConnected(m_server.nextPendingConnection());
     });
 
     // Publish service
@@ -67,7 +67,7 @@ QZeroPropsServicePrivate* QZeroPropsWsServer::createService(const QtZeroProps::S
                                   nullptr,
                                   m_server.serverPort());
 
-    return service;
+    return m_service;
 }
 
 } // namespace net

@@ -31,8 +31,8 @@ namespace bluetooth {
 class Controller;
 }
 
-namespace net {
-class QZeroPropsWsServer;
+namespace QtZeroProps {
+class QZeroPropsService;
 }
 
 namespace config {
@@ -44,7 +44,7 @@ class Controller : public QObject
 public:
     explicit Controller(audio::Controller* audio,
                         bluetooth::Controller* bluetooth,
-                        net::QZeroPropsWsServer* tcpServer,
+                        QtZeroProps::QZeroPropsService* zpService,
                         QObject* parent = nullptr);
     ~Controller();
 
@@ -53,7 +53,7 @@ public:
 private:
     audio::Controller* m_audio = nullptr;
     bluetooth::Controller* m_bluetooth = nullptr;
-    net::QZeroPropsWsServer* m_tcpServer = nullptr;
+    QtZeroProps::QZeroPropsService* m_zpService = nullptr;
 
     Persistence m_persistence;
 

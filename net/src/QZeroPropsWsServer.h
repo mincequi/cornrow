@@ -36,6 +36,7 @@ private:
     virtual QZeroPropsServicePrivate* createService(const ServiceConfiguration& config) override;
 
     QWebSocketServer    m_server;
+    QZeroPropsWsService* m_service = nullptr;
 
     friend class QZeroPropsServer;
 };
