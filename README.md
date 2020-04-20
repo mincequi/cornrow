@@ -46,7 +46,8 @@ sudo apt install \
   libavutil-dev \
   libboost-system-dev \
   libsbc-dev \
-  qtconnectivity5-dev # get dependecies
+  qtconnectivity5-dev \
+  libqt5websockets5-dev # get dependecies
 wget https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd_0.7.0.tar.gz
 tar xf cornrowd_0.7.0.tar.gz
 dpkg-buildpackage -us -uc                           # build unsigned debian package
@@ -57,7 +58,7 @@ sudo systemctl enable cornrowd.service              # start-up service on each r
 ```
 
 ### Arbitrary distro
-Get the dependencies. Basically, these are ffmpeg (libav*) and qt5bluetooth.
+Get the dependencies. Basically, these are ffmpeg (libav*), qt5bluetooth, qt5websockets
 ```
 git clone --recursive https://github.com/mincequi/cornrow
 cd cornrow
