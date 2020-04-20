@@ -141,7 +141,7 @@ void QZeroPropsWsService::onStateChanged(QAbstractSocket::SocketState state)
 void QZeroPropsWsService::onReceive(const QByteArray& message)
 {
     if (message.front() != static_cast<char>(0x81)) {
-        qWarning() << "Illegal data:" << message.front();
+        qWarning() << "XXXIllegal data:" << message.front();
         return;
     }
 
@@ -149,7 +149,7 @@ void QZeroPropsWsService::onReceive(const QByteArray& message)
     if (vlist.size() != 2 ||
             (vlist.at(0).type() != QVariant::Type::UInt && vlist.at(0).type() != QVariant::Type::Uuid) ||
             vlist.at(1).type() != QVariant::Type::ByteArray) {
-        qWarning() << "Illegal data:" << vlist;
+        qWarning() << "YYYIllegal data:" << vlist;
         return;
     }
 

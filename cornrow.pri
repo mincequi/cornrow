@@ -5,4 +5,4 @@ QMAKE_CXXFLAGS += -Werror -Wno-shorten-64-to-32
 
 INCLUDEPATH += \
     ../common/include \
-    ../net/include
+    ../thirdparty/qtzeroprops/include

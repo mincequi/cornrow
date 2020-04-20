@@ -7,7 +7,6 @@ import QtQuick.Window 2.12
 import QtGraphicalEffects 1.0
 
 import Cornrow.BodePlotModel 1.0
-import Cornrow.ClientState 1.0
 import Cornrow.Configuration 1.0
 import Cornrow.DeviceModel 1.0
 import Cornrow.EqChart 1.0
@@ -15,6 +14,9 @@ import Cornrow.FilterModel 1.0
 import Cornrow.IoModel 1.0
 import Cornrow.PhaseChart 1.0
 import Cornrow.SoftClipChart 1.0
+
+import ZpClient 1.0
+import ZpService 1.0
 
 ApplicationWindow {
     id: appWindow
@@ -63,15 +65,15 @@ ApplicationWindow {
     Connections {
         target: DeviceModel
         onStatusChanged: {
-            if (DeviceModel.status !== ClientState.Connected) drawer.close()
+            if (DeviceModel.status !== ZpClientState.Connected) drawer.close()
         }
     }
 
     DeviceDialog {
         width: appWindow.width
         height: appWindow.height
-        enabled: DeviceModel.status !== ClientState.Connected
-        opacity: DeviceModel.status !== ClientState.Connected ? 1.0 : 0.0
+        enabled: DeviceModel.status !== ZpClientState.Connected
+        opacity: DeviceModel.status !== ZpClientState.Connected ? 1.0 : 0.0
         Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
         z: 10
     }
@@ -83,7 +85,7 @@ ApplicationWindow {
            y: drawer.position * menu.height
         }
         icon.source: drawer.opened ? "qrc:/icons/expand_less.svg" : "qrc:/icons/expand_more.svg"
-        enabled: DeviceModel.status === ClientState.Connected
+        enabled: DeviceModel.status === ZpClientState.Connected
         z: 12
         onPressed: {
             drawer.visible = !drawer.visible
@@ -111,8 +113,8 @@ ApplicationWindow {
     Item {
         id: peq
         anchors.fill: parent
-        enabled: DeviceModel.status === ClientState.Connected
-        opacity: DeviceModel.status === ClientState.Connected ? 1.0 : 0.0
+        enabled: DeviceModel.status === ZpClientState.Connected
+        opacity: DeviceModel.status === ZpClientState.Connected ? 1.0 : 0.0
         //opacity: 0.0
         Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
         transform: Translate {
@@ -202,7 +204,7 @@ ApplicationWindow {
         ToolButton {
             id: help
             text: "?"
-            enabled: DeviceModel.status == ClientState.Connected
+            enabled: DeviceModel.status == ZpClientState.Connected
             anchors.right: parent.right
             anchors.top: parent.top
         }
@@ -438,7 +440,7 @@ ApplicationWindow {
         anchors.fill: parent
         source: peq
         radius: 32
-        opacity: DeviceModel.status === ClientState.Connected ? 0.0 : 0.125
+        opacity: DeviceModel.status === ZpClientState.Connected ? 0.0 : 0.125
         Behavior on opacity { SmoothedAnimation { velocity: 0.5 }}
         transform: Translate {
            y: drawer.position * menu.height

@@ -49,7 +49,7 @@ QZeroPropsServicePrivate* QZeroPropsWsServer::createService(const QtZeroProps::S
 
     m_service = new QZeroPropsWsService(m_currentService);
     m_service->name = config.zeroConfType;
-    m_service->type = QZeroPropsService::ServiceType::WebSocket;
+    m_service->type = ServiceType::WebSocket;
     connect(&m_server, &QWebSocketServer::newConnection, [this]() {
         m_service->onClientConnected(m_server.nextPendingConnection());
     });

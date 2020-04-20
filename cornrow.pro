@@ -2,12 +2,11 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     common \
-    net \
-    corocomo
+    corocomo \
+    qtzeroprops
 
 common.subdir   = common
 corocomo.subdir = corocomo
-net.subdir      = net
+qtzeroprops.subdir = thirdparty/qtzeroprops
 
-net.depends = common
-corocomo.depends = net
+corocomo.depends = common qtzeroprops

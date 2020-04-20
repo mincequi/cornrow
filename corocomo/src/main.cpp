@@ -10,6 +10,7 @@
 #include "SoftClipChart.h"
 
 #include <QtZeroProps/QZeroPropsClient.h>
+#include <QtZeroProps/QZeroPropsTypes.h>
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -30,15 +31,19 @@ int main(int argc, char *argv[])
 
     // Setup view models
     // Init config first!
-    auto config = Config::init(Config::Type::Mid);
+    auto config = Config::init(Config::Type::Low);
     DeviceModel::init(&zpClient);
     // @TODO(mawe): config is registered as singleton. No need to pass here.
     FilterModel::init(*config);
 
-    // Register types for QML engine
-    qmlRegisterUncreatableType<QtZeroProps::QZeroPropsService>("QtZeroProps", 1, 0, "ServiceType", "Only enums");
+    //qRegisterMetaType<QtZeroProps::QZeroPropsService*>("QZeroPropsService*");
 
-    qmlRegisterType<QtZeroProps::QZeroPropsClient>("Cornrow.ClientState", 1, 0, "ClientState");
+    // Register types for QML engine
+    //qmlRegisterUncreatableMetaObject(QtZeroProps::staticMetaObject, "QtZeroProps", 1, 0, "ZpServiceType", "Uncreatable");
+    //qmlRegisterUncreatableType<QtZeroProps::QZeroPropsTypes>("ZpTypes", 1, 0, "ZpServiceType", "Uncreatable");
+    qmlRegisterUncreatableType<QtZeroProps::QZeroPropsService>("ZpService", 1, 0, "ZpService", "Uncreatable");
+    qmlRegisterUncreatableType<QtZeroProps::QZeroPropsClient>("ZpClient", 1, 0, "ZpClientState", "Uncreatable");
+
     qmlRegisterType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel");
     qmlRegisterType<EqChart>("Cornrow.EqChart", 1, 0, "CornrowEqChart");
     qmlRegisterType<PhaseChart>("Cornrow.PhaseChart", 1, 0, "CornrowPhaseChart");

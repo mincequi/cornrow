@@ -3,8 +3,10 @@ import QtQuick.Controls.Material 2.3
 import QtQuick.Shapes 1.12
 
 import Cornrow.BusyIndicatorModel 1.0
-import Cornrow.ClientState 1.0
 import Cornrow.DeviceModel 1.0
+
+import ZpClient 1.0
+import ZpService 1.0
 
 Canvas {
     id: busyIndicator
@@ -23,16 +25,16 @@ Canvas {
     
     CornrowBusyIndicatorModel {
         id: indicatorModel
-        active: DeviceModel.status !== ClientState.Connected
-        radius: (DeviceModel.status === ClientState.Discovering ||
-                 DeviceModel.status === ClientState.Connecting) ? outerRadius : innerRadius
+        active: DeviceModel.status !== ZpClientState.Connected
+        radius: (DeviceModel.status === ZpClientState.Discovering ||
+                 DeviceModel.status === ZpClientState.Connecting) ? outerRadius : innerRadius
         numPoints: 7
         Behavior on radius { SmoothedAnimation { velocity: outerRadius*50 }}
     }
     
     Shape {
-        opacity: (DeviceModel.status === ClientState.Discovering ||
-                 DeviceModel.status === ClientState.Connecting) ? 1.0 : inactiveOpacity
+        opacity: (DeviceModel.status === ZpClientState.Discovering ||
+                 DeviceModel.status === ZpClientState.Connecting) ? 1.0 : inactiveOpacity
         Behavior on opacity { SmoothedAnimation { velocity: 0.5 } }
         ShapePath {
             id: myPath

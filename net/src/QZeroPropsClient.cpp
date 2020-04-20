@@ -60,7 +60,7 @@ public:
         QZeroPropsServicePtr device(new QZeroPropsService);
         auto impl = new QZeroPropsWsService(device.data());
         impl->name = service->name();
-        impl->type = QZeroPropsService::ServiceType::WebSocket;
+        impl->type = ServiceType::WebSocket;
         impl->address = service->ip();
         impl->port = service->port();
         device->d = impl;
@@ -78,7 +78,7 @@ public:
         }
         auto impl = new QZeroPropsBleService(device.data());
         impl->name = name;
-        impl->type = QZeroPropsService::ServiceType::BluetoothLe;
+        impl->type = ServiceType::BluetoothLe;
         impl->bluetoothDeviceInfo = info;
         impl->serviceUuid = serviceUuid;
         device->d = impl;

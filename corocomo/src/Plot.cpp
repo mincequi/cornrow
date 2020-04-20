@@ -182,7 +182,7 @@ void Plot::sumMags(const QList<QPolygonF>& levels, QPolygonF& sum)
 
 void Plot::sumPhases(const QList<QPolygonF>& phases, QPolygonF& sum)
 {
-    for (int i = 0; i < m_f; ++i) {
+    for (int i = 0; i < sum.size(); ++i) {
         sum[i].ry() = phases.at(0).at(i).y();
     }
     for (int i = m_f; i < sum.size(); ++i) {

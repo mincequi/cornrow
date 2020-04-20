@@ -46,8 +46,8 @@ HEADERS += \
 RESOURCES += qml.qrc
 
 LIBS += -L$$OUT_PWD/../common/ -lcommon
-LIBS += -L$$OUT_PWD/../net/ -lnet
-PRE_TARGETDEPS += $$OUT_PWD/../net/libnet.a
+LIBS += -L$$OUT_PWD/../thirdparty/qtzeroprops/src -lqtzeroprops
+PRE_TARGETDEPS += $$OUT_PWD/../thirdparty/qtzeroprops/src/libqtzeroprops.a
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

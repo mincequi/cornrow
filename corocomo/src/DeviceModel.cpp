@@ -1,12 +1,14 @@
 #include "DeviceModel.h"
 
 #include <QtZeroProps/QZeroPropsService.h>
+#include <QtZeroProps/QZeroPropsTypes.h>
 
 #include <common/ble/Types.h>
 
 #include <QBluetoothAddress>
 #include <QBluetoothDeviceInfo>
 #include <QGuiApplication>
+#include <QUuid>
 
 DeviceModel* DeviceModel::s_instance = nullptr;
 

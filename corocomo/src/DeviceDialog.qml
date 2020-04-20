@@ -6,13 +6,13 @@ import QtQuick.Layouts 1.3
 
 import Qt.labs.qmlmodels 1.0
 
-import Cornrow.ClientState 1.0
 import Cornrow.DeviceModel 1.0
 import Cornrow.IoModel 1.0
 import Cornrow.FilterModel 1.0
 import Cornrow.PresetModel 1.0
 
-import QtZeroProps 1.0
+import ZpClient 1.0
+import ZpService 1.0
 
 Dialog {
     id: myDialog
@@ -66,10 +66,10 @@ Dialog {
             Layout.fillHeight: true
             Layout.fillWidth: true
             model: DeviceModel.services
-            enabled: DeviceModel.status === ClientState.Discovering ||
-                     DeviceModel.status === ClientState.Idle
+            enabled: DeviceModel.status === ZpClientState.Discovering ||
+                     DeviceModel.status === ZpClientState.Idle
             delegate: ListItemNew {
-                icon.source: modelData.type === ServiceType.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
+                icon.source: modelData.type === ZpService.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
                 primaryText: modelData.name
                 onClicked: {
                     FilterModel.setService(modelData)
@@ -117,10 +117,10 @@ Dialog {
 
     footer: DialogButtonBox {
         opacity: /*DeviceModel.status != DeviceModel.Discovering &&*/
-                 DeviceModel.status !== ClientState.Connected
+                 DeviceModel.status !== ZpClientState.Connected
 
         Button {
-            text: DeviceModel.status === ClientState.Connecting ? "Abort and rescan" : "Rescan"
+            text: DeviceModel.status === ZpClientState.Connecting ? "Abort and rescan" : "Rescan"
             flat: true
             onPressed: {
                 DeviceModel.startDiscovering()
@@ -129,7 +129,7 @@ Dialog {
         Button {
             text: "Demo"
             flat: true
-            visible: DeviceModel.status !== ClientState.Connecting
+            visible: DeviceModel.status !== ZpClientState.Connecting
             onPressed: {
                 DeviceModel.startDemo()
                 CornrowIoModel.startDemo()

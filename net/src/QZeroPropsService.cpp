@@ -52,7 +52,7 @@ QString QZeroPropsService::name() const
     return d->name;
 }
 
-QZeroPropsService::ServiceType QZeroPropsService::type() const
+ServiceType QZeroPropsService::type() const
 {
     return d->type;
 }

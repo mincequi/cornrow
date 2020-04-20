@@ -4,12 +4,6 @@
 [submodule "thirdparty/bluez-qt"]
 	path = thirdparty/bluez-qt
 	url = https://github.com/mincequi/bluez-qt.git
-[submodule "thirdparty/QtZeroConf"]
-	path = thirdparty/QtZeroConf
-	url = https://github.com/mincequi/QtZeroConf
-[submodule "CMake/common"]
-	path = CMake/common
-	url = https://github.com/Eyescale/CMake.git
-[submodule "thirdparty/qmsgpack"]
-	path = thirdparty/qmsgpack
-	url = https://github.com/romixlab/qmsgpack.git
+[submodule "thirdparty/qtzeroprops"]
+	path = thirdparty/qtzeroprops
+	url = https://github.com/mincequi/qtzeroprops.git
