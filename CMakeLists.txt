@@ -18,6 +18,7 @@ find_package(Qt5WebSockets REQUIRED)
 
 # Add thirdparty libs
 add_subdirectory(thirdparty/libcornrow)
+add_subdirectory(thirdparty/qtzeroprops)
 
 # Replace install() to do-nothing macro.
 macro(install)
@@ -31,7 +32,7 @@ endmacro()
 # Add internal libs
 add_subdirectory(common)
 add_subdirectory(cornrowd)
-add_subdirectory(net)
+#add_subdirectory(net)
 #add_subdirectory(bluebricated)
 
 # Mandatory debian variables

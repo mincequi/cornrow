@@ -18,6 +18,7 @@
 #include "Persistence.h"
 
 #include <boost/property_tree/json_parser.hpp>
+#include <loguru/loguru.hpp>
 
 namespace config
 {
@@ -59,6 +60,8 @@ std::vector<common::Filter> Persistence::readConfig()
 
 void Persistence::writeConfig(const std::vector<common::Filter>& filters)
 {
+    LOG_F(INFO, "filter count: %d", filters.size());
+
     pt::ptree root;
     pt::ptree tree;
 
