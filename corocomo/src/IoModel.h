@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QStringList>
 
+#include <QtZeroProps/QZeroPropsService.h>
+
 #include <common/Types.h>
 
 class BleCentralAdapter;
@@ -18,8 +20,9 @@ class IoModel : public QObject
     Q_PROPERTY(bool multiChannelAvailable READ multiChannelAvailable NOTIFY activeOutputChanged)
 
 public:
-    static IoModel* init(BleCentralAdapter* adapter);
     static IoModel* instance();
+
+    Q_INVOKABLE void setService(QtZeroProps::QZeroPropsService* service);
 
     QStringList inputNames() const;
     QStringList outputNames() const;
@@ -44,16 +47,19 @@ signals:
     void activeOutputChanged();
 
 private:
-    IoModel(BleCentralAdapter* adapter, QObject* parent = nullptr);
+    IoModel(QObject* parent = nullptr);
 
     static QString toString(common::IoInterface interface);
 
+    void onPropertyChangedRemotely(const QVariant& uuid, const QByteArray& value);
     void onIoCapsReceived(const std::vector<common::IoInterface>& inputs, const std::vector<common::IoInterface>& ouputs);
     void onIoConfReceived(const common::IoInterface& input, const common::IoInterface& ouput);
 
+    void sendIoConf();
+
     static IoModel* s_instance;
 
-    BleCentralAdapter* m_adapter = nullptr;
+    QtZeroProps::QZeroPropsService* m_zpService = nullptr;
 
     std::vector<common::IoInterface> m_inputs;
     std::vector<common::IoInterface> m_outputs;

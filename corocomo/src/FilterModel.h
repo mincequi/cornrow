@@ -1,19 +1,13 @@
-#ifndef MODEL_H
-#define MODEL_H
+#pragma once
 
 #include <QObject>
 
 #include <common/Types.h>
-#include <common/ble/Types.h>
 
-#include "Config.h"
+class Config;
 
-class BleCentralAdapter;
-class IoModel;
-class PresetModel;
-namespace ble
-{
-class BleClient;
+namespace QtZeroProps {
+class QZeroPropsService;
 }
 
 class FilterModel : public QObject
@@ -21,6 +15,7 @@ class FilterModel : public QObject
     Q_OBJECT
 
     Q_PROPERTY(int peqFilterCount READ peqFilterCount CONSTANT)
+
     Q_PROPERTY(int currentBand READ currentBand WRITE setCurrentBand NOTIFY currentBandChanged)
     Q_PROPERTY(std::vector<bool> activeFilters READ activeFilters NOTIFY filterTypeChanged)
 
@@ -37,24 +32,10 @@ class FilterModel : public QObject
     Q_PROPERTY(QString qReadout READ qReadout NOTIFY qChanged)
 
 public:
-    enum Status : uint8_t
-    {
-        NoBluetooth,
-        Discovering,
-        Connecting,
-        Connected,
-        Timeout,
-        Lost,
-        Error
-    };
-    Q_ENUM(Status)
-
-	// @TODO(mawe): think about how to remove ioModel dependency
-    static FilterModel* init(const Config& configuration, BleCentralAdapter* bleAdapter, IoModel* ioModel);
+    static FilterModel* init(const Config& configuration);
     static FilterModel* instance();
 
-    Q_INVOKABLE void startDiscovering();
-    Q_INVOKABLE void startDemo();
+    Q_INVOKABLE void setService(QtZeroProps::QZeroPropsService* service);
 
     Q_INVOKABLE void resizeFilters(int diff);
 
@@ -96,7 +77,6 @@ public:
     void        setSubwooferType(int filterType);
 
 signals:
-    void statusChanged();
     void currentBandChanged();
     void filterChanged(int i, uchar t, double f, double g, double q);
     void filterTypeChanged();
@@ -108,8 +88,6 @@ signals:
     void qSliderChanged();
 
 private:
-    FilterModel(const Config& config, BleCentralAdapter* bleAdapter, IoModel* ioModel);
-
     // This is the model-oriented filter struct. We use indexed values here.
     struct Filter {
         explicit Filter(common::FilterType t, uint8_t f, double g, uint8_t q);
@@ -119,9 +97,12 @@ private:
         uint8_t q;
     };
 
-    void setFilters(common::ble::CharacteristicType group, const std::vector<Filter>& filters);
+    FilterModel(const Config& config);
 
-    void onParameterChanged();
+    static uint8_t snap(double value, uint8_t min, uint8_t max, uint8_t step);
+
+    void onFilterChangedLocally();
+    void onFilterChangedRemotely(const QVariant& key, const QByteArray& value);
 
     static FilterModel* s_instance;
 
@@ -134,15 +115,8 @@ private:
     const int       m_xoBand;
     const int       m_scBand;
     double          m_freqSlider;
-    bool            m_demoMode = false;
 
-    // BLE
-    BleCentralAdapter* m_bleAdapter = nullptr;
-    friend class BleCentralAdapter;
-
-    // Sub models
-    IoModel* m_ioModel = nullptr;
-    PresetModel* m_presetModel = nullptr;
+    // @TODO(mawe): storing raw pointer might be dangerous here. It might get released from QZeroProps.
+    //              Howwever, QmlEngine cannot deal with QSharesPointers...
+    QtZeroProps::QZeroPropsService* m_zpService = nullptr;
 };
-
-#endif // MODEL_H

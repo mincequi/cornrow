@@ -7,5 +7,5 @@ target_link_libraries(config
     audio
     bluetooth
     common
-    Qt5::Core
+    qtzeroprops
 )

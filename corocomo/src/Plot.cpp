@@ -6,13 +6,13 @@
 
 #include "Config.h"
 
-Plot::Plot(const Config& config) :
-    m_config(config)
+Plot::Plot(const std::vector<double>& freqTable) :
+    m_freqTable(freqTable)
 {
-    m_magSum.resize(m_config.freqTable.size());
-    m_phaseSum.resize(m_config.freqTable.size());
+    m_magSum.resize(m_freqTable.size());
+    m_phaseSum.resize(m_freqTable.size());
 
-    for (uint i = 0; i < m_config.freqTable.size(); ++i) {
+    for (uint i = 0; i < m_freqTable.size(); ++i) {
         m_magSum[i].rx() = i;
         m_phaseSum[i].rx() = i;
     }
@@ -133,8 +133,8 @@ void Plot::resizePolys(int newSize, QList<QPolygonF>& polys)
     if (diff > 0) {
         polys.reserve(diff);
         while (diff--) {
-            QPolygonF poly(m_config.freqTable.size());
-            for (uint i = 0; i < m_config.freqTable.size(); ++i) {
+            QPolygonF poly(m_freqTable.size());
+            for (uint i = 0; i < m_freqTable.size(); ++i) {
                 poly[i].rx() = i;
             }
 
@@ -158,7 +158,7 @@ void Plot::computeResponse(const common::Filter& f, QPolygonF& mags, QPolygonF& 
     auto m = mags.begin();
     auto p = phases.begin();
     for (; m != mags.end() && p != phases.end(); ) {
-        double w = 2.0*M_PI*m_config.freqTable.at(m->rx())/44100;
+        double w = 2.0*M_PI*m_freqTable.at(m->rx())/44100;
         std::complex<double> z(cos(w), sin(w));
         std::complex<double> numerator = biquad.b0 + (biquad.b1 + biquad.b2*z)*z;
         std::complex<double> denominator = 1.0 + (biquad.a1 + biquad.a2*z)*z;
@@ -182,7 +182,7 @@ void Plot::sumMags(const QList<QPolygonF>& levels, QPolygonF& sum)
 
 void Plot::sumPhases(const QList<QPolygonF>& phases, QPolygonF& sum)
 {
-    for (int i = 0; i < m_f; ++i) {
+    for (int i = 0; i < sum.size(); ++i) {
         sum[i].ry() = phases.at(0).at(i).y();
     }
     for (int i = m_f; i < sum.size(); ++i) {

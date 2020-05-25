@@ -4,6 +4,6 @@
 [submodule "thirdparty/bluez-qt"]
 	path = thirdparty/bluez-qt
 	url = https://github.com/mincequi/bluez-qt.git
-[submodule "thirdparty/QtZeroConf"]
-	path = thirdparty/QtZeroConf
-	url = https://github.com/mincequi/QtZeroConf
+[submodule "thirdparty/qtzeroprops"]
+	path = thirdparty/qtzeroprops
+	url = https://github.com/mincequi/qtzeroprops.git

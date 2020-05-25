@@ -105,27 +105,4 @@ bool computeBiQuad(int r, const Filter& f, BiQuad* biquad)
     return true;
 }
 
-/*
-bool computeResponse(const Filter& f, const std::vector<float>& freqs, std::vector<float>* mags, std::vector<float>* phases)
-{
-    BiQuad biquad;
-    if (!computeBiQuad(44100, f, &biquad)) return false;
-
-    mags->resize(freqs.size());
-    if (phases) phases->resize(freqs.size());
-
-    for (size_t i = 0; i < freqs.size(); ++i) {
-        double w = 2.0*M_PI*freqs.at(i)/44100;
-        std::complex<double> z(cos(w), sin(w));
-        std::complex<double> numerator = biquad.b0 + (biquad.b1 + biquad.b2*z)*z;
-        std::complex<double> denominator = 1.0 + (biquad.a1 + biquad.a2*z)*z;
-        std::complex<double> response = numerator / denominator;
-        mags->at(i)     = 20.0*log10(abs(response));
-        if (phases) phases->at(i)   = (180.0/M_PI)*atan2(response.imag(), response.real());
-    }
-
-    return true;
-}
-*/
-
 } // namespace common

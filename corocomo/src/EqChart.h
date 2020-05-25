@@ -10,7 +10,6 @@ class BodePlotModel;
 class EqChart : public QQuickPaintedItem
 {
     Q_OBJECT
-    Q_PROPERTY(std::vector<double> frequencyTable MEMBER m_frequencyTable)
     Q_PROPERTY(QColor plotColor READ plotColor WRITE setPlotColor)
     Q_PROPERTY(QColor currentPlotColor READ currentPlotColor WRITE setCurrentPlotColor)
     Q_PROPERTY(QColor sumPlotColor READ sumPlotColor WRITE setSumPlotColor)

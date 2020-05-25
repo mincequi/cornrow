@@ -43,9 +43,9 @@ Controller::~Controller()
     delete m_coroPipeline;
 }
 
-std::vector<common::Filter> Controller::filters(common::ble::CharacteristicType group)
+std::vector<common::Filter> Controller::filters(common::ble::CharacteristicType group) const
 {
-    return m_filters[group];
+    return m_filters.at(group);
 }
 
 void Controller::setFilters(common::ble::CharacteristicType group, const std::vector<common::Filter>& filters)
@@ -124,7 +124,7 @@ std::vector<common::IoInterface> Controller::ioCaps()
     return ioCaps;
 }
 
-std::vector<common::IoInterface> Controller::ioConf()
+std::vector<common::IoInterface> Controller::ioConf() const
 {
     return { m_input, m_output };
 }

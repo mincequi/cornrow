@@ -1,7 +1,4 @@
-// Import this one first to not override other RadialGradient
-import QtGraphicalEffects 1.14
-
-import QtQuick 2.14
+import QtQuick 2.12
 import QtQuick.Controls 2.2
 import QtQuick.Controls.impl 2.3
 import QtQuick.Controls.Material 2.3
@@ -9,11 +6,13 @@ import QtQuick.Layouts 1.3
 
 import Qt.labs.qmlmodels 1.0
 
-import Cornrow.DeviceType 1.0
 import Cornrow.DeviceModel 1.0
 import Cornrow.IoModel 1.0
 import Cornrow.FilterModel 1.0
 import Cornrow.PresetModel 1.0
+
+import ZpClient 1.0
+import ZpService 1.0
 
 Dialog {
     id: myDialog
@@ -22,7 +21,6 @@ Dialog {
     padding: 0  // Make the dialog full screen
     Component.onCompleted: {
         DeviceModel.startDiscovering()
-        FilterModel.startDiscovering()
     }
     
     CoroBusyIndicator {
@@ -33,9 +31,9 @@ Dialog {
             strokeColor: Material.color(Material.Pink)
             fillColor: "transparent"
             innerRadius: 20
-            outerRadius: 52
+            outerRadius: 48
             strokeWidth: 0.67
-            inactiveOpacity: 0.5
+            inactiveOpacity: 0.67
         }
     }
     
@@ -67,13 +65,18 @@ Dialog {
             clip: true
             Layout.fillHeight: true
             Layout.fillWidth: true
-            model: DeviceModel.devices
-            enabled: DeviceModel.status == DeviceModel.Discovering ||
-                     DeviceModel.status == DeviceModel.Idle
+            model: DeviceModel.services
+            enabled: DeviceModel.status === ZpClientState.Discovering ||
+                     DeviceModel.status === ZpClientState.Idle
             delegate: ListItemNew {
-                icon.source: modelData.type === CornrowDeviceType.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
+                icon.source: modelData.type === ZpService.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
                 primaryText: modelData.name
-                onClicked: DeviceModel.connectDevice(modelData)
+                onClicked: {
+                    FilterModel.setService(modelData)
+                    CornrowIoModel.setService(modelData)
+                    CornrowPresetModel.setService(modelData)
+                    DeviceModel.connectToService(modelData)
+                }
                 //subText: ip
                 //subTextFontSize: 12
                 //showDivider: true
@@ -113,23 +116,21 @@ Dialog {
     */
 
     footer: DialogButtonBox {
-        opacity: DeviceModel.status != DeviceModel.Discovering &&
-                 DeviceModel.status != DeviceModel.Connected
+        opacity: /*DeviceModel.status != DeviceModel.Discovering &&*/
+                 DeviceModel.status !== ZpClientState.Connected
 
         Button {
-            text: DeviceModel.status === DeviceModel.Connecting ? "Abort and rescan" : "Rescan"
+            text: DeviceModel.status === ZpClientState.Connecting ? "Abort and rescan" : "Rescan"
             flat: true
             onPressed: {
                 DeviceModel.startDiscovering()
-                FilterModel.startDiscovering()
             }
         }
         Button {
             text: "Demo"
             flat: true
-            visible: DeviceModel.status !== DeviceModel.Connecting
+            visible: DeviceModel.status !== ZpClientState.Connecting
             onPressed: {
-                FilterModel.startDemo()
                 DeviceModel.startDemo()
                 CornrowIoModel.startDemo()
                 CornrowPresetModel.startDemo()

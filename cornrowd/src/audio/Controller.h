@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <common/Types.h>
+#include <common/IAudioConf.h>
 #include <common/ble/Types.h>
 #include <coro/audio/AlsaUtil.h>
 
@@ -29,7 +29,7 @@ class FileDescriptorSource;
 namespace audio
 {
 
-class Controller : public QObject
+class Controller : public QObject, public common::IAudioConf
 {
     Q_OBJECT
 
@@ -42,13 +42,14 @@ public:
     void setVolume(float volume);
 
     // @TODO(mawe): remove CharacteristicType from here
-    std::vector<common::Filter> filters(common::ble::CharacteristicType group);
-    void setFilters(common::ble::CharacteristicType group, const std::vector<common::Filter>& filters);
+    std::vector<common::Filter> filters(common::ble::CharacteristicType group) const override;
+    void setFilters(common::ble::CharacteristicType group, const std::vector<common::Filter>& filters) override;
 
-    std::vector<common::IoInterface> ioCaps();
-    std::vector<common::IoInterface> ioConf();
-    void setInput(const common::IoInterface& interface);
-    void setOutput(const common::IoInterface& interface);
+    std::vector<common::IoInterface> ioCaps() override;
+    std::vector<common::IoInterface> ioConf() const override;
+
+    void setInput(const common::IoInterface& interface) override;
+    void setOutput(const common::IoInterface& interface) override;
 
 private:
     CoroPipeline* m_coroPipeline = nullptr;

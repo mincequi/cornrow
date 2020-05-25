@@ -40,7 +40,7 @@ Config::Config(Type type, QObject *parent)
     ioAvailable = true;
     loudnessAvailable = true;
     xoAvailable = true;
-    scAvailable = true;
+    swAvailable = true;
 
     switch (type) {
     case Type::Low:
@@ -64,11 +64,4 @@ Config::Config(Type type, QObject *parent)
         //swAvailable = true;
         break;
     }
-
-    freqTable.resize(0);
-    for (auto it = common::frequencyTable.begin()+freqMin;
-         it < common::frequencyTable.begin()+freqMax+1; it += freqStep) {
-        freqTable.push_back(*it);
-    }
-    freqDefault = (freqDefault-freqMin)/freqStep;
 }

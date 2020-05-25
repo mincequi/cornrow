@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Manuel Weichselbaumer <mincequi@web.de>
+ * Copyright (C) 2020 Manuel Weichselbaumer <mincequi@web.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,44 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Server.h"
-
-#include "Defines.h"
-#include "ServerSession.h"
+#pragma once
 
 #include <QtBluetooth/QLowEnergyAdvertisingParameters>
 #include <QtBluetooth/QLowEnergyCharacteristicData>
 #include <QtBluetooth/QLowEnergyController>
 #include <QtBluetooth/QLowEnergyServiceData>
 
-namespace ble
+namespace QtZeroProps
 {
+class BleServer;
 
-Server::Server(QObject *parent)
-    : QObject(parent)
+class BleServerSession : public QObject
 {
-}
+    Q_OBJECT
 
-Server::~Server()
-{
-}
+public:
+    explicit BleServerSession(const QUuid& serviceUuid, BleServer* server, const std::map<QBluetoothUuid, QByteArray>& characteristicsMap);
+    ~BleServerSession();
 
-void Server::init(CharcsProvider charcsProvider)
-{
-    m_charcsProvider = charcsProvider;
+    QLowEnergyController*       peripheral;
+    QLowEnergyService*          service;
+    QLowEnergyAdvertisingData   advertisingData;
+    QLowEnergyServiceData       serviceData;
 
-    startPublishing();
-}
+private:
+    void onError();
+    void onDisconnected();
 
-void Server::startPublishing()
-{
-    if (m_session) {
-        delete m_session;
-        m_session = nullptr;
-    }
+    const QUuid     m_serviceUuid;
+    BleServer* m_server = nullptr;
+};
 
-    // Publish service
-    m_session = new ServerSession(this, m_charcsProvider());
-}
-
-} // namespace ble
+} // namespace QZeroProps

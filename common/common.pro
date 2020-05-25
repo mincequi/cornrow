@@ -15,6 +15,7 @@ HEADERS += \
     include/common/Types.h \
     include/common/ble/Converter.h
 
+
 INCLUDEPATH += \
     include/ \
     include/common \

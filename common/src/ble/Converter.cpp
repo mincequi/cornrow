@@ -17,7 +17,7 @@ Converter::~Converter()
 {
 }
 
-QByteArray Converter::toBle(const std::vector<common::IoInterface>& interfaces)
+QByteArray Converter::toBle(const std::vector<common::IoInterface>& interfaces) const
 {
     QByteArray value;
     value.reserve(interfaces.size());
@@ -29,7 +29,7 @@ QByteArray Converter::toBle(const std::vector<common::IoInterface>& interfaces)
     return value;
 }
 
-std::vector<common::IoInterface> Converter::fromBle(const QByteArray& bytes)
+std::vector<common::IoInterface> Converter::fromBle(const QByteArray& bytes) const
 {
     std::vector<common::IoInterface> interfaces;
     interfaces.reserve(bytes.size());
@@ -42,7 +42,7 @@ std::vector<common::IoInterface> Converter::fromBle(const QByteArray& bytes)
     return interfaces;
 }
 
-QByteArray Converter::filtersToBle(const std::vector<common::Filter>& filters)
+QByteArray Converter::filtersToBle(const std::vector<common::Filter>& filters) const
 {
     QByteArray value;
     value.reserve(filters.size()*4);
@@ -57,7 +57,7 @@ QByteArray Converter::filtersToBle(const std::vector<common::Filter>& filters)
     return value;
 }
 
-std::vector<common::Filter> Converter::filtersFromBle(const QByteArray& array)
+std::vector<common::Filter> Converter::filtersFromBle(const QByteArray& array) const
 {
     if (array.size()%4 != 0) {
         return {};
@@ -74,7 +74,7 @@ std::vector<common::Filter> Converter::filtersFromBle(const QByteArray& array)
     return filters;
 }
 
-uint8_t Converter::fToBle(float f)
+uint8_t Converter::fToBle(float f) const
 {
     uint8_t i = 0;
     for (; i < common::frequencyTable.size(); ++i) {
@@ -86,23 +86,23 @@ uint8_t Converter::fToBle(float f)
     else return i+1;
 }
 
-float Converter::fFromBle(uint8_t i)
+float Converter::fFromBle(uint8_t i) const
 {
     if (i >= common::frequencyTable.size()) return 0.0;
     return common::frequencyTable[i];
 }
 
-int8_t Converter::gToBle(float g)
+int8_t Converter::gToBle(float g) const
 {
     return round(g * 2.0);
 }
 
-float Converter::gFromBle(int8_t g)
+float Converter::gFromBle(int8_t g) const
 {
     return g * 0.5;
 }
 
-uint8_t Converter::qToBle(float f)
+uint8_t Converter::qToBle(float f) const
 {
     uint8_t i = 0;
     for (; i < common::qTable.size(); ++i) {
@@ -114,7 +114,7 @@ uint8_t Converter::qToBle(float f)
     else return i+1;
 }
 
-float Converter::qFromBle(uint8_t i)
+float Converter::qFromBle(uint8_t i) const
 {
     if (i >= common::qTable.size()) return 0.0;
     return common::qTable[i];

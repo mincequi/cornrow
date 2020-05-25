@@ -1,32 +1,37 @@
 #include "IoModel.h"
 
-#include "BleCentralAdapter.h"
+#include <common/ble/Types.h>
+
+#include <QDebug>
+#include <QUuid>
+#include <QVariant>
 
 IoModel* IoModel::s_instance = nullptr;
 
 IoModel* IoModel::instance()
 {
-    return s_instance;
-}
-
-IoModel* IoModel::init(BleCentralAdapter* adapter)
-{
     if (s_instance) {
         return s_instance;
     }
 
-    s_instance = new IoModel(adapter);
+    s_instance = new IoModel();
     return s_instance;
 }
 
-IoModel::IoModel(BleCentralAdapter* adapter, QObject *parent) :
-    QObject(parent),
-    m_adapter(adapter)
+IoModel::IoModel(QObject *parent) :
+    QObject(parent)
 {
-    connect(m_adapter, &BleCentralAdapter::ioCapsReceived, this, &IoModel::onIoCapsReceived);
-    connect(m_adapter, &BleCentralAdapter::ioConfReceived, this, &IoModel::onIoConfReceived);
-
     onIoCapsReceived({}, {});
+}
+
+void IoModel::setService(QtZeroProps::QZeroPropsService* service)
+{
+    m_zpService = service;
+
+    if (m_zpService) {
+        // @TODO(mawe): fix this
+        connect(m_zpService, &QtZeroProps::QZeroPropsService::propertyChanged, this, &IoModel::onPropertyChangedRemotely);
+    }
 }
 
 QStringList IoModel::inputNames() const
@@ -59,7 +64,7 @@ int IoModel::activeInput() const
 void IoModel::setActiveInput(int i)
 {
     m_activeInput = i;
-    m_adapter->setDirty(common::ble::ioConfCharacteristicUuid);
+    sendIoConf();
     emit activeInputChanged();
 }
 
@@ -71,7 +76,7 @@ int IoModel::activeOutput() const
 void IoModel::setActiveOutput(int i)
 {
     m_activeOutput = i;
-    m_adapter->setDirty(common::ble::ioConfCharacteristicUuid);
+    sendIoConf();
     emit activeOutputChanged();
 }
 
@@ -146,6 +151,34 @@ QString IoModel::toString(common::IoInterface interface)
     return string;
 }
 
+void IoModel::onPropertyChangedRemotely(const QVariant& uuid, const QByteArray& value)
+{
+    if (uuid.toUuid().toByteArray(QUuid::WithoutBraces).toStdString() == common::ble::ioCapsCharacteristicUuid) {
+        std::vector<common::IoInterface> inputs;
+        std::vector<common::IoInterface> outputs;
+        for (const auto& c : value) {
+            const common::IoInterface* i = reinterpret_cast<const common::IoInterface*>(&c);
+            if (i->isOutput) {
+                outputs.push_back(*i);
+            } else {
+                inputs.push_back(*i);
+            }
+        }
+
+        onIoCapsReceived(inputs, outputs);
+    } else if (uuid.toUuid().toByteArray(QUuid::WithoutBraces).toStdString() == common::ble::ioConfCharacteristicUuid) {
+        common::IoInterface i;
+        common::IoInterface o;
+        for (const auto c : value) {
+            common::IoInterface interface = *reinterpret_cast<const common::IoInterface*>(&c);
+            if (!interface.isOutput) i = interface;
+            else o = interface;
+        }
+
+        onIoConfReceived(i, o);
+    }
+}
+
 void IoModel::onIoCapsReceived(const std::vector<common::IoInterface>& inputs, const std::vector<common::IoInterface>& outputs)
 {
     m_inputs.clear();
@@ -194,4 +227,21 @@ void IoModel::onIoConfReceived(const common::IoInterface& input, const common::I
             setActiveOutput(i);
         }
     }
+}
+
+void IoModel::sendIoConf()
+{
+    QByteArray value(2, 0);
+    auto i = input();
+    if (i.number > 0) i.number -= 1; // Correct number to index
+    auto o = output();
+    if (o.number > 0) o.number -= 1; // Correct number to index
+    value[0] = *reinterpret_cast<char*>(&i);
+    value[1] = *reinterpret_cast<char*>(&o);
+
+    if (!m_zpService) {
+        qWarning() << __func__ << "> No remote service set";
+        return;
+    }
+    m_zpService->setProperty(QUuid(common::ble::ioConfCharacteristicUuid.c_str()), value);
 }

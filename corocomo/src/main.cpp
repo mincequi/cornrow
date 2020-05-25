@@ -1,18 +1,17 @@
-#include "BleCentralAdapter.h"
 #include "BodePlotModel.h"
 #include "BusyIndicatorModel.h"
 #include "Config.h"
 #include "DeviceModel.h"
 #include "EqChart.h"
-#include "IoModel.h"
 #include "FilterModel.h"
+#include "IoModel.h"
 #include "PhaseChart.h"
 #include "PresetModel.h"
 #include "SoftClipChart.h"
-#include "ble/BleClient.h"
-#include "net/NetClient.h"
 
-#include <QDebug>
+#include <QtZeroProps/QZeroPropsClient.h>
+#include <QtZeroProps/QZeroPropsTypes.h>
+
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QSurfaceFormat>
@@ -27,29 +26,23 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
     
-	ble::BleClient bleClient;
-    BleCentralAdapter bleAdapter(&bleClient);
-    bool ret = QObject::connect(&bleClient, &ble::BleClient::status, [] {
-		qWarning() << "STATUS UPDATED";
-    });
-    Q_UNUSED(ret)
+    // Remote services: BLE, Tcp
+    QtZeroProps::QZeroPropsClient zpClient;
 
+    // Setup view models
+    // Init config first!
     auto config = Config::init(Config::Type::Low);
-    auto indicatorModel = BusyIndicatorModel::instance();
-    auto deviceModel = DeviceModel::init(&bleAdapter);
-	auto ioModel = IoModel::init(&bleAdapter);
-    auto filterModel = FilterModel::init(*config, &bleAdapter, ioModel);
-    auto bodePlotModel = BodePlotModel::init(*config);
+    DeviceModel::init(&zpClient);
+    // @TODO(mawe): config is registered as singleton. No need to pass here.
+    FilterModel::init(*config);
 
-    Q_UNUSED(indicatorModel)
-    Q_UNUSED(deviceModel)
-    Q_UNUSED(filterModel)
-    Q_UNUSED(bodePlotModel)
-    
-    bleAdapter.setModel(filterModel);
-    bleAdapter.setIoModel(ioModel);
+    //qRegisterMetaType<QtZeroProps::QZeroPropsService*>("QZeroPropsService*");
 
-	qmlRegisterUncreatableMetaObject(net::NetDevice::staticMetaObject, "Cornrow.DeviceType", 1, 0, "CornrowDeviceType", "Only enums");
+    // Register types for QML engine
+    //qmlRegisterUncreatableMetaObject(QtZeroProps::staticMetaObject, "QtZeroProps", 1, 0, "ZpServiceType", "Uncreatable");
+    //qmlRegisterUncreatableType<QtZeroProps::QZeroPropsTypes>("ZpTypes", 1, 0, "ZpServiceType", "Uncreatable");
+    qmlRegisterUncreatableType<QtZeroProps::QZeroPropsService>("ZpService", 1, 0, "ZpService", "Uncreatable");
+    qmlRegisterUncreatableType<QtZeroProps::QZeroPropsClient>("ZpClient", 1, 0, "ZpClientState", "Uncreatable");
 
     qmlRegisterType<BusyIndicatorModel>("Cornrow.BusyIndicatorModel", 1, 0, "CornrowBusyIndicatorModel");
     qmlRegisterType<EqChart>("Cornrow.EqChart", 1, 0, "CornrowEqChart");
@@ -80,6 +73,7 @@ int main(int argc, char *argv[])
         return PresetModel::instance();
     });
 
+    // Start QML engine
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/src/main.qml")));
     if (engine.rootObjects().isEmpty())
