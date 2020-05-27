@@ -17,10 +17,12 @@ ItemDelegate {
         elide: Text.ElideRight
     }
     
+    /*
     ToolButton {
         id: rightButton
         anchors.right: parent.right
         icon.source: "qrc:/icons/chevron_right.svg"
         icon.color: Material.accent
     }
+    */
 }

@@ -406,7 +406,9 @@ void FilterModel::onFilterChangedRemotely(const QVariant& key, const QByteArray&
 
     if (_key == common::ble::auxCharacteristicUuid) {
         int j = m_config.peqFilterCount;
-        for (int i = 0; i < value.size() && i <= 4 * (m_filters.size() - m_config.peqFilterCount); i += 4) {
+        for (int i = 0;
+             i < value.size() && i <= 4 * (m_filters.size() - m_config.peqFilterCount) && m_filters.size() > j;
+             i += 4) {
             m_filters[j].t = static_cast<common::FilterType>(value.at(i));
             m_filters[j].f = static_cast<uint8_t>(value.at(i+1));
             m_filters[j].g = value.at(i+2)*0.5;

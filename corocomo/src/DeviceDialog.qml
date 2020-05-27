@@ -1,4 +1,4 @@
-import QtQuick 2.12
+import QtQuick 2.13
 import QtQuick.Controls 2.2
 import QtQuick.Controls.impl 2.3
 import QtQuick.Controls.Material 2.3
@@ -19,6 +19,7 @@ Dialog {
     visible: true
     background: Rectangle { color: "transparent" }
     padding: 0  // Make the dialog full screen
+    closePolicy: Popup.NoAutoClose
     Component.onCompleted: {
         DeviceModel.startDiscovering()
     }
@@ -137,6 +138,4 @@ Dialog {
             }
         }
     }
-
-    closePolicy: Popup.NoAutoClose
 }
