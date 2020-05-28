@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2020 Manuel Weichselbaumer <mincequi@web.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "DeviceModel.h"
 
 #include <QtZeroProps/QZeroPropsService.h>
@@ -33,6 +50,7 @@ DeviceModel::DeviceModel(QtZeroProps::QZeroPropsClient* netClient, QObject *pare
 {
     connect(m_zpClient, &QtZeroProps::QZeroPropsClient::stateChanged, this, &DeviceModel::onDeviceStatus);
     connect(m_zpClient, &QtZeroProps::QZeroPropsClient::servicesChanged, this, &DeviceModel::onDevicesChanged);
+    connect(m_zpClient, &QtZeroProps::QZeroPropsClient::connectedServiceChanged, this, &DeviceModel::connectedServiceChanged);
 
     connect(qGuiApp, &QGuiApplication::applicationStateChanged, this, &DeviceModel::onAppStateChanged);
 }
@@ -70,6 +88,11 @@ QObjectList DeviceModel::services() const
     }
 
     return _devices;
+}
+
+QObject* DeviceModel::connectedService() const
+{
+    return m_zpClient->connectedService();
 }
 
 void DeviceModel::connectToService(QtZeroProps::QZeroPropsService* service)

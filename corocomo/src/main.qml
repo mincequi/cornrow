@@ -42,6 +42,9 @@ ApplicationWindow {
     Material.primary: Material.color(Material.Indigo)
     Material.background: "#FF212121" //#FF000030
 
+    property bool dialogVisible: DeviceModel.status !== ZpClientState.Connected ||
+                                 menuButton.opened
+
     Connections {
         target: FilterModel
         onFilterChanged: {
@@ -65,7 +68,7 @@ ApplicationWindow {
     Connections {
         target: DeviceModel
         onStatusChanged: {
-            if (DeviceModel.status !== ZpClientState.Connected) drawer.close()
+            menuButton.opened = false
         }
     }
 
@@ -74,52 +77,65 @@ ApplicationWindow {
         height: appWindow.height
         enabled: DeviceModel.status !== ZpClientState.Connected
         opacity: DeviceModel.status !== ZpClientState.Connected ? 1.0 : 0.0
-        Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
+        Behavior on opacity { NumberAnimation { duration: 250 } }
         z: 10
     }
 
     ToolButton {
         id: menuButton
-        visible: CornrowConfiguration.ioAvailable
-        transform: Translate {
-           y: drawer.position * menu.height
-        }
-        icon.source: drawer.opened ? "qrc:/icons/expand_less.svg" : "qrc:/icons/expand_more.svg"
+        icon.source: opened ? "qrc:/icons/expand_less.svg" : "qrc:/icons/expand_more.svg"
         enabled: DeviceModel.status === ZpClientState.Connected
         z: 12
+
+        property bool opened: false
+
         onPressed: {
-            drawer.visible = !drawer.visible
+            opened = !opened
         }
     }
 
-    Drawer {
-        id: drawer
+    Dialog {
+        id: ioDialog
+        title: "raspberrypi"
+        header: ListItemNew {
+            icon.source: DeviceModel.connectedService.type === ZpService.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
+            primaryText: DeviceModel.connectedService.name
+        }
         width: parent.width
-        height: menu.height
-        edge: Qt.TopEdge
-        interactive: false
-        modal: false
+        height: presetsAndIo.height + footer.height + 64
+        y: parent.height - height
+        background: Rectangle { color: "transparent" }
+        //padding: 0  // Make the dialog full screen
+        visible: menuButton.opened
+        closePolicy: Popup.NoAutoClose
 
         Presets {
-            id: menu
+            id: presetsAndIo
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.margins: 12
-            z: 1
+            anchors.bottom: parent.Bottom
+            z: 10
+        }
+
+        footer: DialogButtonBox {
+            id: footer
+            Button {
+                text: "Disconnect"
+                Material.foreground: Material.color(Material.Pink)
+                flat: true
+                onPressed: {
+                    DeviceModel.startDiscovering()
+                }
+            }
         }
     }
 
     Item {
         id: peq
         anchors.fill: parent
-        enabled: DeviceModel.status === ZpClientState.Connected
-        opacity: DeviceModel.status === ZpClientState.Connected ? 1.0 : 0.0
-        //opacity: 0.0
-        Behavior on opacity { SmoothedAnimation { velocity: 1.5 }}
-        transform: Translate {
-           y: drawer.position * menu.height
-        }
+        enabled: !dialogVisible
+        opacity: !dialogVisible ? 1.0 : 0.0
+        Behavior on opacity { NumberAnimation { duration: 250 }}
 
         SwipeView {
             id: bodeView
@@ -439,11 +455,8 @@ ApplicationWindow {
     FastBlur {
         anchors.fill: parent
         source: peq
-        radius: 32
-        opacity: DeviceModel.status === ZpClientState.Connected ? 0.0 : 0.125
-        Behavior on opacity { SmoothedAnimation { velocity: 0.5 }}
-        transform: Translate {
-           y: drawer.position * menu.height
-        }
+        radius: 24
+        opacity: dialogVisible ? 0.33 : 0.0
+        Behavior on opacity { NumberAnimation { duration: 250 } }
     }
 }

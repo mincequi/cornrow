@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Controls.Material 2.3
-import QtQuick.Shapes 1.12
+import QtQuick.Shapes 1.13
 
 import Cornrow.BusyIndicatorModel 1.0
 import Cornrow.DeviceModel 1.0

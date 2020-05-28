@@ -37,10 +37,11 @@ Config::Config(Type type, QObject *parent)
     qMax = 64;
     qStep = 2;
 
-    ioAvailable = true;
+    //ioAvailable = true;
     loudnessAvailable = true;
-    xoAvailable = true;
-    swAvailable = true;
+    //xoAvailable = true;
+    //swAvailable = true;
+    //scAvailable = true;
 
     switch (type) {
     case Type::Low:
