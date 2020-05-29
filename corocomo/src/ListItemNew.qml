@@ -13,7 +13,7 @@ ItemDelegate {
         anchors.left: parent.left
         anchors.leftMargin: icon.width+2*spacing
         anchors.verticalCenter: parent.verticalCenter
-        width: parent.width-anchors.leftMargin-rightButton.width
+        width: parent.width-anchors.leftMargin//-rightButton.width
         elide: Text.ElideRight
     }
     

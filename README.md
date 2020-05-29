@@ -50,7 +50,7 @@ sudo apt install \
   libqt5websockets5-dev # get dependecies
 wget https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd_0.7.0.tar.gz
 tar xf cornrowd_0.7.0.tar.gz
-dpkg-buildpackage -us -uc                           # build unsigned debian package
+dpkg-buildpackage -us -uc -nc                       # build unsigned debian package
 sudo dpkg -i ../cornrowd_<version>_<your_arch>.deb  # install package
 sudo systemctl unmask cornrowd.service              # unmask service
 sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
@@ -84,3 +84,6 @@ Commit | Date | Working
 
 #### UART issues
 A lot of Bluetooth packets seem to be dropped when CPU usage is **low**. As soon as the system is put under load, bluetooth packet reception is a **lot** better. This seems to be related to core frequency scaling (https://www.raspberrypi.org/documentation/configuration/uart.md).
+
+#### GCC-9
+Currently, this does not compile with GCC9 and higher.
