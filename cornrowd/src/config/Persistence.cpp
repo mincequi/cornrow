@@ -60,7 +60,7 @@ std::vector<common::Filter> Persistence::readConfig()
 
 void Persistence::writeConfig(const std::vector<common::Filter>& filters)
 {
-    LOG_F(INFO, "filter count: %lu", filters.size());
+    LOG_F(INFO, "filter count: %u", filters.size());
 
     pt::ptree root;
     pt::ptree tree;
