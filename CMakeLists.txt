@@ -20,20 +20,21 @@ find_package(Qt5WebSockets REQUIRED)
 add_subdirectory(thirdparty/libcornrow)
 add_subdirectory(thirdparty/qtzeroprops)
 
-# Replace install() to do-nothing macro.
-macro(install)
-endmacro()
-add_subdirectory(thirdparty/bluez-qt)
-# Restore original install() behavior.
-macro(install)
-    _install(${ARGN})
-endmacro()
-
 # Add internal libs
 add_subdirectory(common)
 add_subdirectory(cornrowd)
 #add_subdirectory(net)
 #add_subdirectory(bluebricated)
+
+# Replace install() to do-nothing macro.
+macro(install)
+endmacro()
+add_subdirectory(thirdparty/bluez-qt)
+# Restore original install() behavior.
+# @TODO(mawe): restoring original install() does not work. So, add subdirs above this section, that have an install target.
+macro(install)
+    _install(${ARGN})
+endmacro()
 
 # Mandatory debian variables
 SET(CPACK_GENERATOR "DEB")
