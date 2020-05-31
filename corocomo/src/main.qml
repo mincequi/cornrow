@@ -77,13 +77,15 @@ ApplicationWindow {
         height: appWindow.height
         enabled: DeviceModel.status !== ZpClientState.Connected
         opacity: DeviceModel.status !== ZpClientState.Connected ? 1.0 : 0.0
-        Behavior on opacity { NumberAnimation { duration: 250 } }
+        Behavior on opacity { NumberAnimation { duration: 200 } }
         z: 10
     }
 
     ToolButton {
         id: menuButton
-        icon.source: opened ? "qrc:/icons/expand_less.svg" : "qrc:/icons/expand_more.svg"
+        rotation: opened ? 90.0 : 0.0
+        Behavior on rotation { NumberAnimation { duration: 200 } }
+        icon.source: opened ? "qrc:/icons/close.svg" : "qrc:/icons/menu.svg"
         enabled: DeviceModel.status === ZpClientState.Connected
         z: 12
 
@@ -96,7 +98,6 @@ ApplicationWindow {
 
     Dialog {
         id: ioDialog
-        title: "raspberrypi"
         header: ListItemNew {
             icon.source: DeviceModel.connectedService.type === ZpService.BluetoothLe ? "qrc:/icons/bluetooth.svg" : "qrc:/icons/wifi.svg"
             primaryText: DeviceModel.connectedService.name
@@ -107,6 +108,8 @@ ApplicationWindow {
         background: Rectangle { color: "transparent" }
         //padding: 0  // Make the dialog full screen
         visible: menuButton.opened
+        opacity: menuButton.opened ? 1.0 : 0.0
+        Behavior on opacity { NumberAnimation { duration: 200 } }
         closePolicy: Popup.NoAutoClose
 
         Presets {
@@ -135,7 +138,7 @@ ApplicationWindow {
         anchors.fill: parent
         enabled: !dialogVisible
         opacity: !dialogVisible ? 1.0 : 0.0
-        Behavior on opacity { NumberAnimation { duration: 250 }}
+        Behavior on opacity { NumberAnimation { duration: 200 }}
 
         SwipeView {
             id: bodeView
@@ -457,6 +460,6 @@ ApplicationWindow {
         source: peq
         radius: 24
         opacity: dialogVisible ? 0.33 : 0.0
-        Behavior on opacity { NumberAnimation { duration: 250 } }
+        Behavior on opacity { NumberAnimation { duration: 200 } }
     }
 }

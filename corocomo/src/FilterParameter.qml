@@ -12,6 +12,8 @@ Item {
     signal step(int i)
     width: parent.width
     height: param.height + slider.height
+    //Behavior on enabled { NumberAnimation { duration: 200 } }
+    //Behavior on opacity { NumberAnimation { duration: 200 } }
 
     Label {
         id: param
@@ -34,7 +36,8 @@ Item {
 
     ToolButton {
         id: dec
-        text: "-"
+        icon.source: "qrc:/icons/remove.svg"
+        //text: "-"
         anchors.verticalCenter: slider.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: 4
@@ -42,7 +45,8 @@ Item {
     }
     ToolButton {
         id: inc
-        text: "+"
+        icon.source: "qrc:/icons/add.svg"
+        //text: "+"
         anchors.verticalCenter: slider.verticalCenter
         anchors.right: parent.right
         anchors.rightMargin: 4
@@ -52,9 +56,9 @@ Item {
         id: slider
         anchors.bottom: parent.bottom
         anchors.left: dec.right
-        anchors.leftMargin: 4
+        //anchors.leftMargin: 4
         anchors.right: inc.left
-        anchors.rightMargin: 4
+        //anchors.rightMargin: 4
         onValueChanged: parameter.valueChanged(value)
     }
 }
