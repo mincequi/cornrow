@@ -27,8 +27,9 @@
 using namespace std::placeholders;
 using namespace coro::core;
 
-CoroPipeline::CoroPipeline()
-    : m_ac3Encoder(coro::audio::AudioCodec::Ac3)
+CoroPipeline::CoroPipeline() :
+    m_airplaySource( { "myAirplay" } ),
+    m_ac3Encoder(coro::audio::AudioCodec::Ac3)
 {
     m_loudness = new coro::audio::Loudness();
     m_peq = new coro::audio::Peq();
@@ -38,6 +39,9 @@ CoroPipeline::CoroPipeline()
 #endif
 
     //m_alsaSink.setDevice("iec958:CARD=sndrpihifiberry,DEV=0");
+
+    // Airplay nodes
+    Node::link(m_airplaySource, m_intToFloat);
 
     // Bluetooth nodes
     Node::link(m_fdSource, m_rtpDecoder);
@@ -60,15 +64,12 @@ CoroPipeline::CoroPipeline()
         Node::link(m_floatToInt, m_alsaSink);
     }
 
-    //m_screamSource.setReadyCallback(std::bind(&CoroPipeline::onSourceReady, this, _1, _2));
-
-    m_sources.insert(&m_fdSource);
-    //m_sources.insert(&m_screamSource);
+    m_sourceSelector.addSource(m_airplaySource);
+    m_sourceSelector.addSource(m_fdSource);
 }
 
 CoroPipeline::~CoroPipeline()
 {
-    m_alsaSink.onStop();
     delete m_peq;
     delete m_loudness;
 }
@@ -76,14 +77,6 @@ CoroPipeline::~CoroPipeline()
 void CoroPipeline::setFileDescriptor(int fd, uint16_t blockSize)
 {
     m_fdSource.init(fd, blockSize);
-
-    if (fd > 0) {
-        m_fdSource.setReady(true);
-        onSourceReady(true, &m_fdSource);
-    } else {
-        m_fdSource.stop();
-        onSourceReady(false, &m_fdSource);
-    }
 }
 
 void CoroPipeline::setVolume(float volume)
@@ -129,27 +122,3 @@ common::Filter CoroPipeline::crossover() const
     return crossover;
 }
 */
-
-void CoroPipeline::onSourceReady(bool ready, coro::core::Source* const source)
-{
-    // If source wants to stop, stop it.
-    if (!ready) {
-        LOG_F(INFO, "%s stopped", source->name());
-    }
-
-    // If another one is running, do nothing.
-    for (auto s : m_sources) {
-        if (s->isStarted()) {
-            LOG_F(2, "Another source runnig: %s", s->name());
-            return;
-        }
-    }
-
-    // If another one wants to start, start it.
-    for (auto s : m_sources) {
-        if (s->isReady()) {
-            LOG_F(INFO, "Starting %s", s->name());
-            s->start();
-        }
-    }
-}

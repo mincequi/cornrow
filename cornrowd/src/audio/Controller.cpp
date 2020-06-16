@@ -30,15 +30,14 @@
 #include <loguru/loguru.hpp>
 #include <unistd.h>
 
-namespace audio
-{
+namespace audio {
 
 Controller::Controller(QObject *parent)
     : QObject(parent)
 {
     m_coroPipeline = new CoroPipeline();
 
-    startTimer(10);
+    startTimer(1);
 }
 
 Controller::~Controller()

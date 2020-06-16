@@ -17,9 +17,8 @@
 
 #pragma once
 
-#define private public
+#include <coro/airplay/AirplaySource.h>
 #include <coro/audio/AlsaSink.h>
-#undef private
 #include <coro/audio/AudioConverter.h>
 #include <coro/audio/AudioEncoderFfmpeg.h>
 #include <coro/audio/Crossover.h>
@@ -28,6 +27,7 @@
 #include <coro/core/AppSink.h>
 #include <coro/core/AppSource.h>
 #include <coro/core/FdSource.h>
+#include <coro/core/SourceSelector.h>
 #include <coro/rtp/RtpDecoder.h>
 
 #include <common/Types.h>
@@ -66,7 +66,8 @@ public:
     //common::Filter crossover() const;
 
 private:
-    void onSourceReady(bool wantsToStart, coro::core::Source* const source);
+    // Airplay nodes
+    coro::airplay::AirplaySource m_airplaySource;
 
     // Bluetooth nodes
     coro::core::FdSource    m_fdSource;
@@ -85,6 +86,5 @@ private:
     coro::audio::AlsaSink   m_alsaSink;
     coro::pi::PiHdmiAudioSink*  m_piHdmiSink = nullptr;
 
-    // Sources collection for selection
-    std::set<coro::core::Source*> m_sources;
+    coro::core::SourceSelector m_sourceSelector;
 };
