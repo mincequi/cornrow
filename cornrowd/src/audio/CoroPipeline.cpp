@@ -40,11 +40,12 @@ CoroPipeline::CoroPipeline()
     //m_alsaSink.setDevice("iec958:CARD=sndrpihifiberry,DEV=0");
 
     // Bluetooth nodes
-    Node::link(m_appSource, m_sbcDecoder);
+    Node::link(m_fdSource, m_rtpDecoder);
+    Node::link(m_rtpDecoder, m_sbcDecoder);
     Node::link(m_sbcDecoder, m_intToFloat);
 
     // Scream nodes
-    Node::link(m_screamSource, m_intToFloat);
+    //Node::link(m_screamSource, m_intToFloat);
 
     Node::link(m_intToFloat, *m_peq);
     Node::link(*m_peq, *m_loudness);
@@ -59,46 +60,30 @@ CoroPipeline::CoroPipeline()
         Node::link(m_floatToInt, m_alsaSink);
     }
 
-    m_screamSource.setReadyCallback(std::bind(&CoroPipeline::onSourceReady, this, _1, _2));
+    //m_screamSource.setReadyCallback(std::bind(&CoroPipeline::onSourceReady, this, _1, _2));
 
-    m_sources.insert(&m_appSource);
-    m_sources.insert(&m_screamSource);
+    m_sources.insert(&m_fdSource);
+    //m_sources.insert(&m_screamSource);
 }
 
 CoroPipeline::~CoroPipeline()
 {
-    m_alsaSink.stop();
+    m_alsaSink.onStop();
     delete m_peq;
     delete m_loudness;
 }
 
-void CoroPipeline::start(const coro::audio::AudioConf& conf)
+void CoroPipeline::setFileDescriptor(int fd, uint16_t blockSize)
 {
-    LOG_F(INFO, "Start Bluetooth source");
-    m_appSource.setReady(true);
-    onSourceReady(&m_appSource, true);
-    m_alsaSink.start(conf);
-}
+    m_fdSource.init(fd, blockSize);
 
-void CoroPipeline::stop()
-{
-    LOG_F(INFO, "Stop Bluetooth source");
-    m_appSource.stop();
-    onSourceReady(&m_appSource, false);
-    //m_alsaSink.stop();
-}
-
-void CoroPipeline::pushBuffer(const coro::audio::AudioConf& conf, coro::audio::AudioBuffer& buffer)
-{
-    if (!m_appSource.isStarted()) {
-        m_appSource.setReady(true);
-        if (!m_appSource.isStarted()) {
-            LOG_F(2, "%s not started. Will drop buffer.", m_appSource.name());
-            return;
-        }
+    if (fd > 0) {
+        m_fdSource.setReady(true);
+        onSourceReady(true, &m_fdSource);
+    } else {
+        m_fdSource.stop();
+        onSourceReady(false, &m_fdSource);
     }
-
-    m_appSource.process(conf, buffer);
 }
 
 void CoroPipeline::setVolume(float volume)
@@ -145,7 +130,7 @@ common::Filter CoroPipeline::crossover() const
 }
 */
 
-void CoroPipeline::onSourceReady(coro::audio::Source* const source, bool ready)
+void CoroPipeline::onSourceReady(bool ready, coro::core::Source* const source)
 {
     // If source wants to stop, stop it.
     if (!ready) {

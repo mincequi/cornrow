@@ -18,12 +18,13 @@
 #include "Controller.h"
 
 #include "CoroPipeline.h"
-#include "FileDescriptorSource.h"
 
 #include <common/Types.h>
+#include <coro/core/Mainloop.h>
 
 #include <QDebug>
 #include <QThread>
+#include <QTimer>
 #include <QtDBus/QDBusObjectPath>
 
 #include <loguru/loguru.hpp>
@@ -36,6 +37,8 @@ Controller::Controller(QObject *parent)
     : QObject(parent)
 {
     m_coroPipeline = new CoroPipeline();
+
+    startTimer(10);
 }
 
 Controller::~Controller()
@@ -153,29 +156,15 @@ void Controller::setOutput(const common::IoInterface& interface)
     m_coroPipeline->setOutputDevice(it->second);
 }
 
+void Controller::timerEvent(QTimerEvent* event)
+{
+    coro::core::Mainloop::instance().poll();
+}
+
 void Controller::setTransport(int fd, uint16_t blockSize, int rate)
 {
     LOG_F(INFO, "set transport> fd: %d, blocksize: %d, rate: %d", fd, blockSize, rate);
-    // Stop pipeline (in any case).
-    m_coroPipeline->stop();
-    if (m_fdSource) {
-        delete m_fdSource;
-        m_fdSource = nullptr;
-    }
-
-    if (fd < 0) {
-        return;
-    }
-
-    m_fd = fd;
-    m_blockSize = blockSize;
-    m_rate = rate;
-
-    m_fdSource = new FileDescriptorSource(fd, blockSize, m_rate, m_coroPipeline);
-    auto coroRate = m_rate == 48000 ? coro::audio::SampleRate::Rate48000 : coro::audio::SampleRate::Rate44100;
-    m_coroPipeline->start( { coro::audio::AudioCodec::RawInt16, coroRate } );
-    //m_coroPipeline->setRate(m_rate == 48000 ? coro::audio::SampleRate::Rate48000 : coro::audio::SampleRate::Rate44100);
-    //m_pipeline->setFileDescriptor(m_rate, fd, blockSize);
+    m_coroPipeline->setFileDescriptor(fd, blockSize);
 }
 
 void Controller::setVolume(float volume)

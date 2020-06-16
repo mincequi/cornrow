@@ -1,7 +1,6 @@
 add_library(audio STATIC
     Controller.cpp
     Converter.cpp
-    FileDescriptorSource.cpp
     CoroPipeline.cpp
 )
 

@@ -17,27 +17,29 @@
 
 #pragma once
 
+#define private public
 #include <coro/audio/AlsaSink.h>
-#include <coro/audio/AppSource.h>
+#undef private
 #include <coro/audio/AudioConverter.h>
 #include <coro/audio/AudioEncoderFfmpeg.h>
 #include <coro/audio/Crossover.h>
 #include <coro/audio/SbcDecoder.h>
 #include <coro/audio/ScreamSource.h>
 #include <coro/core/AppSink.h>
+#include <coro/core/AppSource.h>
+#include <coro/core/FdSource.h>
+#include <coro/rtp/RtpDecoder.h>
+
 #include <common/Types.h>
 
-namespace coro
-{
-namespace audio
-{
+namespace coro {
+namespace audio {
 class Loudness;
 class Peq;
-}
-namespace pi
-{
-class PiHdmiAudioSink;
 } // namespace audio
+namespace pi {
+class PiHdmiAudioSink;
+} // namespace pi
 } // namespace coro
 
 class CoroPipeline
@@ -46,10 +48,7 @@ public:
     explicit CoroPipeline();
     ~CoroPipeline();
 
-    void start(const coro::audio::AudioConf& conf);
-    void stop();
-
-    void pushBuffer(const coro::audio::AudioConf& conf, coro::audio::AudioBuffer& buffer);
+    void setFileDescriptor(int fd, uint16_t blockSize);
 
     void setVolume(float volume);
     void setLoudness(uint8_t phon);
@@ -67,14 +66,15 @@ public:
     //common::Filter crossover() const;
 
 private:
-    void onSourceReady(coro::audio::Source* const, bool wantsToStart);
+    void onSourceReady(bool wantsToStart, coro::core::Source* const source);
 
     // Bluetooth nodes
-    coro::audio::AppSource  m_appSource;
+    coro::core::FdSource    m_fdSource;
+    coro::rtp::RtpDecoder<coro::audio::AudioCodec::Sbc> m_rtpDecoder;
     coro::audio::SbcDecoder m_sbcDecoder;
 
     // Scream node
-    coro::audio::ScreamSource m_screamSource;
+    //coro::audio::ScreamSource m_screamSource;
 
     coro::audio::AudioConverter<int16_t, float> m_intToFloat;
     coro::audio::AudioConverter<float, int16_t> m_floatToInt;
@@ -86,5 +86,5 @@ private:
     coro::pi::PiHdmiAudioSink*  m_piHdmiSink = nullptr;
 
     // Sources collection for selection
-    std::set<coro::audio::Source*> m_sources;
+    std::set<coro::core::Source*> m_sources;
 };

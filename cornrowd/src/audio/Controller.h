@@ -20,11 +20,11 @@
 #include <common/IAudioConf.h>
 #include <common/ble/Types.h>
 #include <coro/audio/AlsaUtil.h>
+#include <coro/core/FdSource.h>
 
 #include <QObject>
 
 class CoroPipeline;
-class FileDescriptorSource;
 
 namespace audio
 {
@@ -52,13 +52,11 @@ public:
     void setOutput(const common::IoInterface& interface) override;
 
 private:
+    void timerEvent(QTimerEvent *event) override;
+
     CoroPipeline* m_coroPipeline = nullptr;
 
     std::string m_transport;
-    int m_fd = -1;
-    uint16_t m_blockSize = 0;
-    int m_rate = 44100;
-    FileDescriptorSource* m_fdSource = nullptr;
 
     std::map<common::ble::CharacteristicType, std::vector<common::Filter>> m_filters;
 
