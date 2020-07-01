@@ -23,6 +23,7 @@ sudo apt install \
   libqt5bluetooth5 \
   libqt5network5 \
   libasound2 \
+  libavahi-compat-libdnssd1 \
   libavcodec58 \
   libavutil56 \
   libboost-system1.67.0 \
@@ -42,6 +43,7 @@ sudo apt install \
   cmake extra-cmake-modules \
   libasio-dev \
   libasound2-dev \
+  libavahi-compat-libdnssd-dev \
   libavcodec-dev \
   libavutil-dev \
   libboost-system-dev \
