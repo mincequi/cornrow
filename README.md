@@ -19,16 +19,7 @@ Also a special version for Raspberry Pi exists [rpi-armhf](https://github.com/mi
 Get dependencies first
 ```
 sudo apt update
-sudo apt install \
-  libqt5bluetooth5 \
-  libqt5network5 \
-  libasound2 \
-  libavahi-compat-libdnssd1 \
-  libavcodec58 \
-  libavutil56 \
-  libboost-system1.67.0 \
-  libsbc1
-dpkg -i cornrowd__<version>_<your_arch>.deb
+sudo apt install ./cornrowd__<version>_<your_arch>.deb
 sudo systemctl unmask cornrowd.service              # unmask service
 sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
 sudo systemctl enable cornrowd.service              # start-up service on each reboot.
@@ -40,6 +31,7 @@ Consider downloading the release tarballs. Master might be broken from time to t
 ### For Debian users
 ```
 sudo apt install \
+  debhelper libtool \
   cmake extra-cmake-modules \
   libasio-dev \
   libasound2-dev \
@@ -52,8 +44,10 @@ sudo apt install \
   libqt5websockets5-dev # get dependecies
 wget https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd_0.7.0.tar.gz
 tar xf cornrowd_0.7.0.tar.gz
+cd cornrowd
 dpkg-buildpackage -us -uc -nc                       # build unsigned debian package
-sudo dpkg -i ../cornrowd_<version>_<your_arch>.deb  # install package
+cd ..
+sudo apt install ./cornrowd_0.7.0_<your_arch>.deb  # install package
 sudo systemctl unmask cornrowd.service              # unmask service
 sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
 sudo systemctl enable cornrowd.service              # start-up service on each reboot.
