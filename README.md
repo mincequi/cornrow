@@ -67,7 +67,7 @@ make
 ## Donations
 Cornrow is free to use and developed during personal free time. If you like it and/or have a feature request, consider a donation. If you click on the button below, you will be taken to the secure PayPal Web site. You don't need to have a paypal account in order to make a donation.
 
-(https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=22P2UZ4H6Z8FS)
+https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=22P2UZ4H6Z8FS
 
 ## Known issues
 ### Raspberry Pi 3 Model B (BCM43143)
