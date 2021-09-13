@@ -5,12 +5,14 @@ project(cornrow)
 include(ExternalProject)
 
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Werror \
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} \
+    -Wall \
     -Wno-psabi \
     -Wno-narrowing \
     -Wno-deprecated-declarations \
     -Wno-zero-as-null-pointer-constant")
 set(CMAKE_CXX_STANDARD 17)
+#    -Werror \
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)

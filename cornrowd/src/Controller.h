@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#include "audio/Controller.h"
+#include "audio/AudioManager.h"
 #include "bluetooth/Controller.h"
 #include "config/Controller.h"
 
@@ -23,7 +23,7 @@ private:
     void onVolumeChanged(float volume);
     void onClientDisconnected();
 
-    audio::Controller*      m_audio;
+    audio::AudioManager*      m_audio;
     bluetooth::Controller*  m_bluetoothService;
     QtZeroProps::QZeroPropsServer* m_zpServer;
     QtZeroProps::QZeroPropsService* m_zpService;

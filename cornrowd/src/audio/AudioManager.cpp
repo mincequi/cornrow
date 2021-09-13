@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Controller.h"
+#include "AudioManager.h"
 
 #include "CoroPipeline.h"
 
@@ -32,25 +32,32 @@
 
 namespace audio {
 
-Controller::Controller(QObject *parent)
+AudioManager::AudioManager(QObject *parent)
     : QObject(parent)
 {
     m_coroPipeline = new CoroPipeline();
 
+    // Print ALSA devices
+    auto devices = m_alsaUtil.outputDevices();
+    for (auto& dev : devices) {
+        LOG_S(INFO) << "ALSA device found: " << dev;
+    }
+    LOG_IF_S(INFO, devices.empty()) << "No ALSA device found";
+
     startTimer(1);
 }
 
-Controller::~Controller()
+AudioManager::~AudioManager()
 {
     delete m_coroPipeline;
 }
 
-std::vector<common::Filter> Controller::filters(common::ble::CharacteristicType group) const
+std::vector<common::Filter> AudioManager::filters(common::ble::CharacteristicType group) const
 {
     return m_filters.at(group);
 }
 
-void Controller::setFilters(common::ble::CharacteristicType group, const std::vector<common::Filter>& filters)
+void AudioManager::setFilters(common::ble::CharacteristicType group, const std::vector<common::Filter>& filters)
 {
     for (const auto& filter : filters) {
         qDebug() << "group:" << static_cast<uint>(group) <<
@@ -88,7 +95,7 @@ void Controller::setFilters(common::ble::CharacteristicType group, const std::ve
     }
 }
 
-std::vector<common::IoInterface> Controller::ioCaps()
+std::vector<common::IoInterface> AudioManager::ioCaps()
 {
     m_outputDeviceMap.clear();
 
@@ -126,17 +133,17 @@ std::vector<common::IoInterface> Controller::ioCaps()
     return ioCaps;
 }
 
-std::vector<common::IoInterface> Controller::ioConf() const
+std::vector<common::IoInterface> AudioManager::ioConf() const
 {
     return { m_input, m_output };
 }
 
-void Controller::setInput(const common::IoInterface& interface)
+void AudioManager::setInput(const common::IoInterface& interface)
 {
     m_input = interface;
 }
 
-void Controller::setOutput(const common::IoInterface& interface)
+void AudioManager::setOutput(const common::IoInterface& interface)
 {
     m_output = interface;
     // Find all devices of interface type
@@ -155,18 +162,18 @@ void Controller::setOutput(const common::IoInterface& interface)
     m_coroPipeline->setOutputDevice(it->second);
 }
 
-void Controller::timerEvent(QTimerEvent* event)
+void AudioManager::timerEvent(QTimerEvent* event)
 {
     coro::core::Mainloop::instance().poll();
 }
 
-void Controller::setTransport(int fd, uint16_t blockSize, int rate)
+void AudioManager::setTransport(int fd, uint16_t blockSize, int rate)
 {
     LOG_F(INFO, "set transport> fd: %d, blocksize: %d, rate: %d", fd, blockSize, rate);
     m_coroPipeline->setFileDescriptor(fd, blockSize);
 }
 
-void Controller::setVolume(float volume)
+void AudioManager::setVolume(float volume)
 {
     m_coroPipeline->setVolume(volume);
 }

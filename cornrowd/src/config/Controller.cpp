@@ -19,7 +19,7 @@
 
 #include "Persistence.h"
 
-#include "../audio/Controller.h"
+#include "../audio/AudioManager.h"
 #include "../bluetooth/Controller.h"
 
 #include <loguru/loguru.hpp>
@@ -32,7 +32,7 @@ using namespace std::placeholders;
 namespace config
 {
 
-Controller::Controller(audio::Controller* audio,
+Controller::Controller(audio::AudioManager* audio,
                        bluetooth::Controller* bluetooth,
                        QtZeroProps::QZeroPropsService* zpService,
                        QObject* parent)
@@ -55,8 +55,8 @@ Controller::Controller(audio::Controller* audio,
     m_audio->setFilters(common::ble::CharacteristicType::Peq, peqFilters);
     m_audio->setFilters(common::ble::CharacteristicType::Aux, auxFilters);
 
-    m_bluetooth->setReadFiltersCallback(std::bind(&audio::Controller::filters, m_audio, _1));
-    connect(m_bluetooth, &bluetooth::Controller::filtersWritten, m_audio, &audio::Controller::setFilters);
+    m_bluetooth->setReadFiltersCallback(std::bind(&audio::AudioManager::filters, m_audio, _1));
+    connect(m_bluetooth, &bluetooth::Controller::filtersWritten, m_audio, &audio::AudioManager::setFilters);
 
     m_zpService->setProperty(QUuid(common::ble::peqCharacteristicUuid.c_str()), m_converter.filtersToBle(peqFilters));
     m_zpService->setProperty(QUuid(common::ble::auxCharacteristicUuid.c_str()), m_converter.filtersToBle(auxFilters));
@@ -73,10 +73,10 @@ Controller::Controller(audio::Controller* audio,
         }
     });
 
-    m_bluetooth->setReadIoCapsCallback(std::bind(&audio::Controller::ioCaps, m_audio));
-    m_bluetooth->setReadIoConfCallback(std::bind(&audio::Controller::ioConf, m_audio));
-    connect(m_bluetooth, &bluetooth::Controller::inputSet, m_audio, &audio::Controller::setInput);
-    connect(m_bluetooth, &bluetooth::Controller::outputSet, m_audio, &audio::Controller::setOutput);
+    m_bluetooth->setReadIoCapsCallback(std::bind(&audio::AudioManager::ioCaps, m_audio));
+    m_bluetooth->setReadIoConfCallback(std::bind(&audio::AudioManager::ioConf, m_audio));
+    connect(m_bluetooth, &bluetooth::Controller::inputSet, m_audio, &audio::AudioManager::setInput);
+    connect(m_bluetooth, &bluetooth::Controller::outputSet, m_audio, &audio::AudioManager::setOutput);
 }
 
 Controller::~Controller()

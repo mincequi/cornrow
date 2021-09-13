@@ -29,13 +29,13 @@ class CoroPipeline;
 namespace audio
 {
 
-class Controller : public QObject, public common::IAudioConf
+class AudioManager : public QObject, public common::IAudioConf
 {
     Q_OBJECT
 
 public:
-    explicit Controller(QObject* parent = nullptr);
-    ~Controller();
+    explicit AudioManager(QObject* parent = nullptr);
+    ~AudioManager();
 
     void setTransport(int fd, uint16_t blockSize, int rate);
 

@@ -64,7 +64,19 @@ Controller::Controller(QObject *parent)
     InitManagerJob* initJob = m_manager->init();
     initJob->exec();
     if (initJob->error()) {
-        LOG_F(WARNING, "Error initializing bluetooth manager: %s", initJob->errorText().toStdString().c_str());
+        LOG_F(WARNING, "Bluetooth manager failed to initialize: %s", initJob->errorText().toStdString().c_str());
+        return;
+    }
+
+    // Check for useableAdapter
+    if (!m_manager->usableAdapter()) {
+        LOG_F(WARNING, "Bluetooth adapter not found");
+        return;
+    }
+
+    // Check for media interface
+    if (!m_manager->usableAdapter()->media()) {
+        LOG_F(WARNING, "Bluetooth adapter does not offer media interface: %s", m_manager->usableAdapter()->name().toStdString().c_str());
         return;
     }
 

@@ -28,6 +28,7 @@
 #include <coro/core/AppSource.h>
 #include <coro/core/FdSource.h>
 #include <coro/core/SourceSelector.h>
+#include <coro/core/TcpClientSink.h>
 #include <coro/rtp/RtpDecoder.h>
 
 #include <common/Types.h>
@@ -42,10 +43,9 @@ class PiHdmiAudioSink;
 } // namespace pi
 } // namespace coro
 
-class CoroPipeline
-{
+class CoroPipeline {
 public:
-    explicit CoroPipeline();
+    explicit CoroPipeline(const coro::core::TcpClientSink::Config& tcpConfig = coro::core::TcpClientSink::Config());
     ~CoroPipeline();
 
     void setFileDescriptor(int fd, uint16_t blockSize);
@@ -83,7 +83,9 @@ private:
     coro::audio::Loudness*  m_loudness  = nullptr;
     coro::audio::Crossover  m_crossover;
     coro::audio::AudioEncoderFfmpeg m_ac3Encoder;
+    coro::audio::AudioEncoderFfmpeg m_wavEncoder;
     coro::audio::AlsaSink   m_alsaSink;
+    coro::core::TcpClientSink m_tcpSink;
     coro::pi::PiHdmiAudioSink*  m_piHdmiSink = nullptr;
 
     coro::core::SourceSelector m_sourceSelector;

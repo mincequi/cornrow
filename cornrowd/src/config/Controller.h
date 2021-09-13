@@ -24,7 +24,7 @@
 #include <common/ble/Converter.h>
 
 namespace audio {
-class Controller;
+class AudioManager;
 }
 
 namespace bluetooth {
@@ -42,7 +42,7 @@ class Controller : public QObject
     Q_OBJECT
 
 public:
-    explicit Controller(audio::Controller* audio,
+    explicit Controller(audio::AudioManager* audio,
                         bluetooth::Controller* bluetooth,
                         QtZeroProps::QZeroPropsService* zpService,
                         QObject* parent = nullptr);
@@ -51,7 +51,7 @@ public:
     void writeConfig();
 
 private:
-    audio::Controller* m_audio = nullptr;
+    audio::AudioManager* m_audio = nullptr;
     bluetooth::Controller* m_bluetooth = nullptr;
     QtZeroProps::QZeroPropsService* m_zpService = nullptr;
 

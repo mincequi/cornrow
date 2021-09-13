@@ -1,5 +1,7 @@
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLOGURU_WITH_STREAMS")
+
 add_library(audio STATIC
-    Controller.cpp
+    AudioManager.cpp
     Converter.cpp
     CoroPipeline.cpp
 )

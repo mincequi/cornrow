@@ -27,10 +27,11 @@
 using namespace std::placeholders;
 using namespace coro::core;
 
-CoroPipeline::CoroPipeline() :
+CoroPipeline::CoroPipeline(const coro::core::TcpClientSink::Config& tcpConfig) :
     m_airplaySource( { "myAirplay" } ),
-    m_ac3Encoder(coro::audio::AudioCodec::Ac3)
-{
+    m_ac3Encoder(coro::audio::AudioCodec::Ac3),
+    m_wavEncoder(coro::audio::AudioCodec::Wav),
+    m_tcpSink(tcpConfig) {
     m_loudness = new coro::audio::Loudness();
     m_peq = new coro::audio::Peq();
 
@@ -58,6 +59,10 @@ CoroPipeline::CoroPipeline() :
     if (m_piHdmiSink) {
         Node::link(m_crossover, m_floatToInt);
         Node::link(m_floatToInt, *m_piHdmiSink);
+    } else if (!tcpConfig.host.empty() && tcpConfig.port != 0) {
+        Node::link(m_crossover, m_floatToInt);
+        Node::link(m_floatToInt, m_wavEncoder);
+        Node::link(m_wavEncoder, m_tcpSink);
     } else {
         Node::link(m_crossover, m_ac3Encoder);
         Node::link(m_ac3Encoder, m_floatToInt);
