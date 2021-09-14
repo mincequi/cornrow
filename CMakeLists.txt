@@ -14,9 +14,7 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} \
 set(CMAKE_CXX_STANDARD 17)
 #    -Werror \
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Network REQUIRED)
-find_package(Qt5WebSockets REQUIRED)
+find_package(Qt5 COMPONENTS Core Network WebSockets REQUIRED)
 
 # Add thirdparty libs
 add_subdirectory(thirdparty/libcornrow)
