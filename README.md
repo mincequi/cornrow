@@ -37,6 +37,7 @@ sudo apt install \
   libavahi-compat-libdnssd-dev \
   libavcodec-dev \
   libavutil-dev \
+  libboost-dev \
   libboost-system-dev \
   libsbc-dev \
   qtconnectivity5-dev \
