@@ -1,2 +1,3 @@
 # TODO: had to comment this when removing rpi package
 # debian/tmp/usr/bin/cornrowd usr/bin
+cornrowd/etc/cornrowd.conf /etc

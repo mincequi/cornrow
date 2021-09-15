@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
 
     QCoreApplication a(argc, argv);
     QCoreApplication::setApplicationName("cornrowd");
-    QCoreApplication::setApplicationVersion("0.7.0");
+    QCoreApplication::setApplicationVersion("0.8.0");
 
     // Parse command line options
     QCommandLineParser parser;
@@ -80,6 +80,7 @@ int main(int argc, char **argv) {
 
     // Command line config
     Config config(configFile);
+    config.parse();
 
     // suppress some qt bluetooth warnings
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth.bluez.warning=false"));
