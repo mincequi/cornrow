@@ -27,6 +27,7 @@ Consider downloading the release tarballs. Master might be broken from time to t
 ### For Debian users
 ```
 sudo apt install \
+  bluez \
   debhelper \
   fakeroot \
   libtool \
