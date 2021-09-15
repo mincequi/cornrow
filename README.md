@@ -1,10 +1,8 @@
 # Cornrow
 
-Cornrow is an audio sink daemon designed for low-powered boards like the Raspberry Pi. It accepts bluetooth audio sources and transforms your computer into a bluetooth speaker.
+Cornrow is an audio sink daemon designed for low-powered boards like the Raspberry Pi. It accepts bluetooth and airplay.
 
-It is made for Debian based environments and compatible with Ubuntu 18.04 Bionic and Debian Stretch (and later). This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
-
-I am willing to provide an easy out-of-the-box solution for anyone. So, your experience with this little daemon is very appreciated. Please leave your comments and issues using it. Thanks a lot.
+It is made for Debian based environments and compatible with Ubuntu 18.04 Bionic and Debian Buster (and later). This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
 
 The daemon has a built-in equalizer which can be remote controlled via this app:
 [corocomo](https://play.google.com/store/apps/details?id=org.cornrow.corocomo)
@@ -14,9 +12,7 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 
 ## Installation (binary)
 Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd_0.7.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0_amd64.deb).
-Also a special version for Raspberry Pi exists [rpi-armhf](https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd-rpi_0.7.0_armhf.deb), which supports multichannel audio output via HDMI.
 
-Get dependencies first
 ```
 sudo apt update
 sudo apt install ./cornrowd__<version>_<your_arch>.deb
@@ -31,8 +27,11 @@ Consider downloading the release tarballs. Master might be broken from time to t
 ### For Debian users
 ```
 sudo apt install \
-  debhelper libtool \
-  cmake extra-cmake-modules \
+  debhelper \
+  fakeroot \
+  libtool \
+  cmake \
+  extra-cmake-modules \
   libasio-dev \
   libasound2-dev \
   libavahi-compat-libdnssd-dev \
@@ -41,7 +40,7 @@ sudo apt install \
   libboost-system-dev \
   libsbc-dev \
   qtconnectivity5-dev \
-  libqt5websockets5-dev # get dependecies
+  libqt5websockets5-dev
 wget https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd_0.7.0.tar.gz
 tar xf cornrowd_0.7.0.tar.gz
 cd cornrowd
@@ -85,6 +84,3 @@ Commit | Date | Working
 
 #### UART issues
 A lot of Bluetooth packets seem to be dropped when CPU usage is **low**. As soon as the system is put under load, bluetooth packet reception is a **lot** better. This seems to be related to core frequency scaling (https://www.raspberrypi.org/documentation/configuration/uart.md).
-
-#### GCC-9
-Currently, this does not compile with GCC9 and higher.
