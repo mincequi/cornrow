@@ -5,8 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace common
-{
+namespace common {
 
 extern const std::set<int> validSampleRates;
 

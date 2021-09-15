@@ -25,13 +25,13 @@
 #include "Converter.h"
 
 using namespace std::placeholders;
+using namespace coro::airplay;
 using namespace coro::core;
 
-CoroPipeline::CoroPipeline(const coro::core::TcpClientSink::Config& tcpConfig) :
-    m_airplaySource( { "myAirplay" } ),
+CoroPipeline::CoroPipeline(const Config& config) :
     m_ac3Encoder(coro::audio::AudioCodec::Ac3),
-    m_wavEncoder(coro::audio::AudioCodec::Wav),
-    m_tcpSink(tcpConfig) {
+    //m_wavEncoder(coro::audio::AudioCodec::Wav),
+    m_tcpSink(config.tcpConfig ? *config.tcpConfig : TcpClientSink::Config()) {
     m_loudness = new coro::audio::Loudness();
     m_peq = new coro::audio::Peq();
 
@@ -42,7 +42,11 @@ CoroPipeline::CoroPipeline(const coro::core::TcpClientSink::Config& tcpConfig) :
     //m_alsaSink.setDevice("iec958:CARD=sndrpihifiberry,DEV=0");
 
     // Airplay nodes
-    Node::link(m_airplaySource, m_intToFloat);
+    if (config.airplayConfig) {
+        m_airplaySource.emplace(*config.airplayConfig);
+        Node::link(*m_airplaySource, m_intToFloat);
+        m_sourceSelector.addSource(*m_airplaySource);
+    }
 
     // Bluetooth nodes
     Node::link(m_fdSource, m_rtpDecoder);
@@ -59,67 +63,56 @@ CoroPipeline::CoroPipeline(const coro::core::TcpClientSink::Config& tcpConfig) :
     if (m_piHdmiSink) {
         Node::link(m_crossover, m_floatToInt);
         Node::link(m_floatToInt, *m_piHdmiSink);
-    } else if (!tcpConfig.host.empty() && tcpConfig.port != 0) {
+    } else if (config.tcpConfig) {
         Node::link(m_crossover, m_floatToInt);
-        Node::link(m_floatToInt, m_wavEncoder);
-        Node::link(m_wavEncoder, m_tcpSink);
+        Node::link(m_floatToInt, m_tcpSink);
     } else {
         Node::link(m_crossover, m_ac3Encoder);
         Node::link(m_ac3Encoder, m_floatToInt);
         Node::link(m_floatToInt, m_alsaSink);
     }
 
-    m_sourceSelector.addSource(m_airplaySource);
     m_sourceSelector.addSource(m_fdSource);
 }
 
-CoroPipeline::~CoroPipeline()
-{
+CoroPipeline::~CoroPipeline() {
     delete m_peq;
     delete m_loudness;
 }
 
-void CoroPipeline::setFileDescriptor(int fd, uint16_t blockSize)
-{
+void CoroPipeline::setFileDescriptor(int fd, uint16_t blockSize) {
     m_fdSource.init(fd, blockSize);
 }
 
-void CoroPipeline::setVolume(float volume)
-{
+void CoroPipeline::setVolume(float volume) {
     m_loudness->setVolume(volume);
 }
 
-void CoroPipeline::setLoudness(uint8_t phon)
-{
+void CoroPipeline::setLoudness(uint8_t phon) {
     m_loudness->setLevel(phon);
 }
 
-void CoroPipeline::setPeq(const std::vector<common::Filter>& filters)
-{
+void CoroPipeline::setPeq(const std::vector<common::Filter>& filters) {
     m_peq->setFilters(::audio::toCoro(filters));
 }
 
-void CoroPipeline::setCrossover(const common::Filter& filter)
-{
+void CoroPipeline::setCrossover(const common::Filter& filter) {
     auto crossover = ::audio::toCoro({filter}).front();
     m_crossover.setFilter(crossover);
     m_ac3Encoder.setIsBypassed(!crossover.isValid());
     m_floatToInt.setIsBypassed(crossover.isValid() && !m_piHdmiSink);
 }
 
-void CoroPipeline::setOutputDevice(const std::string& device)
-{
+void CoroPipeline::setOutputDevice(const std::string& device) {
     m_alsaSink.setDevice(device);
 }
 
-bool CoroPipeline::hasPiHdmiOutput() const
-{
+bool CoroPipeline::hasPiHdmiOutput() const {
     return m_piHdmiSink != nullptr;
 }
 
 /*
-common::Filter CoroPipeline::crossover() const
-{
+common::Filter CoroPipeline::crossover() const {
     common::Filter crossover;
     crossover.type = m_crossover->frequency() == 0.0f ? common::FilterType::Invalid : common::FilterType::Crossover;
     crossover.f = m_crossover->frequency();

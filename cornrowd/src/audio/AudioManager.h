@@ -24,17 +24,15 @@
 
 #include <QObject>
 
-class CoroPipeline;
+#include "CoroPipeline.h"
 
-namespace audio
-{
+namespace audio {
 
-class AudioManager : public QObject, public common::IAudioConf
-{
+class AudioManager : public QObject, public common::IAudioConf {
     Q_OBJECT
 
 public:
-    explicit AudioManager(QObject* parent = nullptr);
+    explicit AudioManager(const CoroPipeline::Config& config, QObject* parent = nullptr);
     ~AudioManager();
 
     void setTransport(int fd, uint16_t blockSize, int rate);

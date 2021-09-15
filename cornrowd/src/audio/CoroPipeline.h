@@ -24,6 +24,7 @@
 #include <coro/audio/Crossover.h>
 #include <coro/audio/SbcDecoder.h>
 #include <coro/audio/ScreamSource.h>
+#include <coro/bluetooth/BluetoothSource.h>
 #include <coro/core/AppSink.h>
 #include <coro/core/AppSource.h>
 #include <coro/core/FdSource.h>
@@ -32,6 +33,8 @@
 #include <coro/rtp/RtpDecoder.h>
 
 #include <common/Types.h>
+
+#include <optional>
 
 namespace coro {
 namespace audio {
@@ -45,7 +48,13 @@ class PiHdmiAudioSink;
 
 class CoroPipeline {
 public:
-    explicit CoroPipeline(const coro::core::TcpClientSink::Config& tcpConfig = coro::core::TcpClientSink::Config());
+    struct Config {
+        std::optional<coro::bluetooth::BluetoothSource::Config> bluetoothConfig;
+        std::optional<coro::airplay::AirplaySource::Config> airplayConfig;
+        std::optional<coro::core::TcpClientSink::Config> tcpConfig;
+    };
+
+    explicit CoroPipeline(const Config& config);
     ~CoroPipeline();
 
     void setFileDescriptor(int fd, uint16_t blockSize);
@@ -67,7 +76,7 @@ public:
 
 private:
     // Airplay nodes
-    coro::airplay::AirplaySource m_airplaySource;
+    std::optional<coro::airplay::AirplaySource> m_airplaySource;
 
     // Bluetooth nodes
     coro::core::FdSource    m_fdSource;
@@ -83,7 +92,7 @@ private:
     coro::audio::Loudness*  m_loudness  = nullptr;
     coro::audio::Crossover  m_crossover;
     coro::audio::AudioEncoderFfmpeg m_ac3Encoder;
-    coro::audio::AudioEncoderFfmpeg m_wavEncoder;
+    //coro::audio::AudioEncoderFfmpeg m_wavEncoder;
     coro::audio::AlsaSink   m_alsaSink;
     coro::core::TcpClientSink m_tcpSink;
     coro::pi::PiHdmiAudioSink*  m_piHdmiSink = nullptr;

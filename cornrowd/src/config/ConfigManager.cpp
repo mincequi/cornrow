@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Controller.h"
+#include "ConfigManager.h"
 
 #include "Persistence.h"
 
@@ -29,18 +29,16 @@
 
 using namespace std::placeholders;
 
-namespace config
-{
+namespace config {
 
-Controller::Controller(audio::AudioManager* audio,
-                       bluetooth::Controller* bluetooth,
-                       QtZeroProps::QZeroPropsService* zpService,
-                       QObject* parent)
+ConfigManager::ConfigManager(audio::AudioManager* audio,
+                             bluetooth::Controller* bluetooth,
+                             QtZeroProps::QZeroPropsService* zpService,
+                             QObject* parent)
     : QObject(parent),
       m_audio(audio),
       m_bluetooth(bluetooth),
-      m_zpService(zpService)
-{
+      m_zpService(zpService) {
     // On start-up we read config from disk
     std::vector<common::Filter> filters = m_persistence.readConfig();
     std::vector<common::Filter> peqFilters, auxFilters;
@@ -79,11 +77,11 @@ Controller::Controller(audio::AudioManager* audio,
     connect(m_bluetooth, &bluetooth::Controller::outputSet, m_audio, &audio::AudioManager::setOutput);
 }
 
-Controller::~Controller()
+ConfigManager::~ConfigManager()
 {
 }
 
-void Controller::writeConfig()
+void ConfigManager::writeConfig()
 {
     // If connection is closed, we write config to disk
     auto peqFilters = m_audio->filters(common::ble::CharacteristicType::Peq);

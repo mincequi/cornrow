@@ -2,20 +2,20 @@
 
 #include <QObject>
 
+#include "Config.h"
 #include "audio/AudioManager.h"
 #include "bluetooth/Controller.h"
-#include "config/Controller.h"
+#include "config/ConfigManager.h"
 
 namespace QtZeroProps {
 class QZeroPropsServer;
 }
 
-class Controller : public QObject
-{
+class Controller : public QObject {
     Q_OBJECT
 
 public:
-    Controller(QObject* parent = nullptr);
+    Controller(const Config& config, QObject* parent = nullptr);
     ~Controller();
 
 private:
@@ -27,5 +27,5 @@ private:
     bluetooth::Controller*  m_bluetoothService;
     QtZeroProps::QZeroPropsServer* m_zpServer;
     QtZeroProps::QZeroPropsService* m_zpService;
-    config::Controller*     m_config;
+    config::ConfigManager*     m_config;
 };

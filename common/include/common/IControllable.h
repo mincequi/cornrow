@@ -2,11 +2,9 @@
 
 #include <common/Types.h>
 
-namespace common
-{
+namespace common {
 
-class IControllable
-{
+class IControllable {
 public:
     virtual ~IControllable() {}
 

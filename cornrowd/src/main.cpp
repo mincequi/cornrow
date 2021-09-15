@@ -23,20 +23,18 @@
 
 #include <loguru/loguru.hpp>
 
+#include "Config.h"
 #include "Controller.h"
 
-struct SignalHandler
-{
-    SignalHandler()
-    {
+struct SignalHandler {
+    SignalHandler() {
         signal(SIGINT, &QCoreApplication::exit);
         signal(SIGTERM, &QCoreApplication::exit);
         signal(SIGSTOP, &QCoreApplication::exit);
     }
 };
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     /* Everything with a verbosity equal or greater than g_stderr_verbosity will be
     written to stderr. You can set this in code or via the -v argument.
     Set to loguru::Verbosity_OFF to write nothing to stderr.
@@ -62,23 +60,31 @@ int main(int argc, char **argv)
 
     loguru::init(argc, argv);
 
+    SignalHandler signalHandler;
+
     QCoreApplication a(argc, argv);
     QCoreApplication::setApplicationName("cornrowd");
     QCoreApplication::setApplicationVersion("0.7.0");
 
-    // command line options
+    // Parse command line options
     QCommandLineParser parser;
     parser.setApplicationDescription("cornrowd is a software DSP service with Bluetooth audio sink and Bluetooth LE control capabilities.");
     parser.addVersionOption();
     parser.addHelpOption();
+    QCommandLineOption configFileOption({"c", "config"},
+                                        "Set configuration file to <file>.",
+                                        "file");
+    parser.addOption(configFileOption);
     parser.process(a);
+    const auto configFile = parser.value(configFileOption).toStdString();
+
+    // Command line config
+    Config config(configFile);
 
     // suppress some qt bluetooth warnings
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth.bluez.warning=false"));
 
-    SignalHandler signalHandler;
-
-    new Controller(&a);
+    new Controller(config, &a);
 
     return a.exec();
 }

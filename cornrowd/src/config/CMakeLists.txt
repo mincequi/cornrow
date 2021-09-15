@@ -1,5 +1,5 @@
 add_library(config STATIC
-    Controller.cpp
+    ConfigManager.cpp
     Persistence.cpp
 )
 

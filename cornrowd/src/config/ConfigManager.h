@@ -23,6 +23,8 @@
 
 #include <common/ble/Converter.h>
 
+class QCommandLineParser;
+
 namespace audio {
 class AudioManager;
 }
@@ -37,16 +39,15 @@ class QZeroPropsService;
 
 namespace config {
 
-class Controller : public QObject
-{
+class ConfigManager : public QObject {
     Q_OBJECT
 
 public:
-    explicit Controller(audio::AudioManager* audio,
-                        bluetooth::Controller* bluetooth,
-                        QtZeroProps::QZeroPropsService* zpService,
-                        QObject* parent = nullptr);
-    ~Controller();
+    explicit ConfigManager(audio::AudioManager* audio,
+                           bluetooth::Controller* bluetooth,
+                           QtZeroProps::QZeroPropsService* zpService,
+                           QObject* parent = nullptr);
+    ~ConfigManager();
 
     void writeConfig();
 

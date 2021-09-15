@@ -32,10 +32,10 @@
 
 namespace audio {
 
-AudioManager::AudioManager(QObject *parent)
+AudioManager::AudioManager(const CoroPipeline::Config& config, QObject* parent)
     : QObject(parent)
 {
-    m_coroPipeline = new CoroPipeline();
+    m_coroPipeline = new CoroPipeline(config);
 
     // Print ALSA devices
     auto devices = m_alsaUtil.outputDevices();

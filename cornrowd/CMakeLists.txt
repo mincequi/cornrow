@@ -10,6 +10,7 @@ add_subdirectory(src/config)
 add_subdirectory(tests)
 
 add_executable(${PROJECT_NAME}
+    src/Config.cpp
     src/Controller.cpp
     src/main.cpp
 )

@@ -3,11 +3,9 @@
 #include <common/Types.h>
 #include <common/ble/Types.h>
 
-namespace common
-{
+namespace common {
 
-class IAudioConf
-{
+class IAudioConf {
 public:
     virtual ~IAudioConf() {}
 

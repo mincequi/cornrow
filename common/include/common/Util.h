@@ -2,8 +2,7 @@
 
 #include "Types.h"
 
-namespace common
-{
+namespace common {
 
 bool computeBiQuad(int r, const Filter& filter, BiQuad* biquad);
 
