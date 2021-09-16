@@ -65,6 +65,22 @@ cmake ..
 make
 ```
 
+## Configuration
+Cornrow can be configured via a configuration file `/etc/cornrowd.conf`. There are some options for inputs and outputs.
+
+### Snapcast integration
+There is a 'tcp_sink' option in cornrow to send audio to a snapcast server (which acts as a TCP server).
+Add the following lines to your `/etc/cornrowd.conf`:
+```sh
+[tcp_sink]
+host = "127.0.0.1" # the host you want to stream to
+port = 4953 # the port your host is listening on
+```
+And this to your snapcast configuration:
+```sh
+tcp://<listen IP, e.g. 127.0.0.1>:<port>?name=<name>[&mode=server]&sampleformat=44100:16:2
+```
+
 ## Donations
 Cornrow is free to use and developed during personal free time. If you like it and/or have a feature request, consider a donation. If you click on the button below, you will be taken to the secure PayPal Web site. You don't need to have a paypal account in order to make a donation.
 
