@@ -33,6 +33,7 @@ sudo apt install \
   libtool \
   cmake \
   extra-cmake-modules \
+  portaudio19-dev \
   libasio-dev \
   libasound2-dev \
   libavahi-compat-libdnssd-dev \
