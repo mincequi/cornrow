@@ -19,7 +19,6 @@
 
 #include <common/IAudioConf.h>
 #include <common/ble/Types.h>
-#include <coro/audio/AlsaUtil.h>
 #include <coro/core/FdSource.h>
 
 #include <QObject>
@@ -58,7 +57,6 @@ private:
 
     std::map<common::ble::CharacteristicType, std::vector<common::Filter>> m_filters;
 
-    coro::AlsaUtil m_alsaUtil;
     std::multimap<common::IoInterfaceType, std::string> m_outputDeviceMap;
 
     common::IoInterface m_input;

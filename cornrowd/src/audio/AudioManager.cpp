@@ -38,11 +38,11 @@ AudioManager::AudioManager(const CoroPipeline::Config& config, QObject* parent)
     m_coroPipeline = new CoroPipeline(config);
 
     // Print ALSA devices
-    auto devices = m_alsaUtil.outputDevices();
-    for (auto& dev : devices) {
-        LOG_S(INFO) << "ALSA device found: " << dev;
-    }
-    LOG_IF_S(INFO, devices.empty()) << "No ALSA device found";
+	//auto devices = m_alsaUtil.outputDevices();
+	//for (auto& dev : devices) {
+	//    LOG_S(INFO) << "ALSA device found: " << dev;
+	//}
+	//LOG_IF_S(INFO, devices.empty()) << "No ALSA device found";
 
     startTimer(1);
 }
@@ -100,22 +100,22 @@ std::vector<common::IoInterface> AudioManager::ioCaps()
     m_outputDeviceMap.clear();
 
     // Populate output device map (IoInterface struct to string).
-    auto devices = m_alsaUtil.outputDevices();
-    for (const auto& d : devices) {
-        switch (d.type) {
-        case coro::AudioDeviceType::Default:
-            m_outputDeviceMap.insert( { common::IoInterfaceType::Default, d.name } );
-            break;
-        case coro::AudioDeviceType::Spdif:
-            m_outputDeviceMap.insert( { common::IoInterfaceType::Spdif, d.name } );
-            break;
-        case coro::AudioDeviceType::Hdmi:
-            m_outputDeviceMap.insert( { common::IoInterfaceType::Hdmi, d.name } );
-            break;
-        default:
-            break;
-        }
-    }
+	//auto devices = m_alsaUtil.outputDevices();
+	//for (const auto& d : devices) {
+	//    switch (d.type) {
+	//    case coro::AudioDeviceType::Default:
+	//        m_outputDeviceMap.insert( { common::IoInterfaceType::Default, d.name } );
+	//        break;
+	//    case coro::AudioDeviceType::Spdif:
+	//        m_outputDeviceMap.insert( { common::IoInterfaceType::Spdif, d.name } );
+	//        break;
+	//    case coro::AudioDeviceType::Hdmi:
+	//        m_outputDeviceMap.insert( { common::IoInterfaceType::Hdmi, d.name } );
+	//        break;
+	//    default:
+	//        break;
+	//    }
+	//}
 
     if (m_coroPipeline->hasPiHdmiOutput()) {
         m_outputDeviceMap.insert( { common::IoInterfaceType::Hdmi, "Raspberry Pi HDMI" } );
