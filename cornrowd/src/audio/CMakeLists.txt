@@ -7,6 +7,7 @@ add_library(audio STATIC
 )
 
 target_link_libraries(audio
+PUBLIC
     common
     cornrow
     Qt5::Core
