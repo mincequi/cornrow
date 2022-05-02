@@ -2,7 +2,9 @@
 
 Cornrow is an audio sink daemon for Bluetooth and Airplay streams. It is designed for low-powered boards like the Raspberry Pi, but can also be used for SBCs/VMs with a Bluetooth dongle instead of a built-in module (first Bluetooth adapter found will be used).
 
-It is made for Debian based environments and compatible with Ubuntu 18.04 Bionic and Debian Buster (and later). This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
+It is made for Debian based environments and compatible with Ubuntu and Debian. This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
+**Note:** for Debian Buster and Ubuntu Bionic (18.04) please use cornrow **v0.8.0**.
+for Debian Bullseye and Ubuntu Focal (20.04) and later, please use cornrow **v0.8.1**.
 
 The daemon has a built-in equalizer which can be remote controlled via this app:
 [corocomo](https://play.google.com/store/apps/details?id=org.cornrow.corocomo)
