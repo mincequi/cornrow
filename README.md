@@ -39,6 +39,7 @@ sudo apt install \
   libasio-dev \
   libasound2-dev \
   libavahi-compat-libdnssd-dev \
+  libavahi-core-dev \
   libavcodec-dev \
   libavutil-dev \
   libboost-dev \
@@ -46,12 +47,12 @@ sudo apt install \
   libsbc-dev \
   qtconnectivity5-dev \
   libqt5websockets5-dev
-wget https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd_0.7.0.tar.gz
-tar xf cornrowd_0.7.0.tar.gz
-cd cornrowd
+wget https://github.com/mincequi/cornrow/releases/download/v0.8.1/cornrowd_0.8.1.tar.xz
+tar xf cornrowd_0.8.1.tar.xz
+cd cornrow
 dpkg-buildpackage -us -uc -nc                       # build unsigned debian package
 cd ..
-sudo apt install ./cornrowd_0.7.0_<your_arch>.deb  # install package
+sudo apt install ./cornrowd_0.8.1_<your_arch>.deb  # install package
 sudo systemctl unmask cornrowd.service              # unmask service
 sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
 sudo systemctl enable cornrowd.service              # start-up service on each reboot.
