@@ -13,11 +13,12 @@ The daemon has a built-in equalizer which can be remote controlled via this app:
 
 
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.7.0/cornrowd_0.7.0_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.8.1/cornrowd_0.8.1_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0_amd64.deb).
 
 ```
+wget https://github.com/mincequi/cornrow/releases/download/v0.8.1/cornrowd_0.8.1_armhf.deb
 sudo apt update
-sudo apt install ./cornrowd__<version>_<your_arch>.deb
+sudo apt install ./cornrowd_0.8.1_armhf.deb
 sudo systemctl unmask cornrowd.service              # unmask service
 sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
 sudo systemctl enable cornrowd.service              # start-up service on each reboot.
