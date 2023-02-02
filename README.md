@@ -31,6 +31,7 @@ Consider downloading the release tarballs. Master might be broken from time to t
 ```
 sudo apt install \
   bluez \
+  build-essential \
   debhelper \
   fakeroot \
   libtool \
@@ -46,6 +47,7 @@ sudo apt install \
   libboost-dev \
   libboost-system-dev \
   libsbc-dev \
+  libssl-dev \
   qtconnectivity5-dev \
   libqt5websockets5-dev
 wget https://github.com/mincequi/cornrow/releases/download/v0.8.1/cornrowd_0.8.1.tar.xz
