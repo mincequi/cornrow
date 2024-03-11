@@ -23,7 +23,7 @@
 #include "../bluetooth/Controller.h"
 
 #include <loguru/loguru.hpp>
-#include <QtZeroProps/QZeroPropsService.h>
+//#include <QtZeroProps/QZeroPropsService.h>
 
 #include <QUuid>
 
@@ -33,12 +33,12 @@ namespace config {
 
 ConfigManager::ConfigManager(audio::AudioManager* audio,
                              bluetooth::Controller* bluetooth,
-                             QtZeroProps::QZeroPropsService* zpService,
+                             //QtZeroProps::QZeroPropsService* zpService,
                              QObject* parent)
     : QObject(parent),
       m_audio(audio),
-      m_bluetooth(bluetooth),
-      m_zpService(zpService) {
+      m_bluetooth(bluetooth)
+      /*m_zpService(zpService)*/ {
     // On start-up we read config from disk
     std::vector<common::Filter> filters = m_persistence.readConfig();
     std::vector<common::Filter> peqFilters, auxFilters;
@@ -56,6 +56,7 @@ ConfigManager::ConfigManager(audio::AudioManager* audio,
     m_bluetooth->setReadFiltersCallback(std::bind(&audio::AudioManager::filters, m_audio, _1));
     connect(m_bluetooth, &bluetooth::Controller::filtersWritten, m_audio, &audio::AudioManager::setFilters);
 
+    /*
     m_zpService->setProperty(QUuid(common::ble::peqCharacteristicUuid.c_str()), m_converter.filtersToBle(peqFilters));
     m_zpService->setProperty(QUuid(common::ble::auxCharacteristicUuid.c_str()), m_converter.filtersToBle(auxFilters));
 
@@ -70,6 +71,7 @@ ConfigManager::ConfigManager(audio::AudioManager* audio,
             LOG_F(WARNING, "Unknown uuid: %s", name.toUuid().toByteArray().toStdString().c_str());
         }
     });
+    */
 
     m_bluetooth->setReadIoCapsCallback(std::bind(&audio::AudioManager::ioCaps, m_audio));
     m_bluetooth->setReadIoConfCallback(std::bind(&audio::AudioManager::ioConf, m_audio));

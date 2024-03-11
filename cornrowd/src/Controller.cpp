@@ -2,9 +2,9 @@
 
 #include "Config.h"
 #include "config/ConfigManager.h"
-#include <QtZeroProps/QZeroPropsServer.h>
-#include <QtZeroProps/QZeroPropsService.h>
-#include <QtZeroProps/QZeroPropsTypes.h>
+//#include <QtZeroProps/QZeroPropsServer.h>
+//#include <QtZeroProps/QZeroPropsService.h>
+//#include <QtZeroProps/QZeroPropsTypes.h>
 
 #include <QDBusObjectPath>
 
@@ -13,15 +13,15 @@ Controller::Controller(const Config& config, QObject *parent)
 {
     // Remote services
     m_bluetoothService = new bluetooth::Controller(this);
-    m_zpServer = new QtZeroProps::QZeroPropsServer(this);
-    m_zpService = m_zpServer->startService( { "_cornrow._tcp" } );
+    //m_zpServer = new QtZeroProps::QZeroPropsServer(this);
+    //m_zpService = m_zpServer->startService( { "_cornrow._tcp" } );
 
     m_audio = new audio::AudioManager(config.pipelineConfig(), this);
-    m_config = new config::ConfigManager(m_audio, m_bluetoothService, m_zpService, this);
+    m_config = new config::ConfigManager(m_audio, m_bluetoothService, /*m_zpService,*/ this);
 
     connect(m_bluetoothService, &bluetooth::Controller::transportChanged, this, &Controller::onTransportChanged);
     connect(m_bluetoothService, &bluetooth::Controller::volumeChanged, this, &Controller::onVolumeChanged);
-    connect(m_zpServer, &QtZeroProps::QZeroPropsServer::clientDisconnected, this, &Controller::onClientDisconnected);
+    //connect(m_zpServer, &QtZeroProps::QZeroPropsServer::clientDisconnected, this, &Controller::onClientDisconnected);
 }
 
 Controller::~Controller()

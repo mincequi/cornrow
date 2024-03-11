@@ -25,7 +25,7 @@ private:
 
     audio::AudioManager*      m_audio;
     bluetooth::Controller*  m_bluetoothService;
-    QtZeroProps::QZeroPropsServer* m_zpServer;
-    QtZeroProps::QZeroPropsService* m_zpService;
+    //QtZeroProps::QZeroPropsServer* m_zpServer;
+    //QtZeroProps::QZeroPropsService* m_zpService;
     config::ConfigManager*     m_config;
 };

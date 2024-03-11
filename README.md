@@ -4,21 +4,16 @@ Cornrow is an audio sink daemon for Bluetooth and Airplay streams. It is designe
 
 It is made for Debian based environments and compatible with Ubuntu and Debian. This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
 **Note:** for Debian Buster and Ubuntu Bionic (18.04) please use cornrow **v0.8.0**.
-for Debian Bullseye and Ubuntu Focal (20.04) and later, please use cornrow **v0.8.1**.
-
-The daemon has a built-in equalizer which can be remote controlled via this app:
-[corocomo](https://play.google.com/store/apps/details?id=org.cornrow.corocomo)
-![alt text](https://github.com/mincequi/cornrow/blob/master/data/screenshot_1.png)
-
-
+For Debian Bullseye and Ubuntu Focal (20.04) and later, please use cornrow **v0.8.1**.
+For Debian Bookworm and later, please use cornrow **v0.9.0**.
 
 ## Installation (binary)
 Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.8.1/cornrowd_0.8.1_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0_amd64.deb).
 
 ```
-wget https://github.com/mincequi/cornrow/releases/download/v0.8.1/cornrowd_0.8.1_armhf.deb
+wget https://github.com/mincequi/cornrow/releases/download/v0.9.0/cornrowd_0.9.0_armhf.deb
 sudo apt update
-sudo apt install ./cornrowd_0.8.1_armhf.deb
+sudo apt install ./cornrowd_0.9.0_armhf.deb
 sudo systemctl unmask cornrowd.service              # unmask service
 sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
 sudo systemctl enable cornrowd.service              # start-up service on each reboot.
@@ -36,8 +31,6 @@ sudo apt install \
   fakeroot \
   libtool \
   cmake \
-  extra-cmake-modules \
-  portaudio19-dev \
   libasio-dev \
   libasound2-dev \
   libavahi-compat-libdnssd-dev \

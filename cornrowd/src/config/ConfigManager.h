@@ -45,7 +45,7 @@ class ConfigManager : public QObject {
 public:
     explicit ConfigManager(audio::AudioManager* audio,
                            bluetooth::Controller* bluetooth,
-                           QtZeroProps::QZeroPropsService* zpService,
+                           //QtZeroProps::QZeroPropsService* zpService,
                            QObject* parent = nullptr);
     ~ConfigManager();
 
@@ -54,7 +54,7 @@ public:
 private:
     audio::AudioManager* m_audio = nullptr;
     bluetooth::Controller* m_bluetooth = nullptr;
-    QtZeroProps::QZeroPropsService* m_zpService = nullptr;
+    //QtZeroProps::QZeroPropsService* m_zpService = nullptr;
 
     Persistence m_persistence;
 
