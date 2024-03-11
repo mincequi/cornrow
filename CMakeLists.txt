@@ -14,11 +14,11 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} \
 set(CMAKE_CXX_STANDARD 17)
 #    -Werror \
 
-find_package(Qt5 COMPONENTS Core Network WebSockets REQUIRED)
+find_package(Qt5 REQUIRED COMPONENTS Core Network)
 
 # Add thirdparty libs
 add_subdirectory(thirdparty/libcornrow)
-add_subdirectory(thirdparty/qtzeroprops)
+#add_subdirectory(thirdparty/qtzeroprops)
 
 # Add internal libs
 add_subdirectory(common)
@@ -26,20 +26,10 @@ add_subdirectory(cornrowd)
 #add_subdirectory(net)
 #add_subdirectory(bluebricated)
 
-# Replace install() to do-nothing macro.
-macro(install)
-endmacro()
-add_subdirectory(thirdparty/bluez-qt)
-# Restore original install() behavior.
-# @TODO(mawe): restoring original install() does not work. So, add subdirs above this section, that have an install target.
-macro(install)
-    _install(${ARGN})
-endmacro()
-
 # Mandatory debian variables
 SET(CPACK_GENERATOR "DEB")
 SET(CPACK_PACKAGE_CONTACT   "mincequi@web.de")
-SET(CPACK_PACKAGE_VERSION   "0.1.0")
+SET(CPACK_PACKAGE_VERSION   "0.9.0")
 SET(CPACK_PACKAGE_DESCRIPTION "Bluetooth audio player")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "This daemon accepts and plays audio from any Bluetooth source and turns your linux PC into a Bluetooth speaker.")
 #CPACK_SYSTEM_NAME -> CMAKE_SYSTEM_NAME

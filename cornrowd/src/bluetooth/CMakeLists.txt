@@ -1,4 +1,5 @@
-find_package(Qt5Bluetooth REQUIRED)
+find_package(Qt5 REQUIRED DBus Bluetooth)
+find_package(KF5BluezQt)
 
 add_library(bluetooth STATIC
     AudioSinkAgent.cpp
@@ -8,7 +9,7 @@ add_library(bluetooth STATIC
 target_link_libraries(bluetooth
     common
     cornrow
-    KF5BluezQt
     Qt5::Bluetooth
     Qt5::DBus
+    KF5::BluezQt
 )

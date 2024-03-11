@@ -30,6 +30,7 @@ class QDBusObjectPath;
 
 namespace BluezQt
 {
+class GattApplication;
 class GattCharacteristic;
 class LEAdvertisement;
 }

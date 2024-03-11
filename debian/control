@@ -10,8 +10,6 @@ Build-Depends:
     libboost-dev,
     libtool,
     pkg-config,
-#bluezqt deps
-    extra-cmake-modules,
 #bluetooth le deps
     qtconnectivity5-dev (>= 5.7),
 Standards-Version: 3.9.8

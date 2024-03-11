@@ -1,9 +1,3 @@
 [submodule "thirdparty/libcornrow"]
 	path = thirdparty/libcornrow
 	url = https://github.com/mincequi/libcornrow
-[submodule "thirdparty/bluez-qt"]
-	path = thirdparty/bluez-qt
-	url = https://github.com/mincequi/bluez-qt.git
-[submodule "thirdparty/qtzeroprops"]
-	path = thirdparty/qtzeroprops
-	url = https://github.com/mincequi/qtzeroprops.git
