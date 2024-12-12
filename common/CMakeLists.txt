@@ -6,14 +6,10 @@ add_library(common STATIC
 
 target_include_directories(common
 PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 PRIVATE
     include/common
     include/common/ble
-)
-
-# @TODO(mawe): remove qt dependency
-target_link_libraries(common
-    Qt5::Core
 )

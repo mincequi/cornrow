@@ -96,8 +96,6 @@ Controller::Controller(QObject *parent)
         adapter->setDiscoverable(true);
         adapter->setPairable(true);
     }
-
-    initBle();
 }
 
 Controller::~Controller()
@@ -119,37 +117,6 @@ void Controller::setReadIoCapsCallback(ReadIoCapsCallback callback)
 void Controller::setReadIoConfCallback(ReadIoConfCallback callback)
 {
     m_readIoConfCallback = callback;
-}
-
-void Controller::initBle()
-{
-    if (!m_manager->usableAdapter() || !m_manager->usableAdapter()->leAdvertisingManager()) {
-        LOG_F(WARNING, "No BLE adapter present");
-        return;
-    }
-
-    m_advertisement = new LEAdvertisement({QStringLiteral("ad100000-d901-11e8-9f8b-f2801f1b9fd1")}, this);
-    m_manager->usableAdapter()->leAdvertisingManager()->registerAdvertisement(m_advertisement);
-
-    m_application = new GattApplication(this);
-    auto service = new GattService(QStringLiteral("ad100000-d901-11e8-9f8b-f2801f1b9fd1"), true, m_application);
-
-    auto peqCharc = new GattCharacteristic(QStringLiteral("ad10e100-d901-11e8-9f8b-f2801f1b9fd1"), service);
-    peqCharc->setReadCallback(std::bind(&Controller::onReadPeqFilters, this));
-    connect(peqCharc, &GattCharacteristic::valueWritten, std::bind(&Controller::onWriteFilters, this, common::ble::CharacteristicType::Peq, _1));
-
-    auto auxCharc = new GattCharacteristic(QStringLiteral("ad10a100-d901-11e8-9f8b-f2801f1b9fd1"), service);
-    auxCharc->setReadCallback(std::bind(&Controller::onReadAuxFilters, this));
-    connect(auxCharc, &GattCharacteristic::valueWritten, std::bind(&Controller::onWriteFilters, this, common::ble::CharacteristicType::Aux, _1));
-
-    auto ioCapsCharc = new GattCharacteristic(QString::fromStdString(common::ble::ioCapsCharacteristicUuid), service);
-    ioCapsCharc->setReadCallback(std::bind(&Controller::onReadIoCaps, this));
-
-    auto ioConfCharc = new GattCharacteristic(QString::fromStdString(common::ble::ioConfCharacteristicUuid), service);
-    ioConfCharc->setReadCallback(std::bind(&Controller::onReadIoConf, this));
-    connect(ioConfCharc, &GattCharacteristic::valueWritten, this, &Controller::onWriteIoConf);
-
-    m_manager->usableAdapter()->gattManager()->registerApplication(m_application);
 }
 
 void Controller::onTransportChanged(MediaTransportPtr transport)
@@ -213,50 +180,6 @@ void Controller::onTransportVolumeChanged(uint16_t volume)
     static const float factor = 4.0;        // 127 - 7 -> 0dB - -30dB
     //static const float factor = 2.6666;   // 127 - 7 -> 0dB - -45dB
     emit volumeChanged(pow(10.0f, (volume-127)/(factor*20.0f)));
-}
-
-QByteArray Controller::onReadPeqFilters()
-{
-    return m_converter.filtersToBle(m_readFiltersCallback(common::ble::CharacteristicType::Peq));
-}
-
-QByteArray Controller::onReadAuxFilters()
-{
-    return m_converter.filtersToBle(m_readFiltersCallback(common::ble::CharacteristicType::Aux));
-}
-
-QByteArray Controller::onReadIoCaps()
-{
-    return m_converter.toBle(m_readIoCapsCallback());
-}
-
-QByteArray Controller::onReadIoConf()
-{
-    return m_converter.toBle(m_readIoConfCallback());
-}
-
-void Controller::onWriteFilters(common::ble::CharacteristicType group, const QByteArray& value)
-{
-    emit filtersWritten(group, m_converter.filtersFromBle(value));
-}
-
-void Controller::onWriteIoConf(const QByteArray& value)
-{
-    auto interfaces = m_converter.fromBle(value);
-
-    common::IoInterface input;
-    common::IoInterface output;
-
-    for (const auto& interface : interfaces) {
-        if (interface.isOutput) {
-            output = interface;
-        } else {
-            input = interface;
-        }
-    }
-
-    emit inputSet(input);
-    emit outputSet(output);
 }
 
 } // namespace bluetooth

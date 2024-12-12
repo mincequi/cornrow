@@ -2,8 +2,6 @@
 
 #include <math.h>
 
-#include <QByteArray>
-
 namespace common
 {
 namespace ble
@@ -15,63 +13,6 @@ Converter::Converter()
 
 Converter::~Converter()
 {
-}
-
-QByteArray Converter::toBle(const std::vector<common::IoInterface>& interfaces) const
-{
-    QByteArray value;
-    value.reserve(interfaces.size());
-
-    for (const auto& interface : interfaces) {
-        value.append(*reinterpret_cast<const char*>(&interface));
-    }
-
-    return value;
-}
-
-std::vector<common::IoInterface> Converter::fromBle(const QByteArray& bytes) const
-{
-    std::vector<common::IoInterface> interfaces;
-    interfaces.reserve(bytes.size());
-
-    for (const auto& c : bytes) {
-        auto interface = *reinterpret_cast<const common::IoInterface*>(&c);
-        interfaces.push_back(interface);
-    }
-
-    return interfaces;
-}
-
-QByteArray Converter::filtersToBle(const std::vector<common::Filter>& filters) const
-{
-    QByteArray value;
-    value.reserve(filters.size()*4);
-
-    for (const auto& filter : filters) {
-        value.append(static_cast<char>(filter.type));
-        value.append(fToBle(filter.f));
-        value.append(gToBle(filter.g));
-        value.append(qToBle(filter.q));
-    }
-
-    return value;
-}
-
-std::vector<common::Filter> Converter::filtersFromBle(const QByteArray& array) const
-{
-    if (array.size()%4 != 0) {
-        return {};
-    }
-
-    std::vector<common::Filter> filters;
-    filters.reserve(array.size()/4);
-    for (int i = 0; i < array.size(); i+=4) {
-        filters.push_back( { static_cast<common::FilterType>(array.at(i)),
-                             fFromBle(array.at(i+1)),
-                             gFromBle(array.at(i+2)),
-                             qFromBle(array.at(i+3)) } );
-    }
-    return filters;
 }
 
 uint8_t Converter::fToBle(float f) const

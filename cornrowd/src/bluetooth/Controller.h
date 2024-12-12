@@ -64,15 +64,9 @@ signals:
     void outputSet(common::IoInterface output);
 
 private:
-    void initBle();
-
     void onTransportChanged(BluezQt::MediaTransportPtr transport);
     void onTransportStateChanged(BluezQt::MediaTransport::State state);
     void onTransportVolumeChanged(uint16_t volume);
-    QByteArray onReadPeqFilters();
-    QByteArray onReadAuxFilters();
-    QByteArray onReadIoCaps();
-    QByteArray onReadIoConf();
     void onWriteFilters(common::ble::CharacteristicType group, const QByteArray& value);
     void onWriteIoConf(const QByteArray& value);
 

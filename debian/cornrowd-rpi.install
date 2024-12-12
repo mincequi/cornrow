@@ -1,2 +1,0 @@
-debian/cornrowd.service /lib/systemd/system
-debian/tmp-rpi/usr/bin/cornrowd usr/bin

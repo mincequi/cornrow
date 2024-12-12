@@ -3,8 +3,6 @@
 #include <common/Types.h>
 #include <common/ble/Types.h>
 
-class QByteArray;
-
 namespace common
 {
 namespace ble
@@ -15,12 +13,6 @@ class Converter
 public:
     Converter();
     virtual ~Converter();
-
-    virtual QByteArray toBle(const std::vector<common::IoInterface>& interfaces) const;
-    virtual std::vector<common::IoInterface> fromBle(const QByteArray& bytes) const;
-
-    virtual QByteArray filtersToBle(const std::vector<common::Filter>& filters) const;
-    virtual std::vector<common::Filter> filtersFromBle(const QByteArray& array) const;
 
 protected:
     virtual uint8_t fToBle(float f) const;

@@ -19,7 +19,6 @@ target_link_libraries(${PROJECT_NAME}
     audio
     bluetooth
     config
-    #qtzeroprops
 )
 
 install(TARGETS ${PROJECT_NAME}

@@ -3,17 +3,18 @@
 Cornrow is an audio sink daemon for Bluetooth and Airplay streams. It is designed for low-powered boards like the Raspberry Pi, but can also be used for SBCs/VMs with a Bluetooth dongle instead of a built-in module (first Bluetooth adapter found will be used).
 
 It is made for Debian based environments and compatible with Ubuntu and Debian. This means that this service runs as a dedicated user and can be cleanly installed and removed using Debian package management.
-**Note:** for Debian Buster and Ubuntu Bionic (18.04) please use cornrow **v0.8.0**.
-For Debian Bullseye and Ubuntu Focal (20.04) and later, please use cornrow **v0.8.1**.
+**Note:**
+For Debian Bullseye and Ubuntu 20.04 (Focal) and later, please use cornrow **v0.8.1**.
 For Debian Bookworm and later, please use cornrow **v0.9.0**.
+For Debian Trixie and Ubuntu 24.10 (Oracular) and later, please use cornrow **v1.0.0**.
 
 ## Installation (binary)
-Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v0.8.1/cornrowd_0.8.1_armhf.deb) and [amd64](https://github.com/mincequi/cornrow/releases/download/v0.6.0/cornrowd_0.6.0_amd64.deb).
+Compiled debian/ubuntu packages are available for [armhf](https://github.com/mincequi/cornrow/releases/download/v1.0.0/cornrow_1.0.0_armhf.deb).
 
 ```
-wget https://github.com/mincequi/cornrow/releases/download/v0.9.0/cornrowd_0.9.0_arm64.deb
+wget https://github.com/mincequi/cornrow/releases/download/v1.0.0/cornrow_1.0.0_armhf.deb
 sudo apt update
-sudo apt install ./cornrowd_0.9.0_arm64.deb
+sudo apt install ./cornrow_1.0.0_armhf.deb
 sudo systemctl unmask cornrowd.service              # unmask service
 sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
 sudo systemctl enable cornrowd.service              # start-up service on each reboot.
@@ -40,12 +41,15 @@ sudo apt install \
   libssl-dev \
   qtconnectivity5-dev \
   libqt5websockets5-dev
-wget https://github.com/mincequi/cornrow/archive/refs/tags/v0.9.0.tar.gz
-tar xf cornrowd-0.9.0.tar.xz
+wget https://github.com/mincequi/cornrow/archive/refs/tags/v1.0.0.tar.gz
+tar xf cornrowd-1.0.0.tar.xz
 cd cornrow
-dpkg-buildpackage -us -uc -nc                       # build unsigned debian package
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cpack                                               # build debian package
 cd ..
-sudo apt install ./cornrowd_0.9.0_<your_arch>.deb  # install package
+sudo apt install ./cornrow_1.0.0_<your_arch>.deb   # install package
 sudo systemctl unmask cornrowd.service              # unmask service
 sudo systemctl start cornrowd.service               # start-up service. You should now be able to connect any bluetooth audio device.
 sudo systemctl enable cornrowd.service              # start-up service on each reboot.
@@ -54,7 +58,7 @@ sudo systemctl enable cornrowd.service              # start-up service on each r
 ### Arbitrary distro
 Get the dependencies. Basically, these are ffmpeg (libav*), qt5bluetooth, qt5websockets
 ```
-git clone --recursive https://github.com/mincequi/cornrow
+git clone https://github.com/mincequi/cornrow
 cd cornrow
 mkdir build
 cd build
