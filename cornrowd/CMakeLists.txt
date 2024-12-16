@@ -21,6 +21,8 @@ target_link_libraries(${PROJECT_NAME}
     config
 )
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE CORNROW_VERSION="${CORNROW_VERSION}")
+
 install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION bin
 )
