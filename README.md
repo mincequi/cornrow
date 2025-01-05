@@ -55,6 +55,16 @@ sudo systemctl start cornrowd.service               # start-up service. You shou
 sudo systemctl enable cornrowd.service              # start-up service on each reboot.
 ```
 
+### Arch Linux
+Cornrow is available in the [AUR](https://aur.archlinux.org/packages/cornrow). Install it with your
+favorite AUR helper or manually:
+
+```bash
+git clone https://aur.archlinux.org/cornrow.git
+cd cornrow
+makepkg -si
+```
+
 ### Arbitrary distro
 Get the dependencies. Basically, these are ffmpeg (libav*), qt5bluetooth, qt5websockets
 ```
